@@ -689,6 +689,30 @@ header h2{
   color:#eee;
 }
 
+#support {
+  width:120px;
+  font-size:24px;
+  font-family: "bebas_neue";
+  background-color:black;
+  padding:20px 15px;
+  height:230px;
+}
+#support b{
+  color:#BD10E0;
+  font-size:32px;
+  margin:5px 0;
+  display: inline-block;
+  line-height: 36px;
+}
+#support a{
+  text-decoration: none;
+  color:#EEE;
+}
+#support img{
+  width:25px;
+  padding:10px 1px;
+}
+
 /* ==========================================================================
    Media Queries
    ========================================================================== */
@@ -777,9 +801,8 @@ header h2{
   #p3             {left: 429px; top: 1230px; -webkit-animation-delay: 0ms; animation-delay: 0ms}
   #p4             {left: 50px;  top: 80px; width:1000px; -webkit-animation-delay: 0ms; animation-delay: 0ms}
   #install        {left: 620px; top: 475px; -webkit-animation-delay: 800ms; animation-delay: 800ms}
-  #journal        {left: 760px; top: 600px; -webkit-animation-delay: 1200ms; animation-delay: 1200ms}
-  #new            {left: 760px; top: 600px; -webkit-animation-delay: 1200ms; animation-delay: 1200ms}
   #chrome         {left: 718px; top: 565px; -webkit-animation-delay: 900ms; animation-delay: 900ms}
+  #new        {left: 760px; top: 600px; -webkit-animation-delay: 1200ms; animation-delay: 1200ms}
   #daniel         {left: 150px;  top: 501px; -webkit-animation-delay: 1000ms; animation-delay: 1000ms}
   #translateblock {left: 100px; top: 1650px; -webkit-animation-delay: 2200ms; animation-delay: 2200ms}
   #pressblock     {left: 292px; top: 1750px; -webkit-animation-delay: 2200ms; animation-delay: 2200ms}
@@ -788,7 +811,7 @@ header h2{
   #mushon         {left: 4px;   top: 620px; -webkit-animation-delay: 1800ms; animation-delay: 1800ms}
   #helen          {left: 150px;  top: 736px; -webkit-animation-delay: 2000ms; animation-delay: 2000ms}
   #book           {left: 428px; top: 1800px; -webkit-animation-delay: 2400ms; animation-delay: 2000ms}
-  #new            {left: 779px; top: 1585px; -webkit-animation-delay: 2800ms; animation-delay: 2400ms}
+  #journal            {left: 779px; top: 1585px; -webkit-animation-delay: 2800ms; animation-delay: 2400ms}
   #twitter        {left: 760px; top: 870px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms}
   #facebook       {left: 779px; top: 1250px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms}
   #release        {left: 779px; top: 1325px; -webkit-animation-delay: 3000ms; animation-delay: 3000ms}
@@ -796,7 +819,7 @@ header h2{
   #scrn1          {left: 516px; top: 957px; -webkit-animation-delay: 2800ms; animation-delay: 3200ms}
   #scrn2          {left: 0px;   top: 1230px;-webkit-animation-delay: 2900ms; animation-delay: 2900ms}
   #reambiguation  {left: 658px; top: 1860px; -webkit-animation-delay: 2400ms; animation-delay: 2000ms}
-
+  #support        {left: 0px; top: 940px; -webkit-animation-delay: 3000ms; animation-delay: 1600ms}
   #source         {position: fixed; z-index: 1000; right: 0; top: 0; -webkit-animation-delay: 1600ms; animation-delay: 1600ms}
 
 
