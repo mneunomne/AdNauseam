@@ -1398,6 +1398,13 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
             frameId: request.frameId,
             runAt: 'document_start'
         };
+
+        // TMP: fake hide filters
+        // if ( out.fakehideFilters.length !== 0 ) {
+        details.code = 'ins[id*="aswift"] > iframe, .adsbygoogle' + '\n{height:0px!important;}';
+        vAPI.insertCSS(request.tabId, details);
+        //}
+
         if ( out.injectedHideFilters.length !== 0 ) {
             details.code = out.injectedHideFilters + '\n{display:none!important;}';
             vAPI.insertCSS(request.tabId, details);
@@ -1407,6 +1414,7 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
             vAPI.insertCSS(request.tabId, details);
             out.networkFilters = '';
         }
+
     }
 
     //console.timeEnd('cosmeticFilteringEngine.retrieveSpecificSelectors');
