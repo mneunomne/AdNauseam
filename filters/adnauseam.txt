@@ -2,7 +2,6 @@
 
 # Generics (any page)
 ##*[class^="google_ads"]
-##*[id^="google_ads"]
 ##*[class^="img_ad"]
 ##iframe[src*="mellowads"]
 ##*[class*="Advert"]
@@ -15,6 +14,8 @@ google.*##.mnr-c.rl-qs-crs-t._Db > ._gt:has(._mB)
 
 ## Generic unhide for Google Ads
 #@#.adsbygoogle
+#@#iframe[id^="google_ads_frame"]
+
 # Generic hide for Google Ads
 ###google_image_div
 ###mys-content
