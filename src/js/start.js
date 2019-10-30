@@ -295,7 +295,8 @@ var onSelectedFilterListsLoaded = function() {
             'behind-the-scene * inline-script noop',
             'behind-the-scene * 1p-script noop',
             'behind-the-scene * 3p-script noop',
-            'behind-the-scene * 3p-frame noop'
+            'behind-the-scene * 3p-frame noop',
+            'no-strict-blocking: googleads.g.doubleclick.net true'
         ].join('\n'),
         'urlFilteringString': '',
         'hostnameSwitchesString': [

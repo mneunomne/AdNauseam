@@ -597,8 +597,39 @@
 
     if (!validateTarget(ad)) return deleteAd(ad);
 
-    return sendXhr(ad);
+    // return sendXhr(ad);
+    return openAdInNewTab(ad);
   };
+
+  var openAdInNewTab = function(ad) {
+    var url = ad.parsedTargetUrl || ad.targetUrl;
+    window.open(url, '_blank').focus();
+
+    ad.title = parseDomain(ad.requestUrl, true);
+    // ad.resolvedTargetUrl = .responseURL; // URL after redirects
+    ad.visitedTs = millis(); // successful visit time
+
+    vAPI.tabs.get(null, function (tab) {
+
+      if (tab && tab.id) { // do click animation
+        var tabId = tab.id;
+        µb.updateToolbarIcon(tabId, true); // click icon
+        setTimeout(function () {
+          µb.updateToolbarIcon(tabId);
+        }, 600); // back to normal icon
+      }
+      // else warn('Null tab in click animation: ', tab); // not a problem
+    });
+
+    vAPI.messaging.broadcast({
+      what: 'adVisited',
+      ad: ad
+    });
+
+    if (ad === inspected) inspected = null;
+
+    log('[VISIT] ' + adinfo(ad), ad.title);
+  }
 
   var sendXhr = function (ad) {
 
@@ -1820,6 +1851,7 @@
       if (typeof browser === 'undefined') return; // if not firefox
 
       var trackingProtectionMode = browser.privacy.websites.trackingProtectionMode.get({});
+      // var alwaysPrivateBrowsing = browser.privatebrowsing.autostart.get({});
 
       trackingProtectionMode.then((got) => {
         // console.log("FF:", got.value);
@@ -1829,6 +1861,7 @@
         if (got.value == "always") {
           modified = addNotification(notes, FirefoxSetting);
         } else {
+          console.log(modified);
           modified = removeNotification(notes, FirefoxSetting);
         }
           modified && sendNotifications(notes);
