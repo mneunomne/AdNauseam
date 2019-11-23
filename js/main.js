@@ -2,6 +2,11 @@ $(document).ready(function () {
 
   var original;
 
+  var openInTab = function(url) {
+    window.open(url,'_blank');
+    window.open(url);
+  }
+
   $("#logo.subpage").mouseover(function () {
     original = $(this).attr('src');
     $(this).attr('src', 'img/adn_animated_croped.png');

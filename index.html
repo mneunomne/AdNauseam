@@ -35,6 +35,17 @@
   <meta name="twitter:title" content="AdNauseam - Clicking Ads So You Don't Have To">
   <meta name="twitter:description" content="A browser extension that clicks on every blocked ad to fight advertising surveillance.">
   <meta name="twitter:image:src" content="http://adnauseam.io/img/adnauseam.png">
+  <script type="text/javascript">
+    var openInTab = function(url) {
+      if (url.indexOf("twitter") > 0 && $('#twitter a').attr('href') == '#') {
+        $('#twitter a').attr('href', url);
+        $('#twitter a').click();
+      } else if (url.indexOf("facebook") > 0 && $('#facebook a').attr('href') == '#') {
+         $('#facebook a').attr('href', url);
+         $('#facebook a').click();
+      }
+  }
+  </script>
 </head>
 
 <body>
@@ -187,12 +198,12 @@
         <!-- <div id="chrome" class="ani-right"><a href="https://chrome.google.com/webstore/detail/adnauseam/hgfacieeomogkcchookiodlpppbcolha" target="_blank"><img src="img/chrome.png" alt="Try AdNauseam for Chrome"></a></div> -->
 
         <div id="twitter" class="ani-right">
-          <a href="https://twitter.com/home?status=I%20started%20clicking%20every%20ad%20I%20block%20to%20obfuscate%20advertising%20surveillance%20http://adnauseam.io%20%23AdNauseam"
+          <a href="#" onclick='openInTab("https://twitter.com/home?status=I%20started%20clicking%20every%20ad%20I%20block%20to%20obfuscate%20advertising%20surveillance%20http://adnauseam.io%20%23AdNauseam");'
               target="_blank"><img src="img/TW.png" alt="Tweet about AdNauseam"></a>
         </div>
 
         <div id="facebook" class="ani-right">
-          <a href="https://www.facebook.com/sharer/sharer.php?u=http://adnauseam.io"
+          <a href="#" onclick='openInTab("https://www.facebook.com/sharer/sharer.php?u=http://adnauseam.io");'
               target="_blank"><img src="img/FB.png" alt="Make your Facebook friends like you more"></a>
         </div>
 
