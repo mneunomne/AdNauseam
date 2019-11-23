@@ -809,15 +809,15 @@ header h2{
   #contact        {left: 272px; top: 640px; -webkit-animation-delay: 1400ms; animation-delay: 1400ms}
   #translateblock {left: 100px; top: 1190px; -webkit-animation-delay: 1500ms; animation-delay: 2200ms}
 
-  #pressblock     {left: 770px; top: 1390px; -webkit-animation-delay: 2200ms; animation-delay: 2200ms;}
+  #pressblock     {left: 770px; top: 1450px; -webkit-animation-delay: 2200ms; animation-delay: 2200ms;}
   #faq            {left: 770px; top: 1190px; -webkit-animation-delay: 2600ms; animation-delay: 1600ms}
-  #twitter        {left: 770px; top: 1265px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms}
-  #facebook       {left: 770px; top: 1325px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms}
+  #twitter        {left: 770px; top: 1330px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms}
+  #facebook       {left: 770px; top: 1390px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms}
 
-  #book           {left: 428px; top: 1755px; -webkit-animation-delay: 2400ms; animation-delay: 2000ms}
-  #journal        {left: 679px; top: 1740px; -webkit-animation-delay: 2800ms; animation-delay: 2400ms}
+  #book           {left: 428px; top: 1635px; -webkit-animation-delay: 2400ms; animation-delay: 2000ms}
+  #journal        {left: 655px; top: 1735px; -webkit-animation-delay: 2800ms; animation-delay: 2400ms}
   /*#release        {left: 779px; top: 1325px; -webkit-animation-delay: 3000ms; animation-delay: 3000ms}*/
-  #privacyblock   {left: 428px; top: 1630px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms}
+  #privacyblock   {left: 770px; top: 1265px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms;}
   #scrn1          {left: 590px; top: 900px; -webkit-animation-delay: 2800ms; animation-delay: 3200ms}
   #scrn2          {left: 0px;   top: 1290px;-webkit-animation-delay: 2900ms; animation-delay: 2900ms}
   #reambiguation  {left: 245px; top: 1725px; -webkit-animation-delay: 2400ms; animation-delay: 2000ms}
@@ -830,6 +830,9 @@ header h2{
      =============== */
   #facebook img, #twitter img, #pressblock img{
     width:130px;
+  }
+  #privacyblock img{
+    width:200px;
   }
   .ani-left {
     -webkit-transform: translateX(-1000px);
