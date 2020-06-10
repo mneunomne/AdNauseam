@@ -1988,7 +1988,6 @@ const verifyList = exports.verifyList = function (note, lists) {
 
   browser.windows.onRemoved.addListener(function(windowId){
     // on browser closed
-
     if (!µb.userSettings.removeAdsInPrivate) return;
     let toBeRemoved = {}
     const pages = Object.keys(admap);
@@ -1998,7 +1997,7 @@ const verifyList = exports.verifyList = function (note, lists) {
         for (let j = 0; j < hashes.length; j++) {
           const ad = admap[pages[i]][hashes[j]];
           if (ad.private == true) {
-            // clear data or relocate to a new bin?
+            // clear data & relocate to a new bin?
             ad.contentData = {}
             ad.title = ""
             ad.hash = hashes[j]
@@ -2006,6 +2005,14 @@ const verifyList = exports.verifyList = function (note, lists) {
             ad.pageTitle = ""
             ad.pageUrl = ""
             ad.resolvedTargetUrl = ""
+
+            const privatePageHash = YaMD5.hashStr("");
+            if (admap[privatePageHash] == undefined) {
+              admap[privatePageHash] = {}
+            }
+
+            admap[privatePageHash][hashes[j]] = ad;
+            delete admap[pages[i]]
           }
         }
       }
