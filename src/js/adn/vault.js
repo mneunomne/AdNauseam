@@ -142,6 +142,10 @@
     }
   }
 
+  const getHash = function(ad) {
+    return ad.hash ? ad.hash : computeHash(ad);
+  }
+
   const updateVault = function (ads, newAdsOnly){
     if (vaultLoading) return;
     if (gAdSets == null) {
@@ -155,11 +159,11 @@
       gAds = gAds.concat(ads);
       for (let i = 0; i < ads.length; i++) {
           let ad = ads[i];
-          const key = computeHash(ad);
+          const key = getHash(ad);
           if (!key) continue;
 
           for (let j = 0; j < gAdSets.length; j++) {
-            if (gAdSets[j].gid === key){
+            if (gAdSets[j].gid === key) {
               gAdSets[j].children.append(ad);
               ad = null
             }
@@ -1518,7 +1522,7 @@
 
       ad = ads[i];
 
-      key = computeHash(ad);
+      key = getHash(ad);
 
       if (!key) continue;
 
@@ -2021,7 +2025,7 @@
 
   function createGid(ad) {
     let hash = 0;
-    const key = computeHash(ad);
+    const key = getHash(ad);
 
     for (let i = 0; i < key.length; i++) {
       const code = key.charCodeAt(i);

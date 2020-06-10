@@ -1648,11 +1648,11 @@
       dbug && console.log(i + ') '+name, headers[i].value);
 
       if (name === 'set-cookie' || name === 'set-cookie2') {
+        const domain = cookieAttr(cval, 'domain');
 
         if (1) { // don't block incoming cookies for 3rd party-requests coming from DNT-pages? [needs checking]
 
           const cval = headers[i].value.trim();
-          const domain = cookieAttr(cval, 'domain');
 
           if (domain && us.dntDomains.contains(domain)) {
             log('[DNT] (AllowCookie3p) \'', cval + '\' dnt-domain: '+domain);
@@ -1760,7 +1760,6 @@ const verifyAdBlockers = exports.verifyAdBlockers = function () {
     verifyAdBlockers();
     verifyFirefoxSetting();
     verifyOperaSetting(request);
-    //verifyPrivacyMode();
   };
 
   const verifyOperaSetting = exports.verifyOperaSetting = function (request) {
@@ -1800,32 +1799,6 @@ const verifyAdBlockers = exports.verifyAdBlockers = function () {
      }
    }
  }
-
-const verifyPrivacyMode = exports.verifyPrivacyMode = function(){
-    const notes = notifications;
-    let modified = false;
-    const isPrivateMode = function(callback) {
-      // only check this for firefox
-      const tpmFunction = browser.privacy.websites.trackingProtectionMode;
-      if (typeof tpmFunction === 'undefined') return; // if not firefox
-      const trackingProtectionMode = tpmFunction.get({});
-
-      trackingProtectionMode.then((got) => {
-        callback(got.value == "private_browsing");
-      });
-
-    };
-
-    isPrivateMode( function(on) {
-      console.log("Privacy", on)
-      if (on){
-        modified = addNotification(notes, PrivacyMode);
-      } else {
-        modified = removeNotification(notes, PrivacyMode);
-      }
-        modified && sendNotifications(notes);
-    })
-  };
 
   const verifyFirefoxSetting = exports.verifyFirefoxSetting = function () {
       const tpmFunction = browser.privacy.websites.trackingProtectionMode;
@@ -2012,6 +1985,32 @@ const verifyList = exports.verifyList = function (note, lists) {
 
     log('[CLEAR] ' + pre + ' ads cleared', admap);
   };
+
+  browser.windows.onRemoved.addListener(function(windowId){
+    // on browser closed
+
+    if (!µb.userSettings.removeAdsInPrivate) return;
+    let toBeRemoved = {}
+    const pages = Object.keys(admap);
+    for (let i = 0; admap && i < pages.length; i++) {
+      if (admap[pages[i]]) {
+        const hashes = Object.keys(admap[pages[i]]);
+        for (let j = 0; j < hashes.length; j++) {
+          const ad = admap[pages[i]][hashes[j]];
+          if (ad.private == true) {
+            // clear data or relocate to a new bin?
+            ad.contentData = {}
+            ad.title = ""
+            ad.hash = hashes[j]
+            ad.targetUrl = ""
+            ad.pageTitle = ""
+            ad.pageUrl = ""
+            ad.resolvedTargetUrl = ""
+          }
+        }
+      }
+    }
+  });
 
   exports.importAds = function (request) {
     // try to parse imported ads in current format
