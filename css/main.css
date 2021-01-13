@@ -809,10 +809,11 @@ header h2{
   #contact        {left: 272px; top: 640px; -webkit-animation-delay: 1400ms; animation-delay: 1400ms}
   #translateblock {left: 100px; top: 1190px; -webkit-animation-delay: 1500ms; animation-delay: 2200ms}
 
-  #pressblock     {left: 770px; top: 1390px; -webkit-animation-delay: 2200ms; animation-delay: 2200ms;}
+  #pressblock     {left: 950px; top: 1270px; -webkit-animation-delay: 2200ms; animation-delay: 2200ms;}
+  #mit            {left: 770px; top: 1270px; -webkit-animation-delay: 2600ms; animation-delay: 1600ms}
   #faq            {left: 770px; top: 1190px; -webkit-animation-delay: 2600ms; animation-delay: 1600ms}
-  #twitter        {left: 770px; top: 1330px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms}
-  #facebook       {left: 770px; top: 1270px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms}
+  #twitter        {left: 770px; top: 1575px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms}
+  #facebook       {left: 770px; top: 1515px; -webkit-animation-delay: 2600ms; animation-delay: 2600ms}
 
   #book           {left: 428px; top: 1635px; -webkit-animation-delay: 2400ms; animation-delay: 2000ms}
   #journal        {left: 655px; top: 1680px; -webkit-animation-delay: 2800ms; animation-delay: 2400ms}
@@ -824,7 +825,9 @@ header h2{
   #support        {left: 80px; top: 895px; -webkit-animation-delay: 3000ms; animation-delay: 1600ms}
   #source         {position: fixed; z-index: 1000; right: 0; top: 0; -webkit-animation-delay: 1600ms; animation-delay: 1600ms}
 
-
+#mit img{
+  width:170px;
+}
   /* ===============
       Animate banners
      =============== */
