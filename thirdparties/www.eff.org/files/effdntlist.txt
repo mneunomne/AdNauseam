@@ -93,6 +93,7 @@
 @@||poidirectory.com^$third-party
 @@||postmarketos.org^$third-party
 @@||printedmatterartbookfairs.org^$third-party
+@@||pmvabf.org^$third-party
 @@||realiseerjedroomhuis.nl^$third-party
 @@||rednoise.org^$third-party
 @@||riffreporter.de^$third-party
