@@ -34,7 +34,7 @@
   const repeatVisitInterval = Number.MAX_VALUE;
   const updateStorageInterval = 1000 * 60 * 30; // 30min
 
-  // properties set to true for a devbuild (if version-num contains a letter)
+  // properties set to true for a devbuild (if version-num has a 4th digit, eg. 3.2.3.4)
   const devProps = ["hidingAds", "clickingAds", "blockingMalware",
     "eventLogging", "disableClickingForDNT", "disableHidingForDNT"]
 
@@ -1636,7 +1636,7 @@
     ad.attemptedTs = 0;
     ad.pageUrl = pageStore.rawURL;
     ad.pageTitle = pageStore.title;
-    ad.pageDomain = µb.URI.domainFromHostname(pageStore.tabHostname); // DCH: 8/10
+    ad.pageDomain = µb.URI.domainFromHostname(pageStore.tabHostname);
     ad.version = vAPI.app.version;
 
     //console.log('registerAd: '+pageStore.tabHostname+' -> '+ad.pageDomain);
@@ -1675,8 +1675,7 @@
       ad.noVisit = Math.random() > µb.userSettings.clickProbability; // if true, ad will never be visited
     }
 
-    // this will overwrite an older ad with the same key
-    // admap[pageStore.rawURL][adhash] = ad;
+    // note: this will overwrite an older ad with the same key
     admap[pageHash][adhash] = ad;
     adsetSize++;
 
@@ -1698,6 +1697,7 @@
   };
 
   exports.injectContentScripts = function (request, pageStore, tabId, frameId) {
+
     log('[INJECT] IFrame: ' + request.parentUrl, frameId + '/' + tabId);
     vAPI.onLoadAllCompleted(tabId, frameId);
   };
@@ -1732,7 +1732,6 @@
         return keyval[1];
       }
     }
-
 
     //console.log('[HEADERS] (Incoming' +
     //(requestUrl === originalUrl ? ')' : '-redirect)'), requestUrl);
@@ -1879,9 +1878,9 @@
       || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 
     if (isOpera) {
+
       // only check for google, bing & duckduckgo
       // other search engines seem to be fine at the moment
-      // search? only
       const searchEngineRegex = /^.*\.bing\.com|^(.*\.)?duckduckgo\.com|^(www\.)*google\.((com\.|co\.|it\.)?([a-z]{2})|com)$/i;
       const domain = parseDomain(request.url);
       const isSearch = searchEngineRegex.test(domain);
@@ -1950,7 +1949,7 @@
       if (lists[i] === note.listName) {
         entry = lists[i];
       } else if (note.listName === "easylist" && lists[i] === "fanboy-ultimate") {
-        //Fanboy's Ultimate Merged List
+        // EasyList && Fanboy's Ultimate Merged List
         entry = note.listName;
       }
     }
@@ -2226,10 +2225,8 @@
     const allAds = adlist(), json = adsForUI(reqPageStore.rawURL);
     json.total = allAds.length;
 
-    // #1657: if data length is too long, get the first 6
-    // if (json.data.length > 6) json.data = json.data.slice(0, 6);
-
-    // if we have no page ads, use the most recent(6), avoid sending too many ad data in messaging
+    // if we have no page ads, use the most recent (6)
+    // avoid sending data for too many ads in messaging
     if (!json.data.length) {
       json.data = allAds.sort(byField('-foundTs')).slice(0, 6);
       json.recent = true;
