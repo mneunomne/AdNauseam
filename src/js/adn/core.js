@@ -1,3 +1,24 @@
+/*******************************************************************************
+
+    AdNauseam - Fight back against advertising surveillance.
+    Copyright (C) 2014-2021 Daniel C. Howe
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see {http://www.gnu.org/licenses/}.
+
+    Home: https://github.com/dhowe/AdNauseam
+*/
+
 /* global vAPI, µBlock */
 
 µBlock.adnauseam = (function () {
@@ -17,10 +38,9 @@
 
   let lastActivity = 0;
   let lastUserActivity = 0;
-  let listsLoaded = false;
   let lastStorageUpdate = 0;
-  let adsetSize = 0;
-  let xhr, idgen, admap, inspected, listEntries, devbuild;
+  let xhr, idgen, admap, listsLoaded = false;
+  let inspected, listEntries, devbuild, adsetSize = 0;
 
   const µb = µBlock;
   const production = 1;
