@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     AdNauseam - Fight back against advertising surveillance.
-    Copyright (C) 2014-2016 Daniel C. Howe
+    Copyright (C) 2014-2021 Daniel C. Howe
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,10 +23,9 @@
 
   'use strict';
 
-  if ( typeof vAPI !== 'object' ) return; // injection failed
+  if (typeof vAPI !== 'object') return; // injection failed
 
-  if (typeof vAPI.adCheck === 'function')
-    return;
+  if (typeof vAPI.adCheck === 'function') return;
 
   vAPI.adCheck = function (elem) {
     if (typeof vAPI.adParser === 'undefined') {
@@ -36,6 +35,7 @@
   }
 
   const ignorableImages = ['mgid_logo_mini_43x20.png', 'data:image/gif;base64,R0lGODlh7AFIAfAAAAAAAAAAACH5BAEAAAAALAAAAADsAUgBAAL+hI+py+0Po5y02ouz3rz7D4biSJbmiabqyrbuC8fyTNf2jef6zvf+DwwKh8Si8YhMKpfMpvMJjUqn1Kr1is1qt9yu9wsOi8fksvmMTqvX7Lb7DY/L5/S6/Y7P6/f8vv8PGCg4SFhoeIiYqLjI2Oj4CBkpOUlZaXmJmam5ydnp+QkaKjpKWmp6ipqqusra6voKGys7S1tre4ubq7vL2+v7CxwsPExcbHyMnKy8zNzs/AwdLT1NXW19jZ2tvc3d7f0NHi4+Tl5ufo6err7O3u7+Dh8vP09fb3+Pn6+/z9/v/w8woMCBBAsaPIgwocKFDBs6fAgxosSJFCtavIgxo8b+jRw7evwIMqTIkSRLmjyJMqXKlSxbunwJM6bMmTRr2ryJM6fOnTx7+vwJNKjQoUSLGj2KNKnSpUybOn0KNarUqVSrWr2KNavWrVy7ev0KNqzYsWTLmj2LNq3atWzbun0LN67cuXTr2r2LN6/evXz7+v0LOLDgwYQLGz6MOLHixYwbO34MObLkyZQrW76MObPmzZw7e/4MOrTo0aRLmz6NOrXq1axbu34NO7bs2bRr276NO7fu3bx7+/4NPLjw4cSLGz+OPLny5cybO38OPbr06dSrW7+OPbv27dy7e/8OPrz48eTLmz+PPr369ezbu38PP778+fTr27+PP7/+/fxR+/v/D2CAAg5IYIEGHohgggouyGCDDj4IYYQSTkhhhRZeiGGGGm7IYYcefghiiCKOSGKJJp6IYooqrshiiy6+CGOMMs5IY4023ohjjjruCFYBADs='];
+  const ocRegex = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/gi;
 
   const createParser = function () {
 
@@ -43,7 +43,6 @@
 
       let hits = 0;
       for (let i = 0; i < imgs.length; i++) {
-
         if (processImage(imgs[i])) hits++;
       }
 
@@ -52,9 +51,9 @@
       }
     };
 
-    const getSrcFromAttribute = function(attribute){
+    const getSrcFromAttribute = function (attribute) {
       let src = attribute.match(/\((.*?)\)/);
-      if (src && src.length > 2) src = src[1].replace(/('|")/g,'');
+      if (src && src.length > 2) src = src[1].replace(/('|")/g, '');
       return src;
     }
 
@@ -62,24 +61,24 @@
 
       logP("findBgImage", elem)
 
-       const attribute =  elem.style.backgroundImage ? elem.style.backgroundImage : elem.style.background;
+      const attribute = elem.style.backgroundImage ? elem.style.backgroundImage : elem.style.background;
 
-       if (attribute !== undefined && clickableParent(elem)) {
+      if (typeof attribute !== 'undefined' && clickableParent(elem)) {
 
-         const targetUrl = getTargetUrl(elem);
-         if (attribute && targetUrl) {
+        const targetUrl = getTargetUrl(elem);
+        if (attribute && targetUrl) {
 
-           // create Image element for ad size
-           const img = document.createElement("img");
-           img.src = getSrcFromAttribute(attribute);
+          // create Image element for ad size
+          const img = document.createElement("img");
+          img.src = getSrcFromAttribute(attribute);
 
-           return createImageAd(img, src, targetUrl);
-         }
+          return createImageAd(img, src, targetUrl);
+        }
 
-       } else {
+      } else {
 
-         // TODO: go though all children
-       }
+        // TODO: go though all children
+      }
     };
 
     const pageCount = function (ads, pageUrl) {
@@ -95,8 +94,7 @@
     const clickableParent = function (node) {
 
       let checkNode = node;
-
-      while (checkNode && checkNode.nodeType ===1) {
+      while (checkNode && checkNode.nodeType === 1) {
 
         //checkNode && console.log('CHECKING: '+checkNode.tagName, checkNode);
         if (checkNode.tagName === 'A' || checkNode.hasAttribute('onclick')) {
@@ -105,8 +103,6 @@
 
         checkNode = checkNode.parentNode;
       }
-
-      return null;
     }
 
     const Ad = function (network, targetUrl, data) {
@@ -125,7 +121,7 @@
     };
 
     const processImage = function (img) {
-      let targetUrl;
+
       const src = img.src || img.getAttribute("src");
 
       if (!src) { // no image src
@@ -134,17 +130,20 @@
         return;
       }
 
-      targetUrl = getTargetUrl(img);
+      let targetUrl = getTargetUrl(img);
+
       if (!targetUrl) return;
 
       // we have an image and a click-target now
       if (img.complete) {
+
         // process the image now
         return createImageAd(img, src, targetUrl);
+
       } else {
 
         // wait for loading to finish
-        img.onload = function() {
+        img.onload = function () {
 
           // can't return true here, so findImageAds() will still report
           // 'No Ads found' for the image, but a hit will be still be logged
@@ -154,7 +153,8 @@
       }
     }
 
-    const getTargetUrl = function(elem) {
+    const getTargetUrl = function (elem) {
+
       const target = clickableParent(elem), loc = window.location;
       let targetUrl;
 
@@ -173,6 +173,7 @@
 
           // in case the ad is from an iframe
           if (target.hasAttribute('data-original-click-url')) {
+
             const targetDomain = parseDomain(target.getAttribute("data-original-click-url"));
             const proto = window.location.protocol || 'http';
             targetUrl = normalizeUrl(proto, targetDomain, targetUrl);
@@ -200,7 +201,7 @@
 
 
     const createImageAd = function (img, src, targetUrl) {
-      let ad;
+
       const iw = img.naturalWidth || -1;
       const ih = img.naturalHeight || -1;
       const minDim = Math.min(iw, ih);
@@ -222,7 +223,7 @@
       }
 
       // Check size: require a min-size of 30X64 (if we found a size)
-      // avoid collecting adchoice logos
+      // avoid collecting ad-choice logos
       if (iw > -1 && ih > -1 && (minDim < 31 || maxDim < 65)) {
 
         return warnP('Ignoring Ad with size ' + iw + 'x' + ih + ': ', src, targetUrl);
@@ -235,12 +236,13 @@
 
       if (isFacebookProfilePic(src, iw)) {
 
-        return warnP('Ignore fbProf: ' + src + ', w='+iw);
+        return warnP('Ignore fbProf: ' + src + ', w=' + iw);
       }
 
-      ad = createAd(document.domain, targetUrl, { src: src, width: iw, height: ih });
+      let ad = createAd(document.domain, targetUrl, { src: src, width: iw, height: ih });
 
       if (ad) {
+
         if (vAPI.prefs.logEvents) console.log('[PARSED] IMG-AD', ad);
         notifyAddon(ad);
         return true;
@@ -255,11 +257,11 @@
 
       const domains = decodeURIComponent(url).match(/https?:\/\/[^?\/]+/g);
       return domains && domains.length ? new URL(
-          useLast ? domains[domains.length - 1] : domains[0])
+        useLast ? domains[domains.length - 1] : domains[0])
         .hostname : undefined;
     }
 
-    const isValidDomain = function(v) { // dup in shared
+    const isValidDomain = function (v) { // dup in shared
 
       // from: https://github.com/miguelmota/is-valid-domain/blob/master/is-valid-domain.js
       const re = /^(?!:\/\/)([a-zA-Z0-9-]+\.){0,5}[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z]{2,64}?$/gi;
@@ -317,7 +319,7 @@
 
     const process = function (elem) {
 
-      logP('Process('+elem.tagName+')',
+      logP('Process(' + elem.tagName + ')',
         elem.tagName === 'IFRAME' && elem.hasAttribute('src')
           ? elem.getAttribute('src') : elem);
 
@@ -325,42 +327,44 @@
 
       switch (elem.tagName) {
 
-      case 'IFRAME':
-        elem.addEventListener('load', processIFrame, false);
-        break;
+        case 'IFRAME':
+          elem.addEventListener('load', processIFrame, false);
+          break;
 
-      case 'IMG':
-        findImageAds([elem]);
-        break;
+        case 'IMG':
+          findImageAds([elem]);
+          break;
 
-      default: // other tag-types
-        // If element is body/html don't check children, it doens't make sense to check the whole document
-        if (elem.tagName == "BODY" || elem.tagName == "HTML") {
-          findBgImage(elem);
-          return;
-        }
+        default: // other tag-types
+          // If element is body/html don't check children, it doens't make sense to check the whole document
+          if (elem.tagName == "BODY" || elem.tagName == "HTML") {
+            findBgImage(elem);
+            return;
+          }
 
-        logP('Checking children of', elem);
+          logP('Checking children of', elem);
 
-        const imgs = elem.querySelectorAll('img');
-        if (imgs.length) {
-          findImageAds(imgs);
-        }
-        else {
-          logP('No img found, check other cases', elem);
+          const imgs = elem.querySelectorAll('img');
+          if (imgs.length) {
+            findImageAds(imgs);
+          }
+          else {
+            logP('No img found, check other cases', elem);
 
-          // if no img found within the element
-          findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) || logP('No images in children of', elem);
-        }
+            // if no img found within the element
+            findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) 
+              || logP('No images in children of', elem);
+          }
 
-        // and finally check for text ads
-        vAPI.textAdParser.process(elem);
+          // and finally check for text ads
+          vAPI.textAdParser.process(elem);
       }
     };
 
 
 
-    const findGoogleResponsiveDisplayAd = function(elem) {
+    const findGoogleResponsiveDisplayAd = function (elem) {
+
       // a#mys-content href
       //   div.GoogleActiveViewElement
       //   -> canvas.image background-Image
@@ -369,47 +373,56 @@
 
       const googleDisplayAd = elem.querySelector('.GoogleActiveViewElement');
       if (!googleDisplayAd) return;
+
       logP("[Parser] Google Responsive Display Ad")
 
       const img = googleDisplayAd.querySelector('canvas.image');
 
       if (img) {
+
         // img case
         let src, link, targetURL;
 
         if (elem.tagName == "A" && elem.id == "mys-content") {
-          link = elem
+          link = elem;
         } else {
           link = elem.querySelector('a#mys-content');
         }
 
         if (link && link.hasAttribute("href")) {
+
           targetURL = link.getAttribute("href");
-        } else if(link && !link.hasAttribute("href")){
+
+        } else if (link && !link.hasAttribute("href")) {
+
           const clickableElement = img;
           // clickableElement.addEventListener("mousedown", function(){
           //   console.log("Clicked by adnauseam!")
           // })
           // if no href, fake click event
+
           if (document.createEvent) {
-              const ev = document.createEvent('HTMLEvents');
-              ev.initEvent('mousedown', true, false);
-              clickableElement.dispatchEvent(ev);
+            const ev = document.createEvent('HTMLEvents');
+            ev.initEvent('mousedown', true, false);
+            clickableElement.dispatchEvent(ev);
           }
         }
 
         const attribute = getComputedStyle(img).backgroundImage;
         src = getSrcFromAttribute(attribute);
-        if(!targetURL) targetURL = getTargetUrl(img);
+        if (!targetURL) targetURL = getTargetUrl(img);
 
-        if (img && src && targetURL){
+        if (img && src && targetURL) {
           createImageAd(img, src, targetURL);
         } else {
           logP("[Google Responsive Display Ad] Can't find element", img, src, targetURL);
         }
+
       } else {
+
         // No img, trying to collect as text ad
-        const title = googleDisplayAd.querySelector('.title > span'), text = googleDisplayAd.querySelector('.row-container > .body > span');
+        const title = googleDisplayAd.querySelector('.title > span');
+        const text = googleDisplayAd.querySelector('.row-container > .body > span');
 
         if (title && text && targetURL) {
 
@@ -425,30 +438,29 @@
             return true;
 
           } else {
+
             warnP("Fail: Unable to create Ad", document.domain, targetUrl);
           }
 
-          return;
         } else {
+
           logP("[Text Ad Parser] Google Responsive Display Ad")
           vAPI.textAdParser.findGoogleTextAd(elem)
         }
-
       }
-
-
-
     }
 
     const processIFrame = function () {
+
       let doc;
       try {
-        doc = this.contentDocument || this.contentWindow.document|| this.document;
+        doc = this.contentDocument || this.contentWindow.document || this.document;
       }
-      catch(e) {
+      catch (e) {
         logP('Ignored cross-domain iFrame', this.getAttribute('src'));
         return;
       }
+
       const imgs = doc.querySelectorAll('img');
       if (imgs.length) {
         findImageAds(imgs);
@@ -470,20 +482,23 @@
 
     const createAd = function (network, target, data) {
 
-      const domain = (parent !== window) ?
-              parseDomain(document.referrer) : document.domain,
-            proto = window.location.protocol || 'http';
+      /* const domain = (parent !== window) ?
+        parseDomain(document.referrer) : document.domain,
+        proto = window.location.protocol || 'http'; */
 
       // logP('createAd:', target, isValidDomain(parseDomain(target)));
 
       if (target.indexOf('http') < 0) {// || !isValidDomain(parseDomain(target)) {
 
-        return warnP("Ignoring Ad with targetUrl=" + target, arguments);
+        // per https://github.com/dhowe/AdNauseam/issues/1536#issuecomment-835827690
+        target = window.location.origin + target;  // changed 5/10/21
+
+        //return warnP("Ignoring Ad with targetUrl=" + target, arguments);
       }
 
       let newAd = new Ad(network, target, data);
-      // private flag
-      if (newAd && chrome.extension.inIncognitoContext) {
+      
+      if (newAd && chrome.extension.inIncognitoContext) { // private flag
         newAd.private = true;
       }
 
@@ -492,10 +507,8 @@
 
     const useShadowDOM = function () {
 
-        return false; // for now
+      return false; // for now
     };
-
-    const ocRegex = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/gi;
 
     // parse the target link from a js onclick handler
     const parseOnClick = function (str, hostname, proto) {
@@ -521,9 +534,8 @@
       notifyAddon: notifyAddon,
       useShadowDOM: useShadowDOM,
       parseOnClick: parseOnClick,
-      normalizeUrl:normalizeUrl
+      normalizeUrl: normalizeUrl
     };
 
   };
-
 })();

@@ -1,3 +1,24 @@
+/*******************************************************************************
+
+    AdNauseam - Fight back against advertising surveillance.
+    Copyright (C) 2014-2021 Daniel C. Howe
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see {http://www.gnu.org/licenses/}.
+
+    Home: https://github.com/dhowe/AdNauseam
+*/
+
 /* global vAPI, µBlock */
 
 µBlock.adnauseam = (function () {
@@ -17,10 +38,9 @@
 
   let lastActivity = 0;
   let lastUserActivity = 0;
-  let listsLoaded = false;
   let lastStorageUpdate = 0;
-  let adsetSize = 0;
-  let xhr, idgen, admap, inspected, listEntries, devbuild;
+  let xhr, idgen, admap, listsLoaded = false;
+  let inspected, listEntries, devbuild, adsetSize = 0;
 
   const µb = µBlock;
   const production = 1;
@@ -34,7 +54,7 @@
   const repeatVisitInterval = Number.MAX_VALUE;
   const updateStorageInterval = 1000 * 60 * 30; // 30min
 
-  // properties set to true for a devbuild (if version-num contains a letter)
+  // properties set to true for a devbuild (if version-num has a 4th digit, eg. 3.2.3.4)
   const devProps = ["hidingAds", "clickingAds", "blockingMalware",
     "eventLogging", "disableClickingForDNT", "disableHidingForDNT"]
 
@@ -1636,7 +1656,7 @@
     ad.attemptedTs = 0;
     ad.pageUrl = pageStore.rawURL;
     ad.pageTitle = pageStore.title;
-    ad.pageDomain = µb.URI.domainFromHostname(pageStore.tabHostname); // DCH: 8/10
+    ad.pageDomain = µb.URI.domainFromHostname(pageStore.tabHostname);
     ad.version = vAPI.app.version;
 
     //console.log('registerAd: '+pageStore.tabHostname+' -> '+ad.pageDomain);
@@ -1675,8 +1695,7 @@
       ad.noVisit = Math.random() > µb.userSettings.clickProbability; // if true, ad will never be visited
     }
 
-    // this will overwrite an older ad with the same key
-    // admap[pageStore.rawURL][adhash] = ad;
+    // note: this will overwrite an older ad with the same key
     admap[pageHash][adhash] = ad;
     adsetSize++;
 
@@ -1698,6 +1717,7 @@
   };
 
   exports.injectContentScripts = function (request, pageStore, tabId, frameId) {
+
     log('[INJECT] IFrame: ' + request.parentUrl, frameId + '/' + tabId);
     vAPI.onLoadAllCompleted(tabId, frameId);
   };
@@ -1732,7 +1752,6 @@
         return keyval[1];
       }
     }
-
 
     //console.log('[HEADERS] (Incoming' +
     //(requestUrl === originalUrl ? ')' : '-redirect)'), requestUrl);
@@ -1879,9 +1898,9 @@
       || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 
     if (isOpera) {
+
       // only check for google, bing & duckduckgo
       // other search engines seem to be fine at the moment
-      // search? only
       const searchEngineRegex = /^.*\.bing\.com|^(.*\.)?duckduckgo\.com|^(www\.)*google\.((com\.|co\.|it\.)?([a-z]{2})|com)$/i;
       const domain = parseDomain(request.url);
       const isSearch = searchEngineRegex.test(domain);
@@ -1950,7 +1969,7 @@
       if (lists[i] === note.listName) {
         entry = lists[i];
       } else if (note.listName === "easylist" && lists[i] === "fanboy-ultimate") {
-        //Fanboy's Ultimate Merged List
+        // EasyList && Fanboy's Ultimate Merged List
         entry = note.listName;
       }
     }
@@ -2226,10 +2245,8 @@
     const allAds = adlist(), json = adsForUI(reqPageStore.rawURL);
     json.total = allAds.length;
 
-    // #1657: if data length is too long, get the first 6
-    // if (json.data.length > 6) json.data = json.data.slice(0, 6);
-
-    // if we have no page ads, use the most recent(6), avoid sending too many ad data in messaging
+    // if we have no page ads, use the most recent (6)
+    // avoid sending data for too many ads in messaging
     if (!json.data.length) {
       json.data = allAds.sort(byField('-foundTs')).slice(0, 6);
       json.recent = true;
