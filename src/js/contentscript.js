@@ -1448,6 +1448,7 @@ vAPI.injectScriptlet = function(doc, text) {
     // http://jsperf.com/enumerate-classes/6
 
     const surveyPhase1 = function() {
+        console.debug('[ADN] surveyPhase1')
         // console.log('dom surveyor/surveying');
         const t0 = performance.now();
         const rews = reWhitespace;
@@ -1525,8 +1526,19 @@ vAPI.injectScriptlet = function(doc, text) {
     // Handle main process' response.
 
     const surveyPhase3 = function(response) {
+        console.debug('[ADN] surveyPhase3', response)
         const result = response && response.result;
         let mustCommit = false;
+        // test 
+        if (vAPI.domFilterer) {
+            vAPI.domFilterer.filterset.forEach(function(c){
+              let nodes = document.querySelectorAll(c.selectors);
+              for ( const node of nodes ) {
+                  vAPI.adCheck && vAPI.adCheck(node);
+              }
+            })
+          }
+
         if ( result ) {
             let selectors = result.injected;
             if ( typeof selectors === 'string' && selectors.length !== 0 ) {
@@ -1543,6 +1555,7 @@ vAPI.injectScriptlet = function(doc, text) {
                 domFilterer.exceptCSSRules(selectors);
             }
             // ADN: ad check on new elements found
+            console.debug('[ADN] ADN start check!', result)
             let allSelectors = "";
             for(const key in result) {
               if(result[key] != "") allSelectors += (allSelectors == "" ? "" : ",") + result[key];
@@ -1552,6 +1565,7 @@ vAPI.injectScriptlet = function(doc, text) {
               nodes = document.querySelectorAll(allSelectors);
               for ( const node of nodes ) {
                   vAPI.adCheck && vAPI.adCheck(node);
+                  console.debug('[ADN] do api check!', node)
               }
             }
 
@@ -1634,6 +1648,7 @@ vAPI.injectScriptlet = function(doc, text) {
 //   to be launched if/when needed.
 
     const bootstrapPhase2 = function() {
+        console.debug('[ADN] bootstrapPhase2')
         // ADN
         if (vAPI.domFilterer) {
           vAPI.domFilterer.filterset.forEach(function(c){
