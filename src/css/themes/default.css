@@ -205,9 +205,9 @@
     --df-key-ink: var(--violet-70);
 
     /* logger */
-    --logger-blocked-surface: #c0000042;
+    --logger-blocked-surface: #c0000059;
     --logger-modified-surface: #5b00c06b;
-    --logger-allowed-surface: #00a00014;
+    --logger-allowed-surface: #00a0004a;
     --logger-blocked-em-surface: #c0000036;
     --logger-modified-em-surface: #0000c028;
     --logger-allowed-em-surface: #00a00036;
