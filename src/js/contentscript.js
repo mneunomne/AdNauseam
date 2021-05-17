@@ -1530,14 +1530,7 @@ vAPI.injectScriptlet = function(doc, text) {
         const result = response && response.result;
         let mustCommit = false;
         // test 
-        if (vAPI.domFilterer) {
-            vAPI.domFilterer.filterset.forEach(function(c){
-              let nodes = document.querySelectorAll(c.selectors);
-              for ( const node of nodes ) {
-                  vAPI.adCheck && vAPI.adCheck(node);
-              }
-            })
-          }
+        adnCheckForAds()
 
         if ( result ) {
             let selectors = result.injected;
@@ -1650,15 +1643,7 @@ vAPI.injectScriptlet = function(doc, text) {
     const bootstrapPhase2 = function() {
         console.debug('[ADN] bootstrapPhase2')
         // ADN
-        if (vAPI.domFilterer) {
-          vAPI.domFilterer.filterset.forEach(function(c){
-            let nodes = document.querySelectorAll(c.selectors);
-            for ( const node of nodes ) {
-                vAPI.adCheck && vAPI.adCheck(node);
-            }
-          //  TODO:  proceduralFilters ?
-          })
-        }
+        adnCheckForAds()
 
         // This can happen on Firefox. For instance:
         // https://github.com/gorhill/uBlock/issues/1893
@@ -1776,6 +1761,19 @@ vAPI.injectScriptlet = function(doc, text) {
             );
         }
     };
+
+    const adnCheckForAds = function() {
+        console.debug("[PARSER] adnCheckForAds")
+        if (vAPI.domFilterer) {
+            vAPI.domFilterer.filterset.forEach(function(c){
+                let nodes = document.querySelectorAll(c.selectors);
+                for ( const node of nodes ) {
+                    vAPI.adCheck && vAPI.adCheck(node);
+                }
+            //  TODO:  proceduralFilters ?
+            })
+        }
+    }
 
     vAPI.bootstrap = function() {
         vAPI.messaging.send('contentscript', {
