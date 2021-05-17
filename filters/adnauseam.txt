@@ -155,6 +155,11 @@ hongkong.asiaxpat.com###light
 # various torrent sites
 ##iframe[src*="wwwpromoter.com"]
 
+# https://www.torrentfunk2.com
+||refnippod.com^$script,important
+torrentfunk2.com##.__fp-img
+torrentfunk2.com##.__fp-a
+
 # documentaryheaven
 ##iframe[src*="cse.google.com"]
 
