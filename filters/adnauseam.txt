@@ -263,7 +263,8 @@ reuters.com#@#div[id^="google_ads_iframe_"]
 reuters.com##.CanvasAd_container_sZDIL
 reuters.com##*[class^="AdSlot"]
 reuters.com##*[class^="TwoColumnsLayout-leaderboard-26t3U"]
-||dianomi.com^$third-party
+reuters.com##[src^="https://www.dianomi.com/"]
+@@||www.dianomi.com^
 
 # 2021-03-24 https://www.dimsumdaily.hk
 www.dimsumdaily.hk##.ps_instream
