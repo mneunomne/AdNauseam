@@ -477,6 +477,7 @@ horriblesubs.info##img[src*="images/b/"]
 
 # Washington Post
 www.washingtonpost.com##div[data-qa="article-body-ad"]
+www.washingtonpost.com##div.dn-hp-xs:has(wp-ad)
 
 ##################### Blocking rules ########################
 # found on wpri.com
