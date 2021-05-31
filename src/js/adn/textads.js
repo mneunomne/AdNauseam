@@ -319,7 +319,7 @@
       const returnArr = [];
 
       while (length--) {
-        if (qa[length] === elem) {
+        if (elem.contains(qa[length]) || elem === qa[length]) { // sometimes the trigger is the parent to the query, sometimes it is the element query itself
           return true;
         }
       }
@@ -404,7 +404,6 @@
     }];
 
     const checkFilters = function (elem) {
-
       const active = filters.filter(function (f) {
         const domain = (parent !== window) ? parseDomain(document.referrer) : document.domain;
         const matched = f.domain.test(domain);
@@ -427,16 +426,20 @@
           console.log("adn: texts-ads disabled");
           return;
         }
-        const ads = checkFilters(elem);
-        if (ads) {
-
-          for (let i = 0; i < ads.length; i++) {
-            if (typeof ads[i] !== 'undefined') {
-              if (vAPI.prefs.logEvents) console.log("[PARSED] TEXT-AD", ads[i]);
-                vAPI.adParser.notifyAddon(ads[i]);
+        setTimeout(() => {
+          const ads = checkFilters(elem);
+          console.log("[PARSED] checkFilters ads", ads);
+  
+          if (ads) {
+  
+            for (let i = 0; i < ads.length; i++) {
+              if (typeof ads[i] !== 'undefined') {
+                if (vAPI.prefs.logEvents) console.log("[PARSED] TEXT-AD", ads[i]);
+                  vAPI.adParser.notifyAddon(ads[i]);
+              }
             }
           }
-        }
+        }, 2000)
       };
 
     const findGoogleTextAd = function(elem) {
