@@ -207,6 +207,7 @@ const rulekeyCompare = function(a, b) {
 /******************************************************************************/
 
 const updateFirewallCell = function(scope, des, type, rule) {
+    console.debug("[ADN] updateFirewallCell", scope, des, type, rule)
     const row = document.querySelector(
         `#firewallContainer div[data-des="${des}"][data-type="${type}"]`
     );

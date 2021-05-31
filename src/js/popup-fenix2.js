@@ -125,7 +125,7 @@ const hashFromPopupData = function(reset) {
     const rules = popupData.firewallRules;
     for ( const key in rules ) {
         const rule = rules[key];
-        if ( !rule || rule === null ) { continue; } // ADN, add undefined check
+        if ( rule === null ) { continue; }
         hasher.push(
             rule.src + ' ' +
             rule.des + ' ' +
@@ -222,7 +222,6 @@ const rulekeyCompare = function(a, b) {
 /******************************************************************************/
 
 const updateFirewallCell = function(scope, des, type, rule) {
-    console.debug("[ADN] fenix updateFirewallCell", scope, des, type, rule)
     const row = document.querySelector(
         `#firewall div[data-des="${des}"][data-type="${type}"]`
     );
@@ -232,10 +231,7 @@ const updateFirewallCell = function(scope, des, type, rule) {
     if ( cells.length === 0 ) { return; }
 
     if ( rule !== null ) {
-        let r = parseInt(rule.slice(-1))
-        let action = r === 1 ? 'block' : (r === 2 ? 'allow' : (r === 0 ? 'strictBlock': 'noop' )) 
-        console.debug('[ADN] action rule', rule, action)
-        cells.forEach(el => { el.setAttribute('class', action + 'Rule'); });
+        cells.forEach(el => { el.setAttribute('class', rule.action + 'Rule'); });
     } else {
         cells.forEach(el => { el.removeAttribute('class'); });
     }
@@ -297,7 +293,6 @@ const updateFirewallCell = function(scope, des, type, rule) {
 
 const updateAllFirewallCells = function() {
     const rules = popupData.firewallRules;
-    console.debug('[ADN] updateAllFirewallCells rules', rules)
     for ( const key in rules ) {
         if ( rules.hasOwnProperty(key) === false ) { continue; }
         updateFirewallCell(
@@ -864,7 +859,6 @@ const mouseleaveCellHandler = function() {
 /******************************************************************************/
 
 const setFirewallRule = async function(src, des, type, action, persist) {
-    console.debug('[ADN] setFirewallRule', action)
     // This can happen on pages where uBlock does not work
     if (
         typeof popupData.pageHostname !== 'string' ||
@@ -883,9 +877,6 @@ const setFirewallRule = async function(src, des, type, action, persist) {
         action: action,
         persist: persist,
     });
-
-
-    console.debug('[ADN] setFirewallRule response', response)
 
     // Remove action widget if an own rule has been set, this allows to click
     // again immediately to remove the rule.
