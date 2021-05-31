@@ -426,7 +426,7 @@
           console.log("adn: texts-ads disabled");
           return;
         }
-        setTimeout(() => {
+        // setTimeout(() => {
           const ads = checkFilters(elem);
           console.log("[PARSED] checkFilters ads", ads);
   
@@ -439,7 +439,7 @@
               }
             }
           }
-        }, 2000)
+        // }, 2000)
       };
 
     const findGoogleTextAd = function(elem) {
