@@ -1530,7 +1530,7 @@ vAPI.injectScriptlet = function(doc, text) {
         const result = response && response.result;
         let mustCommit = false;
         // test 
-        adnCheckForAds()
+        // adnCheckForAds()
 
         if ( result ) {
             let selectors = result.injected;
