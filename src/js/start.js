@@ -161,11 +161,31 @@ const onNetWhitelistReady = function(netWhitelistRaw, adminExtra) {
 // User settings are in memory
 
 const onUserSettingsReady = function(fetched) {
-    // List of external lists is meant to be an array
-    if ( typeof fetched.externalLists === 'string' ) {
-        fetched.externalLists =
+    // `externalLists` will be deprecated in some future, it is kept around
+    // for forward compatibility purpose, and should reflect the content of
+    // `importedLists`.
+    if ( Array.isArray(fetched.externalLists) ) {
+        fetched.externalLists = fetched.externalLists.join('\n');
+        vAPI.storage.set({ externalLists: fetched.externalLists });
+    }
+    if (
+        fetched.importedLists.length === 0 &&
+        fetched.externalLists !== ''
+    ) {
+        fetched.importedLists =
             fetched.externalLists.trim().split(/[\n\r]+/);
     }
+
+    // https://github.com/uBlockOrigin/uBlock-issues/issues/1513
+    //   Transition nicely.
+    //   TODO: remove when current version of uBO is well past 1.34.0.
+    if ( typeof µb.hiddenSettings.cnameUncloak === false ) {
+        fetched.cnameUncloakEnabled = false;
+        µb.hiddenSettings.cnameUncloak = true;
+        µb.saveHiddenSettings();
+    }
+    µb.hiddenSettingsDefault.cnameUncloak = undefined;
+    µb.hiddenSettings.cnameUncloak = undefined;
 
     fromFetch(µb.userSettings, fetched);
 
@@ -181,6 +201,13 @@ const onUserSettingsReady = function(fetched) {
     // cosmetic filtering.
     if (false && µb.userSettings.firstInstall && vAPI.battery ) { // ADN: we need these
         userSettings.ignoreGenericCosmeticFilters = true;
+    }
+    // https://github.com/uBlockOrigin/uBlock-issues/issues/1513
+    if (
+        vAPI.net.canUncloakCnames &&
+        µb.userSettings.cnameUncloakEnabled === false
+    ) {
+        vAPI.net.setOptions({ cnameUncloakEnabled: false });
     }
 };
 

@@ -919,7 +919,7 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
       return out;
     }
 
-    const out = { injected: '', excepted, };
+    const out = { injectedCSS: '', excepted, };
 
     const injected = [];
     if ( simpleSelectors.size !== 0 ) {
@@ -950,11 +950,10 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
         request.frameId !== undefined &&
         !µb.adnauseam.contentPrefs(request.hostname).hidingDisabled // ADN Don't inject user stylesheets if hiding is disabled
     ) {
-        const injected = [];
-        out.injected = injected.join(',\n');
         //Adn
+        out.injectedCSS = `${injected.join(',\n')}\n{display:none!important;}`;
         vAPI.tabs.insertCSS(request.tabId, {
-            code: out.injected + '\n{display:none!important;}',
+            code: out.injectedCSS,
             cssOrigin: 'user',
             frameId: request.frameId,
             matchAboutBlank: true,
@@ -992,9 +991,10 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         noDOMSurveying: this.needDOMSurveyor === false,
         fake:[] // ADN
     };
-    const injectedHideFilters = [];
+    const injectedCSS = [];
 
     if ( options.noCosmeticFiltering !== true ) {
+        const injectedHideFilters = [];
         const specificSet = this.$specificSet;
         const proceduralSet = this.$proceduralSet;
         const exceptionSet = this.$exceptionSet;
@@ -1056,8 +1056,29 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         if ( specificSet.size !== 0 ) {
             injectedHideFilters.push(Array.from(specificSet).join(',\n'));
         }
+
+        // Some procedural filters are really declarative cosmetic filters, so
+        // we extract and inject them immediately.
         if ( proceduralSet.size !== 0 ) {
-            out.proceduralFilters = Array.from(proceduralSet);
+            for ( const json of proceduralSet ) {
+                const pfilter = JSON.parse(json);
+                if ( pfilter.tasks === undefined ) {
+                    const { action } = pfilter;
+                    if ( action !== undefined && action[0] === ':style' ) {
+                        injectedCSS.push(`${pfilter.selector}\n{${action[1]}}`);
+                        proceduralSet.delete(json);
+                        continue;
+                    }
+                }
+                if ( pfilter.pseudo !== undefined ) {
+                    injectedHideFilters.push(pfilter.selector);
+                    proceduralSet.delete(json);
+                    continue;
+                }
+            }
+            if ( proceduralSet.size !== 0 ) {
+                out.proceduralFilters = Array.from(proceduralSet);
+            }
         }
 
         // Highly generic cosmetic filters: sent once along with specific ones.
@@ -1100,6 +1121,12 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
             }
         }
 
+        if ( injectedHideFilters.length !== 0 ) {
+            injectedCSS.push(
+                `${injectedHideFilters.join(',\n')}\n{display:none!important;}`
+            );
+        }
+
         // Important: always clear used registers before leaving.
         specificSet.clear();
         proceduralSet.clear();
@@ -1113,15 +1140,16 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         matchAboutBlank: true,
         runAt: 'document_start',
     };
-        
+
     // ADN Don't inject user stylesheets if hiding is disabled
+    // Inject all declarative-based filters as a single stylesheet.
     if (
         !µb.adnauseam.contentPrefs(request.hostname).hidingDisabled &&
         injectedHideFilters.length !== 0
     ) {
-        out.injectedHideFilters = injectedHideFilters.join(',\n');
-        details.code = out.injectedHideFilters + '\n{display:none!important;}';
-        if ( options.dontInject !== true ) {
+        out.injectedCSS = injectedCSS.join('\n\n');
+        details.code = out.injectedCSS;
+        if ( request.tabId !== undefined ) {
             vAPI.tabs.insertCSS(request.tabId, details);
         }
     }
@@ -1133,7 +1161,7 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         cacheEntry.retrieve('net', networkFilters);
         if ( networkFilters.length !== 0 ) {
             details.code = networkFilters.join('\n') + '\n{display:none!important;}';
-            if ( options.dontInject !== true ) {
+            if ( request.tabId !== undefined ) {
                 vAPI.tabs.insertCSS(request.tabId, details);
             }
         }
@@ -1174,7 +1202,6 @@ FilterContainer.prototype.benchmark = async function() {
     const options = {
         noCosmeticFiltering: false,
         noGenericCosmeticFiltering: false,
-        dontInject: true,
     };
     let count = 0;
     const t0 = self.performance.now();
