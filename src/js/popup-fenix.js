@@ -222,7 +222,6 @@ const rulekeyCompare = function(a, b) {
 /******************************************************************************/
 
 const updateFirewallCell = function(scope, des, type, rule) {
-    console.debug("[ADN] fenix updateFirewallCell", scope, des, type, rule)
     const row = document.querySelector(
         `#firewall div[data-des="${des}"][data-type="${type}"]`
     );
