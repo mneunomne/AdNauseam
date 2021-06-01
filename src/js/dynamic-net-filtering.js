@@ -372,11 +372,16 @@ const Matrix = class {
 
 
     lookupRuleData(src, des, type) {
-        let r = this.evaluateCellZY(src, des, type);
-        if ( r === 0 ) { return; }
-        /////////// ADN ////////////
-        //console.log("**** lookupRuleData: "+r);
-        return `${this.z} ${this.y} ${this.type} ${r}`;
+        var r = this.evaluateCellZY(src, des, type);
+        if ( r === 0 ) {
+            return null;
+        }
+        return {
+            src: this.z,
+            des: this.y,
+            type: this.type,
+            action: r === 1 ? 'block' : (r === 2 ? 'allow' : (r === 0 ? 'strictBlock': 'noop' )) // ADN
+        };
     }
 
 

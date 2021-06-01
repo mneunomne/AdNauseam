@@ -232,10 +232,7 @@ const updateFirewallCell = function(scope, des, type, rule) {
     if ( cells.length === 0 ) { return; }
 
     if ( rule !== null ) {
-        let r = parseInt(rule.slice(-1))
-        let action = r === 1 ? 'block' : (r === 2 ? 'allow' : (r === 0 ? 'strictBlock': 'noop' )) 
-        console.debug('[ADN] action rule', rule, action)
-        cells.forEach(el => { el.setAttribute('class', action + 'Rule'); });
+        cells.forEach(el => { el.setAttribute('class', rule.action + 'Rule'); });
     } else {
         cells.forEach(el => { el.removeAttribute('class'); });
     }
