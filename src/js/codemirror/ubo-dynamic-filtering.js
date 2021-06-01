@@ -117,7 +117,6 @@ CodeMirror.defineMode('ubo-dynamic-filtering', ( ) => {
     };
 
     const makeSlices = (stream, opts) => {
-        console.debug("[ADN] make slices", stream, opts)
         sliceIndex = 0;
         sliceCount = 0;
         let { string } = stream;

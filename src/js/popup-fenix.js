@@ -294,7 +294,6 @@ const updateFirewallCell = function(scope, des, type, rule) {
 
 const updateAllFirewallCells = function() {
     const rules = popupData.firewallRules;
-    console.debug('[ADN] updateAllFirewallCells rules', rules)
     for ( const key in rules ) {
         if ( rules.hasOwnProperty(key) === false ) { continue; }
         updateFirewallCell(
@@ -861,7 +860,6 @@ const mouseleaveCellHandler = function() {
 /******************************************************************************/
 
 const setFirewallRule = async function(src, des, type, action, persist) {
-    console.debug('[ADN] setFirewallRule', action)
     // This can happen on pages where uBlock does not work
     if (
         typeof popupData.pageHostname !== 'string' ||
@@ -880,9 +878,6 @@ const setFirewallRule = async function(src, des, type, action, persist) {
         action: action,
         persist: persist,
     });
-
-
-    console.debug('[ADN] setFirewallRule response', response)
 
     // Remove action widget if an own rule has been set, this allows to click
     // again immediately to remove the rule.
