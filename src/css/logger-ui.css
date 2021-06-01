@@ -293,7 +293,7 @@ body.colorBlind #netFilteringDialog > .panes > .details > div[data-status="2"] {
 /* adn allow color*/
 #vwRenderer .logEntry > div[data-status="4"],
 #netFilteringDialog > .panes > .details > div[data-status="4"] {
-    background-color: rgba(0,118,255,0.25);
+    background-color: rgba(0,118,255,0.35);
     }
 /* dnt allow color */
 #vwRenderer .logEntry > div[data-status="5"],
