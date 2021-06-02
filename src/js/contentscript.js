@@ -1777,6 +1777,7 @@ vAPI.injectScriptlet = function(doc, text) {
 vAPI.bootstrap();
 
 // ADN Hack for catching ads with delay
+// https://github.com/dhowe/AdNauseam/issues/1838
 setTimeout(() => {
     vAPI.messaging.send('contentscript', {
         what: 'retrieveContentScriptParameters',
