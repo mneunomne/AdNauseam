@@ -1495,7 +1495,7 @@ vAPI.injectScriptlet = function(doc, text) {
         surveyCost += t1 - t0;
         //console.info(`domSurveyor> Surveyed ${processed} nodes in ${(t1-t0).toFixed(2)} ms`);
         // Phase 2: Ask main process to lookup relevant cosmetic filters.
-        if ( ids.length !== 0 || classes.length !== 0) {
+        if ( ids.length !== 0 || classes.length !== 0 ) {
             messaging.send('contentscript', {
                 what: 'retrieveGenericCosmeticSelectors',
                 hostname,
