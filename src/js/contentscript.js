@@ -932,6 +932,9 @@ vAPI.injectScriptlet = function(doc, text) {
         }
 
         addCSSRule(selectors, declarations, details = {}) {
+            console.debug("[addCSSRule]", selectors, declarations, details)
+            let isSpecialLocalIframes = (location.href=="about:blank" || location.href=="") && (window.self !== window.top)
+            console.debug("[addCSSRule] isSpecialLocalIframes", location.href, (window.self !== window.top))
             if ( selectors === undefined ) { return; }
             const selectorsStr = Array.isArray(selectors)
                 ? selectors.join(',\n')
@@ -939,6 +942,7 @@ vAPI.injectScriptlet = function(doc, text) {
             if ( selectorsStr.length === 0 ) { return; }
             this.filterset.add({ selectors: selectorsStr, declarations });
             if ( details.mustInject && this.disabled === false ) {
+                console.debug("[content script] injected!", `${selectorsStr}\n{${declarations}}`)
                 vAPI.userStylesheet.add(`${selectorsStr}\n{${declarations}}`);
             }
             this.commit();
@@ -1495,7 +1499,7 @@ vAPI.injectScriptlet = function(doc, text) {
         surveyCost += t1 - t0;
         //console.info(`domSurveyor> Surveyed ${processed} nodes in ${(t1-t0).toFixed(2)} ms`);
         // Phase 2: Ask main process to lookup relevant cosmetic filters.
-        if ( ids.length !== 0 || classes.length !== 0 ) {
+        if ( ids.length !== 0 || classes.length !== 0) {
             messaging.send('contentscript', {
                 what: 'retrieveGenericCosmeticSelectors',
                 hostname,
@@ -1526,12 +1530,15 @@ vAPI.injectScriptlet = function(doc, text) {
 
     const surveyPhase3 = function(response) {
         const result = response && response.result;
+        const isSpecialLocalIframes = (location.href=="about:blank" || location.href=="") && (window.self !== window.top)
+        console.debug("[content script]", location.href, window.self !== window.top)
         let mustCommit = false;
         if ( result ) {
             let selectors = result.injected;
             if ( typeof selectors === 'string' && selectors.length !== 0 ) {
                 //ADN tmp fix: hiding - local iframe without src
                 const isSpecialLocalIframes = (location.href=="about:blank" || location.href=="") && (window.self !== window.top)
+                console.debug("[content script]", isSpecialLocalIframes)
                 domFilterer.addCSSRule(
                     selectors,
                     vAPI.hideStyle,
@@ -1775,6 +1782,16 @@ vAPI.injectScriptlet = function(doc, text) {
 
 // This starts bootstrap process.
 vAPI.bootstrap();
+
+// ADN Hack for catching ads with delay
+setTimeout(() => {
+    vAPI.messaging.send('contentscript', {
+        what: 'retrieveContentScriptParameters',
+        url: vAPI.effectiveSelf.location.href,
+    }).then(response => {
+        bootstrapPhase1(response);
+    });
+}, 2000)
 
 /******************************************************************************/
 /******************************************************************************/
