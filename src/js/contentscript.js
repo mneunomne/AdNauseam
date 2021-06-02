@@ -1535,7 +1535,7 @@ vAPI.injectScriptlet = function(doc, text) {
                 domFilterer.addCSSRule(
                     selectors,
                     vAPI.hideStyle,
-                    { mustInject: isSpecialLocalIframes ? true : false }
+                    { mustInject: isSpecialLocalIframes ? true : false } // ADN 
                 );
                 mustCommit = true;
             }
