@@ -932,9 +932,6 @@ vAPI.injectScriptlet = function(doc, text) {
         }
 
         addCSSRule(selectors, declarations, details = {}) {
-            console.debug("[addCSSRule]", selectors, declarations, details)
-            let isSpecialLocalIframes = (location.href=="about:blank" || location.href=="") && (window.self !== window.top)
-            console.debug("[addCSSRule] isSpecialLocalIframes", location.href, (window.self !== window.top))
             if ( selectors === undefined ) { return; }
             const selectorsStr = Array.isArray(selectors)
                 ? selectors.join(',\n')
@@ -942,7 +939,6 @@ vAPI.injectScriptlet = function(doc, text) {
             if ( selectorsStr.length === 0 ) { return; }
             this.filterset.add({ selectors: selectorsStr, declarations });
             if ( details.mustInject && this.disabled === false ) {
-                console.debug("[content script] injected!", `${selectorsStr}\n{${declarations}}`)
                 vAPI.userStylesheet.add(`${selectorsStr}\n{${declarations}}`);
             }
             this.commit();
@@ -1530,15 +1526,12 @@ vAPI.injectScriptlet = function(doc, text) {
 
     const surveyPhase3 = function(response) {
         const result = response && response.result;
-        const isSpecialLocalIframes = (location.href=="about:blank" || location.href=="") && (window.self !== window.top)
-        console.debug("[content script]", location.href, window.self !== window.top)
         let mustCommit = false;
         if ( result ) {
             let selectors = result.injected;
             if ( typeof selectors === 'string' && selectors.length !== 0 ) {
                 //ADN tmp fix: hiding - local iframe without src
                 const isSpecialLocalIframes = (location.href=="about:blank" || location.href=="") && (window.self !== window.top)
-                console.debug("[content script]", isSpecialLocalIframes)
                 domFilterer.addCSSRule(
                     selectors,
                     vAPI.hideStyle,
