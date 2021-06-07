@@ -1130,6 +1130,7 @@ vAPI.DOMFilterer = class {
             }
             // ADN: ad check on new elements found
             let allSelectors = "";
+            console.log("result", result)
             for(const key in result) {
               if(result[key] != "") allSelectors += (allSelectors == "" ? "" : ",") + result[key];
             }
@@ -1222,13 +1223,18 @@ vAPI.DOMFilterer = class {
     const bootstrapPhase2 = function() {
         // ADN
         if (vAPI.domFilterer) {
-          vAPI.domFilterer.filterset.forEach(function(c){
-            let nodes = document.querySelectorAll(c.selectors);
-            for ( const node of nodes ) {
-                vAPI.adCheck && vAPI.adCheck(node);
+            let allSelectors = vAPI.domFilterer.getAllSelectors()
+            console.log("vAPI.domFilterer.getAllSelectors", allSelectors)
+            if (allSelectors.declarative) {
+                allSelectors.declarative.forEach(function([selectors, exceptions]){
+                    console.log("selectors", selectors)
+                    let nodes = document.querySelectorAll(selectors);
+                    for ( const node of nodes ) {
+                        vAPI.adCheck && vAPI.adCheck(node);
+                    }
+                })
+                //  TODO:  proceduralFilters ?
             }
-          //  TODO:  proceduralFilters ?
-          })
         }
 
         // This can happen on Firefox. For instance:

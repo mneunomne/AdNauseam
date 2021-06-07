@@ -992,9 +992,10 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         fake:[] // ADN
     };
     const injectedCSS = [];
-
+    
+    const injectedHideFilters = []; // ADN this needs to outside of if since in ADN there is no "noCosmeticFiltering" option available
+    
     if ( options.noCosmeticFiltering !== true ) {
-        const injectedHideFilters = [];
         const specificSet = this.$specificSet;
         const proceduralSet = this.$proceduralSet;
         const exceptionSet = this.$exceptionSet;
