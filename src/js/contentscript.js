@@ -1598,7 +1598,7 @@ vAPI.injectScriptlet = function(doc, text) {
                 }
                 return;
             }
-            // console.time('dom surveyor/dom layout created');
+            //console.time('dom surveyor/dom layout created');
             domFilterer = vAPI.domFilterer;
             pendingNodes.add(document.querySelectorAll('[id],[class]'));
             surveyTimer.start();
@@ -1607,7 +1607,7 @@ vAPI.injectScriptlet = function(doc, text) {
         },
         onDOMChanged: function(addedNodes) {
             if ( addedNodes.length === 0 ) { return; }
-            console.time('dom surveyor/dom layout changed');
+            //console.time('dom surveyor/dom layout changed');
             let i = addedNodes.length;
             while ( i-- ) {
                 const node = addedNodes[i];
@@ -1634,22 +1634,21 @@ vAPI.injectScriptlet = function(doc, text) {
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-    
+
+// ADN function to go through the selectors from bootstrapPhase2 and run the ad check on the detected ad nodes
+const bootstrapPhaseAdn = function () { 
+    vAPI.domFilterer.filterset.forEach(function(c){
+        let nodes = document.querySelectorAll(c.selectors);
+        for ( const node of nodes ) {
+            vAPI.adCheck && vAPI.adCheck(node);
+        }
+        //  TODO:  proceduralFilters ?
+    })
+}
+
 // vAPI.bootstrap:
 //   Bootstrapping allows all components of the content script
 //   to be launched if/when needed.
-
-
-    // ADN function to go through the selectors from bootstrapPhase2 and run the ad check on the detected ad nodes
-    const bootstrapPhaseAdn = function () { 
-        vAPI.domFilterer.filterset.forEach(function(c){
-            let nodes = document.querySelectorAll(c.selectors);
-            for ( const node of nodes ) {
-                vAPI.adCheck && vAPI.adCheck(node);
-            }
-            //  TODO:  proceduralFilters ?
-        })
-    }
 
     // create BootstraAdnTimer, to use the "SafeAnimationFrame" class when doing the delays
     const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
