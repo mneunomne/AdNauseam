@@ -1132,7 +1132,12 @@ vAPI.DOMFilterer = class {
             let allSelectors = "";
             console.log("result", result)
             for(const key in result) {
-              if(result[key] != "") allSelectors += (allSelectors == "" ? "" : ",") + result[key];
+              if(result[key] != "") {
+                let injected = result[key];
+                let selectors = injected.split("\n{display:none!important;}")[0]
+                allSelectors += (allSelectors == "" ? "" : ",") + selectors;
+                console.log("allSelectors", allSelectors)
+              }
             }
             let nodes;
             if (allSelectors != "") {
