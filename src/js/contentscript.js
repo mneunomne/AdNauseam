@@ -1776,8 +1776,19 @@ vAPI.injectScriptlet = function(doc, text) {
 // This starts bootstrap process.
 vAPI.bootstrap();
 
-// ADN Hack for catching ads with delay
-// https://github.com/dhowe/AdNauseam/issues/1838
+/* ADN Hack for catching ads with delay
+https://github.com/dhowe/AdNauseam/issues/1838
+
+From what we learned so far the BootstrapPhase1 and BootstrapPhase2 catch the ads that are DOMAIN SPECIFIC,
+while the surveyPhase1 and surveyPhase3 run the general non-domain-specific ones.
+
+The issue is that surveyPhase1 and 3 seem to run repeatedly , but bootstrapPhase1 and 2 don't. 
+
+This hack attempts to run the bootstrapPhase1 and 2 at least once more so it catches the domain specific ads with delay.
+
+TO DO: find a way to run do domain-specific filters on the surveyPhase3.
+
+*/
 setTimeout(() => {
     vAPI.messaging.send('contentscript', {
         what: 'retrieveContentScriptParameters',
@@ -1786,6 +1797,7 @@ setTimeout(() => {
         bootstrapPhase1(response);
     });
 }, 2000)
+// end of ADN hack
 
 /******************************************************************************/
 /******************************************************************************/
