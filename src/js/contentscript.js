@@ -1562,7 +1562,6 @@ vAPI.injectScriptlet = function(doc, text) {
             if ( pendingNodes.hasNodes() ) {
                 surveyTimer.start(1);
                 bootstrapAdnTimer.start(1); // ADN
-
             }
             if ( mustCommit ) {
                 surveyingMissCount = 0;
@@ -1723,6 +1722,7 @@ const bootstrapPhaseAdn = function () {
 
     const bootstrapPhase1 = function(response) {
         if ( response instanceof Object === false ) { return; }
+
         vAPI.bootstrap = undefined;
         if (response && response.prefs) vAPI.prefs = response.prefs; // ADN
         // cosmetic filtering engine aka 'cfe'
