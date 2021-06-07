@@ -1448,7 +1448,7 @@ vAPI.injectScriptlet = function(doc, text) {
     // http://jsperf.com/enumerate-classes/6
 
     const surveyPhase1 = function() {
-        // console.log('dom surveyor/surveying');
+        //console.log('dom surveyor/surveying');
         const t0 = performance.now();
         const rews = reWhitespace;
         const ids = [];
@@ -1493,7 +1493,7 @@ vAPI.injectScriptlet = function(doc, text) {
         }
         const t1 = performance.now();
         surveyCost += t1 - t0;
-        //console.info(`domSurveyor> Surveyed ${processed} nodes in ${(t1-t0).toFixed(2)} ms`);
+        console.info(`domSurveyor> Surveyed ${processed} nodes in ${(t1-t0).toFixed(2)} ms`);
         // Phase 2: Ask main process to lookup relevant cosmetic filters.
         if ( ids.length !== 0 || classes.length !== 0 ) {
             messaging.send('contentscript', {
@@ -1509,7 +1509,7 @@ vAPI.injectScriptlet = function(doc, text) {
         } else {
             surveyPhase3(null);
         }
-        //console.timeEnd('dom surveyor/surveying');
+        // console.timeEnd('dom surveyor/surveying');
     };
 
     const surveyTimer = new vAPI.SafeAnimationFrame(surveyPhase1);
@@ -1561,6 +1561,8 @@ vAPI.injectScriptlet = function(doc, text) {
         if ( pendingNodes.stopped === false ) {
             if ( pendingNodes.hasNodes() ) {
                 surveyTimer.start(1);
+                bootstrapAdnTimer.start(1); // ADN
+
             }
             if ( mustCommit ) {
                 surveyingMissCount = 0;
@@ -1576,6 +1578,7 @@ vAPI.injectScriptlet = function(doc, text) {
         //console.info('dom surveyor shutting down: too many misses');
 
         surveyTimer.clear();
+        bootstrapAdnTimer.clear(); // ADN
         vAPI.domWatcher.removeListener(domWatcherInterface);
         vAPI.domSurveyor = null;
     };
@@ -1595,15 +1598,16 @@ vAPI.injectScriptlet = function(doc, text) {
                 }
                 return;
             }
-            //console.time('dom surveyor/dom layout created');
+            // console.time('dom surveyor/dom layout created');
             domFilterer = vAPI.domFilterer;
             pendingNodes.add(document.querySelectorAll('[id],[class]'));
             surveyTimer.start();
-            //console.timeEnd('dom surveyor/dom layout created');
+            bootstrapAdnTimer.start(); // ADN
+            // console.timeEnd('dom surveyor/dom layout created');
         },
         onDOMChanged: function(addedNodes) {
             if ( addedNodes.length === 0 ) { return; }
-            //console.time('dom surveyor/dom layout changed');
+            console.time('dom surveyor/dom layout changed');
             let i = addedNodes.length;
             while ( i-- ) {
                 const node = addedNodes[i];
@@ -1613,6 +1617,7 @@ vAPI.injectScriptlet = function(doc, text) {
             }
             if ( pendingNodes.hasNodes() ) {
                 surveyTimer.start(1);
+                bootstrapAdnTimer.start(1); // ADN
             }
         }
     };
@@ -1629,21 +1634,35 @@ vAPI.injectScriptlet = function(doc, text) {
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-
+    
 // vAPI.bootstrap:
 //   Bootstrapping allows all components of the content script
 //   to be launched if/when needed.
 
-    const bootstrapPhase2 = function() {
-        // ADN
-        if (vAPI.domFilterer) {
-          vAPI.domFilterer.filterset.forEach(function(c){
+
+    // ADN function to go through the selectors from bootstrapPhase2 and run the ad check on the detected ad nodes
+    const bootstrapPhaseAdn = function () { 
+        vAPI.domFilterer.filterset.forEach(function(c){
             let nodes = document.querySelectorAll(c.selectors);
             for ( const node of nodes ) {
                 vAPI.adCheck && vAPI.adCheck(node);
             }
-          //  TODO:  proceduralFilters ?
-          })
+            //  TODO:  proceduralFilters ?
+        })
+    }
+
+    // create BootstraAdnTimer, to use the "SafeAnimationFrame" class when doing the delays
+    const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
+
+    const bootstrapPhase2 = function() {
+        
+        /*
+        ADN catch ads with delay: https://github.com/dhowe/AdNauseam/issues/1838
+        This is a workaround to catch ads that apear with a certain delay but don't trigger the DomWatcher, such as dockduckgo 
+        */
+        if (vAPI.domFilterer) {
+            bootstrapPhaseAdn()
+            bootstrapAdnTimer.start(2000)
         }
 
         // This can happen on Firefox. For instance:
@@ -1705,7 +1724,6 @@ vAPI.injectScriptlet = function(doc, text) {
 
     const bootstrapPhase1 = function(response) {
         if ( response instanceof Object === false ) { return; }
-
         vAPI.bootstrap = undefined;
         if (response && response.prefs) vAPI.prefs = response.prefs; // ADN
         // cosmetic filtering engine aka 'cfe'
@@ -1775,29 +1793,6 @@ vAPI.injectScriptlet = function(doc, text) {
 
 // This starts bootstrap process.
 vAPI.bootstrap();
-
-/* ADN Hack for catching ads with delay
-https://github.com/dhowe/AdNauseam/issues/1838
-
-From what we learned so far the BootstrapPhase1 and BootstrapPhase2 catch the ads that are DOMAIN SPECIFIC,
-while the surveyPhase1 and surveyPhase3 run the general non-domain-specific ones.
-
-The issue is that surveyPhase1 and 3 seem to run repeatedly , but bootstrapPhase1 and 2 don't. 
-
-This hack attempts to run the bootstrapPhase1 and 2 at least once more so it catches the domain specific ads with delay.
-
-TO DO: find a way to run do domain-specific filters on the surveyPhase3.
-
-*/
-setTimeout(() => {
-    vAPI.messaging.send('contentscript', {
-        what: 'retrieveContentScriptParameters',
-        url: vAPI.effectiveSelf.location.href,
-    }).then(response => {
-        bootstrapPhase1(response);
-    });
-}, 2000)
-// end of ADN hack
 
 /******************************************************************************/
 /******************************************************************************/
