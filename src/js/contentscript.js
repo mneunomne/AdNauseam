@@ -1119,9 +1119,16 @@ vAPI.DOMFilterer = class {
         if ( result ) {
             const css = result.injectedCSS;
             if ( typeof css === 'string' && css.length !== 0 ) {
-                //ADN tmp fix: hiding - local iframe without src
-                const isSpecialLocalIframes = (location.href=="about:blank" || location.href=="") && (window.self !== window.top)
                 domFilterer.addCSS(css);
+                //ADN tmp fix: hiding - local iframe without src
+                /* old adn solution
+                const isSpecialLocalIframes = (location.href=="about:blank" || location.href=="") && (window.self !== window.top)
+                domFilterer.addCSSRule(
+                    selectors,
+                    vAPI.hideStyle,
+                    { mustInject: isSpecialLocalIframes ? true : false } // ADN 
+                );
+                */
                 mustCommit = true;
             }
             const selectors = result.excepted;
@@ -1152,6 +1159,7 @@ vAPI.DOMFilterer = class {
         if ( pendingNodes.stopped === false ) {
             if ( pendingNodes.hasNodes() ) {
                 surveyTimer.start(1);
+                bootstrapAdnTimer.start(1); // ADN
             }
             if ( mustCommit ) {
                 surveyingMissCount = 0;
@@ -1167,6 +1175,7 @@ vAPI.DOMFilterer = class {
         //console.info('dom surveyor shutting down: too many misses');
 
         surveyTimer.clear();
+        bootstrapAdnTimer.clear(); // ADN
         vAPI.domWatcher.removeListener(domWatcherInterface);
         vAPI.domSurveyor = null;
     };
@@ -1186,14 +1195,17 @@ vAPI.DOMFilterer = class {
                 }
                 return;
             }
+            console.log("[content script] onDOMCreated")
             //console.time('dom surveyor/dom layout created');
             domFilterer = vAPI.domFilterer;
             pendingNodes.add(document.querySelectorAll('[id],[class]'));
             surveyTimer.start();
+            bootstrapAdnTimer.start(); // ADN
             //console.timeEnd('dom surveyor/dom layout created');
         },
         onDOMChanged: function(addedNodes) {
             if ( addedNodes.length === 0 ) { return; }
+            console.log("[content script] onDOMChanged")
             //console.time('dom surveyor/dom layout changed');
             let i = addedNodes.length;
             while ( i-- ) {
@@ -1204,6 +1216,7 @@ vAPI.DOMFilterer = class {
             }
             if ( pendingNodes.hasNodes() ) {
                 surveyTimer.start(1);
+                bootstrapAdnTimer.start(1); // ADN
             }
         }
     };
@@ -1221,25 +1234,37 @@ vAPI.DOMFilterer = class {
 /******************************************************************************/
 /******************************************************************************/
 
+// ADN function to go through the selectors from bootstrapPhase2 and run the ad check on the detected ad nodes
+const bootstrapPhaseAdn = function () {
+    console.log("[content script] bootstrapPhaseAdn")
+    let allSelectors = vAPI.domFilterer.getAllSelectors()
+    if (allSelectors.declarative) {
+        allSelectors.declarative.forEach(function([selectors, exceptions]){
+            let nodes = document.querySelectorAll(selectors);
+            for ( const node of nodes ) {
+                vAPI.adCheck && vAPI.adCheck(node);
+            }
+        })
+        //  TODO:  proceduralFilters ?
+    }
+}
+
 // vAPI.bootstrap:
 //   Bootstrapping allows all components of the content script
 //   to be launched if/when needed.
 
+    // create BootstraAdnTimer, to use the "SafeAnimationFrame" class when doing the delays
+    const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
+
     const bootstrapPhase2 = function() {
-        // ADN
+        
+        /*
+        ADN catch ads with delay: https://github.com/dhowe/AdNauseam/issues/1838
+        This is a workaround to catch ads that apear with a certain delay but don't trigger the DomWatcher, such as dockduckgo 
+        */
         if (vAPI.domFilterer) {
-            let allSelectors = vAPI.domFilterer.getAllSelectors()
-            console.log("vAPI.domFilterer.getAllSelectors", allSelectors)
-            if (allSelectors.declarative) {
-                allSelectors.declarative.forEach(function([selectors, exceptions]){
-                    console.log("selectors", selectors)
-                    let nodes = document.querySelectorAll(selectors);
-                    for ( const node of nodes ) {
-                        vAPI.adCheck && vAPI.adCheck(node);
-                    }
-                })
-                //  TODO:  proceduralFilters ?
-            }
+            bootstrapPhaseAdn()
+            bootstrapAdnTimer.start(2000)
         }
 
         // This can happen on Firefox. For instance:
