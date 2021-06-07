@@ -1561,6 +1561,7 @@ vAPI.injectScriptlet = function(doc, text) {
         if ( pendingNodes.stopped === false ) {
             if ( pendingNodes.hasNodes() ) {
                 surveyTimer.start(1);
+                bootstrapAdnTimer.start(1); // ADN
             }
             if ( mustCommit ) {
                 surveyingMissCount = 0;
@@ -1576,6 +1577,7 @@ vAPI.injectScriptlet = function(doc, text) {
         //console.info('dom surveyor shutting down: too many misses');
 
         surveyTimer.clear();
+        bootstrapAdnTimer.clear(); // ADN
         vAPI.domWatcher.removeListener(domWatcherInterface);
         vAPI.domSurveyor = null;
     };
@@ -1599,6 +1601,7 @@ vAPI.injectScriptlet = function(doc, text) {
             domFilterer = vAPI.domFilterer;
             pendingNodes.add(document.querySelectorAll('[id],[class]'));
             surveyTimer.start();
+            bootstrapAdnTimer.start(); // ADN
             //console.timeEnd('dom surveyor/dom layout created');
         },
         onDOMChanged: function(addedNodes) {
@@ -1613,6 +1616,7 @@ vAPI.injectScriptlet = function(doc, text) {
             }
             if ( pendingNodes.hasNodes() ) {
                 surveyTimer.start(1);
+                bootstrapAdnTimer.start(1); // ADN
             }
         }
     };
@@ -1630,20 +1634,33 @@ vAPI.injectScriptlet = function(doc, text) {
 /******************************************************************************/
 /******************************************************************************/
 
+// ADN function to go through the selectors from bootstrapPhase2 and run the ad check on the detected ad nodes
+const bootstrapPhaseAdn = function () { 
+    vAPI.domFilterer.filterset.forEach(function(c){
+        let nodes = document.querySelectorAll(c.selectors);
+        for ( const node of nodes ) {
+            vAPI.adCheck && vAPI.adCheck(node);
+        }
+        //  TODO:  proceduralFilters ?
+    })
+}
+
 // vAPI.bootstrap:
 //   Bootstrapping allows all components of the content script
 //   to be launched if/when needed.
 
+    // create BootstraAdnTimer, to use the "SafeAnimationFrame" class when doing the delays
+    const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
+
     const bootstrapPhase2 = function() {
-        // ADN
+        
+        /*
+        ADN catch ads with delay: https://github.com/dhowe/AdNauseam/issues/1838
+        This is a workaround to catch ads that apear with a certain delay but don't trigger the DomWatcher, such as dockduckgo 
+        */
         if (vAPI.domFilterer) {
-          vAPI.domFilterer.filterset.forEach(function(c){
-            let nodes = document.querySelectorAll(c.selectors);
-            for ( const node of nodes ) {
-                vAPI.adCheck && vAPI.adCheck(node);
-            }
-          //  TODO:  proceduralFilters ?
-          })
+            bootstrapPhaseAdn()
+            bootstrapAdnTimer.start(2000)
         }
 
         // This can happen on Firefox. For instance:
