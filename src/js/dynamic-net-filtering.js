@@ -264,7 +264,6 @@ const Matrix = class {
         return this;
     }
 
-
     evaluateCellZ(srcHostname, desHostname, type) {
         µBlock.decomposeHostname(srcHostname, this.decomposedSource);
         this.type = type;

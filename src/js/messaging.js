@@ -210,8 +210,14 @@ const onMessage = function(request, sender, callback) {
 
     case 'userSettings':
         response = µb.changeUserSettings(request.name, request.value);
-        if (typeof response === 'undefined') { // return notifications either way
-          response = { notifications: makeCloneable(µb.adnauseam.getNotifications()) }; // #1163
+        if (
+            vAPI.net.canUncloakCnames !== true &&
+            response instanceof Object
+        ) {
+            response.cnameUncloakEnabled = undefined;
+        }
+        if (typeof response === 'undefined') { // ADN return notifications either way
+            response = { notifications: makeCloneable(µb.adnauseam.getNotifications()) }; // #1163
         }
         break;
 
@@ -239,78 +245,76 @@ vAPI.messaging.setup(onMessage);
 
 const µb = µBlock;
 
-const getHostnameDict = function(hostnameToCountMap, out) {
+const createCounts = ( ) => {
+    return {
+        blocked: { any: 0, frame: 0, script: 0 },
+        allowed: { any: 0, frame: 0, script: 0 },
+    };
+};
+
+const getHostnameDict = function(hostnameDetailsMap, out) {
     const hnDict = Object.create(null);
     const cnMap = [];
-    for ( const [ hostname, hnCounts ] of hostnameToCountMap ) {
-        if ( hnDict[hostname] !== undefined ) { continue; }
-        const domain = vAPI.domainFromHostname(hostname) || hostname;
-        const dnCounts = hostnameToCountMap.get(domain) || 0;
-        let blockCount = dnCounts & 0xFFFF;
-        let allowCount = dnCounts >>> 16 & 0xFFFF;
-        if ( hnDict[domain] === undefined ) {
-            hnDict[domain] = {
-                domain,
-                blockCount,
-                allowCount,
-                totalBlockCount: blockCount,
-                totalAllowCount: allowCount,
-            };
-            const cname = vAPI.net.canonicalNameFromHostname(domain);
-            if ( cname !== undefined ) {
-                cnMap.push([ cname, domain ]);
-            }
-        }
-        const domainEntry = hnDict[domain];
-        blockCount = hnCounts & 0xFFFF;
-        allowCount = hnCounts >>> 16 & 0xFFFF;
-        domainEntry.totalBlockCount += blockCount;
-        domainEntry.totalAllowCount += allowCount;
-        if ( hostname === domain ) { continue; }
-        hnDict[hostname] = {
-            domain,
-            blockCount,
-            allowCount,
-            totalBlockCount: 0,
-            totalAllowCount: 0,
-        };
+
+    const createDictEntry = (domain, hostname, details) => {
         const cname = vAPI.net.canonicalNameFromHostname(hostname);
         if ( cname !== undefined ) {
             cnMap.push([ cname, hostname ]);
         }
+        hnDict[hostname] = { domain, counts: details.counts };
+    };
+
+    for ( const hnDetails of hostnameDetailsMap.values() ) {
+        const hostname = hnDetails.hostname;
+        if ( hnDict[hostname] !== undefined ) { continue; }
+        const domain = vAPI.domainFromHostname(hostname) || hostname;
+        const dnDetails =
+            hostnameDetailsMap.get(domain) || { counts: createCounts() };
+        if ( hnDict[domain] === undefined ) {
+            createDictEntry(domain, domain, dnDetails);
+        }
+        if ( hostname === domain ) { continue; }
+        createDictEntry(domain, hostname, hnDetails);
     }
+
     out.hostnameDict = hnDict;
     out.cnameMap = cnMap;
 };
 
-const getFirewallRules = function(srcHostname, desHostnames) {
-    const out = {};
+const firewallRuleTypes = [
+    '*',
+    'image',
+    '3p',
+    'inline-script',
+    '1p-script',
+    '3p-script',
+    '3p-frame',
+];
+
+const getFirewallRules = function(src, out) {
+    const ruleset = out.firewallRules = {};
     const df = µb.sessionFirewall;
-    out['/ * *'] = df.lookupRuleData('*', '*', '*');
-    out['/ * image'] = df.lookupRuleData('*', '*', 'image');
-    out['/ * 3p'] = df.lookupRuleData('*', '*', '3p');
-    out['/ * inline-script'] = df.lookupRuleData('*', '*', 'inline-script');
-    out['/ * 1p-script'] = df.lookupRuleData('*', '*', '1p-script');
-    out['/ * 3p-script'] = df.lookupRuleData('*', '*', '3p-script');
-    out['/ * 3p-frame'] = df.lookupRuleData('*', '*', '3p-frame');
-    if ( typeof srcHostname !== 'string' ) { return out; }
 
-    out['. * *'] = df.lookupRuleData(srcHostname, '*', '*');
-    out['. * image'] = df.lookupRuleData(srcHostname, '*', 'image');
-    out['. * 3p'] = df.lookupRuleData(srcHostname, '*', '3p');
-    out['. * inline-script'] = df.lookupRuleData(srcHostname,
-        '*',
-        'inline-script'
-    );
-    out['. * 1p-script'] = df.lookupRuleData(srcHostname, '*', '1p-script');
-    out['. * 3p-script'] = df.lookupRuleData(srcHostname, '*', '3p-script');
-    out['. * 3p-frame'] = df.lookupRuleData(srcHostname, '*', '3p-frame');
-
-    for ( const desHostname in desHostnames ) {
-        out[`/ ${desHostname} *`] = df.lookupRuleData('*', desHostname, '*');
-        out[`. ${desHostname} *`] = df.lookupRuleData(srcHostname, desHostname, '*');
+    for ( const type of firewallRuleTypes ) {
+        const r = df.lookupRuleData('*', '*', type);
+        if ( r === undefined ) { continue; }
+        ruleset[`/ * ${type}`] = r;
     }
-    return out;
+    if ( typeof src !== 'string' ) { return; }
+
+    for ( const type of firewallRuleTypes ) {
+        const r = df.lookupRuleData(src, '*', type);
+        if ( r === undefined ) { continue; }
+        ruleset[`. * ${type}`] = r;
+    }
+
+    const { hostnameDict } = out;
+    for ( const des in hostnameDict ) {
+        let r = df.lookupRuleData('*', des, '*');
+        if ( r !== undefined ) { ruleset[`/ ${des} *`] = r; }
+        r = df.lookupRuleData(src, des, '*');
+        if ( r !== undefined ) { ruleset[`. ${des} *`] = r; }
+    }
 };
 
 const popupDataFromTabId = function(tabId, tabTitle) {
@@ -334,8 +338,6 @@ const popupDataFromTabId = function(tabId, tabTitle) {
         pageURL: tabContext.normalURL,
         pageHostname: rootHostname,
         pageDomain: tabContext.rootDomain,
-        pageAllowedRequestCount: 0,
-        pageBlockedRequestCount: 0,
         popupBlockedCount: 0,
         popupPanelSections: µbus.popupPanelSections,
         popupPanelDisabledSections: µbhs.popupPanelDisabledSections,
@@ -352,23 +354,11 @@ const popupDataFromTabId = function(tabId, tabTitle) {
 
     const pageStore = µb.pageStoreFromTabId(tabId);
     if ( pageStore ) {
-        // https://github.com/gorhill/uBlock/issues/2105
-        //   Be sure to always include the current page's hostname -- it
-        //   might not be present when the page itself is pulled from the
-        //   browser's short-term memory cache. This needs to be done
-        //   before calling getHostnameDict().
-        if (
-            pageStore.hostnameToCountMap.has(rootHostname) === false &&
-            µb.URI.isNetworkURI(tabContext.rawURL)
-        ) {
-            pageStore.hostnameToCountMap.set(rootHostname, 0);
-        }
-        r.pageBlockedRequestCount = pageStore.perLoadBlockedRequestCount;
-        r.pageAllowedRequestCount = pageStore.perLoadAllowedRequestCount;
+        r.pageCounts = pageStore.counts;
         r.netFilteringSwitch = pageStore.getNetFilteringSwitch();
-        getHostnameDict(pageStore.hostnameToCountMap, r);
+        getHostnameDict(pageStore.getAllHostnameDetails(), r);
         r.contentLastModified = pageStore.contentLastModified;
-        r.firewallRules = getFirewallRules(rootHostname, r.hostnameDict);
+        getFirewallRules(rootHostname, r);
         r.canElementPicker = µb.URI.isNetworkURI(r.rawURL);
         r.noPopups = µb.sessionSwitches.evaluateZ(
             'no-popups',
@@ -395,7 +385,7 @@ const popupDataFromTabId = function(tabId, tabTitle) {
         );
     } else {
         r.hostnameDict = {};
-        r.firewallRules = getFirewallRules();
+        getFirewallRules(undefined, r);
     }
 
     r.matrixIsDirty = µb.sessionFirewall.hasSameRules(
@@ -570,7 +560,7 @@ vAPI.messaging.listen({
 
 const µb = µBlock;
 
-const retrieveContentScriptParameters = function(sender, request) {
+const retrieveContentScriptParameters = async function(sender, request) {
     if ( µb.readyToFilter !== true ) { return; }
     const { tabId, frameId } = sender;
     if ( tabId === undefined || frameId === undefined ) { return; }
@@ -587,6 +577,7 @@ const retrieveContentScriptParameters = function(sender, request) {
         request.url = pageStore.getEffectiveFrameURL(sender);
     }
 
+    const loggerEnabled = µb.logger.enabled;
     const noCosmeticFiltering = pageStore.noCosmeticFiltering === true;
 
     const response = {
@@ -605,7 +596,7 @@ const retrieveContentScriptParameters = function(sender, request) {
                 request.url
             );
         response.noGenericCosmeticFiltering = genericHide === 2;
-        if ( genericHide !== 0 && µb.logger.enabled ) {
+        if ( loggerEnabled && genericHide !== 0 ) {
             µBlock.filteringContext
                 .duplicate()
                 .fromTabId(tabId)
@@ -633,7 +624,7 @@ const retrieveContentScriptParameters = function(sender, request) {
                 request.url
             );
         response.noSpecificCosmeticFiltering = specificHide === 2;
-        if ( specificHide !== 0 && µb.logger.enabled ) {
+        if ( loggerEnabled && specificHide !== 0 ) {
             µBlock.filteringContext
                 .duplicate()
                 .fromTabId(tabId)
@@ -658,6 +649,23 @@ const retrieveContentScriptParameters = function(sender, request) {
     response.specificCosmeticFilters =
         µb.cosmeticFilteringEngine.retrieveSpecificSelectors(request, response);
 
+    // The procedural filterer's code is loaded only when needed and must be
+    // present before returning response to caller.
+    if (
+        Array.isArray(response.specificCosmeticFilters.proceduralFilters) || (
+            loggerEnabled &&
+            response.specificCosmeticFilters.exceptedFilters.length !== 0
+        )
+    ) {
+        await vAPI.tabs.executeScript(tabId, {
+            allFrames: false,
+            file: '/js/contentscript-extra.js',
+            frameId,
+            matchAboutBlank: true,
+            runAt: 'document_start',
+        });
+    }
+
     // https://github.com/uBlockOrigin/uBlock-issues/issues/688#issuecomment-748179731
     //   For non-network URIs, scriptlet injection is deferred to here. The
     //   effective URL is available here in `request.url`.
@@ -668,8 +676,18 @@ const retrieveContentScriptParameters = function(sender, request) {
         response.scriptlets = µb.scriptletFilteringEngine.retrieve(request);
     }
 
-    if ( µb.logger.enabled && response.noCosmeticFiltering !== true ) {
-        µb.logCosmeticFilters(tabId, frameId);
+    // https://github.com/NanoMeow/QuickReports/issues/6#issuecomment-414516623
+    //   Inject as early as possible to make the cosmetic logger code less
+    //   sensitive to the removal of DOM nodes which may match injected
+    //   cosmetic filters.
+    if ( loggerEnabled && response.noCosmeticFiltering !== true ) {
+        vAPI.tabs.executeScript(tabId, {
+            allFrames: false,
+            file: '/js/scriptlets/cosmetic-logger.js',
+            frameId,
+            matchAboutBlank: true,
+            runAt: 'document_start',
+        });
     }
 
     return response;
@@ -678,6 +696,13 @@ const retrieveContentScriptParameters = function(sender, request) {
 const onMessage = function(request, sender, callback) {
     // Async
     switch ( request.what ) {
+    case 'retrieveContentScriptParameters':
+        return retrieveContentScriptParameters(
+            sender,
+            request
+        ).then(response => {
+            callback(response);
+        });
     default:
         break;
     }
@@ -724,10 +749,6 @@ const onMessage = function(request, sender, callback) {
         }
         break;
 
-    case 'retrieveContentScriptParameters':
-        response = retrieveContentScriptParameters(sender, request);
-        break;
-
     case 'retrieveGenericCosmeticSelectors':
         request.tabId = sender.tabId;
         request.frameId = sender.frameId;
@@ -768,6 +789,25 @@ var µb = µBlock;
 var onMessage = function(request, sender, callback) {
     // Async
     switch ( request.what ) {
+    // The procedural filterer must be present in case the user wants to
+    // type-in custom filters.
+    case 'elementPickerArguments':
+        return vAPI.tabs.executeScript(sender.tabId, {
+            allFrames: false,
+            file: '/js/contentscript-extra.js',
+            frameId: sender.frameId,
+            matchAboutBlank: true,
+            runAt: 'document_start',
+        }).then(( ) => {
+            callback({
+                target: µb.epickerArgs.target,
+                mouse: µb.epickerArgs.mouse,
+                zap: µb.epickerArgs.zap,
+                eprom: µb.epickerArgs.eprom,
+                pickerURL: vAPI.getURL(`/web_accessible_resources/epicker-ui.html?secret=${vAPI.warSecret()}`),
+            });
+            µb.epickerArgs.target = '';
+        });
     default:
         break;
     }
@@ -776,16 +816,6 @@ var onMessage = function(request, sender, callback) {
     var response;
 
     switch ( request.what ) {
-    case 'elementPickerArguments':
-        response = {
-            target: µb.epickerArgs.target,
-            mouse: µb.epickerArgs.mouse,
-            zap: µb.epickerArgs.zap,
-            eprom: µb.epickerArgs.eprom,
-            pickerURL: vAPI.getURL(`/web_accessible_resources/epicker-ui.html?secret=${vAPI.warSecret()}`),
-        };
-        µb.epickerArgs.target = '';
-        break;
     case 'elementPickerEprom':
         µb.epickerArgs.eprom = request;
         break;
@@ -975,9 +1005,9 @@ const restoreUserData = async function(request) {
         userData.hostnameSwitchesString += '\nno-csp-reports: * true';
     }
 
-    // List of external lists is meant to be an array.
-    if ( typeof userData.externalLists === 'string' ) {
-        userData.externalLists = userData.externalLists.trim().split(/[\n\r]+/);
+    // List of external lists is meant to be a string.
+    if ( Array.isArray(userData.externalLists) ) {
+        userData.externalLists = userData.externalLists.join('\n');
     }
 
     // https://github.com/chrisaljoudi/uBlock/issues/1102
@@ -1362,8 +1392,9 @@ vAPI.messaging.listen({
 {
 // >>>>> start of local scope
 
-var µb = µBlock,
-    extensionOriginURL = vAPI.getURL('');
+var µb = µBlock
+const extensionOriginURL = vAPI.getURL('');
+const documentBlockedURL = vAPI.getURL('document-blocked.html');
 
 const getLoggerData = async function(details, activeTabId, callback) {
     let tabIds = new Map();
@@ -1376,19 +1407,25 @@ const getLoggerData = async function(details, activeTabId, callback) {
         dntDomains: µb.userSettings.dntDomains, // ADN
         tooltips: µb.userSettings.tooltipsDisabled === false
     };
-    // if ( µb.pageStoresToken !== details.tabIdsToken ) { // tmp fix for logger
-        for ( let entry of µb.pageStores ) {
-            let pageStore = entry[1];
-            if ( pageStore.rawURL.startsWith(extensionOriginURL) ) { continue; }
-            tabIds.set(entry[0], pageStore.title);
+    //if ( µb.pageStoresToken !== details.tabIdsToken ) { // tmp fix for logger
+        for ( const [ tabId, pageStore ] of µb.pageStores ) {
+            const { rawURL } = pageStore;
+            if (
+                rawURL.startsWith(extensionOriginURL) === false ||
+                rawURL.startsWith(documentBlockedURL)
+            ) {
+                tabIds.set(tabId, pageStore.title);
+            }
         }
         response.tabIds = Array.from(tabIds);
     // }
     if ( activeTabId ) {
-        let pageStore = µb.pageStoreFromTabId(activeTabId);
+        const pageStore = µb.pageStoreFromTabId(activeTabId);
+        const rawURL = pageStore && pageStore.rawURL;
         if (
-            pageStore === null ||
-            pageStore.rawURL.startsWith(extensionOriginURL)
+            rawURL === null ||
+            rawURL.startsWith(extensionOriginURL) &&
+                rawURL.startsWith(documentBlockedURL) === false
         ) {
             response.activeTabId = undefined;
         }
