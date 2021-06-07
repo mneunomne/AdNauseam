@@ -1448,7 +1448,7 @@ vAPI.injectScriptlet = function(doc, text) {
     // http://jsperf.com/enumerate-classes/6
 
     const surveyPhase1 = function() {
-        //console.log('dom surveyor/surveying');
+        // console.log('dom surveyor/surveying');
         const t0 = performance.now();
         const rews = reWhitespace;
         const ids = [];
@@ -1493,7 +1493,7 @@ vAPI.injectScriptlet = function(doc, text) {
         }
         const t1 = performance.now();
         surveyCost += t1 - t0;
-        console.info(`domSurveyor> Surveyed ${processed} nodes in ${(t1-t0).toFixed(2)} ms`);
+        //console.info(`domSurveyor> Surveyed ${processed} nodes in ${(t1-t0).toFixed(2)} ms`);
         // Phase 2: Ask main process to lookup relevant cosmetic filters.
         if ( ids.length !== 0 || classes.length !== 0 ) {
             messaging.send('contentscript', {
@@ -1509,7 +1509,7 @@ vAPI.injectScriptlet = function(doc, text) {
         } else {
             surveyPhase3(null);
         }
-        // console.timeEnd('dom surveyor/surveying');
+        //console.timeEnd('dom surveyor/surveying');
     };
 
     const surveyTimer = new vAPI.SafeAnimationFrame(surveyPhase1);
@@ -1603,7 +1603,7 @@ vAPI.injectScriptlet = function(doc, text) {
             pendingNodes.add(document.querySelectorAll('[id],[class]'));
             surveyTimer.start();
             bootstrapAdnTimer.start(); // ADN
-            // console.timeEnd('dom surveyor/dom layout created');
+            //console.timeEnd('dom surveyor/dom layout created');
         },
         onDOMChanged: function(addedNodes) {
             if ( addedNodes.length === 0 ) { return; }
