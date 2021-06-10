@@ -1137,13 +1137,11 @@ vAPI.DOMFilterer = class {
             }
             // ADN: ad check on new elements found
             let allSelectors = "";
-            console.log("result", result)
             for(const key in result) {
               if(result[key] != "") {
                 let injected = result[key];
                 let selectors = injected.split("\n{display:none!important;}")[0]
                 allSelectors += (allSelectors == "" ? "" : ",") + selectors;
-                console.log("allSelectors", allSelectors)
               }
             }
             let nodes;
@@ -1195,7 +1193,6 @@ vAPI.DOMFilterer = class {
                 }
                 return;
             }
-            console.log("[content script] onDOMCreated")
             //console.time('dom surveyor/dom layout created');
             domFilterer = vAPI.domFilterer;
             pendingNodes.add(document.querySelectorAll('[id],[class]'));
@@ -1205,7 +1202,6 @@ vAPI.DOMFilterer = class {
         },
         onDOMChanged: function(addedNodes) {
             if ( addedNodes.length === 0 ) { return; }
-            console.log("[content script] onDOMChanged")
             //console.time('dom surveyor/dom layout changed');
             let i = addedNodes.length;
             while ( i-- ) {
@@ -1235,17 +1231,35 @@ vAPI.DOMFilterer = class {
 /******************************************************************************/
 
 // ADN function to go through the selectors from bootstrapPhase2 and run the ad check on the detected ad nodes
+// https://github.com/dhowe/AdNauseam/issues/1838
+
+// avoid running too many times;
+const intervalTime = 1000
+const maxTimesRunBootstrapPhaseAdn = 256;
+var lastRunBootstrapPhaseAdn = null; 
+var bootstrapPhaseAdnCounter = 0
 const bootstrapPhaseAdn = function () {
-    console.log("[content script] bootstrapPhaseAdn")
-    let allSelectors = vAPI.domFilterer.getAllSelectors()
-    if (allSelectors.declarative) {
-        allSelectors.declarative.forEach(function([selectors, exceptions]){
-            let nodes = document.querySelectorAll(selectors);
-            for ( const node of nodes ) {
-                vAPI.adCheck && vAPI.adCheck(node);
-            }
-        })
-        //  TODO:  proceduralFilters ?
+    // check last time ran
+    let now = Date.now()
+    // run if its first time running or if the last time it ran was more than 1 sec ago
+    if (lastRunBootstrapPhaseAdn === null || (lastRunBootstrapPhaseAdn && now - lastRunBootstrapPhaseAdn > intervalTime)) {
+        // avoid it running too many times;
+        if (bootstrapPhaseAdnCounter > maxTimesRunBootstrapPhaseAdn) {
+            bootstrapAdnTimer.clear();
+            return; 
+        }
+        lastRunBootstrapPhaseAdn = Date.now()
+        // get all the selectores
+        let allSelectors = vAPI.domFilterer.getAllSelectors()
+        if (allSelectors.declarative) {
+            allSelectors.declarative.forEach(function([selectors, styles]){
+                let nodes = document.querySelectorAll(selectors);
+                for ( const node of nodes ) {
+                    vAPI.adCheck && vAPI.adCheck(node);
+                }
+            })
+        }
+        bootstrapPhaseAdnCounter++;
     }
 }
 
