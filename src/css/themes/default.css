@@ -186,7 +186,7 @@
 
     /* syntax highlight: static filtering */
     --sf-comment-ink: var(--light-gray-90);
-    --sf-def-ink: #0000ff;
+    --sf-def-ink: #007eff; /* Adn */
     --sf-directive-ink: var(--dark-gray-40);
     --sf-error-ink: #ff0000;
     --sf-error-surface: #ff0000a9;

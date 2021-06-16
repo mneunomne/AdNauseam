@@ -939,7 +939,7 @@ body[dir=rtl] #externalListsDiv {
     }
 /* Code Mirror Override */
 .CodeMirror {
-  background: #333 !important;
+  background: #1f1f1f !important; /* Adn */
   color:#ccc !important;
   border: 1px solid #777 !important;
 }
