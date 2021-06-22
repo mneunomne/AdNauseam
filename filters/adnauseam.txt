@@ -480,6 +480,11 @@ horriblesubs.info##img[src*="images/b/"]
 www.washingtonpost.com##div[data-qa="article-body-ad"]
 www.washingtonpost.com##div.dn-hp-xs:has(wp-ad)
 
+# blank header in gizmodo websites
+##.ad-top-banner
+##.ad-container
+##.collapsed-ad
+
 ##################### Blocking rules ########################
 # found on wpri.com
 gfp_video_ads/
