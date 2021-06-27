@@ -1234,8 +1234,8 @@ vAPI.DOMFilterer = class {
 // https://github.com/dhowe/AdNauseam/issues/1838
 
 // avoid running too many times;
-const intervalTime = 1000
-const maxTimesRunBootstrapPhaseAdn = 256;
+const intervalTime = window.self === window.top ? 4000 : 8000
+const maxTimesRunBootstrapPhaseAdn = window.self === window.top ? 64 : 8;
 var lastRunBootstrapPhaseAdn = null; 
 var bootstrapPhaseAdnCounter = 0
 const bootstrapPhaseAdn = function () {
@@ -1244,7 +1244,7 @@ const bootstrapPhaseAdn = function () {
     // run if its first time running or if the last time it ran was more than 1 sec ago
     if (lastRunBootstrapPhaseAdn === null || (lastRunBootstrapPhaseAdn && now - lastRunBootstrapPhaseAdn > intervalTime)) {
         // avoid it running too many times;
-        if (bootstrapPhaseAdnCounter > maxTimesRunBootstrapPhaseAdn) {
+        if (bootstrapPhaseAdnCounter >= maxTimesRunBootstrapPhaseAdn) {
             bootstrapAdnTimer.clear();
             return; 
         }
