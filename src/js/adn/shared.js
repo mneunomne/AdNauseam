@@ -324,6 +324,10 @@ const appendNotifyDiv = function (notify, template) {
     notify.func.apply(this); // calls reactivateSetting or reactivateList
   });
   uDom('#notifications').append(node);
+
+  const h = document.getElementById('notifications').offsetHeight;
+  const newh = 350 - h;
+  uDom('#ad-list').css('height', newh + 'px');
   // vAPI.i18n.render();
 }
 

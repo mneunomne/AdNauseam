@@ -37,6 +37,7 @@
       case 'adDetected':
         // for now, just re-render
         renderPage(request);
+        adjustBlockHeight();
         break;
 
       case 'adVisited':
