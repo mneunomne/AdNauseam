@@ -144,7 +144,10 @@ uDom.nodeFromId('why').textContent = details.fs;
         return s;
     };
 
-    const renderParams = function(parentNode, rawURL) {
+    // https://github.com/uBlockOrigin/uBlock-issues/issues/1649
+    //   Limit recursion.
+    const renderParams = function(parentNode, rawURL, depth = 0) {
+    //const renderParams = function(parentNode, rawURL) {
         const a = document.createElement('a');
         a.href = rawURL;
         if ( a.search.length === 0 ) { return false; }
@@ -165,9 +168,11 @@ uDom.nodeFromId('why').textContent = details.fs;
             const name = safeDecodeURIComponent(param.slice(0, pos));
             const value = safeDecodeURIComponent(param.slice(pos + 1));
             const li = liFromParam(name, value);
-            if ( reURL.test(value) ) {
+            if ( depth < 2 && reURL.test(value) ) {
+            //if ( reURL.test(value) ) {
                 const ul = document.createElement('ul');
-                renderParams(ul, value);
+                renderParams(ul, value, depth + 1);
+                //renderParams(ul, value);
                 li.appendChild(ul);
             }
             parentNode.appendChild(li);
