@@ -825,6 +825,7 @@ div.bullets { display: none; } /* hide by default */
 	background: #BD10E0;
 	animation: 1000ms ease-in-out visit-marker;
   content: "VISITED";
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 .item.attempting .ad::before,
 .item-text.attempting .item-text-div::before {
