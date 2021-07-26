@@ -51,6 +51,9 @@
   let showInterface = true;
   let draggingVault = false;
   let vaultLoading = false;
+  
+  const container_div = document.getElementById('container');
+  const $container = $('#container')
 
   let gAds, gAdSets, gMin, gMax, gSliderRight, gSliderLeft, settings;
   let lastAdDetectedTime, waitingAds = []; // stateful
@@ -420,7 +423,7 @@
       $div.hover(hoverOnDiv, hoverOffDiv);
     }
     // // Hide #container while appending new divs from 0
-    if(!update) $('#container').css('opacity','0');
+    if(!update) $container.css('opacity','0');
 
     for (let i = 0; i < adsets.length; i++) {
 
@@ -1024,10 +1027,8 @@
         $this.attr('data-gid') + ', using ' + iw + 'x' + ih);
     }
 
-    const $dm = $('#container');
-
     // compute offset of dragged container
-    const dragoffX = -10000 - parseInt($dm.css('margin-left')), dragoffY = -10000 - parseInt($dm.css('margin-top'));
+    const dragoffX = -10000 - parseInt($container.css('margin-left')), dragoffY = -10000 - parseInt($container.css('margin-top'));
 
     // compute offset of item-center from (dragged) window-center
     const pos = {
@@ -1079,7 +1080,7 @@
       setZoom(Zooms.indexOf(100));
 
       // transition to center
-      $('#container').css({
+      $container.css({
         marginLeft: mleft + 'px',
         marginTop: mtop + 'px'
       });
@@ -1092,20 +1093,19 @@
   // stores zoom/drag-offset for container
   function storeViewState(store) {
 
-    const $dm = $('#container');
-
     if (store) {
 
       viewState.zoomScale = userZoomScale;
-      viewState.left = $dm.css('margin-left');
-      viewState.top = $dm.css('margin-top');
-
+      viewState.left = $container.css('margin-left');
+      viewState.top = $container.css('margin-top');
     } else { // restore
 
       // restore zoom scale to userZoomScale
       dynamicZoom(viewState.zoomScale - 100);
-      $dm.css('margin-left', viewState.left);
-      $dm.css('margin-top', viewState.top);
+      $container.css('margin-left', viewState.left);
+      $container.css('margin-top', viewState.top);
+      $container.css('transform-origin', Math.abs(viewState.left) + 'px ' + Math.abs(viewState.top) + 'px')
+
     }
   }
 
@@ -1197,9 +1197,9 @@
 
       centerZoom($selected);
 
-      $('#container').addClass('lightbox');
+      $container.addClass('lightbox');
 
-    } else if ($('#container').hasClass('lightbox')) {
+    } else if ($container.hasClass('lightbox')) {
 
       const $item = $('.item.inspected');
 
@@ -1216,7 +1216,7 @@
       animateInspector(false);
       centerZoom(false);
 
-      $('#container').removeClass('lightbox');
+      $container.removeClass('lightbox');
     }
   }
 
@@ -1316,9 +1316,12 @@
   }
 
   function setScale(scale) {
+    let ml = Math.abs(parseInt(container_div.style.getPropertyValue("margin-left")));
+    let mt = Math.abs(parseInt(container_div.style.getPropertyValue("margin-top")));
 
-    $('#container').css({
-      transform: 'scale(' + scale/100 + ')'
+    $container.css({
+      transform: 'scale(' + scale/100 + ')',
+      'transform-origin': ml + 'px ' + mt + 'px'
     });
   }
 
@@ -1339,8 +1342,6 @@
   function setZoom(idx, immediate) {
 
     //log('setZoom('+idx+','+(immediate===true)+')');
-
-    const $container = $('#container');
 
     // Disable transitions
     immediate && $container.addClass('notransition');
@@ -1424,7 +1425,6 @@
     /////////// DRAG-STAGE ///////////
     let offsetX = 0;
     let offsetY = 0;
-    const container_div = document.getElementById('container');
 
     container_div.addEventListener('mousedown', mouseDown, false);
     window.addEventListener('mouseup', mouseUp, false);
@@ -1468,6 +1468,7 @@
 
         container_div.style.marginLeft = (ml+=x_change) + 'px';
         container_div.style.marginTop = (mt+=y_change) + 'px';
+        container_div.style.transformOrigin = Math.abs(ml+=x_change) + 'px ' + Math.abs(mt+=y_change) + 'px';
 
         offsetX = e.pageX;
         offsetY = e.pageY;
@@ -1490,7 +1491,7 @@
     $(window).resize(function () {
 
         adjustHeight();
-        if ($('#container').hasClass('lightbox')) {
+        if ($container.hasClass('lightbox')) {
             centerZoom($('.inspected'));
             return;
         }
@@ -1563,7 +1564,7 @@
 
     $("body").mousewheel(function (e) {
 
-      if ($('#container').hasClass('lightbox')) {
+      if ($container.hasClass('lightbox')) {
 
         lightboxMode(false);
         return;
@@ -1628,7 +1629,6 @@
     let done = false;
     const $items = $(".item");
     const visible = $items.length;
-    const $container = $('#container');
 
     setTimeout(function () {
       if (!done) $('#loading-img').show();
@@ -1663,7 +1663,7 @@
 
       $('#loading-img').hide();
       // Show #container after repack
-      $('#container').css('opacity','1');
+      $container.css('opacity','1');
       vaultLoading = false;
     });
   }
@@ -1904,7 +1904,7 @@
     }
 
     function centerContainer() {
-      $('#container').addClass('notransition')
+      $container.addClass('notransition')
         .css({
           marginLeft: '-10000px',
           marginTop: '-10000px'
