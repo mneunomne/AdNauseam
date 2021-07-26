@@ -82,7 +82,7 @@ body.hideUnused #listsOfBlockedHostsPrompt:before {
     padding: 0.2em 0;
     white-space: nowrap;
     }
-.groupEntry:not([data-groupkey="user"]) .listEntry.unused {
+.groupEntry:not([data-groupkey="user"]) .listEntry:not(.isDefault).unused {
     display: none;
     }
 .listEntry > * {

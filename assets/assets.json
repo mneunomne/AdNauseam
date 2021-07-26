@@ -1,10 +1,17 @@
 {
 	"assets.json": {
 		"content": "internal",
-		"updateAfter": 13,
+		"updateAfter": 7,
 		"contentURL": [
 			"https://raw.githubusercontent.com/dhowe/AdNauseam/master/assets/assets.json",
 			"assets/assets.json"
+		],
+		"cdnURLs": [
+			"https://gitcdn.xyz/repo/gorhill/uBlock/master/assets/assets.json",
+			"https://cdn.jsdelivr.net/gh/gorhill/uBlock@master/assets/assets.json",
+			"https://cdn.statically.io/gh/gorhill/uBlock/master/assets/assets.json",
+			"https://combinatronics.io/gorhill/uBlock/master/assets/assets.json",
+			"https://raw.githubusercontent.com/gorhill/uBlock/master/assets/assets.json"
 		]
 	},
 	"public_suffix_list.dat": {
@@ -47,6 +54,12 @@
 		"contentURL": [
 			"https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badlists.txt",
 			"assets/ublock/badlists.txt"
+		],
+		"cdnURLs": [
+			"https://gitcdn.xyz/repo/uBlockOrigin/uAssets/master/filters/badlists.txt",
+			"https://cdn.jsdelivr.net/gh/uBlockOrigin/uAssets@master/filters/badlists.txt",
+			"https://cdn.statically.io/gh/uBlockOrigin/uAssets/master/filters/badlists.txt",
+			"https://combinatronics.io/uBlockOrigin/uAssets/master/filters/badlists.txt"
 		]
 	},
 	"ublock-filters": {
@@ -60,7 +73,9 @@
 		"cdnURLs": [
 			"https://gitcdn.xyz/repo/uBlockOrigin/uAssets/master/filters/filters.txt",
 			"https://cdn.jsdelivr.net/gh/uBlockOrigin/uAssets@master/filters/filters.txt",
-			"https://cdn.statically.io/gh/uBlockOrigin/uAssets/master/filters/filters.txt"
+			"https://cdn.statically.io/gh/uBlockOrigin/uAssets/master/filters/filters.txt",
+			"https://combinatronics.io/uBlockOrigin/uAssets/master/filters/filters.txt",
+			"https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt"
 		],
 		"supportURL": "https://github.com/uBlockOrigin/uAssets/issues"
 	},
@@ -72,6 +87,12 @@
 			"https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",
 			"assets/ublock/badware.txt"
 		],
+		"cdnURLs": [
+			"https://gitcdn.xyz/repo/uBlockOrigin/uAssets/master/filters/badware.txt",
+			"https://cdn.jsdelivr.net/gh/uBlockOrigin/uAssets@master/filters/badware.txt",
+			"https://cdn.statically.io/gh/uBlockOrigin/uAssets/master/filters/badware.txt",
+			"https://combinatronics.io/uBlockOrigin/uAssets/master/filters/badware.txt"
+		],
 		"supportURL": "https://github.com/gorhill/uBlock/wiki/Badware-risks",
 		"instructionURL": "https://github.com/gorhill/uBlock/wiki/Badware-risks"
 	},
@@ -82,6 +103,12 @@
 		"contentURL": [
 			"https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
 			"assets/ublock/privacy.txt"
+		],
+		"cdnURLs": [
+			"https://gitcdn.xyz/repo/uBlockOrigin/uAssets/master/filters/privacy.txt",
+			"https://cdn.jsdelivr.net/gh/uBlockOrigin/uAssets@master/filters/privacy.txt",
+			"https://cdn.statically.io/gh/uBlockOrigin/uAssets/master/filters/privacy.txt",
+			"https://combinatronics.io/uBlockOrigin/uAssets/master/filters/privacy.txt"
 		]
 	},
 	"ublock-abuse": {
@@ -91,6 +118,12 @@
 		"contentURL": [
 			"https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resource-abuse.txt",
 			"assets/ublock/resource-abuse.txt"
+		],
+		"cdnURLs": [
+			"https://gitcdn.xyz/repo/uBlockOrigin/uAssets/master/filters/resource-abuse.txt",
+			"https://cdn.jsdelivr.net/gh/uBlockOrigin/uAssets@master/filters/resource-abuse.txt",
+			"https://cdn.statically.io/gh/uBlockOrigin/uAssets/master/filters/resource-abuse.txt",
+			"https://combinatronics.io/uBlockOrigin/uAssets/master/filters/resource-abuse.txt"
 		]
 	},
 	"ublock-unbreak": {
@@ -104,7 +137,8 @@
 		"cdnURLs": [
 			"https://gitcdn.xyz/repo/uBlockOrigin/uAssets/master/filters/unbreak.txt",
 			"https://cdn.jsdelivr.net/gh/uBlockOrigin/uAssets@master/filters/unbreak.txt",
-			"https://cdn.statically.io/gh/uBlockOrigin/uAssets/master/filters/unbreak.txt"
+			"https://cdn.statically.io/gh/uBlockOrigin/uAssets/master/filters/unbreak.txt",
+			"https://combinatronics.io/uBlockOrigin/uAssets/master/filters/unbreak.txt"
 		]
 	},
 	"adguard-generic": {
@@ -399,7 +433,11 @@
 		"off": true,
 		"title": "IRN: Adblock-Iran",
 		"lang": "fa",
-		"contentURL": "https://gitcdn.xyz/repo/farrokhi/adblock-iran/master/filter.txt",
+		"contentURL": [
+			"https://gitcdn.xyz/repo/farrokhi/adblock-iran/master/filter.txt",
+			"https://combinatronics.io/farrokhi/adblock-iran/master/filter.txt",
+			"https://cdn.statically.io/gh/farrokhi/adblock-iran/master/filter.txt"
+		],
 		"supportURL": "https://github.com/farrokhi/adblock-iran"
 	},
 	"ISL-0": {
@@ -598,7 +636,7 @@
 		"off": true,
 		"title": "VIE: ABPVN List",
 		"lang": "vi",
-		"contentURL": "https://raw.githubusercontent.com/abpvn/abpvn/master/filter/abpvn.txt",
+		"contentURL": "https://raw.githubusercontent.com/abpvn/abpvn/master/filter/abpvn_ublock.txt",
 		"supportURL": "https://abpvn.com/"
 	}
 }

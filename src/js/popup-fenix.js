@@ -110,7 +110,7 @@ const cachePopupData = function(data) {
 
 /******************************************************************************/
 
-const hashFromPopupData = function(reset) {
+const hashFromPopupData = function(reset = false) {
     // It makes no sense to offer to refresh the behind-the-scene scope
     if ( popupData.pageHostname === 'behind-the-scene' ) {
         document.body.classList.remove('needReload');
@@ -1032,8 +1032,8 @@ const reloadTab = function(ev) {
     //   if there were changes or not.
     popupData.contentLastModified = -1;
 
-    // No need to wait to remove this.
-    document.body.classList.remove('needReload');
+    // Reset popup state hash to current state.
+    hashFromPopupData(true);
 };
 
 uDom('#refresh').on('click', reloadTab);
@@ -1277,7 +1277,7 @@ const pollForContentChange = (( ) => {
 
 /******************************************************************************/
 
-const getPopupData = async function(tabId) {
+const getPopupData = async function(tabId, first = false) {
     const response = await messaging.send('popupPanel', {
         what: 'getPopupData',
         tabId,
@@ -1287,7 +1287,7 @@ const getPopupData = async function(tabId) {
     renderOnce();
     renderPopup();
     renderPopupLazy(); // low priority rendering
-    hashFromPopupData(true);
+    hashFromPopupData(first);
     pollForContentChange();
 };
 
@@ -1355,7 +1355,7 @@ const getPopupData = async function(tabId) {
         document.body.classList.remove('loading');
     };
 
-    getPopupData(tabId).then(( ) => {
+    getPopupData(tabId, true).then(( ) => {
         if ( document.readyState !== 'complete' ) {
             self.addEventListener('load', ( ) => { checkViewport(); }, { once: true });
         } else {
@@ -1374,35 +1374,19 @@ uDom('#saveRules').on('click', saveFirewallRules);
 uDom('#revertRules').on('click', ( ) => { revertFirewallRules(); });
 uDom('a[href]').on('click', gotoURL);
 
-// Toggle emphasis of rows with[out] 3rd-party scripts/frames
-{
-    const nextStep = (target, steps) => {
-        const firewall = document.getElementById('firewall');
-        const cl = firewall.classList;
-        if ( cl.contains(steps[0]) ) {
-            cl.remove(steps[0]);
-            if ( firewall.querySelector(target) !== null ) {
-                cl.add(steps[1]);
-            }
-            return;
-        }
-        if ( cl.contains(steps[1]) ) {
-            cl.remove(steps[1]);
-            return;
-        }
-        cl.add(steps[0]);
-    };
-    document.querySelector('#firewall > [data-type="3p-script"] .filter')
-        .addEventListener('click', ( ) => {
-            nextStep('.is3p.hasScript', [ 'show3pScript', 'hide3pScript' ]);
-        });
+/******************************************************************************/
 
-    // Toggle visibility of rows with[out] 3rd-party frames
-    document.querySelector('#firewall > [data-type="3p-frame"] .filter')
-        .addEventListener('click', ( ) => {
-            nextStep('.is3p.hasFrame', [ 'show3pFrame', 'hide3pFrame' ]);
-        });
-}
+// Toggle emphasis of rows with[out] 3rd-party scripts/frames
+document.querySelector('#firewall > [data-type="3p-script"] .filter')
+    .addEventListener('click', ( ) => {
+        document.getElementById('firewall').classList.toggle('show3pScript');
+    });
+
+// Toggle visibility of rows with[out] 3rd-party frames
+document.querySelector('#firewall > [data-type="3p-frame"] .filter')
+    .addEventListener('click', ( ) => {
+        document.getElementById('firewall').classList.toggle('show3pFrame');
+    });
 
 /******************************************************************************/
 
