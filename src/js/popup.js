@@ -154,13 +154,14 @@ const hashFromPopupData = function(reset) {
     const rules = popupData.firewallRules;
     for ( const key in rules ) {
         const rule = rules[key];
-        if ( !rule || rule === null ) { continue; } // ADN, add undefined check
+        if ( !rule || rule === null || rule === undefined ) { continue; } // ADN, add undefined check
         hasher.push(
             rule.src + ' ' +
             rule.des + ' ' +
             rule.type + ' ' +
             rule.action
         );
+        // hasher.push(rule); upstream1.36.0
     }
     hasher.sort();
     hasher.push(uDom('body').hasClass('off'));

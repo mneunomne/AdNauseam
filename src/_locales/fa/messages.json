@@ -28,7 +28,7 @@
     "description": "appears as tab name in dashboard"
   },
   "3pPageName": {
-    "message": "فیلتر های خارجی",
+    "message": "لیست‌های فیلتر",
     "description": "appears as tab name in dashboard"
   },
   "1pPageName": {
@@ -304,7 +304,7 @@
     "description": "English: Click, Ctrl-click"
   },
   "pickerContextMenuEntry": {
-    "message": "بلاک کردن این شیء",
+    "message": "بلاک کردن این اِلمان‌",
     "description": "An entry in the browser's contextual menu"
   },
   "settingsCollapseBlockedPrompt": {
@@ -847,6 +847,10 @@
     "message": "مارک‌داون",
     "description": "Label for radio-button to pick export text format"
   },
+  "aboutPrivacyPolicy": {
+    "message": "قوانین حریم خصوصی",
+    "description": "Link to privacy policy on GitHub (English)"
+  },
   "aboutChangelog": {
     "message": "تغییرات اخیر",
     "description": ""
@@ -924,7 +928,7 @@
     "description": "No longer used"
   },
   "subscribeButton": {
-    "message": "مشترک شدن",
+    "message": "آبونه شدن",
     "description": "For the button used to subscribe to a filter list"
   },
   "elapsedOneMinuteAgo": {
@@ -1041,6 +1045,10 @@
   },
   "contextMenuBlockElementInFrame": {
     "message": "بلاک‌کردن اِلمان در فریم...",
+    "description": "An entry in the browser's contextual menu"
+  },
+  "contextMenuSubscribeToList": {
+    "message": "Subscribe to filter list...",
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuTemporarilyAllowLargeMediaElements": {
