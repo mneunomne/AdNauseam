@@ -1014,7 +1014,7 @@
 
   function itemPosition($ele) {
     // first set zoom back to 100%
-    setZoom(Zooms.indexOf(100), true);
+    // setZoom(Zooms.indexOf(100), true);
     const // relative to container
           off = $ele.offset(),
           cx = $(window).width() / 2,
@@ -1037,7 +1037,7 @@
     };
 
     // now restore zoom to user-selected level
-    setZoom(zoomIdx = viewState.zoomScale, true);
+    // setZoom(zoomIdx = viewState.zoomScale, true);
 
     return pos;
   }
@@ -1053,18 +1053,36 @@
       const spacing = 10;
       const metaOffset = 110;
       const center = -10000;
-      const ww = $(window).width();
-      const wh = $(window).height();
-      const pos = itemPosition($ele);
+      const windowWidth = $(window).width();
+      const windowHeight = $(window).height();
+      // const elPos = itemPosition($ele);
 
       // now compute the centered position based on item-offset
-      let mleft = center - pos.left, mtop = center - pos.top;
+      // let mleft = center - pos.left, mtop = center - pos.top;
 
       // can these 2 be removed?
-      const iw = parseInt($ele.attr('data-width'));
-      const ih = parseInt($ele.attr('data-height'));
+      const elWidth = parseInt($ele.attr('data-width'));
+      const elHeight = parseInt($ele.attr('data-height'));
+
+
+
+      let element_div = $ele[0]
+
+      console.log("element_div", element_div,  $ele, $ele.width())
+      let offset = $ele.offset()
+      let posX = element_div.offsetLeft + (elWidth / 2)
+      let posY = element_div.offsetTop + (elHeight + metaOffset) / 2
+
+      console.log("offset",offset.left, offset.top)
+
+      let marginLeft =  posX * -1
+      let marginTop = posY * -1
+
+      console.log("posX posY", posX, posY, marginLeft, marginTop)
+
 
       // make sure left/bottom corner of meta-data is onscreen (#180)
+      /*
       if (iw > ww - (metaOffset * 2 + spacing)) {
 
         //log('HITX:  iw='+iw+" ww="+ww+" diff="+(iw - ww)  + "  offx="+offx);
@@ -1075,18 +1093,26 @@
         //log('HITY:  ih='+ih+" wh="+wh+" diff="+(ih - wh)  + "  offy="+offy);
         mtop -= ((ih - wh) / 2) + (metaOffset + spacing); // bottom-margin
       }
+      */
 
-      // reset zoom to 100%
-      setZoom(Zooms.indexOf(100));
-
+      $container.addClass("posTransition")
       // transition to center
+      
+      // reset zoom to 100%
+      // setZoom(Zooms.indexOf(100));
+      // $container.css('transform-origin', posX + 'px ' + posY + 'px')
+      
       $container.css({
-        marginLeft: mleft + 'px',
-        marginTop: mtop + 'px'
+        marginLeft: marginLeft + 'px',
+        marginTop: marginTop + 'px'
       });
+      setTimeout( () => {
+        $container.removeClass("posTransition")
+      }, 1000)
+    
     } else { // restore zoom-state
 
-      storeViewState(false);
+      // storeViewState(false);
     }
   }
 
@@ -1100,11 +1126,16 @@
       viewState.top = $container.css('margin-top');
     } else { // restore
 
+      $container.addClass("posTransition")
+      setTimeout( () => {
+        $container.removeClass("posTransition")
+      }, 1000)
+
       // restore zoom scale to userZoomScale
+      // $container.css('transform-origin', Math.abs(viewState.left) + 'px ' + Math.abs(viewState.top) + 'px')
       dynamicZoom(viewState.zoomScale - 100);
       $container.css('margin-left', viewState.left);
       $container.css('margin-top', viewState.top);
-      $container.css('transform-origin', Math.abs(viewState.left) + 'px ' + Math.abs(viewState.top) + 'px')
 
     }
   }
@@ -1164,6 +1195,10 @@
   function lightboxMode($selected) {
 
     if ($selected && !$selected.hasClass('inspected')) {
+
+      if($container.hasClass("posTransition")) {
+        return
+      }
 
       const inspectedGid = parseInt($selected.attr('data-gid'));
 
@@ -1316,12 +1351,43 @@
   }
 
   function setScale(scale) {
-    let ml = Math.abs(parseInt(container_div.style.getPropertyValue("margin-left")));
-    let mt = Math.abs(parseInt(container_div.style.getPropertyValue("margin-top")));
 
+    let center = -10000
+
+    let ml = parseFloat(container_div.style.getPropertyValue("margin-left"));
+    let mt = parseFloat(container_div.style.getPropertyValue("margin-top"));
+    
+    let prevZoom = $container.data("zoom") || 100
+    let zoomDiff = (scale - prevZoom) / 100
+
+
+    let distToCenterX = (center - ml) * ( 1 - zoomDiff)
+    let distToCenterY = (center - mt) * ( 1 - zoomDiff)
+
+    console.log("distToCenterX", distToCenterX)
+    console.log("distToCenterY", distToCenterY)
+    
+    let offsetLeft = distToCenterX * ( zoomDiff)
+    let offsetTop = distToCenterY * ( zoomDiff)
+    
+    console.log("offsetLeft", offsetLeft)
+    console.log("offsetTop", offsetTop)
+
+    let widthDiff = $(window).width() * zoomDiff
+    let heightDiff = $(window).height() * zoomDiff
+
+    let marginLeft = ml - offsetLeft + "px";
+    let marginTop = mt - offsetTop + "px";
+
+    console.log("prevZoom", prevZoom, scale);
+
+    $container.data("zoom", scale)
+    
     $container.css({
       transform: 'scale(' + scale/100 + ')',
-      'transform-origin': ml + 'px ' + mt + 'px'
+      "margin-left": marginLeft,
+      "margin-top": marginTop
+      // 'transform-origin': ml + 'px ' + mt + 'px'
     });
   }
 
@@ -1468,7 +1534,7 @@
 
         container_div.style.marginLeft = (ml+=x_change) + 'px';
         container_div.style.marginTop = (mt+=y_change) + 'px';
-        container_div.style.transformOrigin = Math.abs(ml+=x_change) + 'px ' + Math.abs(mt+=y_change) + 'px';
+        // container_div.style.transformOrigin = Math.abs(ml+=x_change) + 'px ' + Math.abs(mt+=y_change) + 'px';
 
         offsetX = e.pageX;
         offsetY = e.pageY;

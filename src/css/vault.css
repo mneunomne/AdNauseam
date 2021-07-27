@@ -191,6 +191,10 @@ div.tooltip {
 	cursor: -webkit-grabbing;
 }
 
+#container.posTransition {
+	transition: all 1s ease;
+}
+
 #loading-img{
 	top: 50%;
 	left: 50%;
