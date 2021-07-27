@@ -25,7 +25,7 @@
   'use strict';
 
   const States = ['pending', 'visited', 'failed', 'dnt-allowed'],
-    Zooms = [200, 150, 100, 75, 50, 25, 12.5, 7.5, 5],
+    Zooms = [400, 200, 150, 100, 75, 50, 25, 12.5, 7.5, 5],
     EnableContextMenu = 1,
     MaxStartNum = 300,
     MaxPerSet = 9;
@@ -54,6 +54,7 @@
   
   const container_div = document.getElementById('container');
   const $container = $('#container')
+  const $ratio = $('#ratio')
 
   let gAds, gAdSets, gMin, gMax, gSliderRight, gSliderLeft, settings;
   let lastAdDetectedTime, waitingAds = []; // stateful
@@ -1053,8 +1054,6 @@
       const spacing = 10;
       const metaOffset = 110;
       const center = -10000;
-      const windowWidth = $(window).width();
-      const windowHeight = $(window).height();
       // const elPos = itemPosition($ele);
 
       // now compute the centered position based on item-offset
@@ -1064,22 +1063,13 @@
       const elWidth = parseInt($ele.attr('data-width'));
       const elHeight = parseInt($ele.attr('data-height'));
 
-
-
       let element_div = $ele[0]
 
-      console.log("element_div", element_div,  $ele, $ele.width())
-      let offset = $ele.offset()
-      let posX = element_div.offsetLeft + (elWidth / 2)
-      let posY = element_div.offsetTop + (elHeight + metaOffset) / 2
-
-      console.log("offset",offset.left, offset.top)
+      let posX = element_div.offsetLeft + (elWidth / 2 )
+      let posY = element_div.offsetTop + (elHeight + metaOffset ) / 2
 
       let marginLeft =  posX * -1
       let marginTop = posY * -1
-
-      console.log("posX posY", posX, posY, marginLeft, marginTop)
-
 
       // make sure left/bottom corner of meta-data is onscreen (#180)
       /*
@@ -1099,20 +1089,15 @@
       // transition to center
       
       // reset zoom to 100%
-      // setZoom(Zooms.indexOf(100));
-      // $container.css('transform-origin', posX + 'px ' + posY + 'px')
-      
-      $container.css({
-        marginLeft: marginLeft + 'px',
-        marginTop: marginTop + 'px'
-      });
+      setZoom(Zooms.indexOf(100), false, {marginLeft, marginTop});
+
       setTimeout( () => {
         $container.removeClass("posTransition")
       }, 1000)
     
     } else { // restore zoom-state
 
-      // storeViewState(false);
+      storeViewState(false);
     }
   }
 
@@ -1120,7 +1105,6 @@
   function storeViewState(store) {
 
     if (store) {
-
       viewState.zoomScale = userZoomScale;
       viewState.left = $container.css('margin-left');
       viewState.top = $container.css('margin-top');
@@ -1132,11 +1116,7 @@
       }, 1000)
 
       // restore zoom scale to userZoomScale
-      // $container.css('transform-origin', Math.abs(viewState.left) + 'px ' + Math.abs(viewState.top) + 'px')
-      dynamicZoom(viewState.zoomScale - 100);
-      $container.css('margin-left', viewState.left);
-      $container.css('margin-top', viewState.top);
-
+      dynamicZoom(viewState.zoomScale - 100, {marginLeft: viewState.left, marginTop: viewState.top });
     }
   }
 
@@ -1350,48 +1330,48 @@
     (zoomIdx < Zooms.length - 1) && setZoom(++zoomIdx, immediate);
   }
 
-  function setScale(scale) {
+  function setScale(scale, targetPos) {
 
-    let center = -10000
-
-    let ml = parseFloat(container_div.style.getPropertyValue("margin-left"));
-    let mt = parseFloat(container_div.style.getPropertyValue("margin-top"));
-    
-    let prevZoom = $container.data("zoom") || 100
-    let zoomDiff = (scale - prevZoom) / 100
-
-
-    let distToCenterX = (center - ml) * ( 1 - zoomDiff)
-    let distToCenterY = (center - mt) * ( 1 - zoomDiff)
-
-    console.log("distToCenterX", distToCenterX)
-    console.log("distToCenterY", distToCenterY)
-    
-    let offsetLeft = distToCenterX * ( zoomDiff)
-    let offsetTop = distToCenterY * ( zoomDiff)
-    
-    console.log("offsetLeft", offsetLeft)
-    console.log("offsetTop", offsetTop)
-
-    let widthDiff = $(window).width() * zoomDiff
-    let heightDiff = $(window).height() * zoomDiff
-
-    let marginLeft = ml - offsetLeft + "px";
-    let marginTop = mt - offsetTop + "px";
-
-    console.log("prevZoom", prevZoom, scale);
-
-    $container.data("zoom", scale)
+    let _scale = scale / 100
     
     $container.css({
-      transform: 'scale(' + scale/100 + ')',
+      transform: 'scale(' + _scale + ')'
+    });
+
+    let marginLeft, marginTop;
+
+    if (targetPos) {
+      console.log("targetPos !!!", targetPos)
+      marginLeft = targetPos.marginLeft
+      marginTop = targetPos.marginTop
+    } else {
+      let center = -10000
+  
+      let ml = parseFloat(container_div.style.getPropertyValue("margin-left"));
+      let mt = parseFloat(container_div.style.getPropertyValue("margin-top"));
+      
+      let prevZoom = $container.data("zoom") || 100
+      let zoomProp = scale / prevZoom
+  
+      $container.data("zoom", scale)
+  
+      let distToCenterX = (center - ml)
+      let distToCenterY = (center - mt)
+      
+      let offsetLeft = distToCenterX *  ( 1 - zoomProp )
+      let offsetTop = distToCenterY * ( 1 - zoomProp )
+  
+      marginLeft = ml + offsetLeft + "px";
+      marginTop = mt + offsetTop + "px";
+    }
+
+    $container.css({
       "margin-left": marginLeft,
       "margin-top": marginTop
-      // 'transform-origin': ml + 'px ' + mt + 'px'
     });
   }
 
-  function dynamicZoom(scaleInterval) {
+  function dynamicZoom(scaleInterval, targetPos) {
 
     userZoomScale += scaleInterval;
     if (userZoomScale > Zooms[0])
@@ -1399,24 +1379,24 @@
     else if (userZoomScale < Zooms[Zooms.length - 1])
       userZoomScale = Zooms[Zooms.length - 1];
 
-    setScale(userZoomScale);
+    setScale(userZoomScale, targetPos);
 
     // set zoom-text to 2 decimal places
-    $('#ratio').text(Math.round(userZoomScale * 100) / 100 + '%');
+    $ratio.text(Math.round(userZoomScale * 100) / 100 + '%');
   }
 
-  function setZoom(idx, immediate) {
+  function setZoom(idx, immediate, targetPos) {
 
     //log('setZoom('+idx+','+(immediate===true)+')');
 
     // Disable transitions
     immediate && $container.addClass('notransition');
 
-    setScale(Zooms[idx]); // set CSS scale for zooming
+    setScale(Zooms[idx], targetPos); // set CSS scale for zooming
 
     userZoomScale = Zooms[idx]; // update userZoomScale
 
-    $('#ratio').text(Zooms[idx] + '%'); // set zoom-text
+    $ratio.text(Zooms[idx] + '%'); // set zoom-text
 
     // Trigger reflow, flush cached CSS
     $container[0].offsetHeight;
