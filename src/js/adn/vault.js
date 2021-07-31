@@ -945,7 +945,12 @@
   function enableLightbox() {
 
     $('.item').click(function (e) {
-
+      
+      // disable interaction click when the user clicks on the ad information
+      if ($(e.target).parents('.meta-item').length > 0) {
+        return
+      }
+      
       if(!draggingVault){
         e.stopPropagation();
         lightboxMode($(this));
@@ -1093,7 +1098,7 @@
         clearTimeout(transitionTimeout)
         transitionTimeout = null
       }
-      
+
       transitionTimeout = setTimeout( () => {
         $container.removeClass("posTransition")
         transitionTimeout = null
