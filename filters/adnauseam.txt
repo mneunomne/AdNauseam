@@ -686,6 +686,10 @@ forum2go.nl##.adsbygoogle
 ||d1esebcdm6wx7j.cloudfront.net^$important
 ##[src^="http://cdnativ.com/"]
 
+! Fixing https://github.com/dhowe/AdNauseam/issues/1907
+||msgose.com^$script,important
+||ndroip.com^$script,important
+
 ##################### Exceptions below here ########################
 
 # Requests that influence visual ads
