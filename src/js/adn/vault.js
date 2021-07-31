@@ -51,6 +51,7 @@
   let showInterface = true;
   let draggingVault = false;
   let vaultLoading = false;
+  let isInspectingAd = false;
   
   const container_div = document.getElementById('container');
   const $container = $('#container')
@@ -1330,7 +1331,6 @@
     let marginLeft, marginTop;
 
     if (targetPos) {
-      console.log("targetPos !!!", targetPos)
       marginLeft = targetPos.marginLeft
       marginTop = targetPos.marginTop
     } else {
@@ -1443,7 +1443,11 @@
 
     $(document).click(function (e) {
 
+      
       if (e.which === 1) // Left-button only
+        if ($(e.target).parents('.meta-item').length > 0) {
+          return
+        }
         lightboxMode(false);
     });
 
@@ -1470,6 +1474,9 @@
     }
 
     function mouseDown(e){
+      // check if interface is in lightbox
+      if($container.hasClass('lightbox')) return
+      // add move event 
       window.addEventListener('mousemove', divMove, true);
       offsetX = e.pageX;
       offsetY = e.pageY;
