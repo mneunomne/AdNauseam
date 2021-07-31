@@ -479,6 +479,11 @@ span.counter span { display: none; } /* hide by default */
 	opacity: 1;
 	border: 3px solid transparent;
 	margin: -3px;
+	user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	-o-user-select: none;
 }
 
 /* BULLETS LIST */

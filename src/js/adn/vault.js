@@ -56,6 +56,8 @@
   const $container = $('#container')
   const $ratio = $('#ratio')
 
+  var transitionTimeout = null
+
   let gAds, gAdSets, gMin, gMax, gSliderRight, gSliderLeft, settings;
   let lastAdDetectedTime, waitingAds = []; // stateful
 
@@ -1013,36 +1015,6 @@
     // OK at current size, done
   }
 
-  function itemPosition($ele) {
-    // first set zoom back to 100%
-    // setZoom(Zooms.indexOf(100), true);
-    const // relative to container
-          off = $ele.offset(),
-          cx = $(window).width() / 2,
-          cy = $(window).height() / 2,
-          iw = $ele.attr('data-width') || 80,
-          ih = $ele.attr('data-height') || 40;
-
-    if (!(iw && ih && iw.length && ih.length)) {
-      console.warn('No dimensions for item: gid=' +
-        $this.attr('data-gid') + ', using ' + iw + 'x' + ih);
-    }
-
-    // compute offset of dragged container
-    const dragoffX = -10000 - parseInt($container.css('margin-left')), dragoffY = -10000 - parseInt($container.css('margin-top'));
-
-    // compute offset of item-center from (dragged) window-center
-    const pos = {
-      left: (off.left - cx) + (iw / 2) + dragoffX,
-      top: (off.top - cy) + (ih / 2) + dragoffY
-    };
-
-    // now restore zoom to user-selected level
-    // setZoom(zoomIdx = viewState.zoomScale, true);
-
-    return pos;
-  }
-
   function centerZoom($ele) {
 
     if ($ele) {
@@ -1065,7 +1037,7 @@
 
       let element_div = $ele[0]
 
-      let posX = element_div.offsetLeft + (elWidth / 2 )
+      let posX = element_div.offsetLeft + (elWidth + metaOffset ) / 2
       let posY = element_div.offsetTop + (elHeight + metaOffset ) / 2
 
       let marginLeft =  posX * -1
@@ -1091,8 +1063,14 @@
       // reset zoom to 100%
       setZoom(Zooms.indexOf(100), false, {marginLeft, marginTop});
 
-      setTimeout( () => {
+      if (transitionTimeout !== null) {
+        clearTimeout(transitionTimeout)
+        transitionTimeout = null
+      }
+
+      transitionTimeout = setTimeout( () => {
         $container.removeClass("posTransition")
+        transitionTimeout = null
       }, 1000)
     
     } else { // restore zoom-state
@@ -1111,8 +1089,14 @@
     } else { // restore
 
       $container.addClass("posTransition")
-      setTimeout( () => {
+      if (transitionTimeout !== null) {
+        clearTimeout(transitionTimeout)
+        transitionTimeout = null
+      }
+      
+      transitionTimeout = setTimeout( () => {
         $container.removeClass("posTransition")
+        transitionTimeout = null
       }, 1000)
 
       // restore zoom scale to userZoomScale
