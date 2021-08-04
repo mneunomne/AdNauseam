@@ -733,3 +733,7 @@ forum2go.nl##.adsbygoogle
 
 # rockpapershotgun
 ||cdn.gamer-network.net/plugins/dfp$domain=rockpapershotgun.com
+
+# 2021-08-04 flylordsmag.com
+flylordsmag.com##.td-ss-main-sidebar
+flylordsmag.com##.td-header-header.td-header-row.td-container-header
