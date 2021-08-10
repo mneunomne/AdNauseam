@@ -1221,7 +1221,7 @@
         D) no valid hits:  allow, but no cookies later (see checkAllowedException)
      */
     const lists = listsForFilter(snfeData);
-    
+
     if (Object.keys(lists).length === 0) {                                  // case A
       snfeData && logNetBlock('UserList', snfeData.raw); // always block
       return true;
@@ -1231,7 +1231,7 @@
     for (let name in lists) {
       if (activeBlockList(name)) {
 
-        // console.log(`ACTIVE: name=${name}, result=${result} context=`, context, " snfe=", snfeData); // TMP-DEL
+        //console.log(`ACTIVE: name=${name}, result=${result} context=`, context, " snfe=", snfeData); // TMP-DEL
 
         if (lists[name].indexOf('@@') === 0) {                              // case B
           logNetAllow(name, snfeData.raw, context.url);
