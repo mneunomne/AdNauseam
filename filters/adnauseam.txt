@@ -689,6 +689,8 @@ forum2go.nl##.adsbygoogle
 ! Fixing https://github.com/dhowe/AdNauseam/issues/1907
 ||msgose.com^$script,important
 ||ndroip.com^$script,important
+||syndication.realsrv.com^$important
+||a.realsrv.com^$important
 
 ##################### Exceptions below here ########################
 
