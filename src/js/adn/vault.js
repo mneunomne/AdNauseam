@@ -25,7 +25,7 @@
   'use strict';
 
   const States = ['pending', 'visited', 'failed', 'dnt-allowed'],
-    Zooms = [200, 150, 100, 75, 50, 25, 12.5, 7.5, 5],
+    Zooms = [400, 200, 150, 100, 75, 50, 25, 12.5, 7.5, 5],
     EnableContextMenu = 1,
     MaxStartNum = 300,
     MaxPerSet = 9;
@@ -51,6 +51,13 @@
   let showInterface = true;
   let draggingVault = false;
   let vaultLoading = false;
+  let isInspectingAd = false;
+  
+  const container_div = document.getElementById('container');
+  const $container = $('#container')
+  const $ratio = $('#ratio')
+
+  var transitionTimeout = null
 
   let gAds, gAdSets, gMin, gMax, gSliderRight, gSliderLeft, settings;
   let lastAdDetectedTime, waitingAds = []; // stateful
@@ -420,7 +427,7 @@
       $div.hover(hoverOnDiv, hoverOffDiv);
     }
     // // Hide #container while appending new divs from 0
-    if(!update) $('#container').css('opacity','0');
+    if(!update) $container.css('opacity','0');
 
     for (let i = 0; i < adsets.length; i++) {
 
@@ -939,7 +946,12 @@
   function enableLightbox() {
 
     $('.item').click(function (e) {
-
+      
+      // disable interaction click when the user clicks on the ad information
+      if ($(e.target).parents('.meta-item').length > 0) {
+        return
+      }
+      
       if(!draggingVault){
         e.stopPropagation();
         lightboxMode($(this));
@@ -1009,38 +1021,6 @@
     // OK at current size, done
   }
 
-  function itemPosition($ele) {
-    // first set zoom back to 100%
-    setZoom(Zooms.indexOf(100), true);
-    const // relative to container
-          off = $ele.offset(),
-          cx = $(window).width() / 2,
-          cy = $(window).height() / 2,
-          iw = $ele.attr('data-width') || 80,
-          ih = $ele.attr('data-height') || 40;
-
-    if (!(iw && ih && iw.length && ih.length)) {
-      console.warn('No dimensions for item: gid=' +
-        $this.attr('data-gid') + ', using ' + iw + 'x' + ih);
-    }
-
-    const $dm = $('#container');
-
-    // compute offset of dragged container
-    const dragoffX = -10000 - parseInt($dm.css('margin-left')), dragoffY = -10000 - parseInt($dm.css('margin-top'));
-
-    // compute offset of item-center from (dragged) window-center
-    const pos = {
-      left: (off.left - cx) + (iw / 2) + dragoffX,
-      top: (off.top - cy) + (ih / 2) + dragoffY
-    };
-
-    // now restore zoom to user-selected level
-    setZoom(zoomIdx = viewState.zoomScale, true);
-
-    return pos;
-  }
-
   function centerZoom($ele) {
 
     if ($ele) {
@@ -1052,18 +1032,25 @@
       const spacing = 10;
       const metaOffset = 110;
       const center = -10000;
-      const ww = $(window).width();
-      const wh = $(window).height();
-      const pos = itemPosition($ele);
+      // const elPos = itemPosition($ele);
 
       // now compute the centered position based on item-offset
-      let mleft = center - pos.left, mtop = center - pos.top;
+      // let mleft = center - pos.left, mtop = center - pos.top;
 
       // can these 2 be removed?
-      const iw = parseInt($ele.attr('data-width'));
-      const ih = parseInt($ele.attr('data-height'));
+      const elWidth = parseInt($ele.attr('data-width'));
+      const elHeight = parseInt($ele.attr('data-height'));
+
+      let element_div = $ele[0]
+
+      let posX = element_div.offsetLeft + (elWidth + metaOffset ) / 2
+      let posY = element_div.offsetTop + (elHeight + metaOffset ) / 2
+
+      let marginLeft =  posX * -1
+      let marginTop = posY * -1
 
       // make sure left/bottom corner of meta-data is onscreen (#180)
+      /*
       if (iw > ww - (metaOffset * 2 + spacing)) {
 
         //log('HITX:  iw='+iw+" ww="+ww+" diff="+(iw - ww)  + "  offx="+offx);
@@ -1074,15 +1061,24 @@
         //log('HITY:  ih='+ih+" wh="+wh+" diff="+(ih - wh)  + "  offy="+offy);
         mtop -= ((ih - wh) / 2) + (metaOffset + spacing); // bottom-margin
       }
+      */
 
-      // reset zoom to 100%
-      setZoom(Zooms.indexOf(100));
-
+      $container.addClass("posTransition")
       // transition to center
-      $('#container').css({
-        marginLeft: mleft + 'px',
-        marginTop: mtop + 'px'
-      });
+      
+      // reset zoom to 100%
+      setZoom(Zooms.indexOf(100), false, {marginLeft, marginTop});
+
+      if (transitionTimeout !== null) {
+        clearTimeout(transitionTimeout)
+        transitionTimeout = null
+      }
+
+      transitionTimeout = setTimeout( () => {
+        $container.removeClass("posTransition")
+        transitionTimeout = null
+      }, 1000)
+    
     } else { // restore zoom-state
 
       storeViewState(false);
@@ -1092,20 +1088,25 @@
   // stores zoom/drag-offset for container
   function storeViewState(store) {
 
-    const $dm = $('#container');
-
     if (store) {
-
       viewState.zoomScale = userZoomScale;
-      viewState.left = $dm.css('margin-left');
-      viewState.top = $dm.css('margin-top');
-
+      viewState.left = $container.css('margin-left');
+      viewState.top = $container.css('margin-top');
     } else { // restore
 
+      $container.addClass("posTransition")
+      if (transitionTimeout !== null) {
+        clearTimeout(transitionTimeout)
+        transitionTimeout = null
+      }
+
+      transitionTimeout = setTimeout( () => {
+        $container.removeClass("posTransition")
+        transitionTimeout = null
+      }, 1000)
+
       // restore zoom scale to userZoomScale
-      dynamicZoom(viewState.zoomScale - 100);
-      $dm.css('margin-left', viewState.left);
-      $dm.css('margin-top', viewState.top);
+      dynamicZoom(viewState.zoomScale - 100, {marginLeft: viewState.left, marginTop: viewState.top });
     }
   }
 
@@ -1165,6 +1166,10 @@
 
     if ($selected && !$selected.hasClass('inspected')) {
 
+      if($container.hasClass("posTransition")) {
+        return
+      }
+
       const inspectedGid = parseInt($selected.attr('data-gid'));
 
       selectedAdSet = findAdSetByGid(inspectedGid); // throws
@@ -1197,9 +1202,9 @@
 
       centerZoom($selected);
 
-      $('#container').addClass('lightbox');
+      $container.addClass('lightbox');
 
-    } else if ($('#container').hasClass('lightbox')) {
+    } else if ($container.hasClass('lightbox')) {
 
       const $item = $('.item.inspected');
 
@@ -1216,7 +1221,7 @@
       animateInspector(false);
       centerZoom(false);
 
-      $('#container').removeClass('lightbox');
+      $container.removeClass('lightbox');
     }
   }
 
@@ -1315,14 +1320,47 @@
     (zoomIdx < Zooms.length - 1) && setZoom(++zoomIdx, immediate);
   }
 
-  function setScale(scale) {
+  function setScale(scale, targetPos) {
 
-    $('#container').css({
-      transform: 'scale(' + scale/100 + ')'
+    let _scale = scale / 100
+    
+    $container.css({
+      transform: 'scale(' + _scale + ')'
+    });
+
+    let marginLeft, marginTop;
+
+    if (targetPos) {
+      marginLeft = targetPos.marginLeft
+      marginTop = targetPos.marginTop
+    } else {
+      let center = -10000
+  
+      let ml = parseFloat(container_div.style.getPropertyValue("margin-left"));
+      let mt = parseFloat(container_div.style.getPropertyValue("margin-top"));
+      
+      let prevZoom = $container.data("zoom") || 100
+      let zoomProp = scale / prevZoom
+  
+      $container.data("zoom", scale)
+  
+      let distToCenterX = (center - ml)
+      let distToCenterY = (center - mt)
+      
+      let offsetLeft = distToCenterX *  ( 1 - zoomProp )
+      let offsetTop = distToCenterY * ( 1 - zoomProp )
+  
+      marginLeft = ml + offsetLeft + "px";
+      marginTop = mt + offsetTop + "px";
+    }
+
+    $container.css({
+      "margin-left": marginLeft,
+      "margin-top": marginTop
     });
   }
 
-  function dynamicZoom(scaleInterval) {
+  function dynamicZoom(scaleInterval, targetPos) {
 
     userZoomScale += scaleInterval;
     if (userZoomScale > Zooms[0])
@@ -1330,26 +1368,24 @@
     else if (userZoomScale < Zooms[Zooms.length - 1])
       userZoomScale = Zooms[Zooms.length - 1];
 
-    setScale(userZoomScale);
+    setScale(userZoomScale, targetPos);
 
     // set zoom-text to 2 decimal places
-    $('#ratio').text(Math.round(userZoomScale * 100) / 100 + '%');
+    $ratio.text(Math.round(userZoomScale * 100) / 100 + '%');
   }
 
-  function setZoom(idx, immediate) {
+  function setZoom(idx, immediate, targetPos) {
 
     //log('setZoom('+idx+','+(immediate===true)+')');
-
-    const $container = $('#container');
 
     // Disable transitions
     immediate && $container.addClass('notransition');
 
-    setScale(Zooms[idx]); // set CSS scale for zooming
+    setScale(Zooms[idx], targetPos); // set CSS scale for zooming
 
     userZoomScale = Zooms[idx]; // update userZoomScale
 
-    $('#ratio').text(Zooms[idx] + '%'); // set zoom-text
+    $ratio.text(Zooms[idx] + '%'); // set zoom-text
 
     // Trigger reflow, flush cached CSS
     $container[0].offsetHeight;
@@ -1407,7 +1443,11 @@
 
     $(document).click(function (e) {
 
+      
       if (e.which === 1) // Left-button only
+        if ($(e.target).parents('.meta-item').length > 0) {
+          return
+        }
         lightboxMode(false);
     });
 
@@ -1424,7 +1464,6 @@
     /////////// DRAG-STAGE ///////////
     let offsetX = 0;
     let offsetY = 0;
-    const container_div = document.getElementById('container');
 
     container_div.addEventListener('mousedown', mouseDown, false);
     window.addEventListener('mouseup', mouseUp, false);
@@ -1435,6 +1474,9 @@
     }
 
     function mouseDown(e){
+      // check if interface is in lightbox
+      if($container.hasClass('lightbox')) return
+      // add move event 
       window.addEventListener('mousemove', divMove, true);
       offsetX = e.pageX;
       offsetY = e.pageY;
@@ -1468,6 +1510,7 @@
 
         container_div.style.marginLeft = (ml+=x_change) + 'px';
         container_div.style.marginTop = (mt+=y_change) + 'px';
+        // container_div.style.transformOrigin = Math.abs(ml+=x_change) + 'px ' + Math.abs(mt+=y_change) + 'px';
 
         offsetX = e.pageX;
         offsetY = e.pageY;
@@ -1490,7 +1533,7 @@
     $(window).resize(function () {
 
         adjustHeight();
-        if ($('#container').hasClass('lightbox')) {
+        if ($container.hasClass('lightbox')) {
             centerZoom($('.inspected'));
             return;
         }
@@ -1563,7 +1606,7 @@
 
     $("body").mousewheel(function (e) {
 
-      if ($('#container').hasClass('lightbox')) {
+      if ($container.hasClass('lightbox')) {
 
         lightboxMode(false);
         return;
@@ -1628,7 +1671,6 @@
     let done = false;
     const $items = $(".item");
     const visible = $items.length;
-    const $container = $('#container');
 
     setTimeout(function () {
       if (!done) $('#loading-img').show();
@@ -1663,7 +1705,7 @@
 
       $('#loading-img').hide();
       // Show #container after repack
-      $('#container').css('opacity','1');
+      $container.css('opacity','1');
       vaultLoading = false;
     });
   }
@@ -1904,7 +1946,7 @@
     }
 
     function centerContainer() {
-      $('#container').addClass('notransition')
+      $container.addClass('notransition')
         .css({
           marginLeft: '-10000px',
           marginTop: '-10000px'
