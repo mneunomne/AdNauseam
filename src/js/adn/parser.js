@@ -124,6 +124,8 @@
 
       const src = img.src || img.getAttribute("src");
 
+      if (img.className === 'i-amphtml-intrinsic-sizer') return
+
       if (!src) { // no image src
 
         logP("Fail: no image src", img);
@@ -135,7 +137,7 @@
       if (!targetUrl) return;
 
       // we have an image and a click-target now
-      if (img.complete) {
+      if (img.complete || img.tagName === "AMP-IMG" ) {
 
         // process the image now
         return createImageAd(img, src, targetUrl);
@@ -330,7 +332,8 @@
         case 'IFRAME':
           elem.addEventListener('load', processIFrame, false);
           break;
-
+        
+        case 'AMP-IMG':
         case 'IMG':
           findImageAds([elem]);
           break;
@@ -344,7 +347,7 @@
 
           logP('Checking children of', elem);
 
-          const imgs = elem.querySelectorAll('img');
+          const imgs = elem.querySelectorAll('img, amp-img');
           if (imgs.length) {
             findImageAds(imgs);
           }
