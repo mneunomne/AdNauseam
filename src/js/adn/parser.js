@@ -124,7 +124,11 @@
 
       const src = img.src || img.getAttribute("src");
 
-      if (img.className === 'i-amphtml-intrinsic-sizer') return
+      // ignore this element which only server to generate div size. It is a transparent png image. Fixing https://github.com/dhowe/AdNauseam/issues/1843
+      if (img.className === 'i-amphtml-intrinsic-sizer') {
+        logP("Ignoring: transparent fake detection from AMP-IMG", img);
+        return;
+      }
 
       if (!src) { // no image src
 
@@ -136,7 +140,8 @@
 
       if (!targetUrl) return;
 
-      // we have an image and a click-target now
+      // we have an image and a click-target now 
+      // OR the image is from type AMP-IMG which doesn't have a "complete parameter", so we let it go through... https://github.com/dhowe/AdNauseam/issues/1843
       if (img.complete || img.tagName === "AMP-IMG" ) {
 
         // process the image now
@@ -332,7 +337,7 @@
         case 'IFRAME':
           elem.addEventListener('load', processIFrame, false);
           break;
-        
+        // support for amp-img tag 
         case 'AMP-IMG':
         case 'IMG':
           findImageAds([elem]);
