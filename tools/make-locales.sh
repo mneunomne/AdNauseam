@@ -46,11 +46,11 @@ do
     fi
 
     jq -s '.[0] * .[1]' $messages $adnfile > $outfile
-    sed -i '' "s/uBlock₀/AdNauseam/g" $outfile
-    sed -i '' "s/uBlock Origin/AdNauseam/g" $outfile
-    sed -i '' "s/ublock/AdNauseam/g" $outfile
-    sed -i '' "s/ ＋ / \/ /g" $outfile
-    sed -i '' "s/Ctrl+click/Alt+click/g" $outfile
+    awk '{gsub(/uBlock₀/, "AdNauseam")}1' $outfile > /tmp/outfile && mv /tmp/outfile $outfile
+    awk '{gsub(/uBlock Origin/, "AdNauseam")}1' $outfile > /tmp/outfile && mv /tmp/outfile $outfile
+    awk '{gsub(/ublock/, "AdNauseam")}1' $outfile > /tmp/outfile && mv /tmp/outfile $outfile
+    awk '{gsub(/Ctrl+click/, "Alt+click")}1' $outfile > /tmp/outfile && mv /tmp/outfile $outfile
+    awk '{gsub(/ ＋ /, " / ")}1' $outfile > /tmp/outfile && mv /tmp/outfile $outfile
   fi
 
 done
