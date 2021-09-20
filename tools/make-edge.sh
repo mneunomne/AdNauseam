@@ -21,7 +21,7 @@ cp -R $CHROMIUM/* $DES/
 # Modify manifest
 echo "*** AdNauseam.edge: Modify manifest for edge"
 # Remove "update_url"
-sed -i '' -e '/^  "update_url"/d' $DES/manifest.json
+awk '!/^  "update_url"/' $DES/manifest.json > /tmp/manifest.json && mv /tmp/manifest.json $DES/manifest.json
 
 echo "*** AdNauseam.edge: Package done."
 echo

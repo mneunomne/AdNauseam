@@ -23,8 +23,7 @@ cp manifest.json $DES/            # use ADN manifest, not ublock's
 cp LICENSE.txt                     $DES/
 
 # ADN
-sed -i '' "s/{UBLOCK_VERSION}/${UBLOCK}/" $DES/popup.html
-sed -i '' "s/{UBLOCK_VERSION}/${UBLOCK}/" $DES/links.html
+awk -v s=$UBLOCK '{gsub(/{UBLOCK_VERSION}/, s)}1' $DES/links.html > /tmp/links.html && mv /tmp/links.html $DES/links.html
 
 # Remove the following files
 rm $DES/js/adn/tests.js

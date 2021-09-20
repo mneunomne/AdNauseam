@@ -689,6 +689,8 @@ forum2go.nl##.adsbygoogle
 ! Fixing https://github.com/dhowe/AdNauseam/issues/1907
 ||msgose.com^$script,important
 ||ndroip.com^$script,important
+||syndication.realsrv.com^$important
+||a.realsrv.com^$important
 
 # myip.com #1906
 myip.com##.adsbygoogle:style(height: 0px !important)
@@ -747,3 +749,5 @@ flylordsmag.com##.td-header-header.td-header-row.td-container-header
 
 # trying to better collect google ads #1906
 #@#+js(no-floc)
+
+www.hktvmall.com##.topBannerGa

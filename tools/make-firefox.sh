@@ -20,7 +20,7 @@ cp platform/firefox/vapi-webrequest.js $DES/js/
 # Webext-specific
 rm $DES/img/icon_128.png
 
-sed -i '' "s/\"{version}\"/${VERSION}/" $DES/manifest.json
+awk -v s=$VERSION '{gsub(/"{version}"/, s)}1' $DES/manifest.json > /tmp/manifest.json && mv /tmp/manifest.json $DES/manifest.json
 
 echo "*** AdNauseam.firefox: Generating meta..."
 python tools/make-firefox-meta.py $DES/

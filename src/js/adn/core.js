@@ -62,7 +62,7 @@
   const allowAnyBlockOnDomains = ['youtube.com', 'funnyordie.com']; // no dnt in here
 
   // allow blocks only from this set of lists (recheck this)
-  const enabledBlockLists = ['My filters', 'EasyPrivacy',
+  const enabledBlockLists = ['EasyPrivacy',
     'uBlock filters – Badware risks', 'uBlock filters – Unbreak',
     'uBlock filters – Privacy', 'Malware domains', 'Malware Domain List',
     'Anti-ThirdpartySocial', 'AdNauseam filters', 'Fanboy’s Annoyance List‎',
@@ -1072,8 +1072,10 @@
   };
 
   const activeBlockList = function (test) {
-
-    return enabledBlockLists.contains(test);
+    // either from the enabledBlockedLists, or if it matches "My Filter". \
+    // OR added because of previous where "My Filters" didn't match the other language names this value can have
+    // https://github.com/dhowe/AdNauseam/issues/1914
+    return enabledBlockLists.contains(test) || test === vAPI.i18n('1pPageName');
   };
 
   // check target domain against page-domain #337
