@@ -377,30 +377,29 @@
       if (!googleDisplayAd) return;
 
       let background_image = null
-      let title = elem.querySelector(".title a")
+      let title = elem.querySelector(".title a, [class*=title] a")
       let body = elem.querySelector(".body a")
-      let site = elem.querySelector(".title a")
+      let site = title
       let image = elem.querySelector(".imageClk .image")
+      let url = site.getAttribute("href")
 
-      if (image.length) background_image = window.getComputedStyle(image).getPropertyValue("background-image")
-
-      console.log("GoogleActiveViewElement found!", title, body, url, image, background_image)
-      
-      if ( title.length && body.length && url.length && image.length) {
-        /*
-        const ad = vAPI.adParser.createAd('GoogleActiveViewElement', $attr(site, 'href'), {
-          title: $text(title),
-          text: $text(text),
-          site: $text(site)
-        });
-
-        if (ad) {
-          if (vAPI.prefs.logEvents) console.log("[PARSED] TEXT-AD", ad);
-          vAPI.adParser.notifyAddon(ad);
+      if ( title !== null && body !== null && url !== null) {
+        if (!image) {
+          // no image can be found, create text add
+          const ad = vAPI.adParser.createAd('GoogleActiveViewElement', url, {
+            title: $text(title),
+            text: $text(body),
+            site: $text(site)
+          });
+          
+          if (ad) {
+            if (vAPI.prefs.logEvents) console.log("[PARSED] TEXT-AD", ad);
+            vAPI.adParser.notifyAddon(ad);
+          }
         }
-        */
         return true
       } else {
+        // invalid google ad
         return false
       }
     } 
@@ -414,7 +413,7 @@
       //   -> div.row-container > .body
 
       const googleDisplayAd = elem.querySelector('.GoogleActiveViewElement');
-      if (!googleDisplayAd) return;
+      if (!googleDisplayAd) return false;
 
       logP("[Parser] Google Responsive Display Ad")
 
@@ -570,6 +569,29 @@
       }
     }
 
+    /*************************** JQUERY-SHIMS ****************************/
+
+
+    const $attr = function (ele, attr, val) { // jquery shim
+
+      return val ? (ele.length ? ele[0] : ele).setAttribute(attr, val) :
+        (ele.length ? ele[0] : ele).getAttribute(attr);
+    };
+
+    const $text = function (ele) { // jquery shim
+
+      if (typeof ele.length === 'undefined')
+        return ele.innerText || ele.textContent;
+
+      let text = '';
+      for (let i = 0; i < ele.length; i++) {
+
+        text += ele[i].innerText || ele[i].textContent;
+      }
+
+      return text;
+    };
+    
     return {
       process: process,
       createAd: createAd,
