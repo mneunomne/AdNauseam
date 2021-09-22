@@ -748,6 +748,9 @@ flylordsmag.com##.td-ss-main-sidebar
 flylordsmag.com##.td-header-header.td-header-row.td-container-header
 
 # trying to better collect google ads #1906
-#@#+js(no-floc)
+#@#.adsbygoogle
+#@#.ads_1
+*##ads_1:style(height: 1px !important)
+*##.adsbygoogle:style(height: 1px !important)
 
 www.hktvmall.com##.topBannerGa
