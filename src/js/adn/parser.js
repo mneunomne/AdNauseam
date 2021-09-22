@@ -36,6 +36,7 @@
 
   const ignorableImages = ['mgid_logo_mini_43x20.png', 'data:image/gif;base64,R0lGODlh7AFIAfAAAAAAAAAAACH5BAEAAAAALAAAAADsAUgBAAL+hI+py+0Po5y02ouz3rz7D4biSJbmiabqyrbuC8fyTNf2jef6zvf+DwwKh8Si8YhMKpfMpvMJjUqn1Kr1is1qt9yu9wsOi8fksvmMTqvX7Lb7DY/L5/S6/Y7P6/f8vv8PGCg4SFhoeIiYqLjI2Oj4CBkpOUlZaXmJmam5ydnp+QkaKjpKWmp6ipqqusra6voKGys7S1tre4ubq7vL2+v7CxwsPExcbHyMnKy8zNzs/AwdLT1NXW19jZ2tvc3d7f0NHi4+Tl5ufo6err7O3u7+Dh8vP09fb3+Pn6+/z9/v/w8woMCBBAsaPIgwocKFDBs6fAgxosSJFCtavIgxo8b+jRw7evwIMqTIkSRLmjyJMqXKlSxbunwJM6bMmTRr2ryJM6fOnTx7+vwJNKjQoUSLGj2KNKnSpUybOn0KNarUqVSrWr2KNavWrVy7ev0KNqzYsWTLmj2LNq3atWzbun0LN67cuXTr2r2LN6/evXz7+v0LOLDgwYQLGz6MOLHixYwbO34MObLkyZQrW76MObPmzZw7e/4MOrTo0aRLmz6NOrXq1axbu34NO7bs2bRr276NO7fu3bx7+/4NPLjw4cSLGz+OPLny5cybO38OPbr06dSrW7+OPbv27dy7e/8OPrz48eTLmz+PPr369ezbu38PP778+fTr27+PP7/+/fxR+/v/D2CAAg5IYIEGHohgggouyGCDDj4IYYQSTkhhhRZeiGGGGm7IYYcefghiiCKOSGKJJp6IYooqrshiiy6+CGOMMs5IY4023ohjjjruCFYBADs='];
   const ocRegex = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/gi;
+  const urlRegex = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm;
 
   const createParser = function () {
 
@@ -54,8 +55,13 @@
     const getSrcFromAttribute = function (attribute) {
       let src = attribute.match(/\((.*?)\)/);
       if (src && src.length > 2) src = src[1].replace(/('|")/g, '');
-      return src;
     }
+
+    const extractUrlSrc = function (attribute) {
+      let src = attribute.match(urlRegex)
+      console.log("extractUrlSrc", src)
+      return src && src[0] ;
+    } 
 
     const findBgImage = function (elem) {
 
@@ -360,7 +366,7 @@
             logP('No img found, check other cases', elem);
 
             // if no img found within the element
-            findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) 
+            findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) || GoogleActiveViewElement(elem)
               || logP('No images in children of', elem);
           }
 
@@ -369,10 +375,45 @@
       }
     };
 
+    const GoogleActiveViewElement = function (elem) {
+      // .GoogleActiveViewElement
+      // -> .title a
+      // -> .body a
+      // -> .imageClk .image
 
+      const googleDisplayAd = elem.querySelector('.GoogleActiveViewElement');
+      if (!googleDisplayAd) return;
+
+      let background_image = null
+      let title = elem.querySelector(".title a, [class*=title] a")
+      let body = elem.querySelector(".body a")
+      let site = title
+      let image = elem.querySelector(".imageClk .image")
+      let url = site.getAttribute("href")
+
+      if ( title !== null && body !== null && url !== null) {
+        if (!image) {
+          // no image can be found, create text add
+          const ad = vAPI.adParser.createAd('GoogleActiveViewElement', url, {
+            title: $text(title),
+            text: $text(body),
+            site: $text(site)
+          });
+          
+          if (ad) {
+            if (vAPI.prefs.logEvents) console.log("[PARSED] TEXT-AD", ad);
+            vAPI.adParser.notifyAddon(ad);
+          }
+        }
+        return true
+      } else {
+        // invalid google ad
+        return false
+      }
+    } 
 
     const findGoogleResponsiveDisplayAd = function (elem) {
-
+      
       // a#mys-content href
       //   div.GoogleActiveViewElement
       //   -> canvas.image background-Image
@@ -380,35 +421,36 @@
       //   -> div.row-container > .body
 
       const googleDisplayAd = elem.querySelector('.GoogleActiveViewElement');
-      if (!googleDisplayAd) return;
+      if (!googleDisplayAd) return false;
 
       logP("[Parser] Google Responsive Display Ad")
 
       const img = googleDisplayAd.querySelector('canvas.image');
+      const title = googleDisplayAd.querySelector('.title > a');
+      const text = googleDisplayAd.querySelector('.body > a');
+
 
       if (img) {
 
         // img case
         let src, link, targetURL;
 
+        // check for link element
         if (elem.tagName == "A" && elem.id == "mys-content") {
           link = elem;
         } else {
           link = elem.querySelector('a#mys-content');
         }
 
+        // try to get the targetURL
         if (link && link.hasAttribute("href")) {
-
-          targetURL = link.getAttribute("href");
-
-        } else if (link && !link.hasAttribute("href")) {
-
+          targetURL = link.getAttribute("href");          
+        } else if (title && title.hasAttribute("href")) {
+          // if cant get link element, try to get it from the title
+          targetURL = title.getAttribute("href")
+        } else {
           const clickableElement = img;
-          // clickableElement.addEventListener("mousedown", function(){
-          //   console.log("Clicked by adnauseam!")
-          // })
           // if no href, fake click event
-
           if (document.createEvent) {
             const ev = document.createEvent('HTMLEvents');
             ev.initEvent('mousedown', true, false);
@@ -417,7 +459,7 @@
         }
 
         const attribute = getComputedStyle(img).backgroundImage;
-        src = getSrcFromAttribute(attribute);
+        src = extractUrlSrc(attribute);
         if (!targetURL) targetURL = getTargetUrl(img);
 
         if (img && src && targetURL) {
@@ -429,8 +471,7 @@
       } else {
 
         // No img, trying to collect as text ad
-        const title = googleDisplayAd.querySelector('.title > span');
-        const text = googleDisplayAd.querySelector('.row-container > .body > span');
+        if (title) targetURL = title.getAttribute("href")
 
         if (title && text && targetURL) {
 
@@ -536,6 +577,29 @@
       }
     }
 
+    /*************************** JQUERY-SHIMS ****************************/
+
+
+    const $attr = function (ele, attr, val) { // jquery shim
+
+      return val ? (ele.length ? ele[0] : ele).setAttribute(attr, val) :
+        (ele.length ? ele[0] : ele).getAttribute(attr);
+    };
+
+    const $text = function (ele) { // jquery shim
+
+      if (typeof ele.length === 'undefined')
+        return ele.innerText || ele.textContent;
+
+      let text = '';
+      for (let i = 0; i < ele.length; i++) {
+
+        text += ele[i].innerText || ele[i].textContent;
+      }
+
+      return text;
+    };
+    
     return {
       process: process,
       createAd: createAd,

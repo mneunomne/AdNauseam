@@ -692,6 +692,10 @@ forum2go.nl##.adsbygoogle
 ||syndication.realsrv.com^$important
 ||a.realsrv.com^$important
 
+# myip.com #1906
+myip.com##.adsbygoogle:style(height: 0px !important)
+myip.com#@#.ads_1
+
 ##################### Exceptions below here ########################
 
 # Requests that influence visual ads
@@ -705,6 +709,9 @@ forum2go.nl##.adsbygoogle
 @@||widgets.outbrain.com/outbrain.js^
 @@||adsafeprotected.com
 @@||serving-sys.com^$third-party
+@@||googleads.g.doubleclick.net^$subdocument
+@@||c.statcounter.com^$ping
+@@||secure.statcounter.com^$script
 
 # Reference Only
 @@||pagead2.googlesyndication.com/pagead/osd.js
@@ -740,5 +747,10 @@ forum2go.nl##.adsbygoogle
 flylordsmag.com##.td-ss-main-sidebar
 flylordsmag.com##.td-header-header.td-header-row.td-container-header
 
-www.hktvmall.com##.topBannerGa
+# trying to better collect google ads #1906
+#@#.adsbygoogle
+#@#.ads_1
+*##ads_1:style(height: 1px !important)
+*##.adsbygoogle:style(height: 1px !important)
 
+www.hktvmall.com##.topBannerGa
