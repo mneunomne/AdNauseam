@@ -19,13 +19,13 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 
 html {
   height: 500px;
-  width: 400px;
+  width: 320px;
 }
 
 body {
   line-height: 1;
   height: 500px;
-  width: 400px;
+  width: 320px;
   font-size: 75%;
   border: 0;
   margin: 0;
@@ -114,12 +114,12 @@ a:hover {
 #wrapper {
   width: 100%;
   margin: 0 auto;
+
 }
 
 .container {
   width: 100%;
-  max-width: 400px;
-  min-width:350px;
+  max-width: 320px;
   height: 500px;
   margin: 0 auto;
   padding: 0 0px;
@@ -183,7 +183,10 @@ button.danger:hover{
 }
 
 .recent-ads {
-	margin: 125px 0px 0px 0px;
+  /* display: block;
+  width:150px; */
+  font-size: 14px;
+	margin: 125px 0px 20px 0px;
 }
 
 #alert img {
@@ -216,15 +219,14 @@ header{
   background: #000;
   height: 100px;
   font-family: bebas_neue, sans-serif;
-  font-size: 20px;
+  font-size: 19px;
 }
 
 #toggle-button {
   display: block;
   height: 90px;
-  width: 22%;
-  min-width: 70px;
-  margin:10px 0 0 10px;
+  width: 90px;
+  margin: 10px 0 0 15px;
   background: url(../img/active@2x.png) center center no-repeat;
   background-size: 100px 100px;
   float: left;
@@ -234,19 +236,24 @@ header{
   font-weight: 700;
   line-height: 156px;
 }
+
 #toggle-button:hover{
   cursor: pointer;
 }
 #stats {
   text-align: center;
-  padding: 15px 0px 0;
+  margin-left: 120px;
+  padding: 15px 15px 0 0;
   height: 100px;
-  position: relative;
-  width:75%;
-  float:right;
+  position: absolute;
+  width: calc(100% - 140px);
+  float: right;
 }
+
 #stats .wrapper {
-  max-width: 325px;
+  padding-left: 18px;
+  padding-bottom: 5px;
+  width: 100%;
 }
 #stats .dnt-allowed{
   color: #96B96B;
@@ -261,14 +268,14 @@ header{
 }
 
 #vault-btn {
-  margin: 9px;
+  margin: 9px 9px 4px 9px;
   position: absolute;
+  width: calc(100%);
   bottom: 5px;
-  right: 20px;
 }
 
 #vault-btn button {
-  width: 232px;
+  width: 100%;
 }
 
 #vault-btn span {
@@ -277,9 +284,9 @@ header{
   display: block;
   background: #0076FF;
   height: 20px;
-  width: 30px;
+  width: 25px;
   position: absolute;
-  right: 8px;
+  right: 5px;
   top: -10px;
   border-radius: 5px;
   line-height: 1.5em;
@@ -292,12 +299,13 @@ header{
 #settings form{
   background: #000 url(../img/gray_grid.png);
   height: 350px;
+  /* position: absolute; */
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 #ad-list li {
-  height: 80px;
+  height: 90px;
   border-top: #383838 1px solid;
   border-bottom: #000 1px solid;
   position: relative;
@@ -305,7 +313,7 @@ header{
 
 .ad-item a {
   display: block;
-  padding: 12px 20px 0px 130px;
+  padding: 12px 20px 20px 120px;
   color: #B2B1B0;
 }
 
@@ -331,12 +339,12 @@ header{
 
 @keyframes visit-marker {
   0%   { width: 0 }
-  50%  { width: 400px; left: 0 }
-  100% { width: 0; left: 400px }
+  50%  { width: 320px; left: 0 }
+  100% { width: 0; left: 320px }
 }
 @keyframes failed-marker {
   0%   { width: 0 }
-  40%  { width: 400px}
+  40%  { width: 320px}
   100% { width: 0 }
 }
 @keyframes attempting-marker {
@@ -464,7 +472,7 @@ span.adStatus:before {
 
 .ad-item span.title {
   display: -webkit-box;
-  width: 250px;
+  width: 100%;
   overflow: hidden;
   max-height: 2.3em;
   line-height: 1.15em;
@@ -491,8 +499,8 @@ span.adStatus:before {
 /* -------------------------------------------------- */
 
 .ad-item-text {
-  padding: 10px 20px 0 130px;
-  font-size: 10px;
+  padding: 10px 20px 0 100px;
+  font-size: 13px;
   overflow: hidden;
 }
 
@@ -518,10 +526,10 @@ span.adStatus:before {
 .ad-item-text h3 a {
   color: #ababab;
   text-decoration: none;
-
+  font-size: 0.8em;
   display: block;
   width: 250px;
-  overflow: hidden;
+  /* overflow: hidden; */
   text-overflow: ellipsis;
   max-height: 2.3em;
   line-height: 1.15em;
@@ -809,7 +817,7 @@ select {
   }
 }
 
-@media all and (max-width: 400px) and (max-device-width:400px) {
+@media all and (max-width: 320px) and (max-device-width:320px) {
   header .branding {
     padding: 15px 0;
   }
@@ -838,7 +846,7 @@ select {
   }
 /*  mobile*/
   #stats {
-    width: 70%;
+    width: 50%;
   }
   button.about,button.help {
     width:8%;
