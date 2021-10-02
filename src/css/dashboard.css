@@ -89,7 +89,7 @@ iframe {
     width: 100%;
     }
 #unsavedWarning {
-    box-shadow: rgba(128,128,128,0.4) 0 4px 4px;
+    box-shadow: rgba(0,0,0,0.4) 0 4px 4px;
     display: none;
     left: 0;
     position: absolute;
@@ -100,7 +100,7 @@ iframe {
     display: initial;
     }
 #unsavedWarning > div:first-of-type {
-    background-color: var(--bg-transient-notice);
+    background-color: black;
     padding: 0.5em;
     }
 #unsavedWarning > div:last-of-type {
