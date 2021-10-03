@@ -627,7 +627,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
     // Convert a no longer existing stock list into an imported list.
     const customListFromStockList = assetKey => {
         const oldEntry = oldAvailableLists[assetKey];
-        if ( oldEntry === undefined || oldEntry.off === true ) { return; }
+        if ( oldEntry === undefined || oldEntry.off === true || oldEntry.contentURL === undefined) { return; } // adn #1930
         let listURL = oldEntry.contentURL;
         if ( Array.isArray(listURL) ) {
             listURL = listURL[0];
