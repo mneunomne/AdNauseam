@@ -485,6 +485,9 @@ www.washingtonpost.com##div.dn-hp-xs:has(wp-ad)
 ##.ad-container
 ##.collapsed-ad
 
+# doodle
+doodle.com##div[id*=bottomAd]
+
 ##################### Blocking rules ########################
 # found on wpri.com
 gfp_video_ads/
