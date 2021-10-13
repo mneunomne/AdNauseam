@@ -206,7 +206,7 @@ a.external-link {
 
 .container {
   width: 100%;
-  max-width: 400px;
+  max-width: 320px;
   height: 500px;
   margin: 0 auto;
   padding: 0 0px;
@@ -321,9 +321,9 @@ button.important {
   margin-bottom: 2em;
 }
 
-.recent-ads {
-	margin: 125px 0px 0px 0px;
-}
+/* .recent-ads {
+	margin: 125px 30px 0px 0px;
+} */
 
 #alert img {
   position: absolute;
@@ -362,7 +362,7 @@ button.important {
   padding: 5px 5px 5px 44px;
   line-height: 1.7em;
   font-family: 'bebas_neue',sans-serif;
-  font-size: 18px;
+  font-size: 16.5px;
   border-bottom: 1px solid;
   background-position: 3px center;
   background-repeat: no-repeat;
@@ -1154,9 +1154,9 @@ font-family: bebas_neue,sans-serif;
     width: 1em;
     }
 
-/*ADN - fixing https://github.com/dhowe/AdNauseam/issues/1768 */ 
+/*ADN - fixing https://github.com/dhowe/AdNauseam/issues/1768 */
 
-/* high dpi devices 
+/* high dpi devices
 :root.hidpi button {
     font-family: Metropolis, sans-serif;
     font-weight: 600;
@@ -1166,7 +1166,7 @@ font-family: bebas_neue,sans-serif;
     font-family: Metropolis, sans-serif;
     }
 */
-/* touch-screen devices 
+/* touch-screen devices
 :root.mobile label {
     flex-grow: 1
     }
