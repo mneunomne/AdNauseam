@@ -142,7 +142,8 @@
                   adjustHeight();
             })
         })
-
+    // disable warnings #1910
+    // Notifications need to be hidden right away for the correct height to be calculated
     vAPI.messaging.send(
       'adnauseam', {
         what: 'getWarningDisabled'

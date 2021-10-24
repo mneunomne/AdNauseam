@@ -229,7 +229,7 @@ const removeNotification = function (notes, note) {
 };
 
 const renderNotifications = function (visibleNotes, thePage) {
-
+  // disable warnings option #1910
   vAPI.messaging.send(
     'adnauseam', {
       what: 'getWarningDisabled'

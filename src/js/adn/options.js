@@ -158,16 +158,11 @@
   /******************************************************************************/
   
   /******************************************************************************/
+  // ADN disable warnings option #1910
   const onDisableWarningChanged = function (ev) {
     const input = ev.target;
     let value = input.checked;
-    console.log("onDisableWarningChanged", value, input, ev)
-
-    /*
-    vAPI.messaging.broadcast({
-      what: value ? 'hideNotifications' : 'showNotifications',
-    });
-    */
+    // send to messaging so that the change is broadcasted to all tabs
     vAPI.messaging.send(
       'adnauseam', {
         what: 'setWarningDisabled',

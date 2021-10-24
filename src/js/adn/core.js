@@ -2195,7 +2195,7 @@
     return µb.userSettings.disableWarnings;
   };
   
-  // broadcast change of "disable warning" to all tabs
+  // ADN broadcast change of "disable warning" to all tabs
   exports.setWarningDisabled = function () {
     vAPI.messaging.broadcast({
       what: µb.userSettings.disableWarnings ? 'hideNotifications' : 'showNotifications',

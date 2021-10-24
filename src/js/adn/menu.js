@@ -47,6 +47,7 @@
         renderNotifications(request.notifications);
         adjustBlockHeight();
         break;
+      // disable warnings option #1910
       case 'hideNotifications':
         uDom('#notifications').addClass("hide");
         adjustBlockHeight();
