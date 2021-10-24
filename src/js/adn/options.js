@@ -156,6 +156,27 @@
     changeUserSettings(name, value);
   };
   /******************************************************************************/
+  
+  /******************************************************************************/
+  const onDisableWarningChanged = function (ev) {
+    const input = ev.target;
+    let value = input.checked;
+    console.log("onDisableWarningChanged", value, input, ev)
+
+    /*
+    vAPI.messaging.broadcast({
+      what: value ? 'hideNotifications' : 'showNotifications',
+    });
+    */
+    vAPI.messaging.send(
+      'adnauseam', {
+        what: 'setWarningDisabled',
+        value, value
+      }
+    )  
+
+  }
+
 
   // Workaround for:
   // https://github.com/gorhill/uBlock/issues/1448
@@ -223,6 +244,10 @@
         .on('change', onInputChanged)
         .on('click', onPreventDefault);
     });
+
+    // disable warning
+    uDom('[data-setting-name="disableWarnings"]')
+      .on('change', onDisableWarningChanged)
 
     // Minor text fixes
     if (uDom('#exportDialog').text() === "Back up to file") {

@@ -126,10 +126,17 @@ if ( self.location.hash.slice(1) === 'no-dashboard.html' ) {
 /// ADN notification to appear on dashboard
 vAPI.broadcastListener.add(request => {
     switch (request.what) {
-    case 'notifications':
-      renderNotifications(request.notifications, "dashboard");
-      resizeFrame();
-      break;
+        case 'notifications':
+            renderNotifications(request.notifications, "dashboard");
+            resizeFrame();
+            break;
+        // ADN when "disable notifications" option is changed, hide or show notifications
+        case 'hideNotifications':
+            uDom('#notifications').addClass("hide");
+            break;
+        case 'showNotifications':
+           uDom('#notifications').removeClass("hide");
+            break;
     }
   });
 
@@ -186,6 +193,21 @@ vAPI.messaging.send(
               resizeFrame();
         })
 });
+
+// disable warnings #1910
+vAPI.messaging.send(
+    'adnauseam', {
+      what: 'getWarningDisabled'
+    }
+  ).then(isDisabled => {
+    if (isDisabled) {
+      uDom("#notifications").addClass('hide');
+    } else {
+      uDom("#notifications").removeClass('hide');
+    }
+    adjustHeight();
+  })
+
 
 /******************************************************************************/
 

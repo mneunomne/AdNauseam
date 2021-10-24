@@ -229,6 +229,19 @@ const removeNotification = function (notes, note) {
 };
 
 const renderNotifications = function (visibleNotes, thePage) {
+
+  vAPI.messaging.send(
+    'adnauseam', {
+      what: 'getWarningDisabled'
+    }
+  ).then(isDisabled => {
+    if (isDisabled) {
+      uDom("#notifications").addClass('hide');
+    } else {
+      uDom("#notifications").removeClass('hide');
+    }
+  })
+
   const page = thePage || 'menu';
   let notifications = Notifications;
 

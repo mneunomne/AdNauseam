@@ -95,6 +95,14 @@
       adjustHeight();
       createSlider();
       break;
+    case 'hideNotifications':
+      uDom('#notifications').addClass("hide");
+      adjustHeight();
+      break;
+    case 'showNotifications':
+      uDom('#notifications').removeClass("hide");
+      adjustHeight();
+      break;
     }
   });
 
@@ -135,7 +143,18 @@
             })
         })
 
-
+    vAPI.messaging.send(
+      'adnauseam', {
+        what: 'getWarningDisabled'
+      }
+    ).then(isDisabled => {
+      if (isDisabled) {
+        uDom("#notifications").addClass('hide');
+      } else {
+        uDom("#notifications").removeClass('hide');
+      }
+      adjustHeight();
+    })
   };
 
   const autoUpdateVault = function(){
@@ -2155,7 +2174,8 @@
   }
 
   function adjustHeight(){
-      $("#stage").css('height', String($(window).height() - $("#notifications").height()) + "px" );
+    let notificationsHeight = $("#notifications").hasClass("hide") ? 0 : $("#notifications").height(); 
+    $("#stage").css('height', String($(window).height() - notificationsHeight) + "px" );
   }
 
   // @cqx931 use the existing $(document).keyup function

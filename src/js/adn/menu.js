@@ -43,9 +43,16 @@
       case 'adVisited':
         updateAd(request.ad);
         break;
-
       case 'notifications':
         renderNotifications(request.notifications);
+        adjustBlockHeight();
+        break;
+      case 'hideNotifications':
+        uDom('#notifications').addClass("hide");
+        adjustBlockHeight();
+        break;
+      case 'showNotifications':
+        uDom('#notifications').removeClass("hide");
         adjustBlockHeight();
         break;
     }
@@ -54,9 +61,9 @@
   /******************************************************************************/
 
   const renderPage = function (json) {
-
+    
     page = json && json.pageUrl;
-    settings = json && json.prefs;
+    settings  =json && json.prefs;
 
     function disableMenu() {
       uDom.nodeFromId('pause-button').disabled = true;

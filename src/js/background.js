@@ -100,6 +100,7 @@ const µBlock = (( ) => { // jshint ignore:line
         clickProbability: 1.0,
         removeAdsInPrivate: true,
         strictBlockingMode: false,
+        disableWarnings: false,
 
         clickOnlyWhenIdleFor: 0,
         noIncomingCookies: true,
