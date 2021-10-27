@@ -175,7 +175,6 @@ columbiagreenemedia.com###sawyer_container
 163.com##.mod_zheye
 ##iframe[src*='kaolaad']
 163.com##iframe[src*='jd.com']
-##iframe[src*='g.163.com']
 163.com##a[href*='AID']
 ##a[href*='kaolaad']
 
@@ -484,6 +483,9 @@ www.washingtonpost.com##div.dn-hp-xs:has(wp-ad)
 ##.ad-top-banner
 ##.ad-container
 ##.collapsed-ad
+
+# doodle
+doodle.com##div[id*=bottomAd]
 
 ##################### Blocking rules ########################
 # found on wpri.com
