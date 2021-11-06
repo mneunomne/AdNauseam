@@ -1001,10 +1001,13 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         fake:[] // ADN
     };
     const injectedCSS = [];
-    
+
     const injectedHideFilters = []; // ADN this needs to outside of if since in ADN there is no "noCosmeticFiltering" option available
     
-    if ( options.noCosmeticFiltering !== true ) {
+    if (
+        options.noSpecificCosmeticFiltering !== true ||
+        options.noGenericCosmeticFiltering !== true
+    ) {
         const specificSet = this.$specificSet;
         const proceduralSet = this.$proceduralSet;
         const exceptionSet = this.$exceptionSet;
@@ -1210,7 +1213,7 @@ FilterContainer.prototype.benchmark = async function() {
         entity: '',
     };
     const options = {
-        noCosmeticFiltering: false,
+        noSpecificCosmeticFiltering: false,
         noGenericCosmeticFiltering: false,
     };
     let count = 0;

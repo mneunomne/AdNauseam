@@ -13,9 +13,13 @@ VERSION=`jq .version manifest.json` # top-level adnauseam manifest
 echo "*** AdNauseam.firefox: Copying common files"
 bash ./tools/copy-common-files.sh  $DES
 
-cp platform/firefox/manifest.json      $DES/
-cp platform/firefox/webext.js          $DES/js/
-cp platform/firefox/vapi-webrequest.js $DES/js/
+# Firefox-specific
+echo "*** uBlock0.firefox: Copying firefox-specific files"
+cp platform/firefox/*.json         $DES/
+cp platform/firefox/*.js           $DES/js/
+
+# Firefox store-specific
+cp -R $DES/_locales/nb             $DES/_locales/no
 
 # Webext-specific
 rm $DES/img/icon_128.png

@@ -1353,12 +1353,22 @@ const bootstrapPhaseAdn = function () {
 
         vAPI.domCollapser.start();
 
-        if ( response.noCosmeticFiltering || response.prefs.hidingDisabled) { // ADN
+        const {
+            noSpecificCosmeticFiltering,
+            noGenericCosmeticFiltering,
+            scriptlets,
+        } = response;
+
+        vAPI.noSpecificCosmeticFiltering = noSpecificCosmeticFiltering;
+        vAPI.noGenericCosmeticFiltering = noGenericCosmeticFiltering;
+
+        if ( noSpecificCosmeticFiltering && noGenericCosmeticFiltering || response.prefs.hidingDisabled) { // ADN
+
             vAPI.domFilterer = null;
             vAPI.domSurveyor = null;
         } else {
             const domFilterer = vAPI.domFilterer = new vAPI.DOMFilterer();
-            if ( response.noGenericCosmeticFiltering || cfeDetails.noDOMSurveying ) {
+            if ( noGenericCosmeticFiltering || cfeDetails.noDOMSurveying ) {
                 vAPI.domSurveyor = null;
             }
             domFilterer.exceptions = cfeDetails.exceptionFilters;
@@ -1371,9 +1381,9 @@ const bootstrapPhaseAdn = function () {
 
         // Library of resources is located at:
         // https://github.com/gorhill/uBlock/blob/master/assets/ublock/resources.txt
-        if ( response.scriptlets ) {
-            vAPI.injectScriptlet(document, response.scriptlets);
-            vAPI.injectedScripts = response.scriptlets;
+        if ( scriptlets ) {
+            vAPI.injectScriptlet(document, scriptlets);
+            vAPI.injectedScripts = scriptlets;
         }
 
         if ( vAPI.domSurveyor instanceof Object ) {
