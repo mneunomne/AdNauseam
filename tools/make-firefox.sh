@@ -14,7 +14,7 @@ echo "*** AdNauseam.firefox: Copying common files"
 bash ./tools/copy-common-files.sh  $DES
 
 # Firefox-specific
-echo "*** uBlock0.firefox: Copying firefox-specific files"
+echo "*** AdNauseam.firefox: Copying firefox-specific files"
 cp platform/firefox/*.json         $DES/
 cp platform/firefox/*.js           $DES/js/
 
