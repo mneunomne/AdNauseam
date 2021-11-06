@@ -19,28 +19,37 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global punycode */
-/* jshint bitwise: false */
-
 'use strict';
 
 /******************************************************************************/
 
-{
-// >>>>> start of local scope
+import punycode from '../lib/punycode.js';
+
+import { LineIterator } from './text-utils.js';
+
+import {
+    decomposeHostname,
+    domainFromHostname,
+} from './uri-utils.js';
 
 /******************************************************************************/
 
-const supportedDynamicTypes = {
+// Object.create(null) is used below to eliminate worries about unexpected
+// property names in prototype chain -- and this way we don't have to use
+// hasOwnProperty() to avoid this.
+
+const supportedDynamicTypes = Object.create(null);
+Object.assign(supportedDynamicTypes, {
            '3p': true,
         'image': true,
 'inline-script': true,
     '1p-script': true,
     '3p-script': true,
      '3p-frame': true
-};
+});
 
-const typeBitOffsets = { // ADN -> 3 bits for one more action
+const typeBitOffsets = Object.create(null);
+Object.assign(typeBitOffsets, { // ADN -> 3 bits for one more action
             '*':  0,
 'inline-script':  3,
     '1p-script':  6,
@@ -48,29 +57,39 @@ const typeBitOffsets = { // ADN -> 3 bits for one more action
      '3p-frame': 12,
         'image': 15,
            '3p': 18
-};
+});
 
-const actionToNameMap = {
+const actionToNameMap = Object.create(null);
+Object.assign(actionToNameMap, {    
     '1': 'block', // ub & ADN block, might not trigger rules in  filter lists
     '2': 'allow',
     '3': 'noop',
     '4': 'strictBlock' // ADN: only block if it is blocked by filter list
-};
+});
 
-const nameToActionMap = {
+const nameToActionMap = Object.create(null);
+Object.assign(nameToActionMap, {
     'block': 1,
     'allow': 2,
     'noop': 3,
     'strictBlock': 4
-};
+});
 
-/******************************************************************************/
+const intToActionMap = new Map([
+    [ 1, 'block' ],
+    [ 2, 'allow' ],
+    [ 3, 'noop' ]
+]);
 
 // For performance purpose, as simple tests as possible
 const reBadHostname = /[^0-9a-z_.\[\]:%-]/;
 const reNotASCII = /[^\x20-\x7F]/;
+const decomposedSource = [];
+const decomposedDestination = [];
 
-const is3rdParty = function(srcHostname, desHostname) {
+/******************************************************************************/
+
+function is3rdParty(srcHostname, desHostname) {
     // If at least one is party-less, the relation can't be labelled
     // "3rd-party"
     if ( desHostname === '*' || srcHostname === '*' || srcHostname === '' ) {
@@ -89,18 +108,15 @@ const is3rdParty = function(srcHostname, desHostname) {
     // Do not confuse 'example.com' with 'anotherexample.com'
     return desHostname.length !== srcDomain.length &&
            desHostname.charAt(desHostname.length - srcDomain.length - 1) !== '.';
-};
-
-const domainFromHostname = µBlock.URI.domainFromHostname;
+}
 
 /******************************************************************************/
 
-const Matrix = class {
+class DynamicHostRuleFiltering {
 
     constructor() {
         this.reset();
     }
-
 
     reset() {
         this.r = 0;
@@ -109,10 +125,7 @@ const Matrix = class {
         this.z = '';
         this.rules = new Map();
         this.changed = false;
-        this.decomposedSource = [];
-        this.decomposedDestination = [];
     }
-
 
     assign(other) {
         // Remove rules not in other
@@ -131,7 +144,6 @@ const Matrix = class {
         }
     }
 
-
     copyRules(from, srcHostname, desHostnames) {
         // Specific types
         let thisBits = this.rules.get('* *');
@@ -145,7 +157,7 @@ const Matrix = class {
             this.changed = true;
         }
 
-        let key = srcHostname + ' *';
+        let key = `${srcHostname} *`;
         thisBits = this.rules.get(key);
         fromBits = from.rules.get(key);
         if ( fromBits !== thisBits ) {
@@ -159,10 +171,7 @@ const Matrix = class {
 
         // Specific destinations
         for ( const desHostname in desHostnames ) {
-            if ( desHostnames.hasOwnProperty(desHostname) === false ) {
-                continue;
-            }
-            key = '* ' + desHostname;
+            key = `* ${desHostname}`;
             thisBits = this.rules.get(key);
             fromBits = from.rules.get(key);
             if ( fromBits !== thisBits ) {
@@ -173,7 +182,7 @@ const Matrix = class {
                 }
                 this.changed = true;
             }
-            key = srcHostname + ' ' + desHostname ;
+            key = `${srcHostname} ${desHostname}` ;
             thisBits = this.rules.get(key);
             fromBits = from.rules.get(key);
             if ( fromBits !== thisBits ) {
@@ -189,7 +198,6 @@ const Matrix = class {
         return this.changed;
     }
 
-
     // - *    *  type
     // - from *  type
     // - *    to *
@@ -198,20 +206,16 @@ const Matrix = class {
     hasSameRules(other, srcHostname, desHostnames) {
         // Specific types
         let key = '* *';
-        if ( this.rules.get(key) !== other.rules.get(key) ) {
-            return false;
-        }
-        key = srcHostname + ' *';
-        if ( this.rules.get(key) !== other.rules.get(key) ) {
-            return false;
-        }
+        if ( this.rules.get(key) !== other.rules.get(key) ) { return false; }
+        key = `${srcHostname} *`;
+        if ( this.rules.get(key) !== other.rules.get(key) ) { return false; }
         // Specific destinations
         for ( const desHostname in desHostnames ) {
-            key = '* ' + desHostname;
+            key = `* ${desHostname}`;
             if ( this.rules.get(key) !== other.rules.get(key) ) {
                 return false;
             }
-            key = srcHostname + ' ' + desHostname ;
+            key = `${srcHostname} ${desHostname}`;
             if ( this.rules.get(key) !== other.rules.get(key) ) {
                 return false;
             }
@@ -219,15 +223,12 @@ const Matrix = class {
         return true;
     }
 
-
     setCell(srcHostname, desHostname, type, state) {
         const bitOffset = typeBitOffsets[type];
-        const k = srcHostname + ' ' + desHostname;
+        const k = `${srcHostname} ${desHostname}`;
         const oldBitmap = this.rules.get(k) || 0;
         const newBitmap = oldBitmap & ~(7 << bitOffset) | (state << bitOffset); //ADN: 7 << bitOffset
-        if ( newBitmap === oldBitmap ) {
-            return false;
-        }
+        if ( newBitmap === oldBitmap ) { return false; }
         if ( newBitmap === 0 ) {
             this.rules.delete(k);
         } else {
@@ -237,26 +238,21 @@ const Matrix = class {
         return true;
     }
 
-
     unsetCell(srcHostname, desHostname, type) {
         this.evaluateCellZY(srcHostname, desHostname, type);
-        if ( this.r === 0 ) {
-            return false;
-        }
+        if ( this.r === 0 ) { return false; }
         this.setCell(srcHostname, desHostname, type, 0);
         this.changed = true;
         return true;
     }
 
-
     evaluateCell(srcHostname, desHostname, type) {
-        const key = srcHostname + ' ' + desHostname;
+        const key = `${srcHostname} ${desHostname}`;
         const bitmap = this.rules.get(key);
         if ( bitmap === undefined ) { return 0; }
         //return bitmap >> typeBitOffsets[type] & 3;
         return bitmap >> typeBitOffsets[type] & 7; // ADN: 3 bits
     }
-
 
     clearRegisters() {
         this.r = 0;
@@ -265,25 +261,22 @@ const Matrix = class {
     }
 
     evaluateCellZ(srcHostname, desHostname, type) {
-        µBlock.decomposeHostname(srcHostname, this.decomposedSource);
+        decomposeHostname(srcHostname, decomposedSource);
         this.type = type;
         const bitOffset = typeBitOffsets[type];
-        for ( const shn of this.decomposedSource ) {
-            this.z = shn;
-            let v = this.rules.get(shn + ' ' + desHostname);
-            if ( v !== undefined ) {
-                v = v >>> bitOffset & 7; //ADN: 3 bits
-                if ( v !== 0 ) {
-                    this.r = v;
-                    return v;
-                }
-            }
+
+        for ( const srchn of decomposedSource ) {
+            this.z = srchn;
+            let v = this.rules.get(`${srchn} ${desHostname}`);
+            if ( v === undefined ) { continue; }
+            v = v >>> bitOffset & 7; //ADN: 3 bits
+            if ( v === 0 ) { continue; }
+            return (this.r = v);
         }
         // srcHostname is '*' at this point
         this.r = 0;
         return 0;
     }
-
 
     evaluateCellZY(srcHostname, desHostname, type) {
         // Pathological cases.
@@ -295,11 +288,11 @@ const Matrix = class {
         // Precedence: from most specific to least specific
 
         // Specific-destination, any party, any type
-        µBlock.decomposeHostname(desHostname, this.decomposedDestination);
-        for ( const dhn of this.decomposedDestination ) {
-            if ( dhn === '*' ) { break; }
-            this.y = dhn;
-            if ( this.evaluateCellZ(srcHostname, dhn, '*') !== 0 ) {
+        decomposeHostname(desHostname, decomposedDestination);
+        for ( const deshn of decomposedDestination ) {
+            if ( deshn === '*' ) { break; }
+            this.y = deshn;
+            if ( this.evaluateCellZ(srcHostname, deshn, '*') !== 0 ) {
                 return this.r;
             }
         }
@@ -334,7 +327,7 @@ const Matrix = class {
         }
 
         // Any destination, any party, specific type
-        if ( supportedDynamicTypes.hasOwnProperty(type) ) {
+        if ( supportedDynamicTypes[type] !== undefined ) {
             if ( this.evaluateCellZ(srcHostname, '*', type) !== 0 ) {
                 return this.r;
             }
@@ -349,26 +342,21 @@ const Matrix = class {
         return 0;
     }
 
-
     mustAllowCellZY(srcHostname, desHostname, type) {
         return this.evaluateCellZY(srcHostname, desHostname, type) === 2;
     }
-
 
     mustBlockOrAllow() {
         return this.r === 1 || this.r === 2;
     }
 
-
     mustBlock() {
         return this.r === 1;
     }
 
-
     mustAbort() {
         return this.r === 3;
     }
-
 
     lookupRuleData(src, des, type) {
         let r = this.evaluateCellZY(src, des, type);
@@ -378,68 +366,57 @@ const Matrix = class {
         return `${this.z} ${this.y} ${this.type} ${r}`;
     }
 
-
     toLogData() {
         if ( this.r === 0  || this.type === '' ) { return; }
         return {
             source: 'dynamicHost',
             result: this.r,
-            raw: `${this.z} ${this.y} ${this.type} ${this.intToActionMap.get(this.r)}`
+            raw: `${this.z} ${this.y} ${this.type} ${intToActionMap.get(this.r)}`
         };
     }
-
 
     srcHostnameFromRule(rule) {
         return rule.slice(0, rule.indexOf(' '));
     }
 
-
     desHostnameFromRule(rule) {
         return rule.slice(rule.indexOf(' ') + 1);
     }
 
-
     toArray() {
-        const out = [],
-            toUnicode = punycode.toUnicode;
+        const out = [];
         for ( const key of this.rules.keys() ) {
-            let srcHostname = this.srcHostnameFromRule(key);
-            let desHostname = this.desHostnameFromRule(key);
+            const srchn = this.srcHostnameFromRule(key);
+            const deshn = this.desHostnameFromRule(key);
+            const srchnPretty = srchn.includes('xn--') && punycode
+                ? punycode.toUnicode(srchn)
+                : srchn;
+            const deshnPretty = deshn.includes('xn--') && punycode
+                ? punycode.toUnicode(deshn)
+                : deshn;
             for ( const type in typeBitOffsets ) {
-                if ( typeBitOffsets.hasOwnProperty(type) === false ) { continue; }
-                const val = this.evaluateCell(srcHostname, desHostname, type);
+                if ( typeBitOffsets[type] === undefined ) { continue; }
+                const val = this.evaluateCell(srchn, deshn, type);
                 if ( val === 0 ) { continue; }
-                if ( srcHostname.indexOf('xn--') !== -1 ) {
-                    srcHostname = toUnicode(srcHostname);
-                }
-                if ( desHostname.indexOf('xn--') !== -1 ) {
-                    desHostname = toUnicode(desHostname);
-                }
-                out.push(
-                    srcHostname + ' ' +
-                    desHostname + ' ' +
-                    type + ' ' +
-                    actionToNameMap[val]
-                );
+                const action = intToActionMap.get(val);
+                if ( action === undefined ) { continue; }
+                out.push(`${srchnPretty} ${deshnPretty} ${type} ${action}`);
             }
         }
         return out;
     }
 
-
     toString() {
         return this.toArray().join('\n');
     }
 
-
     fromString(text, append) {
-        const lineIter = new µBlock.LineIterator(text);
+        const lineIter = new LineIterator(text);
         if ( append !== true ) { this.reset(); }
         while ( lineIter.eot() === false ) {
             this.addFromRuleParts(lineIter.next().trim().split(/\s+/));
         }
     }
-
 
     validateRuleParts(parts) {
         if ( parts.length < 4 ) { return; }
@@ -448,19 +425,25 @@ const Matrix = class {
         if ( parts[0].endsWith(':') ) { return; }
 
         // Ignore URL-based rules
-        if ( parts[1].indexOf('/') !== -1 ) { return; }
+        if ( parts[1].includes('/') ) { return; }
 
-        if ( typeBitOffsets.hasOwnProperty(parts[2]) === false ) { return; }
+        if ( typeBitOffsets[parts[2]] === undefined ) { return; }
 
-        if ( nameToActionMap.hasOwnProperty(parts[3]) === false ) { return; }
+        if ( nameToActionMap[parts[3]] === undefined ) { return; }
 
         // https://github.com/chrisaljoudi/uBlock/issues/840
         //   Discard invalid rules
         if ( parts[1] !== '*' && parts[2] !== '*' ) { return; }
 
-        // Performance: avoid punycoding if hostnames are made only of ASCII chars.
-        if ( reNotASCII.test(parts[0]) ) { parts[0] = punycode.toASCII(parts[0]); }
-        if ( reNotASCII.test(parts[1]) ) { parts[1] = punycode.toASCII(parts[1]); }
+        // Performance: avoid punycoding when only ASCII chars
+        if ( punycode !== undefined ) {
+            if ( reNotASCII.test(parts[0]) ) {
+                parts[0] = punycode.toASCII(parts[0]);
+            }
+            if ( reNotASCII.test(parts[1]) ) {
+                parts[1] = punycode.toASCII(parts[1]);
+            }
+        }
 
         // https://github.com/chrisaljoudi/uBlock/issues/1082
         //   Discard rules with invalid hostnames
@@ -474,7 +457,6 @@ const Matrix = class {
         return parts;
     }
 
-
     addFromRuleParts(parts) {
         if ( this.validateRuleParts(parts) !== undefined ) {
             this.setCell(parts[0], parts[1], parts[2], nameToActionMap[parts[3]]);
@@ -482,7 +464,6 @@ const Matrix = class {
         }
         return false;
     }
-
 
     removeFromRuleParts(parts) {
         if ( this.validateRuleParts(parts) !== undefined ) {
@@ -492,14 +473,12 @@ const Matrix = class {
         return false;
     }
 
-
     toSelfie() {
         return {
             magicId: this.magicId,
             rules: Array.from(this.rules)
         };
     }
-
 
     fromSelfie(selfie) {
         if ( selfie.magicId !== this.magicId ) { return false; }
@@ -548,12 +527,10 @@ Matrix.prototype.magicId = 1;
 
 µBlock.Firewall = Matrix;
 
-// <<<<< end of local scope
-}
+DynamicHostRuleFiltering.prototype.magicId = 1;
 
 /******************************************************************************/
 
-µBlock.sessionFirewall = new µBlock.Firewall();
-µBlock.permanentFirewall = new µBlock.Firewall();
+export default DynamicHostRuleFiltering;
 
 /******************************************************************************/

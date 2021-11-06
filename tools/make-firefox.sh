@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #
 # This script assumes a linux environment
+
+set -e
+
 echo "*** AdNauseam.firefox: Creating web store package"
 
 BLDIR=dist/build
@@ -18,8 +21,9 @@ echo "*** AdNauseam.firefox: Copying firefox-specific files"
 cp platform/firefox/*.json         $DES/
 cp platform/firefox/*.js           $DES/js/
 
+
 # Firefox store-specific
-cp -R $DES/_locales/nb             $DES/_locales/no
+cp -R $DES/_locales/nb     $DES/_locales/no
 
 # Webext-specific
 rm $DES/img/icon_128.png
@@ -27,7 +31,7 @@ rm $DES/img/icon_128.png
 awk -v s=$VERSION '{gsub(/"{version}"/, s)}1' $DES/manifest.json > /tmp/manifest.json && mv /tmp/manifest.json $DES/manifest.json
 
 echo "*** AdNauseam.firefox: Generating meta..."
-python tools/make-firefox-meta.py $DES/
+python3 tools/make-firefox-meta.py $DES/
 
 if [ "$1" = all ]; then
     echo "*** AdNauseam.firefox: Creating package..."

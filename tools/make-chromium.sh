@@ -2,6 +2,8 @@
 #
 # This script assumes an OS X environment
 
+set -e
+
 echo "*** AdNauseam.chromium: Creating chrome package"
 
 if [ "$1" = experimental ]; then
@@ -20,6 +22,7 @@ bash ./tools/copy-common-files.sh  $DES
 echo "*** AdNauseam.chromium: Copying chromium-specific files"
 cp platform/chromium/*.js          $DES/js/
 cp platform/chromium/*.html        $DES/
+
 
 # Chrome store-specific
 [[ -e $DES/_locales/nb ]] && cp -R $DES/_locales/nb $DES/_locales/no

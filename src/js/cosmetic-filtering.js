@@ -23,11 +23,16 @@
 
 /******************************************************************************/
 
-µBlock.cosmeticFilteringEngine = (( ) => {
+import logger from './logger.js';
+import µb from './background.js';
+
+import {
+    StaticExtFilteringHostnameDB,
+    StaticExtFilteringSessionDB,
+} from './static-ext-filtering-db.js';
 
 /******************************************************************************/
 
-const µb = µBlock;
 const cosmeticSurveyingMissCountMax =
     parseInt(vAPI.localStorage.getItem('cosmeticSurveyingMissCountMax'), 10) ||
     15;
@@ -52,6 +57,9 @@ const checkFakeEntries = function(filters) {
   filters = array.join(',\n');
   return [filters,out];
 }
+
+const COMPILED_SPECIFIC_SECTION = 0;
+const COMPILED_GENERIC_SECTION = 1;
 
 /******************************************************************************/
 /******************************************************************************/
@@ -217,10 +225,10 @@ const FilterContainer = function() {
     this.selectorCacheTimer = null;
 
     // specific filters
-    this.specificFilters = new µb.staticExtFilteringEngine.HostnameBasedDB(2);
+    this.specificFilters = new StaticExtFilteringHostnameDB(2);
 
     // temporary filters
-    this.sessionFilterDB = new µb.staticExtFilteringEngine.SessionDB();
+    this.sessionFilterDB = new StaticExtFilteringSessionDB();
 
     // low generic cosmetic filters, organized by id/class then simple/complex.
     this.lowlyGeneric = Object.create(null);
@@ -271,7 +279,6 @@ const FilterContainer = function() {
 // Reset all, thus reducing to a minimum memory footprint of the context.
 
 FilterContainer.prototype.reset = function() {
-    this.µburi = µb.URI;
     this.frozen = false;
     this.acceptedCount = 0;
     this.discardedCount = 0;
@@ -361,16 +368,14 @@ FilterContainer.prototype.keyFromSelector = function(selector) {
 /******************************************************************************/
 
 FilterContainer.prototype.compile = function(parser, writer) {
-    writer.select(µb.compiledCosmeticSection);
-
     if ( parser.hasOptions() === false ) {
         this.compileGenericSelector(parser, writer);
         return true;
     }
 
     // https://github.com/chrisaljoudi/uBlock/issues/151
-    // Negated hostname means the filter applies to all non-negated hostnames
-    // of same filter OR globally if there is no non-negated hostnames.
+    //   Negated hostname means the filter applies to all non-negated hostnames
+    //   of same filter OR globally if there is no non-negated hostnames.
     let applyGlobally = true;
     for ( const { hn, not, bad } of parser.extOptions() ) {
         if ( bad ) { continue; }
@@ -404,13 +409,16 @@ FilterContainer.prototype.compileGenericHideSelector = function(
 ) {
     const { raw, compiled, pseudoclass } = parser.result;
     if ( compiled === undefined ) {
-        const who = writer.properties.get('assetKey') || '?';
-        µb.logger.writeOne({
+        const who = writer.properties.get('name') || '?';
+        logger.writeOne({
             realm: 'message',
             type: 'error',
             text: `Invalid generic cosmetic filter in ${who}: ${raw}`
         });
+        return;
     }
+
+    writer.select(µb.compiledCosmeticSection + COMPILED_GENERIC_SECTION);
 
     const type = compiled.charCodeAt(0);
     let key;
@@ -448,8 +456,8 @@ FilterContainer.prototype.compileGenericHideSelector = function(
         if ( µb.hiddenSettings.allowGenericProceduralFilters === true ) {
             return this.compileSpecificSelector(parser, '', false, writer);
         }
-        const who = writer.properties.get('assetKey') || '?';
-        µb.logger.writeOne({
+        const who = writer.properties.get('name') || '?';
+        logger.writeOne({
             realm: 'message',
             type: 'error',
             text: `Invalid generic cosmetic filter in ${who}: ##${raw}`
@@ -504,14 +512,16 @@ FilterContainer.prototype.compileGenericUnhideSelector = function(
     // Procedural cosmetic filters are acceptable as generic exception filters.
     const { raw, compiled } = parser.result;
     if ( compiled === undefined ) {
-        const who = writer.properties.get('assetKey') || '?';
-        µb.logger.writeOne({
+        const who = writer.properties.get('name') || '?';
+        logger.writeOne({
             realm: 'message',
             type: 'error',
             text: `Invalid cosmetic filter in ${who}: #@#${raw}`
         });
         return;
     }
+
+    writer.select(µb.compiledCosmeticSection + COMPILED_SPECIFIC_SECTION);
 
     // https://github.com/chrisaljoudi/uBlock/issues/497
     //   All generic exception filters are stored as hostname-based filter
@@ -532,14 +542,16 @@ FilterContainer.prototype.compileSpecificSelector = function(
 ) {
     const { raw, compiled, exception } = parser.result;
     if ( compiled === undefined ) {
-        const who = writer.properties.get('assetKey') || '?';
-        µb.logger.writeOne({
+        const who = writer.properties.get('name') || '?';
+        logger.writeOne({
             realm: 'message',
             type: 'error',
             text: `Invalid cosmetic filter in ${who}: ##${raw}`
         });
         return;
     }
+
+    writer.select(µb.compiledCosmeticSection + COMPILED_SPECIFIC_SECTION);
 
     // https://github.com/chrisaljoudi/uBlock/issues/145
     let unhide = exception ? 1 : 0;
@@ -572,18 +584,13 @@ FilterContainer.prototype.compileTemporary = function(parser) {
 
 FilterContainer.prototype.fromCompiledContent = function(reader, options) {
     if ( options.skipCosmetic ) {
-        this.skipCompiledContent(reader);
-        return;
-    }
-    if ( options.skipGenericCosmetic ) {
-        this.skipGenericCompiledContent(reader);
+        this.skipCompiledContent(reader, COMPILED_SPECIFIC_SECTION);
+        this.skipCompiledContent(reader, COMPILED_GENERIC_SECTION);
         return;
     }
 
-    reader.select(µb.compiledCosmeticSection);
-
-    let db, bucket;
-
+    // Specific cosmetic filter section
+    reader.select(µb.compiledCosmeticSection + COMPILED_SPECIFIC_SECTION);
     while ( reader.next() ) {
         this.acceptedCount += 1;
         const fingerprint = reader.fingerprint();
@@ -592,56 +599,8 @@ FilterContainer.prototype.fromCompiledContent = function(reader, options) {
             continue;
         }
         this.duplicateBuster.add(fingerprint);
-
         const args = reader.args();
-
         switch ( args[0] ) {
-
-        // low generic, simple
-        case 0: // #AdBanner
-        case 2: // .largeAd
-            db = args[0] === 0 ? this.lowlyGeneric.id : this.lowlyGeneric.cl;
-            bucket = db.complex.get(args[1]);
-            if ( bucket === undefined ) {
-                db.simple.add(args[1]);
-            } else if ( Array.isArray(bucket) ) {
-                bucket.push(db.prefix + args[1]);
-            } else {
-                db.complex.set(args[1], [ bucket, db.prefix + args[1] ]);
-            }
-            break;
-
-        // low generic, complex
-        case 1: // #tads + div + .c
-        case 3: // .Mpopup + #Mad > #MadZone
-            db = args[0] === 1 ? this.lowlyGeneric.id : this.lowlyGeneric.cl;
-            bucket = db.complex.get(args[1]);
-            if ( bucket === undefined ) {
-                if ( db.simple.has(args[1]) ) {
-                    db.complex.set(args[1], [ db.prefix + args[1], args[2] ]);
-                } else {
-                    db.complex.set(args[1], args[2]);
-                    db.simple.add(args[1]);
-                }
-            } else if ( Array.isArray(bucket) ) {
-                bucket.push(args[2]);
-            } else {
-                db.complex.set(args[1], [ bucket, args[2] ]);
-            }
-            break;
-
-        // High-high generic hide/simple selectors
-        // div[id^="allo"]
-        case 4:
-            this.highlyGeneric.simple.dict.add(args[1]);
-            break;
-
-        // High-high generic hide/complex selectors
-        // div[id^="allo"] > span
-        case 5:
-            this.highlyGeneric.complex.dict.add(args[1]);
-            break;
-
         // hash,  example.com, .promoted-tweet
         // hash,  example.*, .promoted-tweet
         //
@@ -660,7 +619,72 @@ FilterContainer.prototype.fromCompiledContent = function(reader, options) {
             }
             this.specificFilters.store(args[1], args[2] & 0b011, args[3]);
             break;
+        default:
+            this.discardedCount += 1;
+            break;
+        }
+    }
 
+    if ( options.skipGenericCosmetic ) {
+        this.skipCompiledContent(reader, COMPILED_GENERIC_SECTION);
+        return;
+    }
+
+    // Generic cosmetic filter section
+    reader.select(µb.compiledCosmeticSection + COMPILED_GENERIC_SECTION);
+    while ( reader.next() ) {
+        this.acceptedCount += 1;
+        const fingerprint = reader.fingerprint();
+        if ( this.duplicateBuster.has(fingerprint) ) {
+            this.discardedCount += 1;
+            continue;
+        }
+        this.duplicateBuster.add(fingerprint);
+        const args = reader.args();
+        switch ( args[0] ) {
+        // low generic, simple
+        case 0:   // #AdBanner
+        case 2: { // .largeAd
+            const db = args[0] === 0 ? this.lowlyGeneric.id : this.lowlyGeneric.cl;
+            const bucket = db.complex.get(args[1]);
+            if ( bucket === undefined ) {
+                db.simple.add(args[1]);
+            } else if ( Array.isArray(bucket) ) {
+                bucket.push(db.prefix + args[1]);
+            } else {
+                db.complex.set(args[1], [ bucket, db.prefix + args[1] ]);
+            }
+            break;
+        }
+        // low generic, complex
+        case 1:   // #tads + div + .c
+        case 3: { // .Mpopup + #Mad > #MadZone
+            const db = args[0] === 1 ? this.lowlyGeneric.id : this.lowlyGeneric.cl;
+            const bucket = db.complex.get(args[1]);
+            if ( bucket === undefined ) {
+                if ( db.simple.has(args[1]) ) {
+                    db.complex.set(args[1], [ db.prefix + args[1], args[2] ]);
+                } else {
+                    db.complex.set(args[1], args[2]);
+                    db.simple.add(args[1]);
+                }
+            } else if ( Array.isArray(bucket) ) {
+                bucket.push(args[2]);
+            } else {
+                db.complex.set(args[1], [ bucket, args[2] ]);
+            }
+            break;
+        }
+        // High-high generic hide/simple selectors
+        // div[id^="allo"]
+        case 4:
+            this.highlyGeneric.simple.dict.add(args[1]);
+            break;
+        // High-high generic hide/complex selectors
+        // div[id^="allo"] > span
+        case 5:
+            this.highlyGeneric.complex.dict.add(args[1]);
+            break;
         default:
             this.discardedCount += 1;
             break;
@@ -670,50 +694,8 @@ FilterContainer.prototype.fromCompiledContent = function(reader, options) {
 
 /******************************************************************************/
 
-FilterContainer.prototype.skipGenericCompiledContent = function(reader) {
-    reader.select(µb.compiledCosmeticSection);
-
-    while ( reader.next() ) {
-        this.acceptedCount += 1;
-        const fingerprint = reader.fingerprint();
-        if ( this.duplicateBuster.has(fingerprint) ) {
-            this.discardedCount += 1;
-            continue;
-        }
-
-        const args = reader.args();
-
-        switch ( args[0] ) {
-
-        // https://github.com/uBlockOrigin/uBlock-issues/issues/803
-        //   Handle specific filters meant to apply everywhere, i.e. selectors
-        //   not to be injected conditionally through the DOM surveyor.
-        //   hash,  *, .promoted-tweet
-        case 8:
-            this.duplicateBuster.add(fingerprint);
-            if ( args[2] === 0b100 ) {
-                if ( this.reSimpleHighGeneric.test(args[3]) )
-                    this.highlyGeneric.simple.dict.add(args[3]);
-                else {
-                    this.highlyGeneric.complex.dict.add(args[3]);
-                }
-                break;
-            }
-            this.specificFilters.store(args[1], args[2] & 0b011, args[3]);
-            break;
-
-        default:
-            this.discardedCount += 1;
-            break;
-        }
-   }
-};
-
-/******************************************************************************/
-
-FilterContainer.prototype.skipCompiledContent = function(reader) {
-    reader.select(µb.compiledCosmeticSection);
-
+FilterContainer.prototype.skipCompiledContent = function(reader, sectionId) {
+    reader.select(µb.compiledCosmeticSection + sectionId);
     while ( reader.next() ) {
         this.acceptedCount += 1;
         this.discardedCount += 1;
@@ -868,6 +850,7 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
     if ( this.acceptedCount === 0 ) { return; }
     if ( !request.ids && !request.classes ) { return; }
 
+    const { safeOnly = false } = request;
     //console.time('cosmeticFilteringEngine.retrieveGenericSelectors');
 
     const simpleSelectors = this.$simpleSet;
@@ -880,27 +863,26 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
         const entry = this.lowlyGeneric[type];
         const selectors = request[entry.canonical];
         if ( Array.isArray(selectors) === false ) { continue; }
-        for ( let selector of selectors ) {
-            if ( entry.simple.has(selector) === false ) {
-              continue;
+        for ( const identifier of selectors ) {
+            if ( entry.simple.has(identifier) === false ) { continue; }
+            const bucket = entry.complex.get(identifier);
+            if ( typeof bucket === 'string' ) {
+                if ( previousHits.has(bucket) ) { continue; }
+                complexSelectors.add(bucket);
+                continue;
             }
-            const bucket = entry.complex.get(selector);
-            if ( bucket !== undefined ) {
-                if ( Array.isArray(bucket) ) {
-                    for ( const selector of bucket ) {
-                        if ( previousHits.has(selector) === false ) {
-                            complexSelectors.add(selector);
-                        }
-                    }
-                } else if ( previousHits.has(bucket) === false ) {
-                    complexSelectors.add(bucket);
+            const simpleSelector = entry.prefix + identifier;
+            if ( Array.isArray(bucket) ) {
+                for ( const complexSelector of bucket ) {
+                    if ( previousHits.has(complexSelector) ) { continue; }
+                    if ( safeOnly && complexSelector === simpleSelector ) { continue; }
+                    complexSelectors.add(complexSelector);
                 }
-            } else {
-                selector = entry.prefix + selector;
-                if ( previousHits.has(selector) === false ) {
-                    simpleSelectors.add(selector);
-                }
+                continue;
             }
+            if ( previousHits.has(simpleSelector) ) { continue; }
+            if ( safeOnly ) { continue; }
+            simpleSelectors.add(simpleSelector);
         }
     }
 
@@ -1198,47 +1180,8 @@ FilterContainer.prototype.getFilterCount = function() {
 
 /******************************************************************************/
 
-FilterContainer.prototype.benchmark = async function() {
-    const requests = await µb.loadBenchmarkDataset();
-    if ( Array.isArray(requests) === false || requests.length === 0 ) {
-        console.info('No requests found to benchmark');
-        return;
-    }
-    console.info('Benchmarking cosmeticFilteringEngine.retrieveSpecificSelectors()...');
-    const details = {
-        tabId: undefined,
-        frameId: undefined,
-        hostname: '',
-        domain: '',
-        entity: '',
-    };
-    const options = {
-        noSpecificCosmeticFiltering: false,
-        noGenericCosmeticFiltering: false,
-    };
-    let count = 0;
-    const t0 = self.performance.now();
-    for ( let i = 0; i < requests.length; i++ ) {
-        const request = requests[i];
-        if ( request.cpt !== 'main_frame' ) { continue; }
-        count += 1;
-        details.hostname = µb.URI.hostnameFromURI(request.url);
-        details.domain = µb.URI.domainFromHostname(details.hostname);
-        details.entity = µb.URI.entityFromDomain(details.domain);
-        void this.retrieveSpecificSelectors(details, options);
-    }
-    const t1 = self.performance.now();
-    const dur = t1 - t0;
-    console.info(`Evaluated ${count} requests in ${dur.toFixed(0)} ms`);
-    console.info(`\tAverage: ${(dur / count).toFixed(3)} ms per request`);
-};
+const cosmeticFilteringEngine = new FilterContainer();
 
-/******************************************************************************/
-
-return new FilterContainer();
-
-/******************************************************************************/
-
-})();
+export default cosmeticFilteringEngine;
 
 /******************************************************************************/
