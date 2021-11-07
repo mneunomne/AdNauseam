@@ -19,16 +19,24 @@
     Home: https://github.com/dhowe/AdNauseam
 */
 
-/* global vAPI, µBlock */
+/* global vAPI, µb */
 
 'use strict';
 
 import µb from '../background.js';
 import staticFilteringReverseLookup from '../reverselookup.js';
+import dnt from './dnt.js'
 
-const µBlock = µb
+import {
+  log,
+  warn,
+  err, 
+  logNetAllow,
+  logNetBlock,
+  logNetEvent
+} from './log.js'
 
-µBlock.adnauseam = (function () {
+const adnauseam = (function () {
   'use strict';
 
   // for debugging only
@@ -49,7 +57,7 @@ const µBlock = µb
   let xhr, idgen, admap, listsLoaded = false;
   let inspected, listEntries, devbuild, adsetSize = 0;
 
-  const µb = µBlock;
+  const µb = µb;
   const production = 1;
   const notifications = [];
   const allowedExceptions = [];
@@ -892,24 +900,6 @@ const µBlock = µb
     storeAdData();
   }
 
-  const log = function () {
-    if (µb.userSettings.eventLogging) {
-      console.log.apply(console, arguments);
-    }
-    return true;
-  }
-
-  const warn = function () {
-    if (µb.userSettings.eventLogging)
-      console.warn.apply(console, arguments);
-    return false;
-  }
-
-  const err = function () {
-    console.error.apply(console, arguments);
-    return false;
-  }
-
   const adsForUI = function (pageUrl) {
     return {
       data: adlist(pageUrl, false, true),
@@ -1579,7 +1569,7 @@ const µBlock = µb
     verifySettings();
     verifyLists();
 
-    adnauseam.dnt.updateFilters();
+    dnt.updateFilters();
 
     if (firstRun) {
 
@@ -1606,39 +1596,9 @@ const µBlock = µb
     }
   };
 
-  exports.logRedirect = function (fctxt, msg) {
-
-    fctxt && log('[REDIRECT] ' + fctxt.url + ' => '
-      + fctxt.redirectURL + (msg ? ' (' + msg + ')' : ''));
-  };
-
   const markUserAction = exports.markUserAction = function () {
 
     return (lastUserActivity = millis());
-  }
-
-  const logNetAllow = exports.logNetAllow = function () { // local only
-
-    const args = Array.prototype.slice.call(arguments);
-    args.unshift('[ALLOW]')
-    logNetEvent.apply(this, args);
-  };
-
-  const logNetBlock = exports.logNetBlock = function () {
-
-    const args = Array.prototype.slice.call(arguments);
-    args.unshift('[BLOCK]');
-    logNetEvent.apply(this, args);
-  };
-
-  const logNetEvent = exports.logNetEvent = function () {
-
-    if (µb.userSettings.eventLogging && arguments.length) {
-      const args = Array.prototype.slice.call(arguments);
-      const action = args.shift();
-      args[0] = action + ' (' + args[0] + ')';
-      log.apply(this, args);
-    }
   }
 
   exports.lookupAd = function (url, requestId) {
@@ -1696,7 +1656,7 @@ const µBlock = µb
 
     ad.id = ++idgen; // gets an id only if its not a duplicate
 
-    if (adnauseam.dnt.mustNotVisit(ad)) { // see #1168
+    if (dnt.mustNotVisit(ad)) { // see #1168
       ad.noVisit = true;
       ad.dntAllowed = true;
     }
@@ -2070,7 +2030,7 @@ const µBlock = µb
         //console.log('clicking: ', state, µb.userSettings.clickingAds || µb.userSettings.clickingAds);
         const off = !(µb.userSettings.clickingAds || µb.userSettings.hidingAds);
   
-        // µb.selectFilterLists({ location: adnauseam.dnt.effList, off: off })
+        // µb.selectFilterLists({ location: dnt.effList, off: off })
       }*/
 
       sendNotifications(notifications);
@@ -2295,7 +2255,7 @@ const µBlock = µb
       default: break;
     } // Async
 
-    let pageStore, tabId, frameId, µb = µBlock;
+    let pageStore, tabId, frameId, µb = µb;
 
     if (sender && sender.tabId) {
 
@@ -2324,7 +2284,7 @@ const µBlock = µb
 
 })();
 
-const adnauseam = µBlock.adnauseam
+// const adnauseam = µb.adnauseam
 export default adnauseam
 
 /*************************************************************************/

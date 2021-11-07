@@ -29,7 +29,6 @@ import scriptletFilteringEngine from './scriptlet-filtering.js';
 import staticNetFilteringEngine from './static-net-filtering.js';
 import µb from './background.js';
 import { PageStore } from './pagestore.js';
-import adnauseam from './adn/core.js'
 
 import {
     sessionFirewall,
@@ -44,6 +43,7 @@ import {
     originFromURI,
 } from './uri-utils.js';
 
+import adnauseam from './adn/core.js' // ADN
 
 /******************************************************************************/
 /******************************************************************************/

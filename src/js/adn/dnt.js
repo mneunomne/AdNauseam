@@ -6,9 +6,9 @@ import DynamicHostRuleFiltering from '../dynamic-net-filtering.js';
 
 const dnt = (function () {
 
-  'use strict';
+  console.log("adnauseam", adnauseam)
 
-  log = adnauseam.log;
+  const log = adnauseam.log;
   //const effList = 'eff-dnt-whitelist';
 
   let exports = {};
