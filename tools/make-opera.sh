@@ -4,7 +4,7 @@
 
 hash jq 2>/dev/null || { echo; echo >&2 "Error: this script requires jq (https://stedolan.github.io/jq/), but it's not installed"; exit 1; }
 
-set -e
+
 
 echo "*** AdNauseam.opera: Creating opera package"
 echo "*** AdNauseam.opera: Copying files"

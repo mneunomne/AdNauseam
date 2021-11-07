@@ -2,7 +2,7 @@
 #
 # This script assumes a linux/OSX environment
 
-set -e
+
 
 DES=$1/assets
 

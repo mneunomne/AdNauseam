@@ -34,6 +34,7 @@ import µb from './background.js';
 import { redirectEngine } from './redirect-engine.js';
 import { ubolog } from './console.js';
 import { webRequest } from './traffic.js';
+import adnauseam from './adn/core.js'
 
 import {
     permanentFirewall,
@@ -62,7 +63,7 @@ vAPI.app.onShutdown = function() {
     permanentFirewall.reset();
     sessionURLFiltering.reset();
     permanentURLFiltering.reset();
-    µb.adnauseam.shutdown(); // ADN
+    adnauseam.shutdown(); // ADN
     sessionSwitches.reset();
     permanentSwitches.reset();
 };
@@ -460,7 +461,7 @@ contextMenu.update();
 
 
 // ADN lists and first run (see #1826)
-µb.adnauseam.onListsLoaded(µb.userSettings.firstInstall
+adnauseam.onListsLoaded(µb.userSettings.firstInstall
   && µb.restoreBackupSettings.lastRestoreFile === "");
 µb.userSettings.firstInstall = false;
 µb.saveUserSettings();

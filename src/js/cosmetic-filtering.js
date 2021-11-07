@@ -25,6 +25,7 @@
 
 import logger from './logger.js';
 import µb from './background.js';
+import adnauseam from './adn/core.js'
 
 import {
     StaticExtFilteringHostnameDB,
@@ -939,7 +940,7 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
    if (
         request.tabId !== undefined &&
         request.frameId !== undefined &&
-        !µb.adnauseam.contentPrefs(request.hostname).hidingDisabled // ADN Don't inject user stylesheets if hiding is disabled
+        !adnauseam.contentPrefs(request.hostname).hidingDisabled // ADN Don't inject user stylesheets if hiding is disabled
     ) {
         //Adn
         out.injectedCSS = `${injected.join(',\n')}\n{display:none!important;}`;
@@ -1139,7 +1140,7 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
     // ADN Don't inject user stylesheets if hiding is disabled
     // Inject all declarative-based filters as a single stylesheet.
     if (
-        !µb.adnauseam.contentPrefs(request.hostname).hidingDisabled &&
+        !adnauseam.contentPrefs(request.hostname).hidingDisabled &&
         injectedHideFilters.length !== 0
     ) {
         out.injectedCSS = injectedCSS.join('\n\n');

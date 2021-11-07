@@ -21,6 +21,13 @@
 
 /* global vAPI, µBlock */
 
+'use strict';
+
+import µb from '../background.js';
+import staticFilteringReverseLookup from '../reverselookup.js';
+
+const µBlock = µb
+
 µBlock.adnauseam = (function () {
   'use strict';
 
@@ -1562,7 +1569,7 @@
   exports.onListsLoaded = async function (firstRun) {
 
     listEntries = {};
-    const entries = await µb.staticFilteringReverseLookup.initWorker();
+    const entries = await staticFilteringReverseLookup.initWorker();
     entries.forEach((value, key) => listEntries[key] = value);
 
     devbuild = vAPI.webextFlavor.soup.has('devbuild');
@@ -1572,7 +1579,7 @@
     verifySettings();
     verifyLists();
 
-    µb.adnauseam.dnt.updateFilters();
+    adnauseam.dnt.updateFilters();
 
     if (firstRun) {
 
@@ -1689,7 +1696,7 @@
 
     ad.id = ++idgen; // gets an id only if its not a duplicate
 
-    if (µb.adnauseam.dnt.mustNotVisit(ad)) { // see #1168
+    if (adnauseam.dnt.mustNotVisit(ad)) { // see #1168
       ad.noVisit = true;
       ad.dntAllowed = true;
     }
@@ -2063,7 +2070,7 @@
         //console.log('clicking: ', state, µb.userSettings.clickingAds || µb.userSettings.clickingAds);
         const off = !(µb.userSettings.clickingAds || µb.userSettings.hidingAds);
   
-        // µb.selectFilterLists({ location: µb.adnauseam.dnt.effList, off: off })
+        // µb.selectFilterLists({ location: adnauseam.dnt.effList, off: off })
       }*/
 
       sendNotifications(notifications);
@@ -2297,11 +2304,11 @@
       pageStore = µb.pageStoreFromTabId(tabId);
     }
 
-    if (typeof µb.adnauseam[request.what] === 'function') {
+    if (typeof adnauseam[request.what] === 'function') {
 
       request.url && (request.url = trimChar(request.url, '/')); // no trailing slash
-      callback(µb.adnauseam[request.what](request, pageStore, tabId, frameId));
-      µb.adnauseam.markUserAction(); // assume user-initiated and thus no longer 'idle'
+      callback(adnauseam[request.what](request, pageStore, tabId, frameId));
+      adnauseam.markUserAction(); // assume user-initiated and thus no longer 'idle'
 
     } else {
 
@@ -2316,5 +2323,8 @@
   })
 
 })();
+
+const adnauseam = µBlock.adnauseam
+export default adnauseam
 
 /*************************************************************************/

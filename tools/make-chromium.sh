@@ -2,7 +2,7 @@
 #
 # This script assumes an OS X environment
 
-set -e
+
 
 echo "*** AdNauseam.chromium: Creating chrome package"
 

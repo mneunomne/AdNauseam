@@ -2,8 +2,6 @@
 #
 # This script assumes a linux environment
 
-set -e
-
 echo "*** AdNauseam.firefox: Creating web store package"
 
 BLDIR=dist/build

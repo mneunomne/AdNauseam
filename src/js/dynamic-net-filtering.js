@@ -514,18 +514,12 @@ class DynamicHostRuleFiltering {
     }
 };
 
-Matrix.prototype.intToActionMap = new Map([
+DynamicHostRuleFiltering.prototype.intToActionMap = new Map([
     [ 1, 'block' ],
     [ 2, 'allow' ],
     [ 3, 'noop' ],
     [ 4, 'strictBlock' ] // ADN
 ]);
-
-Matrix.prototype.magicId = 1;
-
-/******************************************************************************/
-
-µBlock.Firewall = Matrix;
 
 DynamicHostRuleFiltering.prototype.magicId = 1;
 

@@ -30,6 +30,7 @@ import scriptletFilteringEngine from './scriptlet-filtering.js';
 import staticNetFilteringEngine from './static-net-filtering.js';
 import textEncode from './text-encode.js';
 import µb from './background.js';
+import adnauseam from './adn/core.js'
 
 import {
     sessionFirewall,
@@ -57,7 +58,7 @@ let exports = {};
 // Called before each outgoing request (ADN:)
 const onBeforeSendHeaders = function (details) {
 
-  const headers = details.requestHeaders, prefs = µBlock.userSettings, adn = µBlock.adnauseam;
+  const headers = details.requestHeaders, prefs = µb.userSettings, adn = adnauseam;
 
   // if clicking/hiding is enabled with DNT, then send the DNT header
   const respectDNT = ((prefs.clickingAds && prefs.disableClickingForDNT) ||
@@ -65,7 +66,7 @@ const onBeforeSendHeaders = function (details) {
 
   if (respectDNT) {
 
-    const pageStore = µBlock.mustPageStoreFromTabId(details.tabId);
+    const pageStore = µb.mustPageStoreFromTabId(details.tabId);
 
     // add it only if the browser is not sending it already
     if (pageStore.getNetFilteringSwitch() && !hasDNT(headers)) {
@@ -119,14 +120,14 @@ const beforeAdVisit = function (details, headers, prefs, ad, respectDNT) {
       // Block outgoing cookies and user-agent here if specified
       if (prefs.noOutgoingCookies && name === 'cookie') {
 
-        µBlock.adnauseam.logNetEvent('[COOKIE]', 'Strip', headers[i].value, details.url);
+        adnauseam.logNetEvent('[COOKIE]', 'Strip', headers[i].value, details.url);
       }
 
       // Replace user-agent with most common string, if specified
       if (prefs.noOutgoingUserAgent && name === 'user-agent') {
 
          headers[i].value = CommonUserAgent;
-         µBlock.adnauseam.logNetEvent('[UAGENT]', 'Default', headers[i].value, details.url);
+         adnauseam.logNetEvent('[UAGENT]', 'Default', headers[i].value, details.url);
       }
     }
 
@@ -164,12 +165,12 @@ const handleRefererForVisit = function (prefs, refIdx, referer, url, headers) {
   if (refIdx > -1 && prefs.noOutgoingReferer) {
 
     // will never happen when using XMLHttpRequest
-    µBlock.adnauseam.logNetEvent('[REFERER]', 'Strip', referer, url);
+    adnauseam.logNetEvent('[REFERER]', 'Strip', referer, url);
     setHeader(headers[refIdx], '');
 
   } else if (!prefs.noOutgoingReferer && refIdx < 0) {
 
-    µBlock.adnauseam.logNetEvent('[REFERER]', 'Allow', referer, url);
+    adnauseam.logNetEvent('[REFERER]', 'Allow', referer, url);
     addHeader(headers, 'Referer', referer);
   }
 };
@@ -247,7 +248,7 @@ const onBeforeRequest = function(details) {
     }
 
     // ADN: return here (AFTER onPageLoad) if prefs say not to block
-    if (µBlock.userSettings.blockingMalware === false) return;
+    if (µb.userSettings.blockingMalware === false) return;
 
     // Special treatment: behind-the-scene requests
     const tabId = details.tabId;
@@ -277,7 +278,7 @@ const onBeforeRequest = function(details) {
     // Redirected
 
     if ( fctxt.redirectURL !== undefined ) {
-        µb.adnauseam.logRedirect(fctxt); // ADN:redirect
+        adnauseam.logRedirect(fctxt); // ADN:redirect
         return { redirectUrl: patchLocalRedirectURL(fctxt.redirectURL) };
     }
 
@@ -286,7 +287,7 @@ const onBeforeRequest = function(details) {
     // Blocked
     if ( result === 1) {  // ADN 1=block,
         // ADN: already logs this from core.js if result == 1
-        //µb.adnauseam.logNetBlock(fctxt);
+        //adnauseam.logNetBlock(fctxt);
         return { cancel: true }; // block
     }
 
@@ -359,7 +360,7 @@ const onBeforeRootFrameRequest = function(fctxt) {
     }
 
     // ADN: Tell the core we have a new page
-    µb.adnauseam.onPageLoad(fctxt.tabId, requestURL);
+    adnauseam.onPageLoad(fctxt.tabId, requestURL);
 
     // ADN: return here if prefs say not to block
     if (µb.userSettings.blockingMalware === false) return;
@@ -385,7 +386,7 @@ const onBeforeRootFrameRequest = function(fctxt) {
         pageStore !== null &&
         staticNetFilteringEngine.hasQuery(fctxt)
     ) {
-        µb.adnauseam.logRedirect(fctxt, 'beforeRequest.non-blocked'); // ADN: redirect unblocked
+        adnauseam.logRedirect(fctxt, 'beforeRequest.non-blocked'); // ADN: redirect unblocked
         pageStore.redirectNonBlockedRequest(fctxt);
     }
 
@@ -396,7 +397,7 @@ const onBeforeRootFrameRequest = function(fctxt) {
     // Redirected
 
     if ( fctxt.redirectURL !== undefined ) {
-        µb.adnauseam.logRedirect(fctxt, 'beforeRequest'); // ADN: redirect blocked
+        adnauseam.logRedirect(fctxt, 'beforeRequest'); // ADN: redirect blocked
         return { redirectUrl: patchLocalRedirectURL(fctxt.redirectURL) };
     }
 
@@ -551,9 +552,8 @@ const validateStrictBlock = function(fctxt, logData) {
 // Intercept and filter behind-the-scene requests.
 
 const onBeforeBehindTheSceneRequest = function(fctxt) {
-    if (µBlock.userSettings.blockingMalware === false) return; // ADN
+    if (µb.userSettings.blockingMalware === false) return; // ADN
 
-    const µb = µBlock,
     const pageStore = µb.pageStoreFromTabId(fctxt.tabId);
     if ( pageStore === null ) { return; }
 
@@ -605,14 +605,14 @@ const onBeforeBehindTheSceneRequest = function(fctxt) {
     // Redirected
 
     if ( fctxt.redirectURL !== undefined ) {
-        µb.adnauseam.logRedirect(fctxt, `[BehindTheScene: ${fctxt.type}]`); // ADN: redirect xhr
+        adnauseam.logRedirect(fctxt, `[BehindTheScene: ${fctxt.type}]`); // ADN: redirect xhr
         return { redirectUrl: patchLocalRedirectURL(fctxt.redirectURL) };
     }
 
     // Blocked?
 
     if ( result === 1 ) {
-        µb.adnauseam.logNetBlock('BehindTheScene', fctxt.url, `(${fctxt.type})`); // ADN: Blocked xhr
+        adnauseam.logNetBlock('BehindTheScene', fctxt.url, `(${fctxt.type})`); // ADN: Blocked xhr
         return { cancel: true };
     }
 
@@ -669,7 +669,6 @@ const onBeforeBehindTheSceneRequest = function(fctxt) {
 /******************************************************************************/
 const handleIncomingCookiesForAdVisits = function(details) {
   let ad, modified; //ADN
-  const µb = µBlock;
   const tabId = details.tabId;
 
   if (vAPI.isBehindTheSceneTabId(tabId)) {
@@ -679,10 +678,10 @@ const handleIncomingCookiesForAdVisits = function(details) {
 
         // console.log('onHeadersReceived: ', details.url, details.responseHeaders);
         // ADN
-        ad = µb.adnauseam.lookupAd(details.url, details.requestId);
+        ad = adnauseam.lookupAd(details.url, details.requestId);
         if (ad) {
           // this is an ADN request
-          modified = µb.adnauseam.blockIncomingCookies
+          modified = adnauseam.blockIncomingCookies
             (details.responseHeaders, details.url, ad.targetUrl);
         }
         /* else if (vAPI.chrome) {
@@ -720,7 +719,7 @@ const adnOnHeadersRecieved = function(details) {
   const fctxt = µb.filteringContext.fromWebrequestDetails(details);
   const pageStore = µb.pageStoreFromTabId(fctxt.tabId);
   const modifiedHeadersForAdNauseamAllowed = pageStore &&
-    µBlock.adnauseam.checkAllowedException(headers, details.url, pageStore.rawURL);
+    adnauseam.checkAllowedException(headers, details.url, pageStore.rawURL);
 
   if (typeof modifiedHeadersForAdNauseamAllowed != "boolean") {
     return { responseHeaders: modifiedHeadersForAdNauseamAllowed };
@@ -767,7 +766,7 @@ const onHeadersReceived = function(details) {
             }
             if ( result === 1 ) {
                 pageStore.journalAddRequest(fctxt, 1);
-                µb.adnauseam.logNetBlock('Headers', fctxt.url); // ADN: block
+                adnauseam.logNetBlock('Headers', fctxt.url); // ADN: block
                 return { cancel: true };
             }
         }

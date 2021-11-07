@@ -60,6 +60,8 @@ import {
 
 import './benchmarks.js';
 
+import dnt from './adn/dnt.js'
+
 /******************************************************************************/
 
 // https://github.com/uBlockOrigin/uBlock-issues/issues/710
@@ -70,8 +72,6 @@ import './benchmarks.js';
 
 /******************************************************************************/
 /******************************************************************************/
-
-var µb = µBlock;
 
 {
 // >>>>> start of local scope
@@ -158,7 +158,7 @@ const onMessage = function(request, sender, callback) {
         break;
 
     /*case 'domainIsDNT':
-        response = µb.adnauseam.dnt.isDoNotTrackRule(request.rule);
+        response = adnauseam.dnt.isDoNotTrackRule(request.rule);
         break;*/
 
     case 'isDNTVisible':
@@ -195,7 +195,7 @@ const onMessage = function(request, sender, callback) {
 
     case 'getWhitelist':
         response = {
-            dntEnabled: µb.adnauseam.dnt.enabled(),
+            dntEnabled: dnt.enabled(),
             whitelist: µb.arrayFromWhitelist(µb.netWhitelist),
             reBadHostname: µb.reWhitelistBadHostname.source,
             reHostnameExtractor: µb.reWhitelistHostnameExtractor.source
@@ -253,7 +253,7 @@ const onMessage = function(request, sender, callback) {
                 vAPI.browserSettings.canLeakLocalIPAddresses === true;
         }
         if (typeof response === 'undefined') { // ADN return notifications either way
-            response = { notifications: makeCloneable(µb.adnauseam.getNotifications()) }; // #1163
+            response = { notifications: makeCloneable(adnauseam.getNotifications()) }; // #1163
         }
         break;
 
@@ -627,7 +627,7 @@ const retrieveContentScriptParameters = async function(sender, request) {
     request.hostname = hostnameFromURI(request.url);
     request.domain = domainFromHostname(request.hostname);
     request.entity = entityFromDomain(request.domain);
-    response.prefs = µb.adnauseam.contentPrefs(pageStore.tabHostname); // ADN
+    response.prefs = adnauseam.contentPrefs(pageStore.tabHostname); // ADN
 
     response.specificCosmeticFilters =
         cosmeticFilteringEngine.retrieveSpecificSelectors(request, response);
@@ -769,8 +769,6 @@ vAPI.messaging.listen({
 
 {
 // >>>>> start of local scope
-
-var µb = µBlock;
 
 /******************************************************************************/
 
@@ -938,8 +936,6 @@ vAPI.messaging.listen({
 
 {
 // >>>>> start of local scope
-
-var µb = µBlock;
 
 // Settings
 const getLocalData = async function() {
@@ -1109,13 +1105,13 @@ const getLists = async function(callback) {
     const appendNotifications = function(r) { // ADN
 
           var listKeys = Object.keys(r.available),
-            notes = µb.adnauseam.getNotifications();
+            notes = adnauseam.getNotifications();
 
           // check each list for an associated notification
           listKeys.forEach(function(url) {
             for (var i = 0; i < Notifications.length; i++) {
               if (Notifications[i].listUrl === url) {
-                µb.adnauseam.verifySetting(Notifications[i], r.available[url].off);
+                adnauseam.verifySetting(Notifications[i], r.available[url].off);
               }
             }
           });
@@ -1377,8 +1373,6 @@ vAPI.messaging.listen({
 
 {
 // >>>>> start of local scope
-
-var µb = µBlock
 
 const extensionOriginURL = vAPI.getURL('');
 const documentBlockedURL = vAPI.getURL('document-blocked.html');

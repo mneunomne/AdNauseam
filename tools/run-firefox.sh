@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+
 
 tools/make-firefox.sh
 

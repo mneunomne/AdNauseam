@@ -29,6 +29,7 @@ import scriptletFilteringEngine from './scriptlet-filtering.js';
 import staticNetFilteringEngine from './static-net-filtering.js';
 import µb from './background.js';
 import { PageStore } from './pagestore.js';
+import adnauseam from './adn/core.js'
 
 import {
     sessionFirewall,
@@ -42,6 +43,7 @@ import {
     isNetworkURI,
     originFromURI,
 } from './uri-utils.js';
+
 
 /******************************************************************************/
 /******************************************************************************/
@@ -1064,7 +1066,7 @@ vAPI.tabs = new vAPI.Tabs();
         let count = 0; //ADN
 
         const pageStore = µb.pageStoreFromTabId(tabId);
-        let pageDomain = pageStore ? µb.URI.domainFromHostname(pageStore.tabHostname) : null; // ADN;
+        let pageDomain = pageStore ? domainFromHostname(pageStore.tabHostname) : null; // ADN;
 
         if ( pageStore !== null ) {
             state = pageStore.getNetFilteringSwitch() ? 1 : 0;
@@ -1082,8 +1084,8 @@ vAPI.tabs = new vAPI.Tabs();
                 }
             }
 
-          state = µb.adnauseam.getIconState(state, pageDomain, isClick); // ADN
-          count = µb.adnauseam.currentCount(pageStore.rawURL); // ADN
+          state = adnauseam.getIconState(state, pageDomain, isClick); // ADN
+          count = adnauseam.currentCount(pageStore.rawURL); // ADN
           badge = µb.formatCount(count);
         }
 
@@ -1094,7 +1096,7 @@ vAPI.tabs = new vAPI.Tabs();
 
          vAPI.setIcon(tabId, { parts, state, badge, color });
          isClick && vAPI.setTimeout(( ) => {
-             state = µb.adnauseam.getIconState(state, pageDomain, false);
+             state = adnauseam.getIconState(state, pageDomain, false);
              vAPI.setIcon(tabId, { parts, state, badge, color });
          }, 600);
 

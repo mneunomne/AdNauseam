@@ -29,6 +29,7 @@ import staticNetFilteringEngine from './static-net-filtering.js';
 import µb from './background.js';
 import { orphanizeString } from './text-utils.js';
 import { redirectEngine } from './redirect-engine.js';
+import adnauseam from './adn/core.js'
 
 import {
     sessionFirewall,
@@ -812,11 +813,11 @@ const PageStore = class {
         }
 
         // ADN: now check our firewall (top precedence) if DNT enabled
-        if ( result === 0 && µb.adnauseam.dnt.enabled() ) {
-            if ( µb.adnauseam.dnt.mustAllow(fctxt) ) {
+        if ( result === 0 && adnauseam.dnt.enabled() ) {
+            if ( adnauseam.dnt.mustAllow(fctxt) ) {
                   result = 2;
                   if ( µb.logger.enabled ) { // logger
-                      this.logData = µb.adnauseam.dnt.firewall.toLogData();
+                      this.logData = adnauseam.dnt.firewall.toLogData();
                   }
                   if (!cacheableResult) return result;
             }
@@ -858,7 +859,7 @@ const PageStore = class {
                     return 2;
                 }
             }
-            if ( result !== 2 && µb.adnauseam.mustAllowRequest(result, fctxt)) {
+            if ( result !== 2 && adnauseam.mustAllowRequest(result, fctxt)) {
                 result = 4; // ADN: adnauseamAllowed
                 if (fctxt.filter) fctxt.filter.result = 4;
                 if (!cacheableResult) return result;

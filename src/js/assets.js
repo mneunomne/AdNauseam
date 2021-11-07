@@ -26,7 +26,8 @@
 import cacheStorage from './cachestorage.js';
 import logger from './logger.js';
 import µb from './background.js';
-
+import adnauseam from './adn/core.js'
+import dnt from './adn/dnt.js'
 /******************************************************************************/
 
 const reIsExternalPath = /^(?:[a-z-]+):\/\//;
@@ -112,8 +113,8 @@ assets.fetch = function(url, options = {}) {
         }
         details.content = this.response;
         // ADN: If we've loaded a DNT list, we need to parse it
-        if (µBlock.adnauseam.dnt.isDoNotTrackUrl(url)) {
-            µBlock.adnauseam.dnt.processEntries(this.response);
+        if (dnt.isDoNotTrackUrl(url)) {
+            dnt.processEntries(this.response);
         }
         resolve(details);
     };
@@ -859,8 +860,8 @@ const getRemote = async function(assetKey) {
             { content: result.content, url: contentURL }
         );
         // ADN: If we've loaded a DNT list, we need to parse it
-        if (µBlock.adnauseam.dnt.isDoNotTrackUrl(assetKey)) {
-            µBlock.adnauseam.dnt.processEntries(result.content);
+        if (dnt.isDoNotTrackUrl(assetKey)) {
+            dnt.processEntries(result.content);
         }
         registerAssetSource(assetKey, { error: undefined });
         return reportBack(result.content);
@@ -1060,7 +1061,7 @@ assets.forceUpdate = async function(which) { // ADN
       updaterStatus = undefined;
       updaterAssetDelay = updaterAssetDelayDefault;
       fireNotification('after-assets-updated', { assetKeys: assetKeys });
-      µBlock.applyCompiledFilters(details.assetKey, details.content);
+      µb.applyCompiledFilters(details.assetKey, details.content);
     };
 
     const updatedOne = function(details) {

@@ -3,7 +3,7 @@
 # This script assumes a linux environment
 
 # https://github.com/uBlockOrigin/uBlock-issues/issues/217
-set -e
+
 
 echo "*** uBlock0.webext: Creating web store package"
 

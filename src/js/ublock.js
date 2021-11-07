@@ -29,6 +29,7 @@ import io from './assets.js';
 import µb from './background.js';
 import { hostnameFromURI } from './uri-utils.js';
 import { redirectEngine } from './redirect-engine.js';
+import adnauseam from './adn/core.js'
 
 import {
     permanentFirewall,
@@ -297,7 +298,7 @@ const matchBucket = function(url, hostname, bucket, start) {
 /******************************************************************************/
 
 µb.changeUserSettings = function(name, value) {
-    let us = this.userSettings, adn = µBlock.adnauseam;;
+    let us = this.userSettings, adn = adnauseam;
 
     // Return all settings if none specified.
     if ( name === undefined ) {
