@@ -60,6 +60,7 @@ import {
 
 import './benchmarks.js';
 
+import adnauseam from './adn/core.js';
 import dnt from './adn/dnt.js'
 
 /******************************************************************************/

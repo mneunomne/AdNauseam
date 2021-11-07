@@ -1,14 +1,11 @@
 'use strict';
 
 import µb from '../background.js';
-import adnauseam from './core.js';
 import DynamicHostRuleFiltering from '../dynamic-net-filtering.js';
+import {log, logNetEvent} from './log.js'
 
 const dnt = (function () {
 
-  console.log("adnauseam", adnauseam)
-
-  const log = adnauseam.log;
   //const effList = 'eff-dnt-whitelist';
 
   let exports = {};
@@ -152,13 +149,13 @@ const dnt = (function () {
 
       if (context.tabHostname !== requestDomain) {
 
-        adnauseam.logNetEvent('[DNT*3P] (Allow) ', [ context.tabHostname + ' => ' +
+        logNetEvent('[DNT*3P] (Allow) ', [ context.tabHostname + ' => ' +
           requestDomain + ' ' + context.url ]); // suspicious: may want to check
       }
 
       if (context.type === 'inline-script') { // #1271
 
-        adnauseam.logNetEvent('[DNT] (Allow)', [ context.tabHostname + ' => ' +
+        logNetEvent('[DNT] (Allow)', [ context.tabHostname + ' => ' +
           context.hostname + ' ' + context.url  ]);
       }
     }

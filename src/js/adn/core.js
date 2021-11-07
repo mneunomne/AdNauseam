@@ -57,7 +57,6 @@ const adnauseam = (function () {
   let xhr, idgen, admap, listsLoaded = false;
   let inspected, listEntries, devbuild, adsetSize = 0;
 
-  const µb = µb;
   const production = 1;
   const notifications = [];
   const allowedExceptions = [];

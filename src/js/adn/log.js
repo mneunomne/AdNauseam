@@ -43,21 +43,21 @@ const err = function () {
   return false;
 }
 
-const logNetAllow = exports.logNetAllow = function () { // local only
+const logNetAllow = function () { // local only
 
   const args = Array.prototype.slice.call(arguments);
   args.unshift('[ALLOW]')
   logNetEvent.apply(this, args);
 };
 
-const logNetBlock = exports.logNetBlock = function () {
+const logNetBlock = function () {
 
   const args = Array.prototype.slice.call(arguments);
   args.unshift('[BLOCK]');
   logNetEvent.apply(this, args);
 };
 
-const logNetEvent = exports.logNetEvent = function () {
+const logNetEvent = function () {
 
   if (µb.userSettings.eventLogging && arguments.length) {
     const args = Array.prototype.slice.call(arguments);
@@ -72,7 +72,7 @@ const logRedirect = function (fctxt, msg) {
     + fctxt.redirectURL + (msg ? ' (' + msg + ')' : ''));
 };
 
-export default {
+export {
   log, 
   warn, 
   err, 
