@@ -1111,9 +1111,9 @@ const adnauseam = (function () {
     parser.setMaxTokenLength(staticNetFilteringEngine.MAX_TOKEN_LENGTH);
     parser.analyze(filter.raw);
 
-    if (staticNetFilteringEngine.compile(parser, writer) === false) {
-      return;
-    }
+    const compiler = staticNetFilteringEngine.createCompiler(parser);
+    if ( compiler.compile(writer) === false ) { return; }
+
     const compiledFilter = writer.last();
 
     for (const path in listEntries) {
