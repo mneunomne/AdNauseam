@@ -891,6 +891,14 @@
     "message": "Dependensi eksternal (kompatibel GPLv3):",
     "description": "Shown in the About pane"
   },
+  "aboutCDNs": {
+    "message": "Daftar filter milik uBO dihosting secara bebas pada <a href=\"https://wikipedia.org/wiki/Content_delivery_network\">CDN</a> berikut:",
+    "description": "Shown in the About pane"
+  },
+  "aboutCDNsInfo": {
+    "message": "CDN yang dipilih secara acak digunakan saat daftar filter perlu diperbarui",
+    "description": "Shown in the About pane"
+  },
   "aboutBackupDataButton": {
     "message": "Cadangkan ke berkas",
     "description": "Text for button to create a backup of all settings"

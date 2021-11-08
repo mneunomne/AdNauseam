@@ -70,8 +70,8 @@
       "all_frames": false
     }
   ],
-  "minimum_opera_version": "42.0",
-  "incognito": "spanning",
+  "minimum_opera_version": "48.0",
+  "incognito": "split",
   "options_page": "dashboard.html",
   "permissions": [
     "contextMenus",

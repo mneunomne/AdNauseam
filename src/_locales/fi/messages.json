@@ -891,6 +891,14 @@
     "message": "Ulkopuoliset riippuvuudet (GPLv3-yhteensopiva):",
     "description": "Shown in the About pane"
   },
+  "aboutCDNs": {
+    "message": "uBO:n omat suodatinlistat toimitetaan ilmaiseksi seuraavien <a href=\"https://fi.wikipedia.org/wiki/Sis%C3%A4ll%C3%B6njakeluverkko\">jakeluverkkojen</a> välityksellä:",
+    "description": "Shown in the About pane"
+  },
+  "aboutCDNsInfo": {
+    "message": "Suodatinlistojen päivityksiin käytetään satunnaista jakeluverkkoa",
+    "description": "Shown in the About pane"
+  },
   "aboutBackupDataButton": {
     "message": "Varmuuskopioi tiedostoon",
     "description": "Text for button to create a backup of all settings"

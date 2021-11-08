@@ -891,6 +891,14 @@
     "message": "الإعتماديات الخارجية (متوافقة مع GPLv3):",
     "description": "Shown in the About pane"
   },
+  "aboutCDNs": {
+    "message": "يتم استضافة قوائم عوامل التصفية الخاصة بـ uBO بحرية على ما يلي  <a href=\"https://wikipedia.org/wiki/Content_delivery_network\">CDNs</a>:",
+    "description": "Shown in the About pane"
+  },
+  "aboutCDNsInfo": {
+    "message": "يتم استخدام CDN الذي تم اختياره عشوائيًا عند الحاجة إلى تحديث قائمة عوامل التصفية",
+    "description": "Shown in the About pane"
+  },
   "aboutBackupDataButton": {
     "message": "النسخ الإحتياطي لملف",
     "description": "Text for button to create a backup of all settings"

@@ -96,7 +96,7 @@ const loadDashboardPanel = function(pane, first) {
         uDom('.tabButton.selected').toggleClass('selected', false);
         tabButton.classList.add('selected');
         tabButton.scrollIntoView();
-        uDom.nodeFromId('iframe').setAttribute('src', pane);
+        uDom.nodeFromId('iframe').contentWindow.location.replace(pane);
         if ( pane !== 'no-dashboard.html' ) {
             vAPI.localStorage.setItem('dashboardLastVisitedPane', pane);
         }
@@ -205,11 +205,14 @@ vAPI.messaging.send(
     } else {
       uDom("#notifications").removeClass('hide');
     }
-    adjustHeight();
+    // adjustHeight();
   })
-
-
 /******************************************************************************/
-
+/*
+function adjustHeight(){
+    let notificationsHeight = $("#notifications").hasClass("hide") ? 0 : $("#notifications").height(); 
+    $("#stage").css('height', String($(window).height() - notificationsHeight) + "px" );
+}
+*/
 // <<<<< end of local scope
 }

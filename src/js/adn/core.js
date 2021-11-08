@@ -19,9 +19,38 @@
     Home: https://github.com/dhowe/AdNauseam
 */
 
-/* global vAPI, µBlock */
+/* global vAPI, µb */
 
-µBlock.adnauseam = (function () {
+'use strict';
+
+import µb from '../background.js';
+import staticFilteringReverseLookup from '../reverselookup.js';
+import staticNetFilteringEngine from '../static-net-filtering.js'
+import dnt from './dnt.js'
+
+import {
+  domainFromHostname,
+  hostnameFromURI
+} from '../uri-utils.js';
+
+import {
+  CompiledListReader,
+  CompiledListWriter,
+} from '../static-filtering-io.js';
+
+import { StaticFilteringParser } from '../static-filtering-parser.js';
+
+
+import {
+  log,
+  warn,
+  err, 
+  logNetAllow,
+  logNetBlock,
+  logNetEvent
+} from './log.js'
+
+const adnauseam = (function () {
   'use strict';
 
   // for debugging only
@@ -42,7 +71,6 @@
   let xhr, idgen, admap, listsLoaded = false;
   let inspected, listEntries, devbuild, adsetSize = 0;
 
-  const µb = µBlock;
   const production = 1;
   const notifications = [];
   const allowedExceptions = [];
@@ -690,14 +718,14 @@
 
   const domainInfo = function (url) { // via uBlock/psl
 
-    const hostname = µb.URI.hostnameFromURI(url);
-    const domain = µb.URI.domainFromHostname(hostname);
+    const hostname = hostnameFromURI(url);
+    const domain = domainFromHostname(hostname);
     return { hostname: hostname, domain: domain };
   }
 
   const domainFromURI = function (url) { // TODO: replace all uses with domainInfo()
 
-    return µb.URI.domainFromHostname(µb.URI.hostnameFromURI(url));
+    return domainFromHostname(hostnameFromURI(url));
   };
 
   const validateFields = function (ad) {
@@ -714,7 +742,7 @@
     // re-add if stripped in export
     ad.pageDomain = ad.pageDomain || domainFromURI(ad.pageUrl) || ad.pageUrl;
     ad.targetDomain = ad.targetDomain || domainFromURI(ad.resolvedTargetUrl || ad.targetUrl);
-    ad.targetHostname = ad.targetHostname || µb.URI.hostnameFromURI(ad.resolvedTargetUrl || ad.targetUrl);
+    ad.targetHostname = ad.targetHostname || hostnameFromURI(ad.resolvedTargetUrl || ad.targetUrl);
 
     return ad && type(ad) === 'object' &&
       type(ad.pageUrl) === 'string' &&
@@ -883,24 +911,6 @@
 
     adsetSize--;
     storeAdData();
-  }
-
-  const log = function () {
-    if (µb.userSettings.eventLogging) {
-      console.log.apply(console, arguments);
-    }
-    return true;
-  }
-
-  const warn = function () {
-    if (µb.userSettings.eventLogging)
-      console.warn.apply(console, arguments);
-    return false;
-  }
-
-  const err = function () {
-    console.error.apply(console, arguments);
-    return false;
   }
 
   const adsForUI = function (pageUrl) {
@@ -1094,16 +1104,16 @@
     let content;
     let pos;
     let c;
-    const writer = new µb.CompiledLineIO.Writer();
-    const parser = new vAPI.StaticFilteringParser();
+    const writer = new CompiledListWriter();
+    const parser = new StaticFilteringParser();
     // urlTokenizer property doesn't exist anymore, MAX_TOKEN_LENGTH can now be found on 'staticNetFilteringEngine'
     // parser.setMaxTokenLength(µb.urlTokenizer.MAX_TOKEN_LENGTH);
-    parser.setMaxTokenLength(µb.staticNetFilteringEngine.MAX_TOKEN_LENGTH);
+    parser.setMaxTokenLength(staticNetFilteringEngine.MAX_TOKEN_LENGTH);
     parser.analyze(filter.raw);
 
-    if (µb.staticNetFilteringEngine.compile(parser, writer) === false) {
-      return;
-    }
+    const compiler = staticNetFilteringEngine.createCompiler(parser);
+    if ( compiler.compile(writer) === false ) { return; }
+
     const compiledFilter = writer.last();
 
     for (const path in listEntries) {
@@ -1210,7 +1220,7 @@
     }
 
     ///////////////////////////////////////////////////////////////////////
-    const snfe = µb.staticNetFilteringEngine, snfeData = snfe.toLogData();
+    const snfe = staticNetFilteringEngine, snfeData = snfe.toLogData();
 
     /*
       Now check active rule(s) to see if we should block or allow
@@ -1562,7 +1572,7 @@
   exports.onListsLoaded = async function (firstRun) {
 
     listEntries = {};
-    const entries = await µb.staticFilteringReverseLookup.initWorker();
+    const entries = await staticFilteringReverseLookup.initWorker();
     entries.forEach((value, key) => listEntries[key] = value);
 
     devbuild = vAPI.webextFlavor.soup.has('devbuild');
@@ -1572,7 +1582,7 @@
     verifySettings();
     verifyLists();
 
-    µb.adnauseam.dnt.updateFilters();
+    dnt.updateFilters();
 
     if (firstRun) {
 
@@ -1599,39 +1609,9 @@
     }
   };
 
-  exports.logRedirect = function (fctxt, msg) {
-
-    fctxt && log('[REDIRECT] ' + fctxt.url + ' => '
-      + fctxt.redirectURL + (msg ? ' (' + msg + ')' : ''));
-  };
-
   const markUserAction = exports.markUserAction = function () {
 
     return (lastUserActivity = millis());
-  }
-
-  const logNetAllow = exports.logNetAllow = function () { // local only
-
-    const args = Array.prototype.slice.call(arguments);
-    args.unshift('[ALLOW]')
-    logNetEvent.apply(this, args);
-  };
-
-  const logNetBlock = exports.logNetBlock = function () {
-
-    const args = Array.prototype.slice.call(arguments);
-    args.unshift('[BLOCK]');
-    logNetEvent.apply(this, args);
-  };
-
-  const logNetEvent = exports.logNetEvent = function () {
-
-    if (µb.userSettings.eventLogging && arguments.length) {
-      const args = Array.prototype.slice.call(arguments);
-      const action = args.shift();
-      args[0] = action + ' (' + args[0] + ')';
-      log.apply(this, args);
-    }
   }
 
   exports.lookupAd = function (url, requestId) {
@@ -1658,7 +1638,7 @@
     ad.attemptedTs = 0;
     ad.pageUrl = pageStore.rawURL;
     ad.pageTitle = pageStore.title;
-    ad.pageDomain = µb.URI.domainFromHostname(pageStore.tabHostname);
+    ad.pageDomain = domainFromHostname(pageStore.tabHostname);
     ad.version = vAPI.app.version;
 
     //console.log('registerAd: '+pageStore.tabHostname+' -> '+ad.pageDomain);
@@ -1689,7 +1669,7 @@
 
     ad.id = ++idgen; // gets an id only if its not a duplicate
 
-    if (µb.adnauseam.dnt.mustNotVisit(ad)) { // see #1168
+    if (dnt.mustNotVisit(ad)) { // see #1168
       ad.noVisit = true;
       ad.dntAllowed = true;
     }
@@ -1728,7 +1708,7 @@
 
     if (typeof allowedExceptions[requestUrl] !== 'undefined') {
 
-      const originalHostname = µb.URI.hostnameFromURI(originalUrl);
+      const originalHostname = hostnameFromURI(originalUrl);
       return !dntAllowsRequest(requestUrl, originalUrl);
     }
   };
@@ -1758,7 +1738,7 @@
     //console.log('[HEADERS] (Incoming' +
     //(requestUrl === originalUrl ? ')' : '-redirect)'), requestUrl);
 
-    const originalHostname = µb.URI.hostnameFromURI(originalUrl);
+    const originalHostname = hostnameFromURI(originalUrl);
 
     if (dntAllowsRequest(originalUrl, originalHostname)) {
 
@@ -1766,8 +1746,8 @@
       return false;
     }
 
-    //console.log("1pDomain: '"+µb.URI.hostnameFromURI(originalUrl)+"' / '" +
-    //µb.URI.hostnameFromURI(requestUrl)+"'", " original='"+originalUrl+"'");
+    //console.log("1pDomain: '"+hostnameFromURI(originalUrl)+"' / '" +
+    //hostnameFromURI(requestUrl)+"'", " original='"+originalUrl+"'");
 
     for (let i = headers.length - 1; i >= 0; i--) {
 
@@ -1787,7 +1767,7 @@
           }
         }
 
-        const requestHostname = requestUrl && µb.URI.hostnameFromURI(requestUrl);
+        const requestHostname = requestUrl && hostnameFromURI(requestUrl);
 
         log('[COOKIE] (Block)', headers[i].value, "1pDomain: " + originalHostname +
           (requestHostname && requestHostname !== originalHostname ? ' / ' + requestHostname : ''),
@@ -1989,7 +1969,7 @@
   const verifyDNT = function (request) {
 
     const prefs = µb.userSettings;
-    const domain = µb.URI.domainFromHostname(µb.URI.hostnameFromURI(request.url));
+    const domain = domainFromHostname(hostnameFromURI(request.url));
     const target = hasDNTNotification(notifications);
 
     //console.log("verifyDNT: " + domain, request.url, prefs.dntDomains);
@@ -2063,7 +2043,7 @@
         //console.log('clicking: ', state, µb.userSettings.clickingAds || µb.userSettings.clickingAds);
         const off = !(µb.userSettings.clickingAds || µb.userSettings.hidingAds);
   
-        // µb.selectFilterLists({ location: µb.adnauseam.dnt.effList, off: off })
+        // µb.selectFilterLists({ location: dnt.effList, off: off })
       }*/
 
       sendNotifications(notifications);
@@ -2288,7 +2268,7 @@
       default: break;
     } // Async
 
-    let pageStore, tabId, frameId, µb = µBlock;
+    let pageStore, tabId, frameId;
 
     if (sender && sender.tabId) {
 
@@ -2297,11 +2277,11 @@
       pageStore = µb.pageStoreFromTabId(tabId);
     }
 
-    if (typeof µb.adnauseam[request.what] === 'function') {
+    if (typeof adnauseam[request.what] === 'function') {
 
       request.url && (request.url = trimChar(request.url, '/')); // no trailing slash
-      callback(µb.adnauseam[request.what](request, pageStore, tabId, frameId));
-      µb.adnauseam.markUserAction(); // assume user-initiated and thus no longer 'idle'
+      callback(adnauseam[request.what](request, pageStore, tabId, frameId));
+      adnauseam.markUserAction(); // assume user-initiated and thus no longer 'idle'
 
     } else {
 
@@ -2316,5 +2296,8 @@
   })
 
 })();
+
+// const adnauseam = µb.adnauseam
+export default adnauseam
 
 /*************************************************************************/

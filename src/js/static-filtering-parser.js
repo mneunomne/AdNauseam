@@ -19,7 +19,13 @@
     Home: https://github.com/gorhill/uBlock
 */
 
+/* globals document */
+
 'use strict';
+
+/******************************************************************************/
+
+import Regex from '../lib/regexanalyzer/regex.js';
 
 /*******************************************************************************
 
@@ -66,9 +72,6 @@
 
 **/
 
-{
-// >>>>> start of local scope
-
 /******************************************************************************/
 
 const Parser = class {
@@ -103,9 +106,9 @@ const Parser = class {
         this.extOptionsIterator = new ExtOptionsIterator(this);
         this.maxTokenLength = Number.MAX_SAFE_INTEGER;
         this.expertMode = options.expertMode !== false;
-        this.reIsLocalhostRedirect = /(?:0\.0\.0\.0|(?:broadcast|local)host|local|ip6-\w+)(?:[^\w.-]|$)/;
+        this.reIsLocalhostRedirect = /(?:0\.0\.0\.0|broadcasthost|local|localhost(?:\.localdomain)?|ip6-\w+)(?:[^\w.-]|$)/;
         this.reHostname = /^[^\x00-\x24\x26-\x29\x2B\x2C\x2F\x3A-\x40\x5B-\x5E\x60\x7B-\x7F]+/;
-        this.reHostsSink = /^[\w-.:\[\]]+$/;
+        this.reHostsSink = /^[\w%.:\[\]-]+$/;
         this.reHostsSource = /^[^\x00-\x24\x26-\x29\x2B\x2C\x2F\x3A-\x40\x5B-\x5E\x60\x7B-\x7F]+$/;
         this.reUnicodeChar = /[^\x00-\x7F]/;
         this.reUnicodeChars = /[^\x00-\x7F]/g;
@@ -113,7 +116,10 @@ const Parser = class {
         this.rePlainHostname = /^(?:[\w-]+\.)*[a-z]+$/;
         this.rePlainEntity = /^(?:[\w-]+\.)+\*$/;
         this.reEntity = /^[^*]+\.\*$/;
-        this.punycoder = new URL(self.location);
+        // https://github.com/uBlockOrigin/uBlock-issues/issues/1146
+        //   From https://codemirror.net/doc/manual.html#option_specialChars
+        this.reInvalidCharacters = /[\x00-\x1F\x7F-\x9F\xAD\u061C\u200B-\u200F\u2028\u2029\uFEFF\uFFF9-\uFFFC]/;
+        this.punycoder = new URL('https://ublock0.invalid/');
         // TODO: mind maxTokenLength
         this.reGoodRegexToken
             = /[^\x01%0-9A-Za-z][%0-9A-Za-z]{7,}|[^\x01%0-9A-Za-z][%0-9A-Za-z]{1,6}[^\x01%0-9A-Za-z]/;
@@ -1126,6 +1132,7 @@ const Parser = class {
         if ( len === 0 ) { return true; }
         const patternIsRegex = this.patternIsRegex();
         let pattern = this.getNetPattern();
+        if ( this.reInvalidCharacters.test(pattern) ) { return false; }
         // Punycode hostname part of the pattern.
         if ( patternIsRegex === false ) {
             const match = this.reHostname.exec(pattern);
@@ -1295,18 +1302,22 @@ Parser.prototype.SelectorCompiler = class {
             [ 'matches-css-before', ':matches-css-before' ],
         ]);
         this.reSimpleSelector = /^[#.][A-Za-z_][\w-]*$/;
-        this.div = document.createElement('div');
+        this.div = (( ) => {
+            if ( typeof document !== 'object' ) { return null; }
+            if ( document instanceof Object === false ) { return null; }
+            return document.createElement('div');
+        })();
         this.rePseudoElement = /:(?::?after|:?before|:-?[a-z][a-z-]*[a-z])$/;
         this.reProceduralOperator = new RegExp([
             '^(?:',
-                Array.from(parser.proceduralOperatorTokens.keys()).join('|'),
+            Array.from(parser.proceduralOperatorTokens.keys()).join('|'),
             ')\\('
         ].join(''));
         this.reEatBackslashes = /\\([()])/g;
         this.reEscapeRegex = /[.*+?^${}()|[\]\\]/g;
-        this.reNeedScope = /^\s*>/;
+        this.reDropScope = /^\s*:scope\s*(?=[+>~])/;
         this.reIsDanglingSelector = /[+>~\s]\s*$/;
-        this.reIsSiblingSelector = /^\s*[+~]/;
+        this.reIsCombinator = /^\s*[+>~]/;
         this.regexToRawValue = new Map();
         // https://github.com/gorhill/uBlock/issues/2793
         this.normalizedOperators = new Map([
@@ -1420,6 +1431,7 @@ Parser.prototype.SelectorCompiler = class {
         if ( pos !== -1 ) {
             return this.cssSelectorType(s.slice(0, pos)) === 1 ? 3 : 0;
         }
+        if ( this.div === null ) { return 1; }
         try {
             this.div.matches(`${s}, ${s}:not(#foo)`);
         } catch (ex) {
@@ -1491,15 +1503,6 @@ Parser.prototype.SelectorCompiler = class {
         return { name: name, value: regexDetails };
     }
 
-    // https://github.com/AdguardTeam/ExtendedCss/issues/31#issuecomment-302391277
-    //   Prepend `:scope ` if needed.
-    compileConditionalSelector(s) {
-        if ( this.reNeedScope.test(s) ) {
-            s = `:scope ${s}`;
-        }
-        return this.compileProcedural(s);
-    }
-
     compileInteger(s, min = 0, max = 0x7FFFFFFF) {
         if ( /^\d+$/.test(s) === false ) { return; }
         const n = parseInt(s, 10);
@@ -1513,7 +1516,7 @@ Parser.prototype.SelectorCompiler = class {
     //   changing the behavior of CSS4's :not().
     compileNotSelector(s) {
         if ( this.cssSelectorType(s) === 0 ) {
-            return this.compileConditionalSelector(s);
+            return this.compileProcedural(s);
         }
     }
 
@@ -1528,16 +1531,22 @@ Parser.prototype.SelectorCompiler = class {
     }
 
     // https://github.com/uBlockOrigin/uBlock-issues/issues/382#issuecomment-703725346
-    //   Prepend `*` only when it can be deemed implicit.
+    //   Prepend `:scope` only when it can be deemed implicit.
     compileSpathExpression(s) {
-        if ( this.cssSelectorType(/^\s*[+:>~]/.test(s) ? '*' + s : s) === 1 ) {
+        if ( this.cssSelectorType(/^\s*[+:>~]/.test(s) ? `:scope${s}` : s) === 1 ) {
             return s;
         }
     }
 
     // https://github.com/uBlockOrigin/uBlock-issues/issues/668
+    // https://github.com/uBlockOrigin/uBlock-issues/issues/1693
+    //   Forbid instances of:
+    //   - `url(`
+    //   - backslashes `\`
+    //   - opening comment `/*`
     compileStyleProperties(s) {
-        if ( /url\(|\\/i.test(s) ) { return; }
+        if ( /url\(|\\|\/\*/i.test(s) ) { return; }
+        if ( this.div === null ) { return s; }
         this.div.style.cssText = s;
         if ( this.div.style.cssText === '' ) { return; }
         this.div.style.cssText = '';
@@ -1582,6 +1591,7 @@ Parser.prototype.SelectorCompiler = class {
                 raw.push(`:has(${this.decompileProcedural(task[1])})`);
                 break;
             case ':has-text':
+            case ':matches-path':
                 if ( Array.isArray(task[1]) ) {
                     value = `/${task[1][0]}/${task[1][1]}`;
                 } else {
@@ -1590,7 +1600,7 @@ Parser.prototype.SelectorCompiler = class {
                         value = `/${task[1]}/`;
                     }
                 }
-                raw.push(`:has-text(${value})`);
+                raw.push(`${task[0]}(${value})`);
                 break;
             case ':matches-css':
             case ':matches-css-after':
@@ -1725,14 +1735,18 @@ Parser.prototype.SelectorCompiler = class {
         // https://www.reddit.com/r/uBlockOrigin/comments/c6iem5/
         //   Convert sibling-selector prefix into :spath operator, but
         //   only if context is not the root.
+        // https://github.com/uBlockOrigin/uBlock-issues/issues/1011#issuecomment-884806241
+        //   Drop explicit `:scope` in case of leading combinator, all such
+        //   cases are normalized to implicit `:scope`.
         if ( prefix !== '' ) {
             if ( this.reIsDanglingSelector.test(prefix) && tasks.length !== 0 ) {
                 prefix += ' *';
             }
+            prefix = prefix.replace(this.reDropScope, '');
             if ( this.cssSelectorType(prefix) === 0 ) {
                 if (
                     root ||
-                    this.reIsSiblingSelector.test(prefix) === false ||
+                    this.reIsCombinator.test(prefix) === false ||
                     this.compileSpathExpression(prefix) === undefined
                 ) {
                     return;
@@ -1770,19 +1784,21 @@ Parser.prototype.SelectorCompiler = class {
     compileArgument(operator, args) {
         switch ( operator ) {
         case ':has':
-            return this.compileConditionalSelector(args);
+            return this.compileProcedural(args);
         case ':has-text':
             return this.compileText(args);
         case ':if':
-            return this.compileConditionalSelector(args);
+            return this.compileProcedural(args);
         case ':if-not':
-            return this.compileConditionalSelector(args);
+            return this.compileProcedural(args);
         case ':matches-css':
             return this.compileCSSDeclaration(args);
         case ':matches-css-after':
             return this.compileCSSDeclaration(args);
         case ':matches-css-before':
             return this.compileCSSDeclaration(args);
+        case ':matches-path':
+            return this.compileText(args);
         case ':min-text-length':
             return this.compileInteger(args);
         case ':not':
@@ -1816,6 +1832,7 @@ Parser.prototype.proceduralOperatorTokens = new Map([
     [ 'matches-css', 0b11 ],
     [ 'matches-css-after', 0b11 ],
     [ 'matches-css-before', 0b11 ],
+    [ 'matches-path', 0b01 ],
     [ 'min-text-length', 0b01 ],
     [ 'not', 0b01 ],
     [ 'nth-ancestor', 0b00 ],
@@ -2173,30 +2190,30 @@ Parser.prototype.OPTNotSupported = OPTNotSupported;
 
 const netOptionTokenDescriptors = new Map([
     [ '1p', OPTToken1p | OPTCanNegate ],
-        [ 'first-party', OPTToken1p | OPTCanNegate ],
+    /* synonym */ [ 'first-party', OPTToken1p | OPTCanNegate ],
     [ 'strict1p', OPTToken1pStrict ],
     [ '3p', OPTToken3p | OPTCanNegate ],
-        [ 'third-party', OPTToken3p | OPTCanNegate ],
+    /* synonym */ [ 'third-party', OPTToken3p | OPTCanNegate ],
     [ 'strict3p', OPTToken3pStrict ],
     [ 'all', OPTTokenAll | OPTNetworkType | OPTNonCspableType ],
     [ 'badfilter', OPTTokenBadfilter ],
     [ 'cname', OPTTokenCname | OPTAllowOnly | OPTModifierType ],
     [ 'csp', OPTTokenCsp | OPTMustAssign | OPTAllowMayAssign | OPTModifierType ],
     [ 'css', OPTTokenCss | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
-        [ 'stylesheet', OPTTokenCss | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
+    /* synonym */ [ 'stylesheet', OPTTokenCss | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
     [ 'denyallow', OPTTokenDenyAllow | OPTMustAssign | OPTDomainList | OPTNeedDomainOpt | OPTNonCspableType ],
     [ 'doc', OPTTokenDoc | OPTNetworkType | OPTCanNegate | OPTModifiableType | OPTRedirectableType ],
-        [ 'document', OPTTokenDoc | OPTNetworkType | OPTCanNegate | OPTModifiableType | OPTRedirectableType ],
+    /* synonym */ [ 'document', OPTTokenDoc | OPTNetworkType | OPTCanNegate | OPTModifiableType | OPTRedirectableType ],
     [ 'domain', OPTTokenDomain | OPTMustAssign | OPTDomainList ],
     [ 'ehide', OPTTokenEhide | OPTNonNetworkType | OPTNonCspableType | OPTNonRedirectableType ],
-        [ 'elemhide', OPTTokenEhide | OPTNonNetworkType | OPTNonCspableType | OPTNonRedirectableType ],
+    /* synonym */ [ 'elemhide', OPTTokenEhide | OPTNonNetworkType | OPTNonCspableType | OPTNonRedirectableType ],
     [ 'empty', OPTTokenEmpty | OPTBlockOnly | OPTModifierType ],
     [ 'frame', OPTTokenFrame | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType ],
-        [ 'subdocument', OPTTokenFrame | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType ],
+    /* synonym */ [ 'subdocument', OPTTokenFrame | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType ],
     [ 'font', OPTTokenFont | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTNonCspableType ],
     [ 'genericblock', OPTTokenGenericblock | OPTNotSupported ],
     [ 'ghide', OPTTokenGhide | OPTNonNetworkType | OPTNonCspableType | OPTNonRedirectableType ],
-        [ 'generichide', OPTTokenGhide | OPTNonNetworkType | OPTNonCspableType | OPTNonRedirectableType ],
+    /* synonym */ [ 'generichide', OPTTokenGhide | OPTNonNetworkType | OPTNonCspableType | OPTNonRedirectableType ],
     [ 'header', OPTTokenHeader | OPTMustAssign | OPTAllowMayAssign | OPTNonCspableType | OPTNonRedirectableType ],
     [ 'image', OPTTokenImage | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
     [ 'important', OPTTokenImportant | OPTBlockOnly ],
@@ -2207,22 +2224,22 @@ const netOptionTokenDescriptors = new Map([
     [ 'mp4', OPTTokenMp4 | OPTNetworkType | OPTBlockOnly |  OPTModifierType ],
     [ '_', OPTTokenNoop ],
     [ 'object', OPTTokenObject | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
-        [ 'object-subrequest', OPTTokenObject | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
+    /* synonym */ [ 'object-subrequest', OPTTokenObject | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
     [ 'other', OPTTokenOther | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
     [ 'ping', OPTTokenPing | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTNonCspableType | OPTNonRedirectableType ],
-        [ 'beacon', OPTTokenPing | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTNonCspableType | OPTNonRedirectableType ],
+    /* synonym */ [ 'beacon', OPTTokenPing | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTNonCspableType | OPTNonRedirectableType ],
     [ 'popunder', OPTTokenPopunder | OPTNonNetworkType | OPTNonCspableType | OPTNonRedirectableType ],
     [ 'popup', OPTTokenPopup | OPTNonNetworkType | OPTCanNegate | OPTNonCspableType | OPTNonRedirectableType ],
     [ 'queryprune', OPTTokenQueryprune | OPTMayAssign | OPTModifierType | OPTNonCspableType | OPTNonRedirectableType ],
-        [ 'removeparam', OPTTokenQueryprune | OPTMayAssign | OPTModifierType | OPTNonCspableType | OPTNonRedirectableType ],
+    /* synonym */ [ 'removeparam', OPTTokenQueryprune | OPTMayAssign | OPTModifierType | OPTNonCspableType | OPTNonRedirectableType ],
     [ 'redirect', OPTTokenRedirect | OPTMustAssign | OPTAllowMayAssign | OPTModifierType ],
-        [ 'rewrite', OPTTokenRedirect | OPTMustAssign | OPTAllowMayAssign | OPTModifierType ],
+    /* synonym */ [ 'rewrite', OPTTokenRedirect | OPTMustAssign | OPTAllowMayAssign | OPTModifierType ],
     [ 'redirect-rule', OPTTokenRedirectRule | OPTMustAssign | OPTAllowMayAssign | OPTModifierType | OPTNonCspableType ],
     [ 'script', OPTTokenScript | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
     [ 'shide', OPTTokenShide | OPTNonNetworkType | OPTNonCspableType | OPTNonRedirectableType ],
-        [ 'specifichide', OPTTokenShide | OPTNonNetworkType | OPTNonCspableType | OPTNonRedirectableType ],
+    /* synonym */ [ 'specifichide', OPTTokenShide | OPTNonNetworkType | OPTNonCspableType | OPTNonRedirectableType ],
     [ 'xhr', OPTTokenXhr | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
-        [ 'xmlhttprequest', OPTTokenXhr | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
+    /* synonym */ [ 'xmlhttprequest', OPTTokenXhr | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTRedirectableType | OPTNonCspableType ],
     [ 'webrtc', OPTTokenWebrtc | OPTNotSupported ],
     [ 'websocket', OPTTokenWebsocket | OPTCanNegate | OPTNetworkType | OPTModifiableType | OPTNonCspableType | OPTNonRedirectableType ],
 ]);
@@ -2232,30 +2249,30 @@ Parser.prototype.netOptionTokenDescriptors =
 
 Parser.netOptionTokenIds = new Map([
     [ '1p', OPTToken1p ],
-        [ 'first-party', OPTToken1p ],
+    /* synonym */ [ 'first-party', OPTToken1p ],
     [ 'strict1p', OPTToken1pStrict ],
     [ '3p', OPTToken3p ],
-        [ 'third-party', OPTToken3p ],
+    /* synonym */ [ 'third-party', OPTToken3p ],
     [ 'strict3p', OPTToken3pStrict ],
     [ 'all', OPTTokenAll ],
     [ 'badfilter', OPTTokenBadfilter ],
     [ 'cname', OPTTokenCname ],
     [ 'csp', OPTTokenCsp ],
     [ 'css', OPTTokenCss ],
-        [ 'stylesheet', OPTTokenCss ],
+    /* synonym */ [ 'stylesheet', OPTTokenCss ],
     [ 'denyallow', OPTTokenDenyAllow ],
     [ 'doc', OPTTokenDoc ],
-        [ 'document', OPTTokenDoc ],
+    /* synonym */ [ 'document', OPTTokenDoc ],
     [ 'domain', OPTTokenDomain ],
     [ 'ehide', OPTTokenEhide ],
-        [ 'elemhide', OPTTokenEhide ],
+    /* synonym */ [ 'elemhide', OPTTokenEhide ],
     [ 'empty', OPTTokenEmpty ],
     [ 'frame', OPTTokenFrame ],
-        [ 'subdocument', OPTTokenFrame ],
+    /* synonym */ [ 'subdocument', OPTTokenFrame ],
     [ 'font', OPTTokenFont ],
     [ 'genericblock', OPTTokenGenericblock ],
     [ 'ghide', OPTTokenGhide ],
-        [ 'generichide', OPTTokenGhide ],
+    /* synonym */ [ 'generichide', OPTTokenGhide ],
     [ 'header', OPTTokenHeader ],
     [ 'image', OPTTokenImage ],
     [ 'important', OPTTokenImportant ],
@@ -2266,22 +2283,22 @@ Parser.netOptionTokenIds = new Map([
     [ 'mp4', OPTTokenMp4 ],
     [ '_', OPTTokenNoop ],
     [ 'object', OPTTokenObject ],
-        [ 'object-subrequest', OPTTokenObject ],
+    /* synonym */ [ 'object-subrequest', OPTTokenObject ],
     [ 'other', OPTTokenOther ],
     [ 'ping', OPTTokenPing ],
-        [ 'beacon', OPTTokenPing ],
+    /* synonym */ [ 'beacon', OPTTokenPing ],
     [ 'popunder', OPTTokenPopunder ],
     [ 'popup', OPTTokenPopup ],
     [ 'queryprune', OPTTokenQueryprune ],
-        [ 'removeparam', OPTTokenQueryprune ],
+    /* synonym */ [ 'removeparam', OPTTokenQueryprune ],
     [ 'redirect', OPTTokenRedirect ],
-        [ 'rewrite', OPTTokenRedirect ],
+    /* synonym */ [ 'rewrite', OPTTokenRedirect ],
     [ 'redirect-rule', OPTTokenRedirectRule ],
     [ 'script', OPTTokenScript ],
     [ 'shide', OPTTokenShide ],
-        [ 'specifichide', OPTTokenShide ],
+    /* synonym */ [ 'specifichide', OPTTokenShide ],
     [ 'xhr', OPTTokenXhr ],
-        [ 'xmlhttprequest', OPTTokenXhr ],
+    /* synonym */ [ 'xmlhttprequest', OPTTokenXhr ],
     [ 'webrtc', OPTTokenWebrtc ],
     [ 'websocket', OPTTokenWebsocket ],
 ]);
@@ -2427,22 +2444,7 @@ const NetOptionsIterator = class {
                 descriptor = netOptionTokenDescriptors.get(token);
             }
             // Validate option according to context
-            if (
-                descriptor === undefined ||
-                ltok !== lopt &&
-                    hasNoBits(descriptor, OPTCanNegate) ||
-                this.exception &&
-                    hasBits(descriptor, OPTBlockOnly) ||
-                this.exception === false &&
-                    hasBits(descriptor, OPTAllowOnly) ||
-                assigned &&
-                    hasNoBits(descriptor, OPTMayAssign | OPTMustAssign) ||
-                assigned === false &&
-                    hasBits(descriptor, OPTMustAssign) && (
-                        this.exception === false ||
-                        hasNoBits(descriptor, OPTAllowMayAssign)
-                    )
-            ) {
+            if ( !this.optionIsValidInContext(descriptor, ltok !== lopt, assigned) ) {
                 descriptor = OPTTokenInvalid;
             }
             // Keep track of which options are present: any given option can
@@ -2655,6 +2657,30 @@ const NetOptionsIterator = class {
         this.readPtr = i + 6;
         return this;
     }
+
+    optionIsValidInContext(descriptor, negated, assigned) {
+        if ( descriptor === undefined ) {
+            return false;
+        }
+        if ( negated && hasNoBits(descriptor, OPTCanNegate) )  {
+            return false;
+        }
+        if ( this.exception && hasBits(descriptor, OPTBlockOnly) ) {
+            return false;
+        }
+        if ( this.exception === false && hasBits(descriptor, OPTAllowOnly) ) {
+            return false;
+        }
+        if ( assigned && hasNoBits(descriptor, OPTMayAssign | OPTMustAssign) ) {
+            return false;
+        }
+        if ( assigned === false && hasBits(descriptor, OPTMustAssign) ) {
+            if ( this.exception === false || hasNoBits(descriptor, OPTAllowMayAssign) ) {
+                return false;
+            }
+        }
+        return true;
+    }
 };
 
 /******************************************************************************/
@@ -2796,86 +2822,85 @@ Parser.regexUtils = Parser.prototype.regexUtils = (( ) => {
 
     const toTokenizableStr = node => {
         switch ( node.type ) {
-            case 1: /* T_SEQUENCE, 'Sequence' */ {
-                let s = '';
-                for ( let i = 0; i < node.val.length; i++ ) {
-                    s += toTokenizableStr(node.val[i]);
+        case 1: /* T_SEQUENCE, 'Sequence' */ {
+            let s = '';
+            for ( let i = 0; i < node.val.length; i++ ) {
+                s += toTokenizableStr(node.val[i]);
+            }
+            return s;
+        }
+        case 2: /* T_ALTERNATION, 'Alternation' */
+        case 8: /* T_CHARGROUP, 'CharacterGroup' */ {
+            let firstChar = 0;
+            let lastChar = 0;
+            for ( let i = 0; i < node.val.length; i++ ) {
+                const s = toTokenizableStr(node.val[i]);
+                if ( firstChar === 0 && firstCharCodeClass(s) === 1 ) {
+                    firstChar = 1;
                 }
-                return s;
-            }
-            case 2: /* T_ALTERNATION, 'Alternation' */
-            case 8: /* T_CHARGROUP, 'CharacterGroup' */ {
-                let firstChar = 0;
-                let lastChar = 0;
-                for ( let i = 0; i < node.val.length; i++ ) {
-                    const s = toTokenizableStr(node.val[i]);
-                    if ( firstChar === 0 && firstCharCodeClass(s) === 1 ) {
-                        firstChar = 1;
-                    }
-                    if ( lastChar === 0 && lastCharCodeClass(s) === 1 ) {
-                        lastChar = 1;
-                    }
-                    if ( firstChar === 1 && lastChar === 1 ) { break; }
+                if ( lastChar === 0 && lastCharCodeClass(s) === 1 ) {
+                    lastChar = 1;
                 }
-                return String.fromCharCode(firstChar, lastChar);
+                if ( firstChar === 1 && lastChar === 1 ) { break; }
             }
-            case 4: /* T_GROUP, 'Group' */ {
-                if ( node.flags.NegativeLookAhead === 1 ) { return '\x01'; }
-                if ( node.flags.NegativeLookBehind === 1 ) { return '\x01'; }
-                return toTokenizableStr(node.val);
-            }
-            case 16: /* T_QUANTIFIER, 'Quantifier' */ {
-                const s = toTokenizableStr(node.val);
-                const first = firstCharCodeClass(s);
-                const last = lastCharCodeClass(s);
-                if ( node.flags.min === 0 && first === 0 && last === 0 ) {
-                    return '';
-                }
-                return String.fromCharCode(first, last);
-            }
-            case 64: /* T_HEXCHAR, 'HexChar' */ {
-                return String.fromCharCode(parseInt(node.val.slice(1), 16));
-            }
-            case 128: /* T_SPECIAL, 'Special' */ {
-                const flags = node.flags;
-                if (
-                    flags.EndCharGroup === 1 || // dangling `]`
-                    flags.EndGroup === 1 ||     // dangling `)`
-                    flags.EndRepeats === 1      // dangling `}`
-                ) {
-                    throw new Error('Unmatched bracket');
-                }
-                return flags.MatchEnd === 1 ||
-                       flags.MatchStart === 1 ||
-                       flags.MatchWordBoundary === 1
-                    ? '\x00'
-                    : '\x01';
-            }
-            case 256: /* T_CHARS, 'Characters' */ {
-                for ( let i = 0; i < node.val.length; i++ ) {
-                    if ( firstCharCodeClass(node.val[i]) === 1 ) {
-                        return '\x01';
-                    }
-                }
-                return '\x00';
-            }
-            // Ranges are assumed to always involve token-related characters.
-            case 512: /* T_CHARRANGE, 'CharacterRange' */ {
-                return '\x01';
-            }
-            case 1024: /* T_STRING, 'String' */ {
-                return node.val;
-            }
-            case 2048: /* T_COMMENT, 'Comment' */ {
+            return String.fromCharCode(firstChar, lastChar);
+        }
+        case 4: /* T_GROUP, 'Group' */ {
+            if ( node.flags.NegativeLookAhead === 1 ) { return '\x01'; }
+            if ( node.flags.NegativeLookBehind === 1 ) { return '\x01'; }
+            return toTokenizableStr(node.val);
+        }
+        case 16: /* T_QUANTIFIER, 'Quantifier' */ {
+            const s = toTokenizableStr(node.val);
+            const first = firstCharCodeClass(s);
+            const last = lastCharCodeClass(s);
+            if ( node.flags.min === 0 && first === 0 && last === 0 ) {
                 return '';
             }
-            default:
-                break;
+            return String.fromCharCode(first, last);
+        }
+        case 64: /* T_HEXCHAR, 'HexChar' */ {
+            return String.fromCharCode(parseInt(node.val.slice(1), 16));
+        }
+        case 128: /* T_SPECIAL, 'Special' */ {
+            const flags = node.flags;
+            if (
+                flags.EndCharGroup === 1 || // dangling `]`
+                flags.EndGroup === 1 ||     // dangling `)`
+                flags.EndRepeats === 1      // dangling `}`
+            ) {
+                throw new Error('Unmatched bracket');
+            }
+            return flags.MatchEnd === 1 ||
+                   flags.MatchStart === 1 ||
+                   flags.MatchWordBoundary === 1
+                ? '\x00'
+                : '\x01';
+        }
+        case 256: /* T_CHARS, 'Characters' */ {
+            for ( let i = 0; i < node.val.length; i++ ) {
+                if ( firstCharCodeClass(node.val[i]) === 1 ) {
+                    return '\x01';
+                }
+            }
+            return '\x00';
+        }
+        // Ranges are assumed to always involve token-related characters.
+        case 512: /* T_CHARRANGE, 'CharacterRange' */ {
+            return '\x01';
+        }
+        case 1024: /* T_STRING, 'String' */ {
+            return node.val;
+        }
+        case 2048: /* T_COMMENT, 'Comment' */ {
+            return '';
+        }
+        default:
+            break;
         }
         return '\x01';
     };
 
-    const Regex = self.Regex;
     if (
         Regex instanceof Object === false ||
         Regex.Analyzer instanceof Object === false
@@ -2915,13 +2940,6 @@ Parser.regexUtils = Parser.prototype.regexUtils = (( ) => {
 
 /******************************************************************************/
 
-if ( typeof vAPI === 'object' && vAPI !== null ) {
-    vAPI.StaticFilteringParser = Parser;
-} else {
-    self.StaticFilteringParser = Parser;
-}
+const StaticFilteringParser = Parser;
 
-/******************************************************************************/
-
-// <<<<< end of local scope
-}
+export { StaticFilteringParser };

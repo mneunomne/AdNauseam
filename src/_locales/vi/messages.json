@@ -891,6 +891,14 @@
     "message": "Các phụ thuộc bên ngoài (tương thích GPLv3):",
     "description": "Shown in the About pane"
   },
+  "aboutCDNs": {
+    "message": "Danh sách các bộ lọc của uBO được lưu trữ miễn phí trên các CDN.",
+    "description": "Shown in the About pane"
+  },
+  "aboutCDNsInfo": {
+    "message": "CDN được chọn ngẫu nhiên khi cần cập nhật danh sách bộ lọc.",
+    "description": "Shown in the About pane"
+  },
   "aboutBackupDataButton": {
     "message": "Sao lưu vào tập tin...",
     "description": "Text for button to create a backup of all settings"

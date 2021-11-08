@@ -891,6 +891,14 @@
     "message": "Eksterne avhengigheter (GPLv3-kompatible):",
     "description": "Shown in the About pane"
   },
+  "aboutCDNs": {
+    "message": "uBlock Origins egne filterlister finnes fritt tilgjengelig hos følgende <a href=\"https://wikipedia.org/wiki/Content_delivery_network\">CDN-er</a>:",
+    "description": "Shown in the About pane"
+  },
+  "aboutCDNsInfo": {
+    "message": "En tilfeldig valgt CDN blir brukt når en filterliste trenger å bli oppdatert",
+    "description": "Shown in the About pane"
+  },
   "aboutBackupDataButton": {
     "message": "Sikkerhetskopier til fil",
     "description": "Text for button to create a backup of all settings"

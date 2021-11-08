@@ -18,7 +18,7 @@ In light of the industry's failure to address the excesses of network tracking, 
 
 * Web Site:         https://adnauseam.io
 * Authors:          [Daniel C. Howe](https://rednoise.org/daniel), [Helen Nissenbaum](https://www.nyu.edu/projects/nissenbaum/) and [Mushon Zer-Aviv](http://mushon.com)
-* Developers:       [Daniel C. Howe](https://rednoise.org/daniel) and [Sally Chen](https://github.com/cqx931)
+* Developers:       [Daniel C. Howe](https://rednoise.org/daniel), [Sally Chen](https://github.com/cqx931) and [Alberto Harres](https://github.com/mneunomne)
 * License:          GPLv3 (see included [LICENSE.txt](https://github.com/dhowe/AdNauseam/blob/master/LICENSE.txt) file for full license)
 * Github Repo:      https://github.com/dhowe/adnauseam/
 * Bug Tracker:      https://github.com/dhowe/adnauseam/issues

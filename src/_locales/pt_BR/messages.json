@@ -268,11 +268,11 @@
     "description": "Example of use: Version 1.26.4"
   },
   "popup3pScriptFilterTip": {
-    "message": "↑: Enfatizar as linhas que têm scripts de terceiros",
+    "message": "↑: Realçar linhas que contêm scripts de terceiros",
     "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
   },
   "popup3pFrameFilterTip": {
-    "message": "↑: Enfatizar as linhas que têm frames de terceiros",
+    "message": "↑: Realçar linhas que contêm frames de terceiros",
     "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
   },
   "pickerCreate": {
@@ -889,6 +889,14 @@
   },
   "aboutDependencies": {
     "message": "Dependências externas (compatíveis com GPLv3):",
+    "description": "Shown in the About pane"
+  },
+  "aboutCDNs": {
+    "message": "As listas de filtros do uBO estão hospedadas gratuitamente nos seguintes <a href=\"https://wikipedia.org/wiki/Content_delivery_network\">CDNs</a>:",
+    "description": "Shown in the About pane"
+  },
+  "aboutCDNsInfo": {
+    "message": "Um CDN aleatório será utilizado quando uma lista de filtros precisar ser atualizada",
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {

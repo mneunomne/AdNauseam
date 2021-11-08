@@ -1,13 +1,16 @@
-µBlock.adnauseam.dnt = (function () {
+'use strict';
 
-  'use strict';
+import µb from '../background.js';
+import DynamicHostRuleFiltering from '../dynamic-net-filtering.js';
+import {log, logNetEvent} from './log.js'
 
-  const µb = µBlock, adn = µb.adnauseam, log = adn.log;
+const dnt = (function () {
+
   //const effList = 'eff-dnt-whitelist';
 
   let exports = {};
 
-  const firewall = exports.firewall = new µb.Firewall();
+  const firewall = exports.firewall = new DynamicHostRuleFiltering();
 
   exports.shutdown = function () {
 
@@ -105,7 +108,7 @@
   const updateFilters = exports.updateFilters = function () {
 
     const ruleCount = Object.keys(firewall.rules).length;
-    const enabled = µb.adnauseam.dnt.enabled();
+    const enabled = dnt.enabled();
     const dnts = µb.userSettings.dntDomains;
 
     // Only clear and possibly update if we actually find a change
@@ -146,13 +149,13 @@
 
       if (context.tabHostname !== requestDomain) {
 
-        µb.adnauseam.logNetEvent('[DNT*3P] (Allow) ', [ context.tabHostname + ' => ' +
+        logNetEvent('[DNT*3P] (Allow) ', [ context.tabHostname + ' => ' +
           requestDomain + ' ' + context.url ]); // suspicious: may want to check
       }
 
       if (context.type === 'inline-script') { // #1271
 
-        µb.adnauseam.logNetEvent('[DNT] (Allow)', [ context.tabHostname + ' => ' +
+        logNetEvent('[DNT] (Allow)', [ context.tabHostname + ' => ' +
           context.hostname + ' ' + context.url  ]);
       }
     }
@@ -163,3 +166,5 @@
   return exports;
 
 })();
+
+export default dnt

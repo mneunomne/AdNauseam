@@ -8,9 +8,12 @@
 #
 echo "*** AdNauseam: Importing from Crowdin archive"
 
+set -e
+
 SRC=~/Downloads/adnauseam
-rm -r $SRC
+rm -r $SRC || true
 unzip -q ~/Downloads/adnauseam.zip -d $SRC
+
 
 DES=./src/_locales
 

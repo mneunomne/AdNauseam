@@ -4,10 +4,13 @@
 
 hash jq 2>/dev/null || { echo; echo >&2 "Error: this script requires jq (https://stedolan.github.io/jq/), but it's not installed"; exit 1; }
 
+
+
 echo "*** AdNauseam.opera: Creating opera package"
 echo "*** AdNauseam.opera: Copying files"
 
 DES=dist/build/adnauseam.opera
+
 
 rm -rf $DES
 mkdir -p $DES
@@ -18,7 +21,13 @@ VERSION=`jq .version manifest.json` # top-level adnauseam manifest
 echo "*** AdNauseam.opera: Copying common files"
 bash ./tools/copy-common-files.sh  $DES
 
+# Chromium-specific
+echo "*** AdNauseam.opera: Copying chromium-specific files"
+cp platform/chromium/*.js          $DES/js/
+cp platform/chromium/*.html        $DES/
+
 # Opera-specific
+echo "*** AdNauseam.opera: Copying opera-specific files"
 cp platform/opera/manifest.json $DES/
 rm -rf $DES/_locales/az   #ADN silent
 rm -rf $DES/_locales/cv

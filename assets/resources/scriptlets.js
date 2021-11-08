@@ -32,20 +32,31 @@
 
 
 
-/// abort-current-inline-script.js
+/// abort-current-script.js
+/// alias acs.js
+/// alias abort-current-inline-script.js
 /// alias acis.js
 (function() {
     const target = '{{1}}';
     if ( target === '' || target === '{{1}}' ) { return; }
+    const reRegexEscape = /[.*+?^${}()|[\]\\]/g;
     const needle = '{{2}}';
-    let reText = '.?';
-    if ( needle !== '' && needle !== '{{2}}' ) {
-        reText = /^\/.+\/$/.test(needle)
-            ? needle.slice(1,-1)
-            : needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
+    const reNeedle = (( ) => {
+        if ( needle === '' || needle === '{{2}}' ) { return /^/; }
+        if ( /^\/.+\/$/.test(needle) ) {
+            return new RegExp(needle.slice(1,-1));
+        }
+        return new RegExp(needle.replace(reRegexEscape, '\\$&'));
+    })();
+    const context = '{{3}}';
+    const reContext = (( ) => {
+        if ( context === '' || context === '{{3}}' ) { return /^$/; }
+        if ( /^\/.+\/$/.test(context) ) {
+            return new RegExp(context.slice(1,-1));
+        }
+        return new RegExp(context.replace(reRegexEscape, '\\$&'));
+    })();
     const thisScript = document.currentScript;
-    const re = new RegExp(reText);
     const chain = target.split('.');
     let owner = window;
     let prop;
@@ -66,16 +77,35 @@
     }
     const magic = String.fromCharCode(Date.now() % 26 + 97) +
                   Math.floor(Math.random() * 982451653 + 982451653).toString(36);
-    const validate = function() {
-        const e = document.currentScript;
-        if (
-            e instanceof HTMLScriptElement &&
-            e.src === '' &&
-            e !== thisScript &&
-            re.test(e.textContent)
-        ) {
-            throw new ReferenceError(magic);
+    const scriptTexts = new WeakMap();
+    const getScriptText = elem => {
+        let text = elem.textContent;
+        if ( text.trim() !== '' ) { return text; }
+        if ( scriptTexts.has(elem) ) { return scriptTexts.get(elem); }
+        const [ , mime, content ] =
+            /^data:([^,]*),(.+)$/.exec(elem.src.trim()) ||
+            [ '', '', '' ];
+        try {
+            switch ( true ) {
+            case mime.endsWith(';base64'):
+                text = self.atob(content);
+                break;
+            default:
+                text = self.decodeURIComponent(content);
+                break;
+            }
+        } catch(ex) {
         }
+        scriptTexts.set(elem, text);
+        return text;
+    };
+    const validate = ( ) => {
+        const e = document.currentScript;
+        if ( e instanceof HTMLScriptElement === false ) { return; }
+        if ( reContext.test(e.src) === false ) { return; }
+        if ( e === thisScript ) { return; }
+        if ( reNeedle.test(getScriptText(e)) === false ) { return; }
+        throw new ReferenceError(magic);
     };
     Object.defineProperty(owner, prop, {
         get: function() {
@@ -95,7 +125,7 @@
     });
     const oe = window.onerror;
     window.onerror = function(msg) {
-        if ( typeof msg === 'string' && msg.indexOf(magic) !== -1 ) {
+        if ( typeof msg === 'string' && msg.includes(magic) ) {
             return true;
         }
         if ( oe instanceof Function ) {
@@ -731,7 +761,7 @@
             }
         }
         if ( skip ) { return; }
-        timer = self.requestIdleCallback(rmattr, { timeout: 67 });
+        timer = self.requestIdleCallback(rmattr, { timeout: 17 });
     };
     const start = ( ) => {
         rmattr();
@@ -746,10 +776,10 @@
     };
     if ( document.readyState !== 'complete' && /\bcomplete\b/.test(behavior) ) {
         self.addEventListener('load', start, { once: true });
-    } else if ( document.readyState === 'loading' ) {
-        self.addEventListener('DOMContentLoaded', start, { once: true });
-    } else {
+    } else if ( document.readyState !== 'loading' || /\basap\b/.test(behavior) ) {
         start();
+    } else {
+        self.addEventListener('DOMContentLoaded', start, { once: true });
     }
 })();
 
@@ -894,7 +924,7 @@
         const odesc = Object.getOwnPropertyDescriptor(owner, prop);
         let prevGetter, prevSetter;
         if ( odesc instanceof Object ) {
-            if ( odesc.configurable === false ) { return; }
+            owner[prop] = cValue;
             if ( odesc.get instanceof Function ) {
                 prevGetter = odesc.get;
             }
@@ -902,21 +932,24 @@
                 prevSetter = odesc.set;
             }
         }
-        Object.defineProperty(owner, prop, {
-            configurable,
-            get() {
-                if ( prevGetter !== undefined ) {
-                    prevGetter();
+        try {
+            Object.defineProperty(owner, prop, {
+                configurable,
+                get() {
+                    if ( prevGetter !== undefined ) {
+                        prevGetter();
+                    }
+                    return handler.getter(); // cValue
+                },
+                set(a) {
+                    if ( prevSetter !== undefined ) {
+                        prevSetter(a);
+                    }
+                    handler.setter(a);
                 }
-                return handler.getter(); // cValue
-            },
-            set(a) {
-                if ( prevSetter !== undefined ) {
-                    prevSetter(a);
-                }
-                handler.setter(a);
-            }
-        });
+            });
+        } catch(ex) {
+        }
     };
     const trapChain = function(owner, chain) {
         const pos = chain.indexOf('.');
@@ -1132,6 +1165,87 @@
                 return Reflect.construct(target, args);
             }
         });
+})();
+
+
+/// no-xhr-if.js
+(function() {
+    const xhrInstances = new WeakMap();
+    let arg1 = '{{1}}';
+    if ( arg1 === '{{1}}' ) { arg1 = ''; }
+    const needles = [];
+    for ( const condition of arg1.split(/\s+/) ) {
+        if ( condition === '' ) { continue; }
+        const pos = condition.indexOf(':');
+        let key, value;
+        if ( pos !== -1 ) {
+            key = condition.slice(0, pos);
+            value = condition.slice(pos + 1);
+        } else {
+            key = 'url';
+            value = condition;
+        }
+        if ( value === '' ) {
+            value = '^';
+        } else if ( value.startsWith('/') && value.endsWith('/') ) {
+            value = value.slice(1, -1);
+        } else {
+            value = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        needles.push({ key, re: new RegExp(value) });
+    }
+    const log = needles.length === 0 ? console.log.bind(console) : undefined;
+    self.XMLHttpRequest = class extends self.XMLHttpRequest {
+        open(...args) {
+            if ( log !== undefined ) {
+                log(`uBO: xhr.open(${args.join(', ')})`);
+            } else {
+                const argNames = [ 'method', 'url' ];
+                const haystack = new Map();
+                for ( let i = 0; i < args.length && i < argNames.length; i++  ) {
+                    haystack.set(argNames[i], args[i]);
+                }
+                if ( haystack.size !== 0 ) {
+                    let matches = true;
+                    for ( const { key, re } of needles ) {
+                        matches = re.test(haystack.get(key) || '');
+                        if ( matches === false ) { break; }
+                    }
+                    if ( matches ) {
+                        xhrInstances.set(this, haystack);
+                    }
+                }
+            }
+            return super.open(...args);
+        }
+        send(...args) {
+            const haystack = xhrInstances.get(this);
+            if ( haystack === undefined ) {
+                return super.send(...args);
+            }
+            Object.defineProperties(this, {
+                readyState: { value: 4, writable: false },
+                response: { value: '', writable: false },
+                responseText: { value: '', writable: false },
+                responseURL: { value: haystack.get('url'), writable: false },
+                responseXML: { value: '', writable: false },
+                status: { value: 200, writable: false },
+                statusText: { value: 'OK', writable: false },
+            });
+            if ( this.onreadystatechange !== null ) {
+                setTimeout(( ) => {
+                    const ev = new Event('readystatechange');
+                    this.onreadystatechange.call(this, ev);
+                }, 1);
+            }
+            if ( this.onload !== null ) {
+                setTimeout(( ) => {
+                    const ev = new Event('load');
+                    this.onload.call(this, ev);
+                }, 1);
+            }
+        }
+    };
 })();
 
 

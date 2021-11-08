@@ -891,6 +891,14 @@
     "message": "Pergantungan luaran (serasi dengan GPLv3):",
     "description": "Shown in the About pane"
   },
+  "aboutCDNs": {
+    "message": "Senarai penapis uBO sendiri dihoskan secara bebas di <a href=\"https://wikipedia.org/wiki/Content_delivery_network\">CDNs</a>:",
+    "description": "Shown in the About pane"
+  },
+  "aboutCDNsInfo": {
+    "message": "CDN yang dipilih secara rawak digunakan apabila senarai penapis perlu dikemas kini",
+    "description": "Shown in the About pane"
+  },
   "aboutBackupDataButton": {
     "message": "Sandarkan ke fail",
     "description": "Text for button to create a backup of all settings"
