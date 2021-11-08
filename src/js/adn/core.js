@@ -25,6 +25,7 @@
 
 import µb from '../background.js';
 import staticFilteringReverseLookup from '../reverselookup.js';
+import staticNetFilteringEngine from '../static-net-filtering.js'
 import dnt from './dnt.js'
 
 import {
@@ -1099,10 +1100,10 @@ const adnauseam = (function () {
     const parser = new vAPI.StaticFilteringParser();
     // urlTokenizer property doesn't exist anymore, MAX_TOKEN_LENGTH can now be found on 'staticNetFilteringEngine'
     // parser.setMaxTokenLength(µb.urlTokenizer.MAX_TOKEN_LENGTH);
-    parser.setMaxTokenLength(µb.staticNetFilteringEngine.MAX_TOKEN_LENGTH);
+    parser.setMaxTokenLength(staticNetFilteringEngine.MAX_TOKEN_LENGTH);
     parser.analyze(filter.raw);
 
-    if (µb.staticNetFilteringEngine.compile(parser, writer) === false) {
+    if (staticNetFilteringEngine.compile(parser, writer) === false) {
       return;
     }
     const compiledFilter = writer.last();
@@ -1211,7 +1212,7 @@ const adnauseam = (function () {
     }
 
     ///////////////////////////////////////////////////////////////////////
-    const snfe = µb.staticNetFilteringEngine, snfeData = snfe.toLogData();
+    const snfe = staticNetFilteringEngine, snfeData = snfe.toLogData();
 
     /*
       Now check active rule(s) to see if we should block or allow
