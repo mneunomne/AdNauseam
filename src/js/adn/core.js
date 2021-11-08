@@ -34,6 +34,14 @@ import {
 } from '../uri-utils.js';
 
 import {
+  CompiledListReader,
+  CompiledListWriter,
+} from '../static-filtering-io.js';
+
+import { StaticFilteringParser } from '../static-filtering-parser.js';
+
+
+import {
   log,
   warn,
   err, 
@@ -1096,8 +1104,8 @@ const adnauseam = (function () {
     let content;
     let pos;
     let c;
-    const writer = new µb.CompiledLineIO.Writer();
-    const parser = new vAPI.StaticFilteringParser();
+    const writer = new CompiledListWriter();
+    const parser = new StaticFilteringParser();
     // urlTokenizer property doesn't exist anymore, MAX_TOKEN_LENGTH can now be found on 'staticNetFilteringEngine'
     // parser.setMaxTokenLength(µb.urlTokenizer.MAX_TOKEN_LENGTH);
     parser.setMaxTokenLength(staticNetFilteringEngine.MAX_TOKEN_LENGTH);
