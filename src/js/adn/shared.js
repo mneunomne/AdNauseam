@@ -621,6 +621,7 @@ const stringNotEmpty = function (s) {
 /************************ URL utils *****************************/
 
 const parseHostname = function (url) {
+
   return new URL(url).hostname;
 };
 
