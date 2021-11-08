@@ -30,6 +30,7 @@ import µb from './background.js';
 import { hostnameFromURI } from './uri-utils.js';
 import { redirectEngine } from './redirect-engine.js';
 import adnauseam from './adn/core.js'
+import dnt from './adn/dnt.js';
 
 import {
     permanentFirewall,
@@ -298,7 +299,7 @@ const matchBucket = function(url, hostname, bucket, start) {
 /******************************************************************************/
 
 µb.changeUserSettings = function(name, value) {
-    let us = this.userSettings, adn = adnauseam;
+    let us = this.userSettings;
 
     // Return all settings if none specified.
     if ( name === undefined ) {
@@ -406,27 +407,27 @@ const matchBucket = function(url, hostname, bucket, start) {
     /***************************** ADN *******************************/
 
     case 'showIconBadge':
-        adn.updateBadges();
+        adnauseam.updateBadges();
         break;
     case 'parseTextAds':
-        adn.updateBadges();
+        adnauseam.updateBadges();
         break;
     case 'hidingAds':
-        adn.verifySetting(HidingDisabled, !us.hidingAds);
-        adn.dnt.updateFilters();
+        adnauseam.verifySetting(HidingDisabled, !us.hidingAds);
+        dnt.updateFilters();
         break;
     case 'clickingAds':
-        adn.verifySetting(ClickingDisabled, !us.clickingAds);
-        adn.dnt.updateFilters();
+        adnauseam.verifySetting(ClickingDisabled, !us.clickingAds);
+        dnt.updateFilters();
         break;
     case 'blockingMalware':
-        adn.verifySetting(BlockingDisabled, !us.blockingMalware);
+        adnauseam.verifySetting(BlockingDisabled, !us.blockingMalware);
         break;
     case 'disableHidingForDNT':
-      adn.dnt.updateFilters();
+      dnt.updateFilters();
       break;
     case 'disableClickingForDNT':
-      adn.dnt.updateFilters();
+      dnt.updateFilters();
       break;
     case 'noThirdPartyCookies': // WHY IS THIS HERE ?
         //vAPI.browserSettings.set({ 'thirdPartyCookiesAllowed': !value });

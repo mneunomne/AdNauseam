@@ -30,8 +30,13 @@ import scriptletFilteringEngine from './scriptlet-filtering.js';
 import staticNetFilteringEngine from './static-net-filtering.js';
 import textEncode from './text-encode.js';
 import µb from './background.js';
+// ADN
 import adnauseam from './adn/core.js'
-
+import {
+    logRedirect,
+    logNetEvent
+} from './adn/log.js'
+// end ADN 
 import {
     sessionFirewall,
     sessionSwitches,
@@ -72,7 +77,7 @@ const onBeforeSendHeaders = function (details) {
     if (pageStore.getNetFilteringSwitch() && !hasDNT(headers)) {
 
       if (details.type === 'main_frame') {// minimize logging
-        adn.logNetEvent('[HEADER]', 'Append', 'DNT:1', details.url);
+        logNetEvent('[HEADER]', 'Append', 'DNT:1', details.url);
       }
 
       addHeader(headers, 'DNT', '1');
@@ -120,14 +125,14 @@ const beforeAdVisit = function (details, headers, prefs, ad, respectDNT) {
       // Block outgoing cookies and user-agent here if specified
       if (prefs.noOutgoingCookies && name === 'cookie') {
 
-        adnauseam.logNetEvent('[COOKIE]', 'Strip', headers[i].value, details.url);
+        logNetEvent('[COOKIE]', 'Strip', headers[i].value, details.url);
       }
 
       // Replace user-agent with most common string, if specified
       if (prefs.noOutgoingUserAgent && name === 'user-agent') {
 
          headers[i].value = CommonUserAgent;
-         adnauseam.logNetEvent('[UAGENT]', 'Default', headers[i].value, details.url);
+         logNetEvent('[UAGENT]', 'Default', headers[i].value, details.url);
       }
     }
 
@@ -165,12 +170,12 @@ const handleRefererForVisit = function (prefs, refIdx, referer, url, headers) {
   if (refIdx > -1 && prefs.noOutgoingReferer) {
 
     // will never happen when using XMLHttpRequest
-    adnauseam.logNetEvent('[REFERER]', 'Strip', referer, url);
+    logNetEvent('[REFERER]', 'Strip', referer, url);
     setHeader(headers[refIdx], '');
 
   } else if (!prefs.noOutgoingReferer && refIdx < 0) {
 
-    adnauseam.logNetEvent('[REFERER]', 'Allow', referer, url);
+    logNetEvent('[REFERER]', 'Allow', referer, url);
     addHeader(headers, 'Referer', referer);
   }
 };
@@ -278,7 +283,7 @@ const onBeforeRequest = function(details) {
     // Redirected
 
     if ( fctxt.redirectURL !== undefined ) {
-        adnauseam.logRedirect(fctxt); // ADN:redirect
+        logRedirect(fctxt); // ADN:redirect
         return { redirectUrl: patchLocalRedirectURL(fctxt.redirectURL) };
     }
 
@@ -287,7 +292,7 @@ const onBeforeRequest = function(details) {
     // Blocked
     if ( result === 1) {  // ADN 1=block,
         // ADN: already logs this from core.js if result == 1
-        //adnauseam.logNetBlock(fctxt);
+        //logNetBlock(fctxt);
         return { cancel: true }; // block
     }
 
@@ -386,7 +391,7 @@ const onBeforeRootFrameRequest = function(fctxt) {
         pageStore !== null &&
         staticNetFilteringEngine.hasQuery(fctxt)
     ) {
-        adnauseam.logRedirect(fctxt, 'beforeRequest.non-blocked'); // ADN: redirect unblocked
+        logRedirect(fctxt, 'beforeRequest.non-blocked'); // ADN: redirect unblocked
         pageStore.redirectNonBlockedRequest(fctxt);
     }
 
@@ -397,7 +402,7 @@ const onBeforeRootFrameRequest = function(fctxt) {
     // Redirected
 
     if ( fctxt.redirectURL !== undefined ) {
-        adnauseam.logRedirect(fctxt, 'beforeRequest'); // ADN: redirect blocked
+        logRedirect(fctxt, 'beforeRequest'); // ADN: redirect blocked
         return { redirectUrl: patchLocalRedirectURL(fctxt.redirectURL) };
     }
 
@@ -605,14 +610,14 @@ const onBeforeBehindTheSceneRequest = function(fctxt) {
     // Redirected
 
     if ( fctxt.redirectURL !== undefined ) {
-        adnauseam.logRedirect(fctxt, `[BehindTheScene: ${fctxt.type}]`); // ADN: redirect xhr
+        logRedirect(fctxt, `[BehindTheScene: ${fctxt.type}]`); // ADN: redirect xhr
         return { redirectUrl: patchLocalRedirectURL(fctxt.redirectURL) };
     }
 
     // Blocked?
 
     if ( result === 1 ) {
-        adnauseam.logNetBlock('BehindTheScene', fctxt.url, `(${fctxt.type})`); // ADN: Blocked xhr
+        logNetBlock('BehindTheScene', fctxt.url, `(${fctxt.type})`); // ADN: Blocked xhr
         return { cancel: true };
     }
 
@@ -766,7 +771,7 @@ const onHeadersReceived = function(details) {
             }
             if ( result === 1 ) {
                 pageStore.journalAddRequest(fctxt, 1);
-                adnauseam.logNetBlock('Headers', fctxt.url); // ADN: block
+                logNetBlock('Headers', fctxt.url); // ADN: block
                 return { cancel: true };
             }
         }

@@ -29,7 +29,8 @@ import staticNetFilteringEngine from './static-net-filtering.js';
 import µb from './background.js';
 import { orphanizeString } from './text-utils.js';
 import { redirectEngine } from './redirect-engine.js';
-import adnauseam from './adn/core.js'
+import adnauseam from './adn/core.js' // ADN
+import dnt from './adn/dnt.js'; // ADN
 
 import {
     sessionFirewall,
@@ -813,11 +814,11 @@ const PageStore = class {
         }
 
         // ADN: now check our firewall (top precedence) if DNT enabled
-        if ( result === 0 && adnauseam.dnt.enabled() ) {
-            if ( adnauseam.dnt.mustAllow(fctxt) ) {
+        if ( result === 0 && dnt.enabled() ) {
+            if ( dnt.mustAllow(fctxt) ) {
                   result = 2;
                   if ( µb.logger.enabled ) { // logger
-                      this.logData = adnauseam.dnt.firewall.toLogData();
+                      this.logData = dnt.firewall.toLogData();
                   }
                   if (!cacheableResult) return result;
             }
@@ -837,10 +838,10 @@ const PageStore = class {
         }
 
         // Static filtering has lowest precedence.
-        const snfe = µb.staticNetFilteringEngine;
+        const snfe = staticNetFilteringEngine;
         if ( result === 0 || result === 3 || result === 4) { // ADN: added result === 4 scenario
 
-           const snfe = µb.staticNetFilteringEngine;
+           const snfe = staticNetFilteringEngine;
            const updatedResult = snfe.matchRequest(fctxt);
            result = result === 4 ? 4 : updatedResult;
            // End of ADN: keep result === 4 so that static filtering info can be added later

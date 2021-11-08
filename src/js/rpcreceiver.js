@@ -21,6 +21,8 @@
 
 'use strict';
 
+import adnauseam from "./adn/core";
+
 /******************************************************************************/
 
 (function() {
@@ -68,7 +70,7 @@ vAPI.rpcReceiver.getScriptTagFiltersWithPrefs = function(details) { // not used
     var µb = µBlock;
     var cfe = µb.cosmeticFilteringEngine;
 
-    var result = { prefs: µBlock.adnauseam.contentPrefs() };
+    var result = { prefs: adnauseam.contentPrefs() };
 
     if ( cfe ) {
 

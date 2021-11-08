@@ -205,11 +205,14 @@ vAPI.messaging.send(
     } else {
       uDom("#notifications").removeClass('hide');
     }
-    adjustHeight();
+    // adjustHeight();
   })
-
-
 /******************************************************************************/
-
+/*
+function adjustHeight(){
+    let notificationsHeight = $("#notifications").hasClass("hide") ? 0 : $("#notifications").height(); 
+    $("#stage").css('height', String($(window).height() - notificationsHeight) + "px" );
+}
+*/
 // <<<<< end of local scope
 }

@@ -41,6 +41,7 @@ import { redirectEngine } from './redirect-engine.js';
 import { sparseBase64 } from './base64-custom.js';
 import { StaticFilteringParser } from './static-filtering-parser.js';
 import { ubolog, ubologSet } from './console.js';
+import adnauseam from './adn/core.js';
 
 import {
     permanentFirewall,
@@ -820,7 +821,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         this.selfieManager.destroy();
         staticFilteringReverseLookup.resetLists();
 
-        µBlock.adnauseam.removeBlockingLists(lists); // ADN
+        adnauseam.removeBlockingLists(lists); // ADN
 
         // We need to build a complete list of assets to pull first: this is
         // because it *may* happens that some load operations are synchronous:
@@ -1641,7 +1642,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
                         );
                     }
                     // ADN: Need to tell core that lists have updated
-                    µBlock.adnauseam.onListUpdated(details.assetKey, {
+                    adnauseam.onListUpdated(details.assetKey, {
                         title: details.assetKey,
                         content: this.compileFilters(
                             details.content,

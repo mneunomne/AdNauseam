@@ -159,7 +159,7 @@ const onMessage = function(request, sender, callback) {
         break;
 
     /*case 'domainIsDNT':
-        response = adnauseam.dnt.isDoNotTrackRule(request.rule);
+        response = dnt.isDoNotTrackRule(request.rule);
         break;*/
 
     case 'isDNTVisible':

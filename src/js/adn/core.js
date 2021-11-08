@@ -28,6 +28,11 @@ import staticFilteringReverseLookup from '../reverselookup.js';
 import dnt from './dnt.js'
 
 import {
+  domainFromHostname,
+  hostnameFromURI
+} from '../uri-utils.js';
+
+import {
   log,
   warn,
   err, 
@@ -704,14 +709,14 @@ const adnauseam = (function () {
 
   const domainInfo = function (url) { // via uBlock/psl
 
-    const hostname = µb.URI.hostnameFromURI(url);
-    const domain = µb.URI.domainFromHostname(hostname);
+    const hostname = hostnameFromURI(url);
+    const domain = domainFromHostname(hostname);
     return { hostname: hostname, domain: domain };
   }
 
   const domainFromURI = function (url) { // TODO: replace all uses with domainInfo()
 
-    return µb.URI.domainFromHostname(µb.URI.hostnameFromURI(url));
+    return domainFromHostname(hostnameFromURI(url));
   };
 
   const validateFields = function (ad) {
@@ -728,7 +733,7 @@ const adnauseam = (function () {
     // re-add if stripped in export
     ad.pageDomain = ad.pageDomain || domainFromURI(ad.pageUrl) || ad.pageUrl;
     ad.targetDomain = ad.targetDomain || domainFromURI(ad.resolvedTargetUrl || ad.targetUrl);
-    ad.targetHostname = ad.targetHostname || µb.URI.hostnameFromURI(ad.resolvedTargetUrl || ad.targetUrl);
+    ad.targetHostname = ad.targetHostname || hostnameFromURI(ad.resolvedTargetUrl || ad.targetUrl);
 
     return ad && type(ad) === 'object' &&
       type(ad.pageUrl) === 'string' &&
@@ -1624,7 +1629,7 @@ const adnauseam = (function () {
     ad.attemptedTs = 0;
     ad.pageUrl = pageStore.rawURL;
     ad.pageTitle = pageStore.title;
-    ad.pageDomain = µb.URI.domainFromHostname(pageStore.tabHostname);
+    ad.pageDomain = domainFromHostname(pageStore.tabHostname);
     ad.version = vAPI.app.version;
 
     //console.log('registerAd: '+pageStore.tabHostname+' -> '+ad.pageDomain);
@@ -1694,7 +1699,7 @@ const adnauseam = (function () {
 
     if (typeof allowedExceptions[requestUrl] !== 'undefined') {
 
-      const originalHostname = µb.URI.hostnameFromURI(originalUrl);
+      const originalHostname = hostnameFromURI(originalUrl);
       return !dntAllowsRequest(requestUrl, originalUrl);
     }
   };
@@ -1724,7 +1729,7 @@ const adnauseam = (function () {
     //console.log('[HEADERS] (Incoming' +
     //(requestUrl === originalUrl ? ')' : '-redirect)'), requestUrl);
 
-    const originalHostname = µb.URI.hostnameFromURI(originalUrl);
+    const originalHostname = hostnameFromURI(originalUrl);
 
     if (dntAllowsRequest(originalUrl, originalHostname)) {
 
@@ -1732,8 +1737,8 @@ const adnauseam = (function () {
       return false;
     }
 
-    //console.log("1pDomain: '"+µb.URI.hostnameFromURI(originalUrl)+"' / '" +
-    //µb.URI.hostnameFromURI(requestUrl)+"'", " original='"+originalUrl+"'");
+    //console.log("1pDomain: '"+hostnameFromURI(originalUrl)+"' / '" +
+    //hostnameFromURI(requestUrl)+"'", " original='"+originalUrl+"'");
 
     for (let i = headers.length - 1; i >= 0; i--) {
 
@@ -1753,7 +1758,7 @@ const adnauseam = (function () {
           }
         }
 
-        const requestHostname = requestUrl && µb.URI.hostnameFromURI(requestUrl);
+        const requestHostname = requestUrl && hostnameFromURI(requestUrl);
 
         log('[COOKIE] (Block)', headers[i].value, "1pDomain: " + originalHostname +
           (requestHostname && requestHostname !== originalHostname ? ' / ' + requestHostname : ''),
@@ -1955,7 +1960,7 @@ const adnauseam = (function () {
   const verifyDNT = function (request) {
 
     const prefs = µb.userSettings;
-    const domain = µb.URI.domainFromHostname(µb.URI.hostnameFromURI(request.url));
+    const domain = domainFromHostname(hostnameFromURI(request.url));
     const target = hasDNTNotification(notifications);
 
     //console.log("verifyDNT: " + domain, request.url, prefs.dntDomains);
@@ -2254,7 +2259,7 @@ const adnauseam = (function () {
       default: break;
     } // Async
 
-    let pageStore, tabId, frameId, µb = µb;
+    let pageStore, tabId, frameId;
 
     if (sender && sender.tabId) {
 
