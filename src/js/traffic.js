@@ -34,7 +34,8 @@ import µb from './background.js';
 import adnauseam from './adn/core.js'
 import {
     logRedirect,
-    logNetEvent
+    logNetEvent,
+    logNetBlock
 } from './adn/log.js'
 // end ADN 
 import {
