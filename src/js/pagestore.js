@@ -810,7 +810,7 @@ const PageStore = class {
             requestType
         );
         if ( result !== 0 || loggerEnabled ) {
-            fctxt.filter = µb.sessionURLFiltering.toLogData();
+            fctxt.filter = sessionURLFiltering.toLogData();
         }
 
         // ADN: now check our firewall (top precedence) if DNT enabled
