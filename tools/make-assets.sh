@@ -23,7 +23,7 @@ cp -R $UASSETS/thirdparties/urlhaus-filter                     $DES/thirdparties
 
 cp -R ./thirdparties/www.eff.org                                 $DES/thirdparties/ # ADN
 
-mkdir $DES/ublock
+# mkdir $DES/ublock
 cp -R $UASSETS/filters/* $DES/ublock/
 
 # Optional filter lists: do not include in package
