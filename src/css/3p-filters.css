@@ -13,6 +13,12 @@ body {
     z-index: 10;
 }
 /*ADN*/
+
+#actions button {
+    background-color: rgba(0, 118, 255,0.2);
+    backdrop-filter: blur(5px);
+}
+
 #options .li:nth-child(2), #options .li:nth-child(3){
   display: none;
 }
