@@ -219,14 +219,14 @@ header{
   background: #000;
   height: 100px;
   font-family: bebas_neue, sans-serif;
-  font-size: 19px;
+  font-size: 18px;
 }
 
 #toggle-button {
   display: block;
   height: 90px;
   width: 90px;
-  margin: 10px 0 0 15px;
+  margin: 4px 0 0 7px;
   background: url(../img/active@2x.png) center center no-repeat;
   background-size: 100px 100px;
   float: left;
@@ -242,18 +242,17 @@ header{
 }
 #stats {
   text-align: center;
-  margin-left: 120px;
-  padding: 15px 15px 0 0;
+  margin-left: 105px;
+  padding: 20px 10px 0 0;
   height: 100px;
   position: absolute;
-  width: calc(100% - 140px);
+  width: calc(100% - 105px);
   float: right;
 }
 
 #stats .wrapper {
-  padding-left: 18px;
-  padding-bottom: 5px;
   width: 100%;
+  font-size: 16px;
 }
 #stats .dnt-allowed{
   color: #96B96B;
@@ -268,10 +267,9 @@ header{
 }
 
 #vault-btn {
-  margin: 9px 9px 4px 9px;
   position: absolute;
-  width: calc(100%);
-  bottom: 5px;
+  width: calc(93%);
+  bottom: 12px;
 }
 
 #vault-btn button {

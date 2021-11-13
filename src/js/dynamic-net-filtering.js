@@ -78,7 +78,8 @@ Object.assign(nameToActionMap, {
 const intToActionMap = new Map([
     [ 1, 'block' ],
     [ 2, 'allow' ],
-    [ 3, 'noop' ]
+    [ 3, 'noop' ],
+    [ 4, 'strictBlock' ]
 ]);
 
 // For performance purpose, as simple tests as possible
