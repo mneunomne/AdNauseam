@@ -817,7 +817,7 @@ const PageStore = class {
         if ( result === 0 && dnt.enabled() ) {
             if ( dnt.mustAllow(fctxt) ) {
                   result = 2;
-                  if ( µb.logger.enabled ) { // logger
+                  if ( logger.enabled ) { // logger
                       this.logData = dnt.firewall.toLogData();
                   }
                   if (!cacheableResult) return result;
