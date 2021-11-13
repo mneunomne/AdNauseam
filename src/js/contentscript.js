@@ -1274,7 +1274,12 @@ const bootstrapPhaseAdn = function () {
             return; 
         }
         lastRunBootstrapPhaseAdn = Date.now()
-        // get all the selectores
+        // avoid exception
+        if (typeof vAPI.domFilterer == 'undefined' || vAPI.domFilterer == null) {
+            console.error("[ADN] vAPI.domFilterer undefined")
+            return;
+        }
+        // get all the selectors
         let allSelectors = vAPI.domFilterer.getAllSelectors()
         if (allSelectors.declarative) {
             allSelectors.declarative.forEach(function([selectors, styles]){
