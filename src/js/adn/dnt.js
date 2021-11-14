@@ -3,6 +3,10 @@
 import µb from '../background.js';
 import DynamicHostRuleFiltering from '../dynamic-net-filtering.js';
 import {log, logNetEvent} from './log.js'
+import { 
+  domainFromHostname,
+  hostnameFromURI
+ } from '../uri-utils.js'
 
 const dnt = (function () {
 
@@ -144,8 +148,8 @@ const dnt = (function () {
 
       result = firewall.r;
 
-      requestHostname = context.hostname || µb.URI.hostnameFromURI(context.url);
-      requestDomain = µb.URI.domainFromHostname(requestHostname);
+      requestHostname = context.hostname || hostnameFromURI(context.url);
+      requestDomain = domainFromHostname(requestHostname);
 
       if (context.tabHostname !== requestDomain) {
 
