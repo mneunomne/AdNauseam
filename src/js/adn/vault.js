@@ -52,7 +52,7 @@
   let draggingVault = false;
   let vaultLoading = false;
   let isInspectingAd = false;
-  
+
   const container_div = document.getElementById('container');
   const $container = $('#container')
   const $ratio = $('#ratio')
@@ -946,12 +946,12 @@
   function enableLightbox() {
 
     $('.item').click(function (e) {
-      
+
       // disable interaction click when the user clicks on the ad information
       if ($(e.target).parents('.meta-item').length > 0) {
         return
       }
-      
+
       if(!draggingVault){
         e.stopPropagation();
         lightboxMode($(this));
@@ -1024,7 +1024,6 @@
   function centerZoom($ele) {
 
     if ($ele) {
-      storeViewState(true);
 
       // compute target positions for transform
       let dm;
@@ -1043,12 +1042,6 @@
 
       let element_div = $ele[0]
 
-      let posX = element_div.offsetLeft + (elWidth + metaOffset ) / 2
-      let posY = element_div.offsetTop + (elHeight + metaOffset ) / 2
-
-      let marginLeft =  posX * -1
-      let marginTop = posY * -1
-
       // make sure left/bottom corner of meta-data is onscreen (#180)
       /*
       if (iw > ww - (metaOffset * 2 + spacing)) {
@@ -1065,9 +1058,30 @@
 
       $container.addClass("posTransition")
       // transition to center
-      
-      // reset zoom to 100%
-      setZoom(Zooms.indexOf(100), false, {marginLeft, marginTop});
+
+      // reset zoom based on ads size
+      let stdHeight=window.innerHeight;
+      let stdWidth=window.innerWidth;
+
+      let posX = element_div.offsetLeft + elWidth / 2
+      let posY = element_div.offsetTop + (elHeight + metaOffset ) / 2
+
+      let rescale = stdHeight/elHeight < stdWidth/elWidth ? stdHeight/elHeight : stdWidth/elWidth;
+      rescale = rescale > 1 ? 1 : rescale;
+
+      //some space to leave
+      rescale *= 0.8;
+
+      let marginLeft = -10000 - (posX - 10000) * rescale;
+      let marginTop = -10000 - (posY - 10000) * rescale;
+
+      storeViewState(rescale);
+
+      setScale(rescale*100,{marginLeft,marginTop})
+
+
+
+      //////////
 
       if (transitionTimeout !== null) {
         clearTimeout(transitionTimeout)
@@ -1078,18 +1092,20 @@
         $container.removeClass("posTransition")
         transitionTimeout = null
       }, 1000)
-    
+
     } else { // restore zoom-state
 
-      storeViewState(false);
+      storeViewState(-1);
     }
   }
 
   // stores zoom/drag-offset for container
-  function storeViewState(store) {
+  function storeViewState(focusScale) {
 
-    if (store) {
+    if (focusScale > 0) {
       viewState.zoomScale = userZoomScale;
+      viewState.focusScale = focusScale * 100;
+      userZoomScale = viewState.focusScale;
       viewState.left = $container.css('margin-left');
       viewState.top = $container.css('margin-top');
     } else { // restore
@@ -1106,7 +1122,7 @@
       }, 1000)
 
       // restore zoom scale to userZoomScale
-      dynamicZoom(viewState.zoomScale - 100, {marginLeft: viewState.left, marginTop: viewState.top });
+      dynamicZoom(viewState.zoomScale - viewState.focusScale, {marginLeft: viewState.left, marginTop: viewState.top });
     }
   }
 
@@ -1323,10 +1339,12 @@
   function setScale(scale, targetPos) {
 
     let _scale = scale / 100
-    
+
     $container.css({
       transform: 'scale(' + _scale + ')'
     });
+
+    $ratio.text(Math.round(scale) + '%');
 
     let marginLeft, marginTop;
 
@@ -1335,21 +1353,21 @@
       marginTop = targetPos.marginTop
     } else {
       let center = -10000
-  
+
       let ml = parseFloat(container_div.style.getPropertyValue("margin-left"));
       let mt = parseFloat(container_div.style.getPropertyValue("margin-top"));
-      
+
       let prevZoom = $container.data("zoom") || 100
       let zoomProp = scale / prevZoom
-  
+
       $container.data("zoom", scale)
-  
+
       let distToCenterX = (center - ml)
       let distToCenterY = (center - mt)
-      
+
       let offsetLeft = distToCenterX *  ( 1 - zoomProp )
       let offsetTop = distToCenterY * ( 1 - zoomProp )
-  
+
       marginLeft = ml + offsetLeft + "px";
       marginTop = mt + offsetTop + "px";
     }
@@ -1443,7 +1461,7 @@
 
     $(document).click(function (e) {
 
-      
+
       if (e.which === 1) // Left-button only
         if ($(e.target).parents('.meta-item').length > 0) {
           return
@@ -1476,7 +1494,7 @@
     function mouseDown(e){
       // check if interface is in lightbox
       if($container.hasClass('lightbox')) return
-      // add move event 
+      // add move event
       window.addEventListener('mousemove', divMove, true);
       offsetX = e.pageX;
       offsetY = e.pageY;
@@ -1692,6 +1710,7 @@
         });
 
         computeZoom($items);
+
       } else if (visible === 1) {
 
         $items.css({ // center single
