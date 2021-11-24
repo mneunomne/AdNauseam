@@ -89,15 +89,21 @@
 
     updateMenuState();
 
-    if (typeof json !== 'undefined') {
+    if (typeof json !== 'undefined' && json !== null ) {
       ads = json.data;
       setCounts(ads, json.total, json.recent);
+    } else {
+      console.warn("[ADN] json null, cant make ad list")
     }
 
     const $items = uDom('#ad-list-items');
     $items.removeClass().empty();
 
-    if (typeof json !== 'undefined') layoutAds(json);
+    if (typeof json !== 'undefined' && json !== null) {
+      layoutAds(json);
+    } else {
+      console.warn("[ADN] json null, cant make ad list")
+    }
 
     vAPI.messaging.send(
       'adnauseam', {
