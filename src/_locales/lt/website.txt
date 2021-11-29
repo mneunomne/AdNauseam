@@ -1,0 +1,7 @@
+Reklamos spustelėjus kad jums nereikėtų 
+
+Kai interneto reklama tampa visuotinio ir vis labiau paplitusi ir nesankcionota, AdHauseam stengiasi užbaigti ciklo aklai automatizuodoma skelbimu paspaudimus savo vartotojų vardu. Sukurta ant „uBlock Origin“, „AdNauseam“ diskretiškai  spustelėja kiekvieną užblokuotą skelbimą, registruodama apsilankymą skelbimų tinklų duomenų bazėse. Surinkti duomenys rodo visaėdį paspaudimų srautą, todėl vartotojų stebėjimas, taikymas ir stebėjimas tampa nenaudingi. Skaitykite daugiau apie „AdNauseam“ šiame straipsnyje.
+
+„AdNauseam“ yra nemokamas naršyklės plėtinys, skirtas sugadinti reklamos informaciją ir apsaugoti vartotojus nuo skelbimų tinklų stebėjimo. Tuo pat metu „AdNauseam“ padeda pranešti apie padidėjusį vartotojų nepasitenkinimą skelbimų tinklais, kurie nepaiso privatumo ir skatina masinį stebėjimą.
+
+„AdNauseam“ prisijungia prie platesnės techninių sistemų klasės, kuri bando tarnauti etiniams, politiniams ir išraiškingiems tikslams. Atsižvelgiant į pramonės nesugebėjimą savarankiškai reguliuoti ar kitaip spręsti tinklo stebėjimo perteklių, „AdNauseam“ leidžia atskiriems vartotojams paimti reikalus į savo rankas, kovojant su vienašališku stebėjimu. Atsižvelgiant į tai, programinė įranga laikosi požiūrio, panašaus į „TrackMeNot“, taikydama apšvietimą kaip strategiją, kad subalansuotų galios pusiausvyrą tarp sekėjų ir stebimo sekimo. Daugiau informacijos apie šį metodą ieškokite šiame dokumente.

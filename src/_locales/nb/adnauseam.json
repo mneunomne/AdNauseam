@@ -4,7 +4,7 @@
     "description": "English: Firstrun.html page title"
   },
   "aboutSupport": {
-    "message": "Støtte",
+    "message": "Brukerstøtte",
     "description": "English: links.html Support"
   },
   "aboutBuiltOn": {
@@ -24,7 +24,7 @@
     "description": "English: Firstrun.html -> Hide Ads:"
   },
   "adnFirstRunClickingAds": {
-    "message": "Klikke annonser",
+    "message": "Klikk annonser",
     "description": "English: Firstrun.html -> Click Ads"
   },
   "adnFirstRunBlockingMalware": {
@@ -32,11 +32,11 @@
     "description": "English: Firstrun.html -> Block Malware"
   },
   "adnAboutResetDataConfirm": {
-    "message": "All your settings will be removed, ads in your vault will be deleted, and AdNauseam will restart.\n\nReset AdNauseam to factory settings?",
+    "message": "Alle dine innstillinger blir fjernet, annonser i hvelvet ditt blir slettet, og AdNauseam vil starte opp på nytt.\n\nTilbakestill AdNauseam til fabrikkinnstillinger?",
     "description": "Message asking user to confirm reset"
   },
   "adnFirstRunHideAllAdsDescription": {
-    "message": "Skjul annonser i din valgte <span>filterlister</span>",
+    "message": "Skjul annonser i dine valgte <span>filterlister</span>",
     "description": "English: Firstrun.html -> Hide Ads in your selected filter lists"
   },
   "adnFirstRunClickingAdsDescription": {
@@ -76,11 +76,11 @@
     "description": "English: Notifications -> Activate the AdNauseam filter"
   },
   "adnNotificationDisableAdBlocker": {
-    "message": "Din nåværende reklameblokkerer og AdNausem kan komme i konflikt!",
+    "message": "Your ad blocker and AdNauseam may conflict!",
     "description": "English: Notifications -> Your ad blocker and AdNauseam may conflict!"
   },
   "adnNotificationDisableUBlock": {
-    "message": "uBlock og AdNauseam kan oppleve konflikt!",
+    "message": "uBlock and AdNauseam may conflict!",
     "description": "English: Notifications -> uBlock and AdNauseam may conflict!"
   },
   "adnNotificationOperaSetting": {
@@ -96,31 +96,31 @@
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
-    "message": "Denne siden respekterer <b>Ikke spor</b>, annonser er tillatt.",
+    "message": "This page respects <b>Do Not Track</b>, Ads are allowed.",
     "description": "English: Notifications -> This page respects Do Not Track, Ads are allowed."
   },
   "adnNotificationDNTHidingNotClicking": {
-    "message": "Denne siden respekterer <b>Ikke spor</b>, gjemmer, men klikker ikke.",
+    "message": "This page respects <b>Do Not Track</b>, hiding not clicking.",
     "description": "English: Notifications -> This page respects Do Not Track, hiding not clicking."
   },
   "adnNotificationDNTClickingNotHiding": {
-    "message": "Denne siden respekterer <b>Ikke spor</b>, klikker, men gjemmer ikke",
+    "message": "This page respects <b>Do Not Track</b>, clicking not hiding",
     "description": "English: Notifications -> This page respects Do Not Track, clicking not hiding."
   },
   "adnNotificationDNTJustSoYouKnow": {
-    "message": "Denne siden respekterer <b>Ikke spor</b>, bare så du vet det.",
+    "message": "This page respects <b>Do Not Track</b>, just so you know.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
   "adnTarget": {
-    "message": "MÅL",
+    "message": "TARGET",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
   },
   "adnFoundOn": {
-    "message": "FUNNET PÅ",
+    "message": "FOUND ON",
     "description": "English: Vault.html -> inspected Ad -> FOUND ON"
   },
   "adnNotYetVisited": {
-    "message": "Ikke besøkt ennå",
+    "message": "Not Yet Visited",
     "description": "English: Not Yet Visited"
   },
   "adnAllowedByDNT": {
@@ -128,31 +128,31 @@
     "description": "English: Not Yet Visited"
   },
   "adnFirstRunSwitchMeOn": {
-    "message": "Slå meg på",
+    "message": "Switch me on",
     "description": "English: Firstrun.html -> Switch me on"
   },
   "adnFirstRunThatsIt": {
-    "message": "Det er det? OK…",
+    "message": "That's it? ok…",
     "description": "English: Firstrun.html -> That's it? ok…"
   },
   "adnFirstRunBetterButStill": {
-    "message": "Bedre, men likevel…",
+    "message": "Better, but still…",
     "description": "English: Firstrun.html -> Better, but still…"
   },
   "adnFirstRunLetsGo": {
-    "message": "La oss sette i gang!",
+    "message": "Let's go!",
     "description": "English: Firstrun.html -> Let's go!"
   },
   "goToAdNauseamWebsite": {
-    "message": "Gå til AdNauseam sin hjemmeside",
+    "message": "Go to AdNauseam website",
     "description": "English: Menu icon title -> Go to AdNauseam website"
   },
   "adnPausedOnPage": {
-    "message": "AdNauseam er midlertidig stanset på denne siden",
+    "message": "AdNauseam is paused on this page",
     "description": "English: Menu->display when paused on page/site"
   },
   "adnNotHiding": {
-    "message": "AdNauseam gjemmer for øyeblikket ikke annonser",
+    "message": "AdNauseam is not currently hiding Ads",
     "description": "English: Menu->display when not hiding Ads"
   },
   "adnVaultName": {
@@ -184,11 +184,11 @@
     "description": "appears in ADN vault/My Statistics"
   },
   "adnShowingRecentAds": {
-    "message": "Ingen annonser ble samlet på denne siden (viser siste)",
+    "message": "No Ads collected on this page (showing recent)",
     "description": "shown in menu when only 'recent' Ads are shown"
   },
   "adnExportedAdsFilename": {
-    "message": "AdNauseam_[Export in Norwegian]_{{datetime}}.json",
+    "message": "AdNauseam_Export_{{datetime}}.json",
     "description": "English: AdNauseam file export"
   },
   "adnImportAlertFormat": {
@@ -196,23 +196,23 @@
     "description": "appears in ADN vault, after import"
   },
   "adnImportAlert": {
-    "message": "{{count}} annonser ble importert",
+    "message": "{{count}} new Ads were imported",
     "description": "appears in ADN vault, after import"
   },
   "adnClearConfirm": {
-    "message": "Denne handlingen fjerner ALLE annonsene dine for godt",
+    "message": "This action will permanently remove ALL of your Ads",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
-    "message": "Ventende",
+    "message": "Pending",
     "description": "Menu & AdVault: Pending"
   },
   "adnAdClickingStatusVisited": {
-    "message": "Besøkt",
+    "message": "Visited",
     "description": "Menu & AdVault: Visited"
   },
   "adnAdClickingStatusFailed": {
-    "message": "Feilet",
+    "message": "Failed",
     "description": "Menu & AdVault: Failed"
   },
   "adnAdClickingStatusSkippedDNT": {
@@ -232,27 +232,27 @@
     "description": "Menu & AdVault: SKIPPED: Clicking disabled"
   },
   "adnMenuViewLog": {
-    "message": "Vis logg",
+    "message": "View Log",
     "description": "appears in ADN popup menu"
   },
   "adnMenuAdsClicked": {
-    "message": "klikket på {{number}}",
+    "message": "clicked {{number}}",
     "description": "appears in ADN popup menu and vault"
   },
   "adnMenuAdsDetected": {
-    "message": "{{count}} annonser oppdaget",
+    "message": "{{count}} Ads detected",
     "description": "appears in ADN popup menu"
   },
   "adnMenuViewVault": {
-    "message": "Vis annonsehvelvet",
+    "message": "View Ad Vault",
     "description": "appears in ADN popup menu"
   },
   "adnMenuResume": {
-    "message": "Fortsett",
+    "message": "Resume",
     "description": "appears in ADN popup menu"
   },
   "adnMenuSettings": {
-    "message": "Innstillinger",
+    "message": "Settings",
     "description": "appears in ADN popup menu"
   },
   "adnMenuExportOptions": {
@@ -260,151 +260,151 @@
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuExportAdsOnly": {
-    "message": "Bare Annonser",
+    "message": "Ads Only",
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuExportSettingsOnly": {
-    "message": "Bare Innstillinger",
+    "message": "Settings Only",
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuExportSettingsAndAds": {
-    "message": "Innstillinger og Annonser",
+    "message": "Settings and Ads",
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuImportAds": {
-    "message": "Importer annonser",
+    "message": "Import Ads",
     "description": "appears in ADN popup menu"
   },
   "adnMenuDisableAllLogging": {
-    "message": "Deaktiver all logging",
+    "message": "Disable all logging",
     "description": "appears in ADN popup menu"
   },
   "adnMenuDisableOutgoingReferrer": {
-    "message": "Deaktiver utgående referent",
+    "message": "Disable outgoing referrer",
     "description": "appears in ADN popup menu"
   },
   "adnMenuClearAds": {
-    "message": "Fjern annonser med nettleser-logg",
+    "message": "Clear Ads with browser history",
     "description": "appears in ADN popup menu"
   },
   "adnMenuHideBadge": {
-    "message": "Skjul annonseteller-ikonet",
+    "message": "Hide Ad count on icon",
     "description": "appears in ADN popup menu"
   },
   "adnMenuClearAdsNow": {
-    "message": "Fjern annonser",
+    "message": "Clear Ads",
     "description": "appears in ADN popup menu"
   },
   "adnLogNoLog": {
-    "message": "Ingen logg tilgjengelig",
+    "message": "No log available",
     "description": "appears in ADN log page"
   },
   "adnLogViewFullLog": {
-    "message": "Vis hele loggen",
+    "message": "View full log",
     "description": "appears in ADN log page"
   },
   "adnVaultSince": {
-    "message": "Siden {{datetime}}",
+    "message": "Since {{datetime}}",
     "description": "appears on vault page"
   },
   "adnVaultExport": {
-    "message": "Eksporter",
+    "message": "Export",
     "description": "appears on vault page"
   },
   "adnVaultImport": {
-    "message": "Importer",
+    "message": "Import",
     "description": "appears on vault page"
   },
   "adnVaultClear": {
-    "message": "Fjern",
+    "message": "Clear",
     "description": "appears on vault page"
   },
   "adnVaultFound": {
-    "message": "{{total}} annonser samlet",
+    "message": "{{total}} ads collected",
     "description": "appears on vault page"
   },
   "adnVaultShowing": {
-    "message": "viser",
+    "message": "showing",
     "description": "appears on vault page"
   },
   "adnVaultDeleteThisAd": {
-    "message": "slett denne annonsen",
+    "message": "delete this Ad",
     "description": "appears on vault page"
   },
   "adnVaultTotalEstimated": {
-    "message": "totalt estimat",
+    "message": "total estimated",
     "description": "appears on vault page"
   },
   "adnVaultAdsCost": {
-    "message": "kostnad",
+    "message": "cost",
     "description": "appears on vault page"
   },
   "hidingAdsPrompt": {
-    "message": "Skjul annonser identifisert av dine valgte filterlister",
+    "message": "Hide Ads identified by your chosen filter lists",
     "description": "English: Hide Ads identified by your chosen filter lists"
   },
   "clickingAdsPrompt": {
-    "message": "Klikk annonser identifisert av dine valgte filterlister",
+    "message": "Click Ads identified by your chosen filter lists",
     "description": "English: Click Ads identified by your chosen filter lists"
   },
   "blockingMalwarePrompt": {
-    "message": "Blokker sporing og annen skadelig programvare",
+    "message": "Block trackers and other malware",
     "description": "English: lock trackers and other malware"
   },
   "parseTextAdsPrompt": {
-    "message": "Fang opp tekstbaserte annonser når mulig",
+    "message": "Capture text-only Ads when possible",
     "description": "English: Capture text-only Ads when possible"
   },
   "settingsIconBadgePrompt": {
-    "message": "Vis antall annonser på ikonet",
+    "message": "Display the number of Ads on the icon",
     "description": "English: Show the number of found Ads on the icon"
   },
   "settingsExtraPrivacyPrompt": {
-    "message": "Ekstra personvern",
+    "message": "Extra Privacy",
     "description": "English: Interface"
   },
   "settingsInterfacePrompt": {
-    "message": "Brukergrensesnitt",
+    "message": "Interface",
     "description": "English: Interface"
   },
   "noIncomingCookiesPrompt": {
-    "message": "Ignorer kaker returnert ved klikk",
+    "message": "Ignore cookies returned with clicks",
     "description": "English: Ignore cookies returned with clicks"
   },
   "noOutgoingCookiesPrompt": {
-    "message": "Ikke send kaker ved besøk",
+    "message": "Don't send cookies on visits",
     "description": "English: Don't send cookies on visits"
   },
   "noOutgoingUserAgentPrompt": {
-    "message": "Skjul brukeragent-hode ved besøk",
+    "message": "Hide user-agent header on visits",
     "description": "English: Hide user-agent header on visits"
   },
   "noOutgoingRefererPrompt": {
-    "message": "Skjul henvisende side ved besøk",
+    "message": "Hide referring page on visits",
     "description": "English: Hide referring page on visits"
   },
   "ClickingFrequencyRarely": {
-    "message": "Sjelden",
+    "message": "Rarely",
     "description": "English: Click Frequency - Rarely"
   },
   "ClickingFrequencySometimes": {
-    "message": "Noen ganger",
+    "message": "Sometimes",
     "description": "English: Click Frequency - Sometimes"
   },
   "ClickingFrequencyAlways": {
-    "message": "Alltid",
+    "message": "Always",
     "description": "English: Click Frequency - Always"
   },
   "respectDNTPrompt": {
-    "message": "Gjør unntak for ikke-sporende annonser",
+    "message": "Make exceptions for non-tracking Ads",
     "description": "English: Make exceptions for non-tracking Ads"
   },
   "disableHidingForDNTPrompt": {
-    "message": "Ikke skjul ikke-sporende annonser",
+    "message": "Don't hide non-tracking Ads",
     "description": "English: Don't hide non-tracking Ads"
   },
   "disableClickingForDNTPrompt": {
-    "message": "Ikke klikk ikke-sporende annonser",
+    "message": "Don't click non-tracking Ads",
     "description": "English: Don't click non-tracking Ads"
   },
   "extName": {
@@ -412,36 +412,40 @@
     "description": "extension name"
   },
   "extShortDesc": {
-    "message": "Kjemp tilbake mot reklameovervåkning",
+    "message": "Fight back against advertising surveillance",
     "description": "for the chrome web store: must be 132 characters or less"
   },
   "3pGroupEssentials": {
-    "message": "Nødvendig",
+    "message": "Essentials",
     "description": "English: Essentials"
   },
   "3pGroupOther": {
-    "message": "Annet",
+    "message": "Other",
     "description": "English: Other"
   },
   "3pGroupMalware": {
-    "message": "Skadelig programvare",
+    "message": "Malware",
     "description": "English: Malware"
   },
   "3pGroupRegions": {
-    "message": "Språk",
+    "message": "Languages",
     "description": "English: Languages"
   },
   "3pPageUpdate": {
-    "message": "Oppdatering",
+    "message": "Update",
     "description": "English: update"
   },
   "whitelistPageName": {
-    "message": "Hvitliste",
+    "message": "Whitelists",
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Aktiver feilsøkingsmodus",
+    "message": "Activate debugging mode",
     "description": "prompt for toggle"
+  },
+  "disableWarnings": {
+    "message": "Disable warnings",
+    "description": "English:Disable warnings"
   },
   "removeAdsInPrivate": {
     "message": "Remove ads collected in private mode",

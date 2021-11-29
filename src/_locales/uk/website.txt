@@ -1,0 +1,7 @@
+Натискає на рекламу замість вас
+
+Оскільки онлайн-реклама стає все більш всюдисущою та несанкціонованою, AdNauseam працює над замиканням циклу, автоматизуючи кліки по рекламі від імені своїх користувачів. Створений на основі uBlock Origin, AdNauseam тихо клікає по кожній заблокованій рекламі, реєструючи відвідування у базах даних рекламних мереж. Оскільки зібрані дані показують клікання по всьому без розбору, відстеження користувачів, таргетування та спостереження стають неефективними. Дізнайтеся більше про AdNauseam в цьому документі.
+
+AdNauseam це розширення для браузера, створене для того, щоб заплутати дані прегляду веб сторінок і захистити користувачів від відслідковування рекламними мережами. At the same time, AdNauseam serves as a means of amplifying users' discontent with advertising networks that disregard privacy and facilitate bulk surveillance agendas.
+
+AdNauseam joins a broader class of technical systems that attempt to serve ethical, political, and expressive ends. In light of the industry's failure to self-regulate or otherwise address the excesses of network tracking, AdNauseam allows individual users to take matters into their own hands, fighting back against unilateral surveillance. Taken in this light, the software follows an approach similar to that of TrackMeNot, employing obfuscation as a strategy to shift the balance of power between the trackers and the tracked. For further information on this approach, please see this paper.

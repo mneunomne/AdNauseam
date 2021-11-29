@@ -443,6 +443,10 @@
     "message": "Включить режим отладки",
     "description": "prompt for toggle"
   },
+  "disableWarnings": {
+    "message": "Отключить предупреждения",
+    "description": "English:Disable warnings"
+  },
   "removeAdsInPrivate": {
     "message": "Убрать рекламу, собранную в приватном режиме",
     "description": "English:Remove ads collected in private mode - settings page"
