@@ -2239,7 +2239,8 @@ const adnauseam = (function () {
       return;
     }
 
-    const allAds = adlist(), json = adsForUI(reqPageStore.rawURL);
+    const allAds = adlist()
+    const json = adsForUI(reqPageStore.rawURL);
     json.total = allAds.length;
 
     // if we have no page ads, use the most recent (6)
