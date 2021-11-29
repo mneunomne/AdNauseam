@@ -62,7 +62,6 @@
   /******************************************************************************/
 
   const renderPage = function (json) {
-    
     page = json && json.pageUrl;
     settings  =json && json.prefs;
 
@@ -113,7 +112,10 @@
       vAPI.messaging.send(
         'adnauseam', {
         what: 'getNotifications'
-      }).then(renderNotifications);
+      }).then((notifications) => {
+        renderNotifications(notifications)
+        adjustBlockHeight()
+      });
     });
   }
 
@@ -640,8 +642,10 @@
 
   const adjustBlockHeight = function () {
 
+    
     // recalculate the height of ad-list
-    const h = document.getElementById('notifications').offsetHeight;
+    let notification = document.getElementById('notifications')
+    const h = notification.offsetHeight;
     const newh = 350 - h;
     uDom('#ad-list').css('height', newh + 'px');
   };
