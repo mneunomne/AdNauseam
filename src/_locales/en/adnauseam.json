@@ -444,8 +444,8 @@
     "description": "prompt for toggle"
   },
   "disableWarnings": {
-    "message": "Disable warnings",
-    "description": "English:Disable warnings"
+    "message": "Disable warning",
+    "description": "English:Disable warning"
   },
   "removeAdsInPrivate": {
     "message": "Remove ads collected in private mode",
