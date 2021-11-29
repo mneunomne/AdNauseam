@@ -443,12 +443,16 @@
     "message": "Įjungti derinimo režimą",
     "description": "prompt for toggle"
   },
+  "disableWarnings": {
+    "message": "Išjungti įspėjimus",
+    "description": "English:Disable warnings"
+  },
   "removeAdsInPrivate": {
-    "message": "Remove ads collected in private mode",
+    "message": "Pašalinti privačiu režimu surinktus skelbimus",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Activate Strict Blocking Mode",
+    "message": "Aktyvuoti griežto blokavimo režimą",
     "description": "English: Activate Strict Blocking Mode"
   }
 }

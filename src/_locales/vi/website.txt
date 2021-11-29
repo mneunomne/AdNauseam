@@ -1,0 +1,7 @@
+Tự động click quảng cáo thay bạn.
+
+Khi quảng cáo trực tuyến ngày càng trở nên tràn lan và không được kiểm soát, AdNauseam giúp ích bằng cách tự click quảng cáo một cách toàn diện vì lợi ích của người dùng. Được xây dựng dựa trên uBlock Origin, AdNauseam âm thầm click từng quảng cáo bị chặn và khiến nhà cung cấp dịch vụ ghi nhận lượt truy cập. Những thông tin được tổng hợp từ người dùng sẽ tạo ra sự hỗn tạp, ngăn chặn việc theo dõi và giám sát người dùng. Tìm hiểu thêm về AdNauseam qua văn bản này.
+
+AdNauseam là một tiện ích mở rộng miễn phí cho trình duyệt web, được thiết kế để nặc danh hoá dữ liệu duyệt web của người dùng và bảo vệ họ khỏi sự dòm ngó của các mạng lưới quảng cáo. Các máy chủ AdNauseam còn là cách thể hiện sự bất bình của người dùng trước những nhà cung cấp dịch vụ quảng cáo coi thường quyền riêng tư và giám sát người dùng.
+
+AdNauseam joins a broader class of technical systems that attempt to serve ethical, political, and expressive ends. In light of the industry's failure to self-regulate or otherwise address the excesses of network tracking, AdNauseam allows individual users to take matters into their own hands, fighting back against unilateral surveillance. Taken in this light, the software follows an approach similar to that of TrackMeNot, employing obfuscation as a strategy to shift the balance of power between the trackers and the tracked. Để tìm hiểu thêm về điều này, vui lòng đọc văn bản này.

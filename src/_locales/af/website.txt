@@ -1,0 +1,7 @@
+Klikende advertensies sodat jy hoef nie dit te doen nie.
+
+Terwyl aanlyn adverteerende alomteenwordig en ongesanksieerd word, AdNauseam werk om die siklus te voltooi deur advertensie-klikke universeel en blindelings namens die gebruikers te outomatiseer. Gebou op uBlock Origin, AdNauseam klik rustig na elke blokkeerde advertensie om 'n besoek op advertensie netwerke se databasis te registreer. As die versamelde data wys 'n omnivore klikstroom, gebruikersopspooring, teikende, en toesig word futiel. Lees meer van AdNauseam in hierdie papier.
+
+AdNauseam is 'n gratis blaaieruitbreiding ontwerp om blaaierdata te verdoesel en om gebruikers van dop deur advertensienetwerke te beskerm. Na dieselfde tyd, AdNauseam dien as 'n middel om gebruikers se ontevredenheid met advertensienetwerke  wat verontagsaam privaatheid en fasiliteer grootmaat toesig agendas te versterk.
+
+AdNauseam sluit aan 'n breër klas tegniese stelsels wat poog om etiese, politieke en ekspressiewe doeleindes te bewerkstellig. In lig op die industrie se mislukking om te selfreguleer of om die buitensporige netwerkopsporing te spreek, AdNauseam toelaat gebruikers om sake in hulle eie hande te neem en terug te veg teen eensydige toesig. Na hierdie lig geneem, hierdie sagteware neem 'n benadering soos dit van TrackMeNot en gebruik van verduistering as 'n strategie om die magsbalans tussen die spoorsnyers en die spore te verskuif. Vir meer inligting aan hierdie benadering, kyk na hierdie papier asseblief.

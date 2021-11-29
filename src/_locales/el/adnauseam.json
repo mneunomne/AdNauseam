@@ -84,7 +84,7 @@
     "description": "English: Notifications -> uBlock and AdNauseam may conflict!"
   },
   "adnNotificationOperaSetting": {
-    "message": "Please allow AdNauseam to access search page results",
+    "message": "Παρακαλούμε δώσε στο AdNauseam πρόσβαση στα αποτελέσματα αναζήτησης",
     "description": "English: Notifications -> Please allow AdNauseam to access search page results"
   },
   "adnNotificationBrowserSetting": {
@@ -92,7 +92,7 @@
     "description": "English: Notifications -> The 'Content Blocking' settings in your browser may interfere with AdNauseam!"
   },
   "adnNotificationPrivacyMode": {
-    "message": "You have allowed adnauseam to have access to your online activities while private browsing.",
+    "message": "Έχεις επιτρέψει στο AdNauseam να έχει πρόσβαση στις δραστηριότητές σου κατά την ιδιωτική περιήγηση.",
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
@@ -160,27 +160,27 @@
     "description": "English: AdNauseam — Ad Vault"
   },
   "myStatistics": {
-    "message": "My Statistics",
+    "message": "Τα στατιστικά μου",
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Top Adnetworks",
+    "message": "Κορυφαίοι διαφημιστές",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
-    "message": "Top Sites",
+    "message": "Κορυφαίες σελίδες",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypes": {
-    "message": "Ad Types",
+    "message": "Είδη διαφημίσεων",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesImageAds": {
-    "message": "Image Ads",
+    "message": "Διαφημίσεις με εικόνα",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesTextAds": {
-    "message": "Text Ads",
+    "message": "Διαφημίσεις κειμένου",
     "description": "appears in ADN vault/My Statistics"
   },
   "adnShowingRecentAds": {
@@ -443,12 +443,16 @@
     "message": "Ενεργοποίηση διαγνωστηκής κατάστασης",
     "description": "prompt for toggle"
   },
+  "disableWarnings": {
+    "message": "Απενεργοποίηση προειδοποιήσεων",
+    "description": "English:Disable warnings"
+  },
   "removeAdsInPrivate": {
-    "message": "Remove ads collected in private mode",
+    "message": "Αφαίρεση των διαφημίσεων που συλλέχθηκαν κατά την ιδιωτική περιήγηση",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Activate Strict Blocking Mode",
+    "message": "Ενεργοποίηση λειτουργίας αυστηρού μπλοκαρίσματος",
     "description": "English: Activate Strict Blocking Mode"
   }
 }

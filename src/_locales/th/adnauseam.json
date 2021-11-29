@@ -1,0 +1,458 @@
+{
+  "adnAboutPageName": {
+    "message": "AdNauseam — เกี่ยวกับ",
+    "description": "English: Firstrun.html page title"
+  },
+  "aboutSupport": {
+    "message": "ช่วยเหลือ",
+    "description": "English: links.html Support"
+  },
+  "aboutBuiltOn": {
+    "message": "สร้างบน",
+    "description": "English: links.html Built on"
+  },
+  "aboutFaq": {
+    "message": "คำถามที่พบบ่อย",
+    "description": "English: links.html -> Frequently asked questions"
+  },
+  "adnFirstRunPlease": {
+    "message": "Please:",
+    "description": "English: Firstrun.html -> Please:"
+  },
+  "adnFirstRunHideAllAds": {
+    "message": "ซ่อน Ads",
+    "description": "English: Firstrun.html -> Hide Ads:"
+  },
+  "adnFirstRunClickingAds": {
+    "message": "คลิก Ads",
+    "description": "English: Firstrun.html -> Click Ads"
+  },
+  "adnFirstRunBlockingMalware": {
+    "message": "บล๊อกมัลแวร์",
+    "description": "English: Firstrun.html -> Block Malware"
+  },
+  "adnAboutResetDataConfirm": {
+    "message": "ข้อมูลของ Ads ทั้งหมดและการตั้งค่าของคุณจะถูกลบ และ AdNauseam จะรีสตาร์ท\n\nคุณจะรีเซ็ท AdNauseam เป็นการตั้งค่าจากโรงงานหรือไม่?",
+    "description": "Message asking user to confirm reset"
+  },
+  "adnFirstRunHideAllAdsDescription": {
+    "message": "ซ่อน Ads ที่คุณเลือก <span> ลิสต์ตัวกรอง </span>",
+    "description": "English: Firstrun.html -> Hide Ads in your selected filter lists"
+  },
+  "adnFirstRunClickingAdsDescription": {
+    "message": "ลงทะเบียนการเข้าชมโฆษณาที่พบเจอผ่าน<span>ลิสต์ตัวกรอง</span>ของคุณ",
+    "description": "English: Firstrun.html -> Register visits on Ads found via your filter lists"
+  },
+  "adnFirstRunBlockingMalwareDescription": {
+    "message": "บล๊อกแทรคเกอร์และมัลแวร์ตัวอื่นๆ (<span>การปรับแต่ง</span>)",
+    "description": "English: Firstrun.html -> Block trackers and other malware (customize)"
+  },
+  "adnNotificationReactivate": {
+    "message": "เปิดใช้อีกครั้ง",
+    "description": "English: Notifications -> Reactivate"
+  },
+  "adnNotificationDisable": {
+    "message": "ปิดการใช้งาน",
+    "description": "English: Notifications -> Disable"
+  },
+  "adnNotificationActivateHiding": {
+    "message": "เปิดการใช้ ซ่อน Ad",
+    "description": "English: Notifications -> Activate Ad hiding"
+  },
+  "adnNotificationActivateClicking": {
+    "message": "เปิดการใช้ คลิก Ad",
+    "description": "English: Notifications -> Activate Ad clicking"
+  },
+  "adnNotificationActivateBlocking": {
+    "message": "เปิดการใช้ บล๊อกมัลแวร์",
+    "description": "English: Notifications -> Activate malware blocking"
+  },
+  "adnNotificationActivateEasyList": {
+    "message": "เปิดการใช้งานตัวกรอง EasyList",
+    "description": "English: Notifications -> Activate the EasyList filter"
+  },
+  "adnNotificationActivateAdNauseamList": {
+    "message": "เปิดการใช้งานตัวกรอง AdNauseam",
+    "description": "English: Notifications -> Activate the AdNauseam filter"
+  },
+  "adnNotificationDisableAdBlocker": {
+    "message": "ตัวบล๊อก ad ของคุณกับ AdNauseam อาจจะทำงานขัดแย้งกัน!",
+    "description": "English: Notifications -> Your ad blocker and AdNauseam may conflict!"
+  },
+  "adnNotificationDisableUBlock": {
+    "message": "uBlock และ AdNauseam อาจจะทำงานขัดแย้งกัน!",
+    "description": "English: Notifications -> uBlock and AdNauseam may conflict!"
+  },
+  "adnNotificationOperaSetting": {
+    "message": "โปรดอนุญาตให้ AdNauseam เข้าถึงผลลัพธ์หน้าแสดงการค้นหาเว็บไซต์",
+    "description": "English: Notifications -> Please allow AdNauseam to access search page results"
+  },
+  "adnNotificationBrowserSetting": {
+    "message": "การตั้งค่า'บล๊อกเนื้อหา'ในเบราเซอร์ของคุณอาจรบกวนการทำงานของ AdNauseam!",
+    "description": "English: Notifications -> The 'Content Blocking' settings in your browser may interfere with AdNauseam!"
+  },
+  "adnNotificationPrivacyMode": {
+    "message": "คุณอนุญาตให้ adnauseam เข้าถึงกิจกรรมออนไลน์ของคุณในการใช้งานส่วนตัว",
+    "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
+  },
+  "adnNotificationDNTAllowed": {
+    "message": "หน้านี้สำหรับ<b>Do Not Track</b> อนุญาต Ads",
+    "description": "English: Notifications -> This page respects Do Not Track, Ads are allowed."
+  },
+  "adnNotificationDNTHidingNotClicking": {
+    "message": "หน้านี้สำหรับ<b>Do Not Track</b> ซ่อน Ads แต่ไม่ต้องคลิก",
+    "description": "English: Notifications -> This page respects Do Not Track, hiding not clicking."
+  },
+  "adnNotificationDNTClickingNotHiding": {
+    "message": "หน้านี้สำหรับ<b>Do Not Track</b> คลิก Ads แต่ไม่ต้องซ่อน",
+    "description": "English: Notifications -> This page respects Do Not Track, clicking not hiding."
+  },
+  "adnNotificationDNTJustSoYouKnow": {
+    "message": "เผื่อคุณไม่รู้ หน้านี้สำหรับ<b>Do Not Track</b> ",
+    "description": "English: Notifications -> This page respects Do Not Track, just so you know."
+  },
+  "adnTarget": {
+    "message": "URL เป้าหมาย",
+    "description": "English: Vault.html -> inspected Ad -> TARGET"
+  },
+  "adnFoundOn": {
+    "message": "พบเจอที่",
+    "description": "English: Vault.html -> inspected Ad -> FOUND ON"
+  },
+  "adnNotYetVisited": {
+    "message": "ยังไม่ได้เยี่ยมชม",
+    "description": "English: Not Yet Visited"
+  },
+  "adnAllowedByDNT": {
+    "message": "อนุญาตผ่านนโยบายของ Do Not Track",
+    "description": "English: Not Yet Visited"
+  },
+  "adnFirstRunSwitchMeOn": {
+    "message": "เปิดฉันที่",
+    "description": "English: Firstrun.html -> Switch me on"
+  },
+  "adnFirstRunThatsIt": {
+    "message": "อย่างนั้นหรือ? โอเค...",
+    "description": "English: Firstrun.html -> That's it? ok…"
+  },
+  "adnFirstRunBetterButStill": {
+    "message": "ดีขึ้น แต่ว่ายัง..​",
+    "description": "English: Firstrun.html -> Better, but still…"
+  },
+  "adnFirstRunLetsGo": {
+    "message": "ไปกันเลย!",
+    "description": "English: Firstrun.html -> Let's go!"
+  },
+  "goToAdNauseamWebsite": {
+    "message": "เข้าไปที่เว็บไซต์ AdNauseam ",
+    "description": "English: Menu icon title -> Go to AdNauseam website"
+  },
+  "adnPausedOnPage": {
+    "message": "AdNauseam ได้หยุดทำงานในหน้านี้",
+    "description": "English: Menu->display when paused on page/site"
+  },
+  "adnNotHiding": {
+    "message": "AdNauseam ไม่ได้ซ่อน Ads ตอนนี้",
+    "description": "English: Menu->display when not hiding Ads"
+  },
+  "adnVaultName": {
+    "message": "AdNauseam — AdVault",
+    "description": "English: AdNauseam — Ad Vault"
+  },
+  "myStatistics": {
+    "message": "สถิติของฉัน",
+    "description": "appears in ADN vault, above ad slider"
+  },
+  "topAdnetworks": {
+    "message": "ท็อปเครือข่ายโฆษณา (Adnetworks)",
+    "description": "appears in ADN vault/My Statistics"
+  },
+  "topSites": {
+    "message": "ท็อปเว็บไซต์",
+    "description": "appears in ADN vault/My Statistics"
+  },
+  "adTypes": {
+    "message": "รูปแบบของ Ad",
+    "description": "appears in ADN vault/My Statistics"
+  },
+  "adTypesImageAds": {
+    "message": "Ad  รูปภาพ",
+    "description": "appears in ADN vault/My Statistics"
+  },
+  "adTypesTextAds": {
+    "message": "Ad ตัวหนังสือ",
+    "description": "appears in ADN vault/My Statistics"
+  },
+  "adnShowingRecentAds": {
+    "message": "ไม่มี Ad ที่ถูกเก็บไว้ในหน้านี้  (แสดงผลล่าสุด)",
+    "description": "shown in menu when only 'recent' Ads are shown"
+  },
+  "adnExportedAdsFilename": {
+    "message": "AdNauseam_Export_{{datetime}}.json",
+    "description": "English: AdNauseam file export"
+  },
+  "adnImportAlertFormat": {
+    "message": "ไฟล์นี้ไม่มี Ads โปรดเลือกไฟล์ใหม่",
+    "description": "appears in ADN vault, after import"
+  },
+  "adnImportAlert": {
+    "message": "{{count}} เราได้นำเข้า Ads ตัวใหม่",
+    "description": "appears in ADN vault, after import"
+  },
+  "adnClearConfirm": {
+    "message": "การกระทำนี้จะทำให้ Ads ทั้งหมดของคุณถูกลบอย่างถาวร",
+    "description": "appears in ADN settings"
+  },
+  "adnAdClickingStatusPending": {
+    "message": "รอดำเนินการ",
+    "description": "Menu & AdVault: Pending"
+  },
+  "adnAdClickingStatusVisited": {
+    "message": "เยี่ยมชมแล้ว",
+    "description": "Menu & AdVault: Visited"
+  },
+  "adnAdClickingStatusFailed": {
+    "message": "ล้มเหลว",
+    "description": "Menu & AdVault: Failed"
+  },
+  "adnAdClickingStatusSkippedDNT": {
+    "message": "ข้าม: DNT อนุญาต",
+    "description": "Menu & AdVault: SKIPPED: DNT Allowed"
+  },
+  "adnAdClickingStatusSkippedUser": {
+    "message": "ข้าม: คลิกจากผู้ใช้",
+    "description": "Menu & AdVault: SKIPPED: Clicked by User"
+  },
+  "adnAdClickingStatusSkippedFrequency": {
+    "message": "ข้าม: ความถี่ในการคลิก",
+    "description": "Menu & AdVault: SKIPPED: Click Frequency"
+  },
+  "adnAdClickingStatusSkippedDisabled": {
+    "message": "ข้าม: ปิดการใช้งานการคลิก",
+    "description": "Menu & AdVault: SKIPPED: Clicking disabled"
+  },
+  "adnMenuViewLog": {
+    "message": "ดูข้อมูลที่เก็บไว้",
+    "description": "appears in ADN popup menu"
+  },
+  "adnMenuAdsClicked": {
+    "message": "คลิก {{number}}",
+    "description": "appears in ADN popup menu and vault"
+  },
+  "adnMenuAdsDetected": {
+    "message": "{{count}} ตรวจพบ Ads",
+    "description": "appears in ADN popup menu"
+  },
+  "adnMenuViewVault": {
+    "message": "ดู Ad Vault",
+    "description": "appears in ADN popup menu"
+  },
+  "adnMenuResume": {
+    "message": "ดำเนินการต่อ",
+    "description": "appears in ADN popup menu"
+  },
+  "adnMenuSettings": {
+    "message": "การตั้งค่า",
+    "description": "appears in ADN popup menu"
+  },
+  "adnMenuExportOptions": {
+    "message": "ตัวเลือกการนำออก",
+    "description": "appears in Menu - Export Dialog box"
+  },
+  "adnMenuExportAdsOnly": {
+    "message": "Ads เท่านั้น",
+    "description": "appears in Menu - Export Dialog box"
+  },
+  "adnMenuExportSettingsOnly": {
+    "message": "ตั้งค่าเท่านั้น",
+    "description": "appears in Menu - Export Dialog box"
+  },
+  "adnMenuExportSettingsAndAds": {
+    "message": "การตั้งค่าและ Ads",
+    "description": "appears in Menu - Export Dialog box"
+  },
+  "adnMenuImportAds": {
+    "message": "นำเข้า Ads",
+    "description": "appears in ADN popup menu"
+  },
+  "adnMenuDisableAllLogging": {
+    "message": "ปิดใช้งานการเก็บข้อมูลทั้งหมด",
+    "description": "appears in ADN popup menu"
+  },
+  "adnMenuDisableOutgoingReferrer": {
+    "message": "ปิดการใช้งานการอ้างอิงที่นำออก",
+    "description": "appears in ADN popup menu"
+  },
+  "adnMenuClearAds": {
+    "message": "ล้าง Ad บนประวัติการเยี่ยมชมในเบราเซอร์",
+    "description": "appears in ADN popup menu"
+  },
+  "adnMenuHideBadge": {
+    "message": "ซ่อนการนับ Ad บนไอค่อน",
+    "description": "appears in ADN popup menu"
+  },
+  "adnMenuClearAdsNow": {
+    "message": "ล้าง Ads",
+    "description": "appears in ADN popup menu"
+  },
+  "adnLogNoLog": {
+    "message": "ไม่มีข้อมูลที่เก็บไว้",
+    "description": "appears in ADN log page"
+  },
+  "adnLogViewFullLog": {
+    "message": "ดูข้อมูลทั้งหมด",
+    "description": "appears in ADN log page"
+  },
+  "adnVaultSince": {
+    "message": "ตั้งแต่ {{datetime}}",
+    "description": "appears on vault page"
+  },
+  "adnVaultExport": {
+    "message": "นำออก",
+    "description": "appears on vault page"
+  },
+  "adnVaultImport": {
+    "message": "นำเข้า",
+    "description": "appears on vault page"
+  },
+  "adnVaultClear": {
+    "message": "ล้างข้อมูล",
+    "description": "appears on vault page"
+  },
+  "adnVaultFound": {
+    "message": "{{total}} Ads ที่ถูกเก็บไว้",
+    "description": "appears on vault page"
+  },
+  "adnVaultShowing": {
+    "message": "กำลังแสดงผล",
+    "description": "appears on vault page"
+  },
+  "adnVaultDeleteThisAd": {
+    "message": "ลบ Ad ตัวนี้",
+    "description": "appears on vault page"
+  },
+  "adnVaultTotalEstimated": {
+    "message": "ทั้งหมดประมาณ",
+    "description": "appears on vault page"
+  },
+  "adnVaultAdsCost": {
+    "message": "ราคา",
+    "description": "appears on vault page"
+  },
+  "hidingAdsPrompt": {
+    "message": "ซ่อน Ads ในลิสต์ตัวกรองที่คุณเลือก",
+    "description": "English: Hide Ads identified by your chosen filter lists"
+  },
+  "clickingAdsPrompt": {
+    "message": "คลิก Ads ในลิสต์ตัวกรองที่คุณเลือก",
+    "description": "English: Click Ads identified by your chosen filter lists"
+  },
+  "blockingMalwarePrompt": {
+    "message": "บล๊อค แทรคเกอร์และมัลแวร์ตัวอื่นๆ ",
+    "description": "English: lock trackers and other malware"
+  },
+  "parseTextAdsPrompt": {
+    "message": "ตรวจจับโฆษณาที่เป็นตัวหนังสือถ้าเป็นไปได้",
+    "description": "English: Capture text-only Ads when possible"
+  },
+  "settingsIconBadgePrompt": {
+    "message": "แสดงจำนวนของ Ads บนไอค่อน",
+    "description": "English: Show the number of found Ads on the icon"
+  },
+  "settingsExtraPrivacyPrompt": {
+    "message": "ความเป็นส่วนตัวสูงสุด",
+    "description": "English: Interface"
+  },
+  "settingsInterfacePrompt": {
+    "message": "อินเทอร์เฟซ",
+    "description": "English: Interface"
+  },
+  "noIncomingCookiesPrompt": {
+    "message": "ละเว้นคุกกี้ที่ส่งกลับมาจากการคลิก",
+    "description": "English: Ignore cookies returned with clicks"
+  },
+  "noOutgoingCookiesPrompt": {
+    "message": "ไม่ส่งคุกกี้ในการเยี่ยมชม",
+    "description": "English: Don't send cookies on visits"
+  },
+  "noOutgoingUserAgentPrompt": {
+    "message": "ซ่อนตัวแทนผู้ใช้บนการเยี่ยมชม",
+    "description": "English: Hide user-agent header on visits"
+  },
+  "noOutgoingRefererPrompt": {
+    "message": "ซ่อนหน้าที่อ้างอิงในการเยี่ยมชม",
+    "description": "English: Hide referring page on visits"
+  },
+  "ClickingFrequencyRarely": {
+    "message": "ไม่ค่อย",
+    "description": "English: Click Frequency - Rarely"
+  },
+  "ClickingFrequencySometimes": {
+    "message": "บางครั้ง",
+    "description": "English: Click Frequency - Sometimes"
+  },
+  "ClickingFrequencyAlways": {
+    "message": "สม่ำเสมอ",
+    "description": "English: Click Frequency - Always"
+  },
+  "respectDNTPrompt": {
+    "message": "ยกเว้น Adที่ไม่มีแทรคกิ้ง",
+    "description": "English: Make exceptions for non-tracking Ads"
+  },
+  "disableHidingForDNTPrompt": {
+    "message": "ไม่ต้องซ่อน Ad ที่ไม่มีแทรคกิ้ง",
+    "description": "English: Don't hide non-tracking Ads"
+  },
+  "disableClickingForDNTPrompt": {
+    "message": "ไม่ต้องคลิก Ad ที่ไม่มีแทรคกิ้ง",
+    "description": "English: Don't click non-tracking Ads"
+  },
+  "extName": {
+    "message": "AdNauseam",
+    "description": "extension name"
+  },
+  "extShortDesc": {
+    "message": "ต่อสู้กลับกับการสอดแนมของโฆษณา\n",
+    "description": "for the chrome web store: must be 132 characters or less"
+  },
+  "3pGroupEssentials": {
+    "message": "Essential",
+    "description": "English: Essentials"
+  },
+  "3pGroupOther": {
+    "message": "อื่นๆ ",
+    "description": "English: Other"
+  },
+  "3pGroupMalware": {
+    "message": "มัลแวร์",
+    "description": "English: Malware"
+  },
+  "3pGroupRegions": {
+    "message": "ภาษา",
+    "description": "English: Languages"
+  },
+  "3pPageUpdate": {
+    "message": "อัพเดท",
+    "description": "English: update"
+  },
+  "whitelistPageName": {
+    "message": "รายการยกเว้น",
+    "description": "appears as tab name in dashboard"
+  },
+  "eventLoggingPrompt": {
+    "message": "เปิดการใช้งานโหมดดีบัค",
+    "description": "prompt for toggle"
+  },
+  "disableWarnings": {
+    "message": "ปิดการแจ้งเตือน",
+    "description": "English:Disable warnings"
+  },
+  "removeAdsInPrivate": {
+    "message": "ลบ ads ที่เก็บไว้ในโหมดส่วนตัว",
+    "description": "English:Remove ads collected in private mode - settings page"
+  },
+  "settingsStrictBlockingMode": {
+    "message": "เปิดการใช้งานโหมดการบล็อกอย่างเข้มงวด",
+    "description": "English: Activate Strict Blocking Mode"
+  }
+}

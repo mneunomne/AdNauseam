@@ -1,0 +1,7 @@
+Painelee mainoksia ettei sinun täydy.
+
+Sillä välin kuin verkkomainonnasta tulee entistä yleisempää ja rajoittamattomampaa, AdNauseam pyrkii sulkemaan ympyrän napsauttamalla mainoksia automaattisesti ja hiljentää ne käyttäjiltään. AdNauseam, joka perustuu uBlock Originiin, napsauttaa vaivihkaa mainoksia ja rekisteröi käyntikerran mainosverkkojen tietokantoihin. Kerätystä tiedosta tulee tulva hyödytöntä tietoa, ja käyttäjien seuraamisesta, mainosten kohdentamisesta sekä valvonnasta tulee turhaa. Lue lisää AdNauseamista tässä artikkelissa.
+
+AdNauseam on ilmainen selainlaajennus, jonka tarkoitus on kätkeä selaustiedot ja suojata käyttäjiä mainosverkostojen seurannalta. AdNauseam toimii samanaikaisesti keinona käyttäjille esittää tyytymättömyyttään mainosverkostoihin, jotka eivät välitä yksityisyydestä ja helpottavat massavalvontaa.
+
+AdNauseam on osa laajempaa teknisten järjestelmien luokkaa, joka pyrkii eettisiin, poliittisiin ja ilmaiseviin päämääriin. Mainosteollisuus ei ole onnistunut säätelemään itseään tai käsittelemään liiallisen verkkoseurannan ongelmaa, ja siinä valossa AdNauseam antaa yksittäisten käyttäjien ottaa ohjat käsiinsä ja taistella yksipuolista valvontaa vastaan. Tässä valossa ohjelmisto lähestyy ongelmaa samoin kuin TrackMeNot ja käyttää hämäystä horjuttamaan vallan tasapainoa seuraajien ja seurattavien välillä. Lisää tietoja tästä lähestymistavasta löytyy tässä artikkelissa.

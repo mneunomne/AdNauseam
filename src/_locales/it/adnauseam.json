@@ -443,6 +443,10 @@
     "message": "Attiva debug",
     "description": "prompt for toggle"
   },
+  "disableWarnings": {
+    "message": "Disable warnings",
+    "description": "English:Disable warnings"
+  },
   "removeAdsInPrivate": {
     "message": "Rimuovi gli annunci raccolti in modalità privata",
     "description": "English:Remove ads collected in private mode - settings page"

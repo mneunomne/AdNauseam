@@ -443,6 +443,10 @@
     "message": "디버깅 모드 활성화",
     "description": "prompt for toggle"
   },
+  "disableWarnings": {
+    "message": "Disable warnings",
+    "description": "English:Disable warnings"
+  },
   "removeAdsInPrivate": {
     "message": "Remove ads collected in private mode",
     "description": "English:Remove ads collected in private mode - settings page"

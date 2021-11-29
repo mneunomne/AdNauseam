@@ -84,7 +84,7 @@
     "description": "English: Notifications -> uBlock and AdNauseam may conflict!"
   },
   "adnNotificationOperaSetting": {
-    "message": "Please allow AdNauseam to access search page results",
+    "message": "Geef AdNauseam toegang tot de zoekpagina resultaten",
     "description": "English: Notifications -> Please allow AdNauseam to access search page results"
   },
   "adnNotificationBrowserSetting": {
@@ -92,7 +92,7 @@
     "description": "English: Notifications -> The 'Content Blocking' settings in your browser may interfere with AdNauseam!"
   },
   "adnNotificationPrivacyMode": {
-    "message": "You have allowed adnauseam to have access to your online activities while private browsing.",
+    "message": "U heeft adnauseam toegang gegeven tot uw online activiteiten tijdens incognito surfen.",
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
@@ -160,27 +160,27 @@
     "description": "English: AdNauseam — Ad Vault"
   },
   "myStatistics": {
-    "message": "My Statistics",
+    "message": "Mijn statistieken",
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Top Adnetworks",
+    "message": "Top advertentienetwerken",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
-    "message": "Top Sites",
+    "message": "Top websites",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypes": {
-    "message": "Ad Types",
+    "message": "Advertentietypes",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesImageAds": {
-    "message": "Image Ads",
+    "message": "Afbeelding advertenties",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesTextAds": {
-    "message": "Text Ads",
+    "message": "Tekst advertenties",
     "description": "appears in ADN vault/My Statistics"
   },
   "adnShowingRecentAds": {
@@ -443,12 +443,16 @@
     "message": "Foutopsporingsmodus activeren",
     "description": "prompt for toggle"
   },
+  "disableWarnings": {
+    "message": "Waarschuwingen uitschakelen",
+    "description": "English:Disable warnings"
+  },
   "removeAdsInPrivate": {
-    "message": "Remove ads collected in private mode",
+    "message": "Verwijder verzamelde advertenties in incognito-modus",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Activate Strict Blocking Mode",
+    "message": "Activeer strikte blokkeermodus",
     "description": "English: Activate Strict Blocking Mode"
   }
 }

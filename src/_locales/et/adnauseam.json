@@ -84,7 +84,7 @@
     "description": "English: Notifications -> uBlock and AdNauseam may conflict!"
   },
   "adnNotificationOperaSetting": {
-    "message": "Please allow AdNauseam to access search page results",
+    "message": "Palun anna AdNauseam-le luba otsimise tulemisi leheküljel ",
     "description": "English: Notifications -> Please allow AdNauseam to access search page results"
   },
   "adnNotificationBrowserSetting": {
@@ -160,27 +160,27 @@
     "description": "English: AdNauseam — Ad Vault"
   },
   "myStatistics": {
-    "message": "My Statistics",
+    "message": "Minu Statistika",
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Top Adnetworks",
+    "message": "Tip Reklaami-võrgud",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
-    "message": "Top Sites",
+    "message": "Tip Veebilehed",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypes": {
-    "message": "Ad Types",
+    "message": "Reklaami Tüübid",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesImageAds": {
-    "message": "Image Ads",
+    "message": "Reklaami Pildid",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesTextAds": {
-    "message": "Text Ads",
+    "message": "Reklaami Tekst",
     "description": "appears in ADN vault/My Statistics"
   },
   "adnShowingRecentAds": {
@@ -443,12 +443,16 @@
     "message": "Aktiveeri silumisrežiim",
     "description": "prompt for toggle"
   },
+  "disableWarnings": {
+    "message": "Disable warnings",
+    "description": "English:Disable warnings"
+  },
   "removeAdsInPrivate": {
-    "message": "Remove ads collected in private mode",
+    "message": "Eemalda reklaamid kogenenud privaatse viisis",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Activate Strict Blocking Mode",
+    "message": "Aktiveerida Otsene Blokeerimise Viis",
     "description": "English: Activate Strict Blocking Mode"
   }
 }
