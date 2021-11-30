@@ -32,7 +32,7 @@
     "description": "English: Firstrun.html -> Block Malware"
   },
   "adnAboutResetDataConfirm": {
-    "message": "Mọi thiết đặt sẽ bị và lượng quảng cáo đã ghi nhận sẽ bị xoá bỏ, AdNauseam sẽ khởi động lại.\n\nĐặt AdNauseam về thiết đặt mặc định ban đầu?",
+    "message": "All your settings will be removed, ads in your vault will be deleted, and AdNauseam will restart.\n\nReset AdNauseam to factory settings?",
     "description": "Message asking user to confirm reset"
   },
   "adnFirstRunHideAllAdsDescription": {
@@ -84,15 +84,15 @@
     "description": "English: Notifications -> uBlock and AdNauseam may conflict!"
   },
   "adnNotificationOperaSetting": {
-    "message": "Hãy cho phép AdNauseam truy cập kết quả tìm kiếm trang.",
+    "message": "Please allow AdNauseam to access search page results",
     "description": "English: Notifications -> Please allow AdNauseam to access search page results"
   },
   "adnNotificationBrowserSetting": {
-    "message": "Thiết đặt 'Chặn nội dung' của trình duyệt có thể xung đột với AdNauseam!",
+    "message": "The 'Content Blocking' settings in your browser may interfere with AdNauseam!",
     "description": "English: Notifications -> The 'Content Blocking' settings in your browser may interfere with AdNauseam!"
   },
   "adnNotificationPrivacyMode": {
-    "message": "Đã cho phép AdNauseam kiểm tra hoạt động trực tuyến khi duyệt web ở chế độ riêng tư.",
+    "message": "You have allowed adnauseam to have access to your online activities while private browsing.",
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
@@ -160,27 +160,27 @@
     "description": "English: AdNauseam — Ad Vault"
   },
   "myStatistics": {
-    "message": "Thống kê",
+    "message": "My Statistics",
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Nhà cung cấp quảng cáo hàng đầu",
+    "message": "Top Adnetworks",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
-    "message": "Trang hàng đầu",
+    "message": "Top Sites",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypes": {
-    "message": "Loại quảng cáo",
+    "message": "Ad Types",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesImageAds": {
-    "message": "Quảng cáo hình ảnh",
+    "message": "Image Ads",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesTextAds": {
-    "message": "Quảng cáo văn bản",
+    "message": "Text Ads",
     "description": "appears in ADN vault/My Statistics"
   },
   "adnShowingRecentAds": {
@@ -192,7 +192,7 @@
     "description": "English: AdNauseam file export"
   },
   "adnImportAlertFormat": {
-    "message": "Tập tin không chứa quảng cáo, hãy chọn tập tin khác.",
+    "message": "The file doesn't contain any Ads, please choose another file.",
     "description": "appears in ADN vault, after import"
   },
   "adnImportAlert": {
@@ -204,15 +204,15 @@
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
-    "message": "Đang chờ",
+    "message": "Pending",
     "description": "Menu & AdVault: Pending"
   },
   "adnAdClickingStatusVisited": {
-    "message": "Đã truy cập",
+    "message": "Visited",
     "description": "Menu & AdVault: Visited"
   },
   "adnAdClickingStatusFailed": {
-    "message": "Thất bại",
+    "message": "Failed",
     "description": "Menu & AdVault: Failed"
   },
   "adnAdClickingStatusSkippedDNT": {
@@ -224,11 +224,11 @@
     "description": "Menu & AdVault: SKIPPED: Clicked by User"
   },
   "adnAdClickingStatusSkippedFrequency": {
-    "message": "BỎ QUA: Tần suất click",
+    "message": "SKIPPED: Click Frequency",
     "description": "Menu & AdVault: SKIPPED: Click Frequency"
   },
   "adnAdClickingStatusSkippedDisabled": {
-    "message": "BỎ QUA: Tắt click",
+    "message": "SKIPPED: Clicking Disabled",
     "description": "Menu & AdVault: SKIPPED: Clicking disabled"
   },
   "adnMenuViewLog": {
@@ -256,19 +256,19 @@
     "description": "appears in ADN popup menu"
   },
   "adnMenuExportOptions": {
-    "message": "Xuất các tuỳ chọn",
+    "message": "Export Options",
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuExportAdsOnly": {
-    "message": "Chỉ quảng cáo",
+    "message": "Ads Only",
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuExportSettingsOnly": {
-    "message": "Chỉ cài đặt",
+    "message": "Settings Only",
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuExportSettingsAndAds": {
-    "message": "Cài đặt và quảng cáo",
+    "message": "Settings and Ads",
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuImportAds": {
@@ -443,16 +443,12 @@
     "message": "Kích hoạt chế độ gỡ rối",
     "description": "prompt for toggle"
   },
-  "disableWarnings": {
-    "message": "Disable warnings",
-    "description": "English:Disable warnings"
-  },
   "removeAdsInPrivate": {
-    "message": "Loại trừ quảng cáo được ghi nhận khi duyệt riêng tư",
+    "message": "Remove ads collected in private mode",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Kích hoạt chế độ chặn cao độ",
+    "message": "Activate Strict Blocking Mode",
     "description": "English: Activate Strict Blocking Mode"
   }
 }

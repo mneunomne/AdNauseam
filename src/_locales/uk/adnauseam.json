@@ -168,7 +168,7 @@
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
-    "message": "Найпопулярніші сайти",
+    "message": "Top Sites",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypes": {
@@ -442,10 +442,6 @@
   "eventLoggingPrompt": {
     "message": "Активувати режим відлагодження",
     "description": "prompt for toggle"
-  },
-  "disableWarnings": {
-    "message": "Вимкнути попередження",
-    "description": "English:Disable warnings"
   },
   "removeAdsInPrivate": {
     "message": "Вилучити оголошення, зібрану в приватному режимі",

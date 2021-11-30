@@ -1,7 +1,0 @@
-Klikšķina reklāmu, lai Jums to nebūtu jādara.
-
-Tā kā tiešsaistes reklāma kļūst arvien izplatītāka un nav sankcionēta, AdNauseam strādā, lai pabeigtu ciklu, universāli un akli automatizējot reklāmas klikšķus savu lietotāju vārdā. Balstīts uz uBlock Origin, AdNauseam klusi uzklikšķina katru bloķēto reklāmu, reģistrējot apmeklējumu reklāmu tīklu datu bāzēs. Tā kā apkopotie dati rāda visēdāju klikšķu straumi, lietotāju izsekošana, mērķauditorijas atlase un uzraudzība kļūst veltīga. Lasiet vairāk par AdNauseam šajā rakstā.
-
-AdNauseam ir bezmaksas pārlūka paplašinājums, kas paredzēts, lai pieslēptu pārlūkošanas datus un aizsargātu lietotājus no reklāmas tīklu izsekošanas. Tajā pašā laikā AdNauseam kalpo kā līdzeklis, lai pastiprinātu lietotāju neapmierinātību ar reklāmas tīkliem, kuri neņem vērā privātumu un atvieglo lielapjoma uzraudzības programmas.
-
-AdNauseam pievienojas plašākai tehnisko sistēmu klasei, kas cenšas kalpot ētiskiem, politiskiem un izteiksmīgiem mērķiem. Ņemot vērā nozares nespēju sevi regulēt vai kā citādi novērst tīkla izsekošanas pārmērības, AdNauseam ļauj atsevišķiem lietotājiem ņemt lietas savās rokās, cīnoties pret vienpusēju uzraudzību. Šajā kontekstā programmatūra izmanto pieeju, kas līdzīga TrackMeNot pieejai, izmantojot pieslēpšanu kā stratēģiju, lai mainītu jaudas līdzsvaru starp izsekotājiem un izsekotajiem. Lai iegūtu papildus informāciju par šo pieeju, lūdzu, izlasiet šo rakstu.

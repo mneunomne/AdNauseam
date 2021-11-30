@@ -1,7 +1,0 @@
-विज्ञापनों पर क्लिक करना ताकि आपको करना न पड़े।
-
-जैसे जैसे ऑनलाइन विज्ञापन और भी सर्वव्यापक और ग़ैरक़ानूनी होते जा रहे है, 'एड़ नौसिअम' इसी चक्रव्यूह को उपयोगकर्ताओं की ओर से हर विज्ञापनों पर स्वचालित, सार्वभौमिक रूप से और बिना देखे क्लिक करके पूरा करने का काम करता है। यू-ब्लॉक ओरिगिन पर आधारित, एड़ नौसिअम चुपचाप हर अवरुद्ध विज्ञापन पर क्लिक करता है, जिससे विज्ञापन नेटवर्क के डेटाबेस पर दाखिला दर्ज की जाती है। As the collected data gathered shows an omnivorous click-stream, user tracking, targeting and surveillance become futile. Read more about AdNauseam in this paper.
-
-AdNauseam is a free browser extension designed to obfuscate browsing data and protect users from tracking by advertising networks. At the same time, AdNauseam serves as a means of amplifying users' discontent with advertising networks that disregard privacy and facilitate bulk surveillance agendas.
-
-AdNauseam joins a broader class of technical systems that attempt to serve ethical, political, and expressive ends. In light of the industry's failure to self-regulate or otherwise address the excesses of network tracking, AdNauseam allows individual users to take matters into their own hands, fighting back against unilateral surveillance. Taken in this light, the software follows an approach similar to that of TrackMeNot, employing obfuscation as a strategy to shift the balance of power between the trackers and the tracked. For further information on this approach, please see this paper.

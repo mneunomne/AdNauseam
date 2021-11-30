@@ -1,7 +1,0 @@
-Trykker på reklamer så du ikke behøver at gøre det. 
-
-I takt med at reklamer online findes flere og flere steder uden regulationer arbejder AdNauseam på at fuldende cyklussen ved automatisk og blindt at klikke på reklamer for sine brugere.  AdNauseam er bygget ovenpå uBlock Origin, og klikker på samtlige blokerede reklamer i baggrunden og registrerer herved et besøg på reklamenetværkers databaser.  Når det indsamlede data viser en "altædende" strøm af klik bliver brugersporing, målretning af reklamer og overvågning nyttesløst.  Læs mere om AdNauseam i denne rapport. 
-
-AdNauseam er en gratis browserudvidelse som er designet til at sløre browsingdata og beskytte brugere mod reklamenetværkers sporing.  Samtidig fremhæver AdNauseam brugeres utilfredshed med reklamenetværker, der tilsidesætter privatliv og faciliteter masseovervågning. 
-
-AdNauseam slutter sig til en bredere samling af tekniske systemer der forsøger at tjene etiske, politiske og ekspressive formål.  Set i lyset af industriens fiasko i at selv-regulere eller på anden vis italesætte overdreven netværkssporing giver AdNauseam den enkelte bruger mulighed for at tage sagen i egen hånd og kæmpe imod ensidig overvågning.  Set i dette lys følger softwaren en tilgang der minder om TrackMeNot ved at anvende sløring som en strategi for at skubbe til magtbalancen mellem dem der sporer og dem der spores.  Læs venligst denne rapport for mere information om denne tilgang. 

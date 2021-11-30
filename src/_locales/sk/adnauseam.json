@@ -84,7 +84,7 @@
     "description": "English: Notifications -> uBlock and AdNauseam may conflict!"
   },
   "adnNotificationOperaSetting": {
-    "message": "Prosím umožnite rozšíreniu AdNauseam prístup k výsledkom vyhľadávania",
+    "message": "Please allow AdNauseam to access search page results",
     "description": "English: Notifications -> Please allow AdNauseam to access search page results"
   },
   "adnNotificationBrowserSetting": {
@@ -92,7 +92,7 @@
     "description": "English: Notifications -> The 'Content Blocking' settings in your browser may interfere with AdNauseam!"
   },
   "adnNotificationPrivacyMode": {
-    "message": "Rozšíreniu AdNauseam ste umožnili vidieť vaše aktivity v anonymnom režime.",
+    "message": "You have allowed adnauseam to have access to your online activities while private browsing.",
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
@@ -160,15 +160,15 @@
     "description": "English: AdNauseam — Ad Vault"
   },
   "myStatistics": {
-    "message": "Moje štatistiky",
+    "message": "My Statistics",
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Top reklamné siete",
+    "message": "Top Adnetworks",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
-    "message": "Top stránky",
+    "message": "Top Sites",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypes": {
@@ -176,7 +176,7 @@
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesImageAds": {
-    "message": "Obrazové reklamy",
+    "message": "Image Ads",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesTextAds": {
@@ -443,16 +443,12 @@
     "message": "Aktivovať režim ladenia",
     "description": "prompt for toggle"
   },
-  "disableWarnings": {
-    "message": "Nezobrazovať varovania",
-    "description": "English:Disable warnings"
-  },
   "removeAdsInPrivate": {
-    "message": "Odstrániť reklamy zozbierané v anonymnom režime",
+    "message": "Remove ads collected in private mode",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Zapnúť režim striktného blokovania",
+    "message": "Activate Strict Blocking Mode",
     "description": "English: Activate Strict Blocking Mode"
   }
 }

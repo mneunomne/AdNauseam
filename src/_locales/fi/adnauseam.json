@@ -443,10 +443,6 @@
     "message": "Ota virheenkorjaus käyttöön",
     "description": "prompt for toggle"
   },
-  "disableWarnings": {
-    "message": "Disable warnings",
-    "description": "English:Disable warnings"
-  },
   "removeAdsInPrivate": {
     "message": "Poista yksityisessä tilassa kerätyt mainokset",
     "description": "English:Remove ads collected in private mode - settings page"

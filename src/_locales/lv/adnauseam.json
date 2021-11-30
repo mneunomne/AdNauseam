@@ -1,158 +1,158 @@
 {
   "adnAboutPageName": {
-    "message": "AdNauseam — Par paplašinājumu",
+    "message": "AdNauseam — About",
     "description": "English: Firstrun.html page title"
   },
   "aboutSupport": {
-    "message": "Atbalsts",
+    "message": "Support",
     "description": "English: links.html Support"
   },
   "aboutBuiltOn": {
-    "message": "Balstīts uz",
+    "message": "Built on",
     "description": "English: links.html Built on"
   },
   "aboutFaq": {
-    "message": "Biežāk uzdotie jautājumi",
+    "message": "Frequently asked questions",
     "description": "English: links.html -> Frequently asked questions"
   },
   "adnFirstRunPlease": {
-    "message": "Lūdzu:",
+    "message": "Please:",
     "description": "English: Firstrun.html -> Please:"
   },
   "adnFirstRunHideAllAds": {
-    "message": "Noslēpt reklāmu",
+    "message": "Hide Ads",
     "description": "English: Firstrun.html -> Hide Ads:"
   },
   "adnFirstRunClickingAds": {
-    "message": "Klikšķināt reklāmas",
+    "message": "Click Ads",
     "description": "English: Firstrun.html -> Click Ads"
   },
   "adnFirstRunBlockingMalware": {
-    "message": "Bloķēt ļaunatūru",
+    "message": "Block Malware",
     "description": "English: Firstrun.html -> Block Malware"
   },
   "adnAboutResetDataConfirm": {
-    "message": "Visi Jūsu iestatījumi tiks noņemti, reklāmas tiks izdzēstas no velves un AdNauseam tiks pārstartēts.\n\nVai atiestatīt AdNauseam rūpnīcas iestatījumus?",
+    "message": "All your settings will be removed, ads in your vault will be deleted, and AdNauseam will restart.\n\nReset AdNauseam to factory settings?",
     "description": "Message asking user to confirm reset"
   },
   "adnFirstRunHideAllAdsDescription": {
-    "message": "Noslēpt reklāmu no Jūsu izvēlētajiem <span>filtru sarakstiem</span>",
+    "message": "Hide Ads in your selected <span>filter lists</span>",
     "description": "English: Firstrun.html -> Hide Ads in your selected filter lists"
   },
   "adnFirstRunClickingAdsDescription": {
-    "message": "Reģistrēt apmeklējumus reklāmās, kas atrodamas Jūsu izvēlētajos <span>filtru sarakstos</span>",
+    "message": "Register visits on Ads found via your <span>filter lists</span>",
     "description": "English: Firstrun.html -> Register visits on Ads found via your filter lists"
   },
   "adnFirstRunBlockingMalwareDescription": {
-    "message": "Bloķēt izsekotājus un citu ļaunatūru (<span>pielāgot</span>)",
+    "message": "Block trackers and other malware (<span>customize</span>)",
     "description": "English: Firstrun.html -> Block trackers and other malware (customize)"
   },
   "adnNotificationReactivate": {
-    "message": "Atkārtoti aktivizēt",
+    "message": "Reactivate",
     "description": "English: Notifications -> Reactivate"
   },
   "adnNotificationDisable": {
-    "message": "Atslēgt",
+    "message": "Disable",
     "description": "English: Notifications -> Disable"
   },
   "adnNotificationActivateHiding": {
-    "message": "Ieslēgt reklāmu noslēpšanu",
+    "message": "Activate Ad hiding",
     "description": "English: Notifications -> Activate Ad hiding"
   },
   "adnNotificationActivateClicking": {
-    "message": "Ieslēgt reklāmu klikšķināšanu",
+    "message": "Activate Ad clicking",
     "description": "English: Notifications -> Activate Ad clicking"
   },
   "adnNotificationActivateBlocking": {
-    "message": "Ieslēgt ļaunatūras bloķēšanu",
+    "message": "Activate malware blocking",
     "description": "English: Notifications -> Activate malware blocking"
   },
   "adnNotificationActivateEasyList": {
-    "message": "Ieslēgt EasyFilter filtru",
+    "message": "Activate the EasyList filter",
     "description": "English: Notifications -> Activate the EasyList filter"
   },
   "adnNotificationActivateAdNauseamList": {
-    "message": "Ieslēgt AdNauseam filtru",
+    "message": "Activate the AdNauseam filter",
     "description": "English: Notifications -> Activate the AdNauseam filter"
   },
   "adnNotificationDisableAdBlocker": {
-    "message": "Jūsu reklāmas bloķētājs un AdNauseam var konfliktēt!",
+    "message": "Your ad blocker and AdNauseam may conflict!",
     "description": "English: Notifications -> Your ad blocker and AdNauseam may conflict!"
   },
   "adnNotificationDisableUBlock": {
-    "message": "uBlock un AdNauseam var konfliktēt!",
+    "message": "uBlock and AdNauseam may conflict!",
     "description": "English: Notifications -> uBlock and AdNauseam may conflict!"
   },
   "adnNotificationOperaSetting": {
-    "message": "Lūdzu, atļaujiet AdNauseam piekļūt meklēšanas lapu rezultātiem",
+    "message": "Please allow AdNauseam to access search page results",
     "description": "English: Notifications -> Please allow AdNauseam to access search page results"
   },
   "adnNotificationBrowserSetting": {
-    "message": "Jūsu pārlūka satura bloķēšanas iestatījumi var traucēt AdNauseam!",
+    "message": "The 'Content Blocking' settings in your browser may interfere with AdNauseam!",
     "description": "English: Notifications -> The 'Content Blocking' settings in your browser may interfere with AdNauseam!"
   },
   "adnNotificationPrivacyMode": {
-    "message": "Jūs esat atļāvuši AdNauseam piekļuvi Jūsu tiešsaistes darbībām privātās pārlūkošanas laikā.",
+    "message": "You have allowed adnauseam to have access to your online activities while private browsing.",
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
-    "message": "Šī vietne ievēro <b>neizsekošanas iestatījumu (Do Not Track)</b>, reklāmas ir atļautas.",
+    "message": "This page respects <b>Do Not Track</b>, Ads are allowed.",
     "description": "English: Notifications -> This page respects Do Not Track, Ads are allowed."
   },
   "adnNotificationDNTHidingNotClicking": {
-    "message": "Šī vietne ievēro <b>neizsekošanas iestatījumu (Do Not Track)</b>, reklāma tiek noslēpta, bet netiek uzklikšķināta.",
+    "message": "This page respects <b>Do Not Track</b>, hiding not clicking.",
     "description": "English: Notifications -> This page respects Do Not Track, hiding not clicking."
   },
   "adnNotificationDNTClickingNotHiding": {
-    "message": "Šī vietne ievēro <b>neizsekošanas iestatījumu (Do Not Track)</b>, reklāma tiek uzklikšķināta, bet netiek noslēpta.",
+    "message": "This page respects <b>Do Not Track</b>, clicking not hiding",
     "description": "English: Notifications -> This page respects Do Not Track, clicking not hiding."
   },
   "adnNotificationDNTJustSoYouKnow": {
-    "message": "Šī vietne ievēro <b>neizsekošanas iestatījumu (Do Not Track)</b>, vienkārši, lai Jūs zinātu.",
+    "message": "This page respects <b>Do Not Track</b>, just so you know.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
   "adnTarget": {
-    "message": "MĒRĶIS",
+    "message": "TARGET",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
   },
   "adnFoundOn": {
-    "message": "ATRASTS VIETNĒ",
+    "message": "FOUND ON",
     "description": "English: Vault.html -> inspected Ad -> FOUND ON"
   },
   "adnNotYetVisited": {
-    "message": "Vēl nav apmeklēts",
+    "message": "Not Yet Visited",
     "description": "English: Not Yet Visited"
   },
   "adnAllowedByDNT": {
-    "message": "Atļauts, izmantojot neizsekošanas (Do Not Track) politiku",
+    "message": "Allowed via Do Not Track policy",
     "description": "English: Not Yet Visited"
   },
   "adnFirstRunSwitchMeOn": {
-    "message": "Ieslēdz mani",
+    "message": "Switch me on",
     "description": "English: Firstrun.html -> Switch me on"
   },
   "adnFirstRunThatsIt": {
-    "message": "Tas arī viss? Ok...",
+    "message": "That's it? ok…",
     "description": "English: Firstrun.html -> That's it? ok…"
   },
   "adnFirstRunBetterButStill": {
-    "message": "Labāk, bet joprojām...",
+    "message": "Better, but still…",
     "description": "English: Firstrun.html -> Better, but still…"
   },
   "adnFirstRunLetsGo": {
-    "message": "Aiziet!",
+    "message": "Let's go!",
     "description": "English: Firstrun.html -> Let's go!"
   },
   "goToAdNauseamWebsite": {
-    "message": "Pāriet uz AdNauseam mājaslapu",
+    "message": "Go to AdNauseam website",
     "description": "English: Menu icon title -> Go to AdNauseam website"
   },
   "adnPausedOnPage": {
-    "message": "Šajā lapā AdNauseam ir apturēts",
+    "message": "AdNauseam is paused on this page",
     "description": "English: Menu->display when paused on page/site"
   },
   "adnNotHiding": {
-    "message": "AdNauseam pašlaik neslēpj reklāmu",
+    "message": "AdNauseam is not currently hiding Ads",
     "description": "English: Menu->display when not hiding Ads"
   },
   "adnVaultName": {
@@ -160,251 +160,251 @@
     "description": "English: AdNauseam — Ad Vault"
   },
   "myStatistics": {
-    "message": "Mana statistika",
+    "message": "My Statistics",
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Populārākie reklāmu tīkli",
+    "message": "Top Adnetworks",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
-    "message": "Populārākās vietnes",
+    "message": "Top Sites",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypes": {
-    "message": "Reklāmu tipi",
+    "message": "Ad Types",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesImageAds": {
-    "message": "Attēla reklāmas",
+    "message": "Image Ads",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesTextAds": {
-    "message": "Teksta reklāmas",
+    "message": "Text Ads",
     "description": "appears in ADN vault/My Statistics"
   },
   "adnShowingRecentAds": {
-    "message": "Šajā lapā nav savākta neviena reklāma (tiek rādītas jaunākās)",
+    "message": "No Ads collected on this page (showing recent)",
     "description": "shown in menu when only 'recent' Ads are shown"
   },
   "adnExportedAdsFilename": {
-    "message": "AdNauseam_Eksportets_{{datetime}}.json",
+    "message": "AdNauseam_Export_{{datetime}}.json",
     "description": "English: AdNauseam file export"
   },
   "adnImportAlertFormat": {
-    "message": "Šī datne nesatur reklāmas, lūdzu, izvēlēties citu datni.",
+    "message": "The file doesn't contain any Ads, please choose another file.",
     "description": "appears in ADN vault, after import"
   },
   "adnImportAlert": {
-    "message": "Importētas {{count}} jaunas reklāmas",
+    "message": "{{count}} new Ads were imported",
     "description": "appears in ADN vault, after import"
   },
   "adnClearConfirm": {
-    "message": "Šī darbība neatgriezeniski noņems VISAS Jūsu reklāmas",
+    "message": "This action will permanently remove ALL of your Ads",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
-    "message": "Gaida",
+    "message": "Pending",
     "description": "Menu & AdVault: Pending"
   },
   "adnAdClickingStatusVisited": {
-    "message": "Apmeklēts",
+    "message": "Visited",
     "description": "Menu & AdVault: Visited"
   },
   "adnAdClickingStatusFailed": {
-    "message": "Neizdevās",
+    "message": "Failed",
     "description": "Menu & AdVault: Failed"
   },
   "adnAdClickingStatusSkippedDNT": {
-    "message": "IZLAISTS: DNT ir atļauts",
+    "message": "SKIPPED: DNT Allowed",
     "description": "Menu & AdVault: SKIPPED: DNT Allowed"
   },
   "adnAdClickingStatusSkippedUser": {
-    "message": "IZLAISTS: Uzklikšķinājis lietotājs",
+    "message": "SKIPPED: Clicked by user",
     "description": "Menu & AdVault: SKIPPED: Clicked by User"
   },
   "adnAdClickingStatusSkippedFrequency": {
-    "message": "IZLAISTS: Klikšķu biežums",
+    "message": "SKIPPED: Click Frequency",
     "description": "Menu & AdVault: SKIPPED: Click Frequency"
   },
   "adnAdClickingStatusSkippedDisabled": {
-    "message": "IZLAISTS: Klikšķināšana atslēgta",
+    "message": "SKIPPED: Clicking Disabled",
     "description": "Menu & AdVault: SKIPPED: Clicking disabled"
   },
   "adnMenuViewLog": {
-    "message": "Skatīt žurnālu",
+    "message": "View Log",
     "description": "appears in ADN popup menu"
   },
   "adnMenuAdsClicked": {
-    "message": "Uzklikšķinātas {{number}}",
+    "message": "clicked {{number}}",
     "description": "appears in ADN popup menu and vault"
   },
   "adnMenuAdsDetected": {
-    "message": "{{count}} atrastas reklāmas",
+    "message": "{{count}} Ads detected",
     "description": "appears in ADN popup menu"
   },
   "adnMenuViewVault": {
-    "message": "Apskatīt reklāmu vel\nvi",
+    "message": "View Ad Vault",
     "description": "appears in ADN popup menu"
   },
   "adnMenuResume": {
-    "message": "Atsākt",
+    "message": "Resume",
     "description": "appears in ADN popup menu"
   },
   "adnMenuSettings": {
-    "message": "Iestatījumi",
+    "message": "Settings",
     "description": "appears in ADN popup menu"
   },
   "adnMenuExportOptions": {
-    "message": "Eksportēt iestatījumus",
+    "message": "Export Options",
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuExportAdsOnly": {
-    "message": "Tikai reklāmas",
+    "message": "Ads Only",
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuExportSettingsOnly": {
-    "message": "Tikai iestatījumi",
+    "message": "Settings Only",
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuExportSettingsAndAds": {
-    "message": "Iestatījumi un reklāmas",
+    "message": "Settings and Ads",
     "description": "appears in Menu - Export Dialog box"
   },
   "adnMenuImportAds": {
-    "message": "Importēt reklāmas",
+    "message": "Import Ads",
     "description": "appears in ADN popup menu"
   },
   "adnMenuDisableAllLogging": {
-    "message": "Atslēgt visu reģistrēšanu",
+    "message": "Disable all logging",
     "description": "appears in ADN popup menu"
   },
   "adnMenuDisableOutgoingReferrer": {
-    "message": "Atslēgt izejošo novirzītāju",
+    "message": "Disable outgoing referrer",
     "description": "appears in ADN popup menu"
   },
   "adnMenuClearAds": {
-    "message": "Dzēst reklāmas ar pārlūka vēsturi",
+    "message": "Clear Ads with browser history",
     "description": "appears in ADN popup menu"
   },
   "adnMenuHideBadge": {
-    "message": "Noslēpt reklāmu skaitu uz ikonas",
+    "message": "Hide Ad count on icon",
     "description": "appears in ADN popup menu"
   },
   "adnMenuClearAdsNow": {
-    "message": "Dzēst reklāmas",
+    "message": "Clear Ads",
     "description": "appears in ADN popup menu"
   },
   "adnLogNoLog": {
-    "message": "Žurnāls nav pieejams",
+    "message": "No log available",
     "description": "appears in ADN log page"
   },
   "adnLogViewFullLog": {
-    "message": "Skatīt pilnu žurnālu",
+    "message": "View full log",
     "description": "appears in ADN log page"
   },
   "adnVaultSince": {
-    "message": "Kopš {{datetime}}",
+    "message": "Since {{datetime}}",
     "description": "appears on vault page"
   },
   "adnVaultExport": {
-    "message": "Eksportēt",
+    "message": "Export",
     "description": "appears on vault page"
   },
   "adnVaultImport": {
-    "message": "Importēt",
+    "message": "Import",
     "description": "appears on vault page"
   },
   "adnVaultClear": {
-    "message": "Dzēst",
+    "message": "Clear",
     "description": "appears on vault page"
   },
   "adnVaultFound": {
-    "message": "savāktas {{total}} reklāmas",
+    "message": "{{total}} ads collected",
     "description": "appears on vault page"
   },
   "adnVaultShowing": {
-    "message": "rādīts",
+    "message": "showing",
     "description": "appears on vault page"
   },
   "adnVaultDeleteThisAd": {
-    "message": "izdzēst šo reklāmu",
+    "message": "delete this Ad",
     "description": "appears on vault page"
   },
   "adnVaultTotalEstimated": {
-    "message": "kopā aplēsts",
+    "message": "total estimated",
     "description": "appears on vault page"
   },
   "adnVaultAdsCost": {
-    "message": "izmaksas",
+    "message": "cost",
     "description": "appears on vault page"
   },
   "hidingAdsPrompt": {
-    "message": "Noslēpt Jūsu izvēlētajos filtru sarakstos noteikto reklāmu",
+    "message": "Hide Ads identified by your chosen filter lists",
     "description": "English: Hide Ads identified by your chosen filter lists"
   },
   "clickingAdsPrompt": {
-    "message": "Klikšķināt Jūsu izvēlētajos filtru sarakstos noteikto reklāmu",
+    "message": "Click Ads identified by your chosen filter lists",
     "description": "English: Click Ads identified by your chosen filter lists"
   },
   "blockingMalwarePrompt": {
-    "message": "Bloķēt izsekotājus un citu ļaunatūru",
+    "message": "Block trackers and other malware",
     "description": "English: lock trackers and other malware"
   },
   "parseTextAdsPrompt": {
-    "message": "Uzņemt tikai teksta reklāmas, ja iespējams",
+    "message": "Capture text-only Ads when possible",
     "description": "English: Capture text-only Ads when possible"
   },
   "settingsIconBadgePrompt": {
-    "message": "Rādīt reklāmu skaitu uz ikonas",
+    "message": "Display the number of Ads on the icon",
     "description": "English: Show the number of found Ads on the icon"
   },
   "settingsExtraPrivacyPrompt": {
-    "message": "Papildus privātums",
+    "message": "Extra Privacy",
     "description": "English: Interface"
   },
   "settingsInterfacePrompt": {
-    "message": "Saskarne",
+    "message": "Interface",
     "description": "English: Interface"
   },
   "noIncomingCookiesPrompt": {
-    "message": "Ignorēt sīkdatnes, kas atgrieztas no klikšķiem",
+    "message": "Ignore cookies returned with clicks",
     "description": "English: Ignore cookies returned with clicks"
   },
   "noOutgoingCookiesPrompt": {
-    "message": "Nesūtīt sīkdatnes apmeklējumu laikā",
+    "message": "Don't send cookies on visits",
     "description": "English: Don't send cookies on visits"
   },
   "noOutgoingUserAgentPrompt": {
-    "message": "Noslēpt lietotāja-aģenta galveni apmeklējumu laikā",
+    "message": "Hide user-agent header on visits",
     "description": "English: Hide user-agent header on visits"
   },
   "noOutgoingRefererPrompt": {
-    "message": "Noslēpt novirzošo lapu apmeklējumu laikā",
+    "message": "Hide referring page on visits",
     "description": "English: Hide referring page on visits"
   },
   "ClickingFrequencyRarely": {
-    "message": "Reti",
+    "message": "Rarely",
     "description": "English: Click Frequency - Rarely"
   },
   "ClickingFrequencySometimes": {
-    "message": "Dažreiz",
+    "message": "Sometimes",
     "description": "English: Click Frequency - Sometimes"
   },
   "ClickingFrequencyAlways": {
-    "message": "Vienmēr",
+    "message": "Always",
     "description": "English: Click Frequency - Always"
   },
   "respectDNTPrompt": {
-    "message": "Veikt izņēmumus neizsekojošajām reklāmām",
+    "message": "Make exceptions for non-tracking Ads",
     "description": "English: Make exceptions for non-tracking Ads"
   },
   "disableHidingForDNTPrompt": {
-    "message": "Rādīt izsekojošās reklāmas",
+    "message": "Don't hide non-tracking Ads",
     "description": "English: Don't hide non-tracking Ads"
   },
   "disableClickingForDNTPrompt": {
-    "message": "Neklikšķināt neizsekojošās reklāmas",
+    "message": "Don't click non-tracking Ads",
     "description": "English: Don't click non-tracking Ads"
   },
   "extName": {
@@ -412,47 +412,43 @@
     "description": "extension name"
   },
   "extShortDesc": {
-    "message": "Cīnieties pret reklāmas novērošanu",
+    "message": "Fight back against advertising surveillance",
     "description": "for the chrome web store: must be 132 characters or less"
   },
   "3pGroupEssentials": {
-    "message": "Būtiskākais",
+    "message": "Essentials",
     "description": "English: Essentials"
   },
   "3pGroupOther": {
-    "message": "Cits",
+    "message": "Other",
     "description": "English: Other"
   },
   "3pGroupMalware": {
-    "message": "Ļaunatūra",
+    "message": "Malware",
     "description": "English: Malware"
   },
   "3pGroupRegions": {
-    "message": "Valodas",
+    "message": "Languages",
     "description": "English: Languages"
   },
   "3pPageUpdate": {
-    "message": "Atjaunināt",
+    "message": "Update",
     "description": "English: update"
   },
   "whitelistPageName": {
-    "message": "Baltie saraksti",
+    "message": "Whitelists",
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Ieslēgt atkļūdošanas režīmu",
+    "message": "Activate debugging mode",
     "description": "prompt for toggle"
   },
-  "disableWarnings": {
-    "message": "Disable warnings",
-    "description": "English:Disable warnings"
-  },
   "removeAdsInPrivate": {
-    "message": "Noņemt konfidenciālajā režīmā savāktās reklāmas",
+    "message": "Remove ads collected in private mode",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Ieslēgt stingru bloķēšanas režīmu",
+    "message": "Activate Strict Blocking Mode",
     "description": "English: Activate Strict Blocking Mode"
   }
 }

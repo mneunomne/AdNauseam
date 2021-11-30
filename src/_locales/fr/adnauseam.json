@@ -443,10 +443,6 @@
     "message": "Activer le mode débogage",
     "description": "prompt for toggle"
   },
-  "disableWarnings": {
-    "message": "Désactiver les avertissements",
-    "description": "English:Disable warnings"
-  },
   "removeAdsInPrivate": {
     "message": "Supprimer les publicités collectées en mode privé",
     "description": "English:Remove ads collected in private mode - settings page"

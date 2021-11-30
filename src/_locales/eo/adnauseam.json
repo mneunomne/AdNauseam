@@ -1,134 +1,134 @@
 {
   "adnAboutPageName": {
-    "message": "Pri AdNauseam",
+    "message": "AdNauseam — About",
     "description": "English: Firstrun.html page title"
   },
   "aboutSupport": {
-    "message": "Helpo",
+    "message": "Support",
     "description": "English: links.html Support"
   },
   "aboutBuiltOn": {
-    "message": "Konstruita sur",
+    "message": "Built on",
     "description": "English: links.html Built on"
   },
   "aboutFaq": {
-    "message": "Oftaj Demandoj",
+    "message": "Frequently asked questions",
     "description": "English: links.html -> Frequently asked questions"
   },
   "adnFirstRunPlease": {
-    "message": "Bonvolu:",
+    "message": "Please:",
     "description": "English: Firstrun.html -> Please:"
   },
   "adnFirstRunHideAllAds": {
-    "message": "Kaŝi Anoncojn",
+    "message": "Hide Ads",
     "description": "English: Firstrun.html -> Hide Ads:"
   },
   "adnFirstRunClickingAds": {
-    "message": "Alklaki Anoncojn",
+    "message": "Click Ads",
     "description": "English: Firstrun.html -> Click Ads"
   },
   "adnFirstRunBlockingMalware": {
-    "message": "Bloki Malware",
+    "message": "Block Malware",
     "description": "English: Firstrun.html -> Block Malware"
   },
   "adnAboutResetDataConfirm": {
-    "message": "Ĉiuj viaj agordoj estos forigitaj, anoncoj en via volbo estos forigitaj, kaj AdNauseam rekomencos.\n\nFarigi agordojn denove defaŭlte?",
+    "message": "All your settings will be removed, ads in your vault will be deleted, and AdNauseam will restart.\n\nReset AdNauseam to factory settings?",
     "description": "Message asking user to confirm reset"
   },
   "adnFirstRunHideAllAdsDescription": {
-    "message": "Kaŝi Anonconjn en via elektita <span>filtrilistoj</span>",
+    "message": "Hide Ads in your selected <span>filter lists</span>",
     "description": "English: Firstrun.html -> Hide Ads in your selected filter lists"
   },
   "adnFirstRunClickingAdsDescription": {
-    "message": "Registrigi vizitojn en trovitaj Anoncoj per viaj <span>filtrilistoj</span>",
+    "message": "Register visits on Ads found via your <span>filter lists</span>",
     "description": "English: Firstrun.html -> Register visits on Ads found via your filter lists"
   },
   "adnFirstRunBlockingMalwareDescription": {
-    "message": "Kaŝi spurilojn kaj alian na malware (<span>personecigi</span>)",
+    "message": "Block trackers and other malware (<span>customize</span>)",
     "description": "English: Firstrun.html -> Block trackers and other malware (customize)"
   },
   "adnNotificationReactivate": {
-    "message": "Reaktivigi",
+    "message": "Reactivate",
     "description": "English: Notifications -> Reactivate"
   },
   "adnNotificationDisable": {
-    "message": "Malŝalti",
+    "message": "Disable",
     "description": "English: Notifications -> Disable"
   },
   "adnNotificationActivateHiding": {
-    "message": "Aktivigi Anoncajn kaŝadon",
+    "message": "Activate Ad hiding",
     "description": "English: Notifications -> Activate Ad hiding"
   },
   "adnNotificationActivateClicking": {
-    "message": "Aktivigi Anoncajn alklakadon",
+    "message": "Activate Ad clicking",
     "description": "English: Notifications -> Activate Ad clicking"
   },
   "adnNotificationActivateBlocking": {
-    "message": "Aktivigi na malware kaŝadon",
+    "message": "Activate malware blocking",
     "description": "English: Notifications -> Activate malware blocking"
   },
   "adnNotificationActivateEasyList": {
-    "message": "Aktivigi la EasyList-an filtro",
+    "message": "Activate the EasyList filter",
     "description": "English: Notifications -> Activate the EasyList filter"
   },
   "adnNotificationActivateAdNauseamList": {
-    "message": "Aktivigi la AdNauseam-an filtron",
+    "message": "Activate the AdNauseam filter",
     "description": "English: Notifications -> Activate the AdNauseam filter"
   },
   "adnNotificationDisableAdBlocker": {
-    "message": "Via adblokilo kaj AdNauseam povus konflikti!",
+    "message": "Your ad blocker and AdNauseam may conflict!",
     "description": "English: Notifications -> Your ad blocker and AdNauseam may conflict!"
   },
   "adnNotificationDisableUBlock": {
-    "message": "uBlock kaj AdNauseam povus konflikti!",
+    "message": "uBlock and AdNauseam may conflict!",
     "description": "English: Notifications -> uBlock and AdNauseam may conflict!"
   },
   "adnNotificationOperaSetting": {
-    "message": "Bonvolu, permesu AdNauseam aliri serĉrezultajn paĝon",
+    "message": "Please allow AdNauseam to access search page results",
     "description": "English: Notifications -> Please allow AdNauseam to access search page results"
   },
   "adnNotificationBrowserSetting": {
-    "message": "La 'Enhavo-Blokada' agordo en via retumilo povus konflikti kun AdNauseam!",
+    "message": "The 'Content Blocking' settings in your browser may interfere with AdNauseam!",
     "description": "English: Notifications -> The 'Content Blocking' settings in your browser may interfere with AdNauseam!"
   },
   "adnNotificationPrivacyMode": {
-    "message": "Vi permesis AdNauseam havi aliro al viaj privataj agadoj dum privata foliumado.",
+    "message": "You have allowed adnauseam to have access to your online activities while private browsing.",
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
-    "message": "Ĉi tiu retpaĝo respektas <b>Ne Spuru</b>, Anoncoj estas permesitaj.",
+    "message": "This page respects <b>Do Not Track</b>, Ads are allowed.",
     "description": "English: Notifications -> This page respects Do Not Track, Ads are allowed."
   },
   "adnNotificationDNTHidingNotClicking": {
-    "message": "Ĉi tiu retpaĝo respektas <b>Ne Spuru</b>, kaŝante ne-alklakon.",
+    "message": "This page respects <b>Do Not Track</b>, hiding not clicking.",
     "description": "English: Notifications -> This page respects Do Not Track, hiding not clicking."
   },
   "adnNotificationDNTClickingNotHiding": {
-    "message": "Ĉi tiu retpaĝo respektas <b>Ne Spuru</b>, alklakante ne-kaŝon.",
+    "message": "This page respects <b>Do Not Track</b>, clicking not hiding",
     "description": "English: Notifications -> This page respects Do Not Track, clicking not hiding."
   },
   "adnNotificationDNTJustSoYouKnow": {
-    "message": "Ĉi tiu retpaĝo respektas <b>Ne Spuru</b>, nur por ke vi sciu.",
+    "message": "This page respects <b>Do Not Track</b>, just so you know.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
   "adnTarget": {
-    "message": "CELO",
+    "message": "TARGET",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
   },
   "adnFoundOn": {
-    "message": "TROVITA EN",
+    "message": "FOUND ON",
     "description": "English: Vault.html -> inspected Ad -> FOUND ON"
   },
   "adnNotYetVisited": {
-    "message": "Ne Tamen Vizitita",
+    "message": "Not Yet Visited",
     "description": "English: Not Yet Visited"
   },
   "adnAllowedByDNT": {
-    "message": "Pemesita per Ne-Spura politiko",
+    "message": "Allowed via Do Not Track policy",
     "description": "English: Not Yet Visited"
   },
   "adnFirstRunSwitchMeOn": {
-    "message": "Ŝaltu min",
+    "message": "Switch me on",
     "description": "English: Firstrun.html -> Switch me on"
   },
   "adnFirstRunThatsIt": {
@@ -136,55 +136,55 @@
     "description": "English: Firstrun.html -> That's it? ok…"
   },
   "adnFirstRunBetterButStill": {
-    "message": "Pli bone, sed ankoraŭas...",
+    "message": "Better, but still…",
     "description": "English: Firstrun.html -> Better, but still…"
   },
   "adnFirstRunLetsGo": {
-    "message": "Ni iru!",
+    "message": "Let's go!",
     "description": "English: Firstrun.html -> Let's go!"
   },
   "goToAdNauseamWebsite": {
-    "message": "Iru al AdNauseam retejo",
+    "message": "Go to AdNauseam website",
     "description": "English: Menu icon title -> Go to AdNauseam website"
   },
   "adnPausedOnPage": {
-    "message": "AdNauseam estas paŭzita en ĉi tiu retpaĝo",
+    "message": "AdNauseam is paused on this page",
     "description": "English: Menu->display when paused on page/site"
   },
   "adnNotHiding": {
-    "message": "AdNauseam ne estas nuntempe kaŝante Anoncojn",
+    "message": "AdNauseam is not currently hiding Ads",
     "description": "English: Menu->display when not hiding Ads"
   },
   "adnVaultName": {
-    "message": "Pri AdVault",
+    "message": "AdNauseam — AdVault",
     "description": "English: AdNauseam — Ad Vault"
   },
   "myStatistics": {
-    "message": "Miaj Statistikoj",
+    "message": "My Statistics",
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Supraj Anoncaj Retoj",
+    "message": "Top Adnetworks",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
-    "message": "Supraj Retejoj",
+    "message": "Top Sites",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypes": {
-    "message": "Specoj de Anoncoj",
+    "message": "Ad Types",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesImageAds": {
-    "message": "Anoncaj Bildoj",
+    "message": "Image Ads",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesTextAds": {
-    "message": "Anoncaj Tekstoj",
+    "message": "Text Ads",
     "description": "appears in ADN vault/My Statistics"
   },
   "adnShowingRecentAds": {
-    "message": "Ne Anoncoj kolektitaj en ĉi tiu retejo (montrante lastatempa)",
+    "message": "No Ads collected on this page (showing recent)",
     "description": "shown in menu when only 'recent' Ads are shown"
   },
   "adnExportedAdsFilename": {
@@ -192,15 +192,15 @@
     "description": "English: AdNauseam file export"
   },
   "adnImportAlertFormat": {
-    "message": "La dosiero ne enhavas iuj ajn Anoncojn, bonvolu, elektu alian dosieron.",
+    "message": "The file doesn't contain any Ads, please choose another file.",
     "description": "appears in ADN vault, after import"
   },
   "adnImportAlert": {
-    "message": "{{count}} novaj Anoncoj estis importitaj",
+    "message": "{{count}} new Ads were imported",
     "description": "appears in ADN vault, after import"
   },
   "adnClearConfirm": {
-    "message": "Ĉi tiu ago konstante forigos ĈIUJN viajn Anoncojn",
+    "message": "This action will permanently remove ALL of your Ads",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -412,15 +412,15 @@
     "description": "extension name"
   },
   "extShortDesc": {
-    "message": "Kontraŭbatalu na advertising gvatadon",
+    "message": "Fight back against advertising surveillance",
     "description": "for the chrome web store: must be 132 characters or less"
   },
   "3pGroupEssentials": {
-    "message": "Havendaĵoj",
+    "message": "Essentials",
     "description": "English: Essentials"
   },
   "3pGroupOther": {
-    "message": "Alia",
+    "message": "Other",
     "description": "English: Other"
   },
   "3pGroupMalware": {
@@ -428,31 +428,27 @@
     "description": "English: Malware"
   },
   "3pGroupRegions": {
-    "message": "Lingvoj",
+    "message": "Languages",
     "description": "English: Languages"
   },
   "3pPageUpdate": {
-    "message": "Ĝisdatigi",
+    "message": "Update",
     "description": "English: update"
   },
   "whitelistPageName": {
-    "message": "Blanklistoj",
+    "message": "Whitelists",
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Aktivigu elpurigan reĝimon",
+    "message": "Activate debugging mode",
     "description": "prompt for toggle"
   },
-  "disableWarnings": {
-    "message": "Disable warnings",
-    "description": "English:Disable warnings"
-  },
   "removeAdsInPrivate": {
-    "message": "Forigu anoncojn kolektitajn en privata reĝimo",
+    "message": "Remove ads collected in private mode",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Aktivigi Striktan Blokadan Reĝimon",
+    "message": "Activate Strict Blocking Mode",
     "description": "English: Activate Strict Blocking Mode"
   }
 }

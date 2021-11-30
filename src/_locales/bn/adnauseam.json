@@ -84,7 +84,7 @@
     "description": "English: Notifications -> uBlock and AdNauseam may conflict!"
   },
   "adnNotificationOperaSetting": {
-    "message": "অ্যাডনোসামকে সার্চ ইঞ্জিনের পৃষ্ঠার ফলাফলগুলিতে অ্যাক্সেস করার অনুমতি দিন",
+    "message": "Please allow AdNauseam to access search page results",
     "description": "English: Notifications -> Please allow AdNauseam to access search page results"
   },
   "adnNotificationBrowserSetting": {
@@ -92,7 +92,7 @@
     "description": "English: Notifications -> The 'Content Blocking' settings in your browser may interfere with AdNauseam!"
   },
   "adnNotificationPrivacyMode": {
-    "message": "আপনি ব্যক্তিগত ব্রাউজ করার সময় অ্যাডনোসামকে আপনার অনলাইন ক্রিয়াকলাপগুলিতে অ্যাক্সেসের অনুমতি দিয়েছেন।",
+    "message": "You have allowed adnauseam to have access to your online activities while private browsing.",
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
@@ -160,27 +160,27 @@
     "description": "English: AdNauseam — Ad Vault"
   },
   "myStatistics": {
-    "message": "আমার তথ্যের পরিসংখ্যান",
+    "message": "My Statistics",
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "শীর্ষস্থানীয় বিজ্ঞাপন নেটওয়ার্কসমূহ",
+    "message": "Top Adnetworks",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
-    "message": "শীর্ষস্থানীয় সাইটগুলি",
+    "message": "Top Sites",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypes": {
-    "message": "বিজ্ঞাপন প্রকার",
+    "message": "Ad Types",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesImageAds": {
-    "message": "চিত্র বিজ্ঞাপন",
+    "message": "Image Ads",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesTextAds": {
-    "message": "পাঠ্য বিজ্ঞাপন",
+    "message": "Text Ads",
     "description": "appears in ADN vault/My Statistics"
   },
   "adnShowingRecentAds": {
@@ -443,16 +443,12 @@
     "message": "ডিবাগিং মোড সক্রিয় করুন",
     "description": "prompt for toggle"
   },
-  "disableWarnings": {
-    "message": "Disable warnings",
-    "description": "English:Disable warnings"
-  },
   "removeAdsInPrivate": {
-    "message": "ব্যক্তিগত মোডে সংগৃহীত বিজ্ঞাপনগুলি সরান",
+    "message": "Remove ads collected in private mode",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "কঠোর ব্লকিং মোড সক্রিয় করুন",
+    "message": "Activate Strict Blocking Mode",
     "description": "English: Activate Strict Blocking Mode"
   }
 }
