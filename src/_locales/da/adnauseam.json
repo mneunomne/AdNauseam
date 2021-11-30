@@ -32,7 +32,7 @@
     "description": "English: Firstrun.html -> Block Malware"
   },
   "adnAboutResetDataConfirm": {
-    "message": "All your settings will be removed, ads in your vault will be deleted, and AdNauseam will restart.\n\nReset AdNauseam to factory settings?",
+    "message": "Alle dine indstillinger vil blive fjernet, reklamer i din boks vil blive slettet, og AdNauseam vil genstarte.\n\nNulstil AdNauseam til fabriksindstillinger?",
     "description": "Message asking user to confirm reset"
   },
   "adnFirstRunHideAllAdsDescription": {
@@ -84,15 +84,15 @@
     "description": "English: Notifications -> uBlock and AdNauseam may conflict!"
   },
   "adnNotificationOperaSetting": {
-    "message": "Please allow AdNauseam to access search page results",
+    "message": "Giv venligst AdNauseam tilladelse til at tilgå søgeresultater",
     "description": "English: Notifications -> Please allow AdNauseam to access search page results"
   },
   "adnNotificationBrowserSetting": {
-    "message": "The 'Content Blocking' settings in your browser may interfere with AdNauseam!",
+    "message": "Indstillingerne 'Blokering af indhold' i din browser kan forstyrre AdNauseams virkning!",
     "description": "English: Notifications -> The 'Content Blocking' settings in your browser may interfere with AdNauseam!"
   },
   "adnNotificationPrivacyMode": {
-    "message": "You have allowed adnauseam to have access to your online activities while private browsing.",
+    "message": "Du har tilladt adnauseam adgang til dine online-aktiviteter, mens du browser privat.",
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
@@ -160,27 +160,27 @@
     "description": "English: AdNauseam — Ad Vault"
   },
   "myStatistics": {
-    "message": "My Statistics",
+    "message": "Statistik",
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Top Adnetworks",
+    "message": "Top reklamenetværker",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
-    "message": "Top Sites",
+    "message": "Top Sider",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypes": {
-    "message": "Ad Types",
+    "message": "Reklametyper",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesImageAds": {
-    "message": "Image Ads",
+    "message": "Billedreklamer",
     "description": "appears in ADN vault/My Statistics"
   },
   "adTypesTextAds": {
-    "message": "Text Ads",
+    "message": "Tekstreklamer",
     "description": "appears in ADN vault/My Statistics"
   },
   "adnShowingRecentAds": {
@@ -320,7 +320,7 @@
     "description": "appears on vault page"
   },
   "adnVaultFound": {
-    "message": "{{total}} ads collected",
+    "message": "{{total}} annoncer indsamlet",
     "description": "appears on vault page"
   },
   "adnVaultShowing": {
@@ -336,7 +336,7 @@
     "description": "appears on vault page"
   },
   "adnVaultAdsCost": {
-    "message": "cost",
+    "message": "Omkostning",
     "description": "appears on vault page"
   },
   "hidingAdsPrompt": {
@@ -443,12 +443,16 @@
     "message": "Aktiver fejlfindingstilstand",
     "description": "prompt for toggle"
   },
+  "disableWarnings": {
+    "message": "Disable warnings",
+    "description": "English:Disable warnings"
+  },
   "removeAdsInPrivate": {
-    "message": "Remove ads collected in private mode",
+    "message": "Fjern annoncer indsamlet i privattilstand",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Activate Strict Blocking Mode",
+    "message": "Aktivér Streng Blokeringstilstand",
     "description": "English: Activate Strict Blocking Mode"
   }
 }
