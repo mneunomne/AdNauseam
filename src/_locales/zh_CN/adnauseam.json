@@ -4,7 +4,7 @@
     "description": "English: Firstrun.html page title"
   },
   "aboutSupport": {
-    "message": "支援",
+    "message": "技术支持",
     "description": "English: links.html Support"
   },
   "aboutBuiltOn": {
@@ -442,6 +442,10 @@
   "eventLoggingPrompt": {
     "message": "开启调试模式",
     "description": "prompt for toggle"
+  },
+  "disableWarnings": {
+    "message": "disable-warnings",
+    "description": "English:Disable warnings"
   },
   "removeAdsInPrivate": {
     "message": "移除在无痕模式下收集的广告",

@@ -1,7 +1,0 @@
-Klika reklamy, abyś ty nie musiał.
-
-Podczas gdy reklamy internetowe stają się coraz powszechniejsze oraz niesankcjonowane, AdNausem pracuje nad automatyzacją kliknięć reklam w imieniu swoich użytkowników. Zbudowane na podstawie uBlock Origin, AdNausem po cichu klika każdą zablokowaną reklamę, rejestrując kliknięcie w bazach danych reklamodawców. Jako, że zgromadzone w ten sposób dane pokazują jedynie wszystkożerne pasmo kliknięć, śledzenie czy targetowanie użytkownika staje się bezużyteczne. Dowiedz się więcej o AdNauseam w tym dokumencie.
-
-AdNauseam jest darmowym rozszerzeniem do przeglądarki, mającym za zadanie ukryć realne dane przeglądania i chronić użytkowników przed śledzeniem przez reklamodawców. Jednocześnie AdNauseam pomaga wzmocnić głos niezadowolenia użytkowników z reklamidawców, którzy nie biorą pod uwagę ich prywatności i umożliwiają masowy monitoring aktywności.
-
-AdNauseam łączy się z szerszą klasą systemów, które próbują służyć celom etycznym, politycznym i wolności słowa. Wobec braku samoregulacji lub innej odpowiedzi branży reklamowej na nadmiar śledzenia sieciowego, AdNauseam umożliwia indywidualnym użytkownikom wzięcie spraw we własne ręce, przeciwstawiając się jednostronnemu nadzorowi. W tym kontekście oprogramowanie stosuje podejście podobne do TrackMeNot, używając zaciemniania jako strategii na rzecz zmiany równowagi sił między śledzącymi i śledzonymi. Więcej informacji na temat tego podejścia można znaleźć w niniejszym dokumencie.

@@ -1,7 +1,0 @@
-Menkilk iklan sehingga anda tidak perlu menkliknya
-
-Karena periklanan online menjadi semakin banyak dan tidak teratur, AdNauseam bekerja untuk menyelesaikan siklus dengan mengotomatiskan klik iklan secara universal dan membabi buta atas nama penggunanya. Dibangun di atas ublock origin, AdNauseam secara diam-diam menklik setiap iklan yang diblokir, me register iklan sebagai telah dikunjungi pada database jaringan iklan. Berhubung data yang dikumpulkan menunjukkan aliran klik omnivora, pelacakan pengguna, mentarget, dan pengawasan menjadi sia-sia. Baca lebih lanjut tentang AdNauseam dalam paper ini.
-
-AdNauseam adalah ektensi browser gratis yang di desain untuk mengacak data browsing dan melindungi pengguna dari tracker milik jaringan iklan. Pada saat yang sama, AdNauseam berfungsi sebagai sarana untuk memperkuat ketidakpuasan pengguna dengan jaringan iklan yang mengabaikan privasi dan memfasilitasi agenda pengawasan massal.
-
-AdNauseam bergabung dengan kelas yang lebih luas dari sistem teknis yang berusaha melayani tujuan etis, politik, dan ekspresif. Mengingat kegagalan industri untuk meregulasi sendiri atau mengatasi ekses pelacakan jaringan, AdNauseam memungkinkan pengguna individu untuk menangani masalah dengan tangan mereka sendiri, melawan pengawasan sepihak. Diambil dari sudut ini, software mengikuti pendekatan yang mirip dengan TrackMeNot, menggunakan pengacakan sebagai strategi untuk menggeser keseimbangan kekuatan antara pelacak dan terlacak. Untuk informasi lebih lanjut tentang ini, silahkan lihat paper ini.

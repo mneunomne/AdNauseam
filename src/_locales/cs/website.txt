@@ -1,7 +1,0 @@
-Klikáme na reklamy, abyste vy nemuseli.
-
-S reklamamami na internetu se v dnešní době setkáváte stále častěji a častěji, mnoho z nich je bez sankcí. AdNauseam pracuje na dokončení tohoto cyklu klikáním na reklamy v pozadí jménem svých uživatelů. AdNausem je postaveno na uBlock Origin. V pozadí klikne na každou blokovanou reklamu, databáze této reklamy si vás tímto zaregistruje. Posbíraná data ukáží velký nával kliků na reklamy, tím se sledování, cílení a špehování uživatelů stává naprosto marné. Přečtěte si více o AdNauseamu v tomto dokumentu.
-
-AdNauseam je bezplatné rozšíření internetových prohlížečů, navržené k podstrčení dat a ochraně uživatelů před reklamami. AdNauseam také pomáhá chránit stále více nespokojené uživatele s reklamami, které nerespektují soukromí a napomáhají usnadňují programy hromadného sledování.
-
-AdNauseam joins a broader class of technical systems that attempt to serve ethical, political, and expressive ends. In light of the industry's failure to self-regulate or otherwise address the excesses of network tracking, AdNauseam allows individual users to take matters into their own hands, fighting back against unilateral surveillance. Taken in this light, the software follows an approach similar to that of TrackMeNot, employing obfuscation as a strategy to shift the balance of power between the trackers and the tracked. For further information on this approach, please see this paper.

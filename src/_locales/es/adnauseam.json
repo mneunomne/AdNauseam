@@ -443,6 +443,10 @@
     "message": "Activar modo de depuración",
     "description": "prompt for toggle"
   },
+  "disableWarnings": {
+    "message": "Disable warnings",
+    "description": "English:Disable warnings"
+  },
   "removeAdsInPrivate": {
     "message": "Eliminar anuncios recolectados en modo privado",
     "description": "English:Remove ads collected in private mode - settings page"

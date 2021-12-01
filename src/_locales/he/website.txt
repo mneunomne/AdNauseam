@@ -1,7 +1,0 @@
-לוחץ על פרסומות במקומך. 
-
-As online advertising becomes ever more ubiquitous and unsanctioned, AdNauseam works to complete the cycle by automating ad clicks universally and blindly on behalf of its users. Built atop uBlock Origin, AdNauseam quietly clicks on every blocked ad, registering a visit on ad networks' databases. As the collected data gathered shows an omnivorous click-stream, user tracking, targeting and surveillance become futile. Read more about AdNauseam in this paper.
-
-AdNauseam is a free browser extension designed to obfuscate browsing data and protect users from tracking by advertising networks. At the same time, AdNauseam serves as a means of amplifying users' discontent with advertising networks that disregard privacy and facilitate bulk surveillance agendas.
-
-AdNauseam joins a broader class of technical systems that attempt to serve ethical, political, and expressive ends. In light of the industry's failure to self-regulate or otherwise address the excesses of network tracking, AdNauseam allows individual users to take matters into their own hands, fighting back against unilateral surveillance. Taken in this light, the software follows an approach similar to that of TrackMeNot, employing obfuscation as a strategy to shift the balance of power between the trackers and the tracked. For further information on this approach, please see this paper.

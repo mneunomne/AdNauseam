@@ -443,6 +443,10 @@
     "message": "Aktivera felsökningsläge",
     "description": "prompt for toggle"
   },
+  "disableWarnings": {
+    "message": "Disable warnings",
+    "description": "English:Disable warnings"
+  },
   "removeAdsInPrivate": {
     "message": "Ta bort annonser som samlats in i privat läge",
     "description": "English:Remove ads collected in private mode - settings page"
