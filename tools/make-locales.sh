@@ -11,7 +11,7 @@ hash jq 2>/dev/null || { echo; echo >&2 "Error: this script requires jq (https:/
 
 printf "*** Generating locale files in $DES... "
 
-LANGS=(en zh_TW zh_CN de fr ru it pt_PT pt_BR es cs 'fi' lt pl sv)
+LANGS=(en zh_TW zh_CN de fr ru it pt_PT pt_BR es cs 'fi' lt pl sv nb)
 # missing translations for new strings: tmp remove sk, el, 'id', sr 
 # cs Czech, el Greek, id Indonesian, lt Lithuanian, pl Polish, sr Serbian(Cyrillic),sv Swedish
 
