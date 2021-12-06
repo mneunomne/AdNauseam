@@ -1903,7 +1903,7 @@ const adnauseam = (function () {
       if (thisPageStore) {
 
         let modified = false;
-        if (thisPageStore.perLoadAllowedRequestCount == 0 && thisPageStore.contentLastModified == 0) {
+        if (thisPageStore.counts.blocked.any == 0 && thisPageStore.contentLastModified == 0) {
           modified = addNotification(notifications, OperaSetting);
         } else {
           modified = removeNotification(notifications, OperaSetting);
