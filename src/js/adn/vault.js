@@ -695,6 +695,7 @@
     }).appendTo($ad).hide();
     
     // add white background to transparent ads that are saved data strings 
+    // https://github.com/dhowe/AdNauseam/issues/1978
     let img_src = adset.child(0).contentData.src;
     var isPNGdata = img_src.includes('data:image/png');
     var cl = isPNGdata ? "white-bg" : "";
