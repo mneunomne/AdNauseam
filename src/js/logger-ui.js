@@ -2849,6 +2849,27 @@ const loggerSettings = (( ) => {
 
 /******************************************************************************/
 
+const keyColorPopup = (( ) => {
+    const toggleOn = function() {
+        const dialog = modalDialog.create(
+            '#colorKeyDialog',
+            dialog => {
+                toggleOff(dialog);
+            }
+        );
+        modalDialog.show();
+    };
+
+    const toggleOff = function(dialog) {
+        viewPort.updateLayout();
+    };
+
+    uDom.nodeFromId('loggerColorKey').addEventListener('click', toggleOn);
+})();
+
+/******************************************************************************/
+
+
 logger.resize = (function() {
     let timer;
 
