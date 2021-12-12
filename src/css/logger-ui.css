@@ -39,6 +39,11 @@ textarea {
 .permatoolbar .button:hover {
     background-color: var(--default-surface-hover);
     }
+
+#loggerColorKey img { /* ADN */
+    width: 1em;
+    height: 1em;
+}
 #pageSelector {
     min-width: 10em;
     padding: 0.25em 0;
