@@ -93,9 +93,9 @@ const adnauseam = (function () {
   const enabledBlockLists = ['EasyPrivacy',
     'uBlock filters – Badware risks', 'uBlock filters – Unbreak',
     'uBlock filters – Privacy', 'Malware domains', 'Malware Domain List',
-    'Anti-ThirdpartySocial', 'AdNauseam filters', 'Fanboy’s Annoyance List‎',
-    'CHN: CJX\'s Annoyance List‎', 'Spam404', 'Anti-Adblock Killer | Reek‎',
-    'Fanboy’s Social Blocking List', 'Malware domains (long-lived)‎',
+    'Anti-ThirdpartySocial', 'AdNauseam filters', 'Fanboy’s Annoyance List',
+    'CHN: CJX\'s Annoyance List', 'Spam404', 'Anti-Adblock Killer | Reek',
+    'Fanboy’s Social Blocking List', 'Malware domains (long-lived)',
     'Adblock Warning Removal List', 'Malware filter list by Disconnect',
     'Basic tracking list by Disconnect', 'EFF DNT Policy Whitelist',
     'AdGuard Annoyances', 'AdGuard Tracking Protection'
