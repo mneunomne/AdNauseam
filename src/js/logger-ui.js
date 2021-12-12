@@ -2849,6 +2849,8 @@ const loggerSettings = (( ) => {
 
 /******************************************************************************/
 
+// ADN color key dialog
+
 const keyColorPopup = (( ) => {
     const toggleOn = function() {
         const dialog = modalDialog.create(
