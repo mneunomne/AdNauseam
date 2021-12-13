@@ -42,6 +42,7 @@ spiegel.de##div[id*="google_ads_iframe"]
 spiegel.de##div[class*="Anzeige"]
 
 www.nytimes.com##.e12j3pa50
+www.nytimes.com###app > div:first-child:has(.ad)
 
 search.yahoo.com##.layoutMiddle
 search.yahoo.com##.kr5yi684e6
