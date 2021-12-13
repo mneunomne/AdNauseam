@@ -43,7 +43,7 @@ const err = function () {
   return false;
 }
 
-const logNetAllow = function () { // local only
+const logNetAllow = function () { // local only?
 
   const args = Array.prototype.slice.call(arguments);
   args.unshift('[ALLOW]')

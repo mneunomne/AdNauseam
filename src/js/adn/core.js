@@ -1179,9 +1179,7 @@ const adnauseam = (function () {
   /**
    *  This is called AFTER our DNT rules, and checks the following cases.
    *
-   *  TODO: what should we be logging here ???
-   *
-   *  If this function returns true, then the request will be marked as ADN-allowed
+   *  If this function returns true, then the request will be marked as ADN-allowed (?)
    *
    *  1) whether we are blocking at all (blockingMalware == false)
    *  		if not, return false
@@ -1204,38 +1202,30 @@ const adnauseam = (function () {
   const isBlockableRequest = function (result, context) {
 
     if (µb.userSettings.blockingMalware === false) {
-      logNetAllow('NoBlock', context.docDomain + ' :: ' + context.url);
+      logNetAllow('NoBlock', context.docDomain + ' :: ' + context.url); // 1.
       return false;
     }
 
     if (!listsLoaded) {
-      logNetAllow('Loading', context.docDomain + ' :: ' + context.url);
+      logNetAllow('Loading', context.docDomain + ' :: ' + context.url); // 2.
       return false;
     }
 
     if (isBlockableDomain(result, context)) {
-      logNetBlock('Domains', context.docDomain + ' :: ' + context.url);
+      logNetBlock('Domains', context.docDomain + ' :: ' + context.url); // 3.
       return true;
     }
 
-    if (isStrictBlock(result, context)) {
-      return true;
+    if (isStrictBlock(result, context)) {                               // 4.
+      return true;  
     }
 
     ///////////////////////////////////////////////////////////////////////
     const snfe = staticNetFilteringEngine, snfeData = snfe.toLogData();
 
-    /*
-      Now check active rule(s) to see if we should block or allow
-      Cases:
-        A) user list:      block
-        B) exception hit:  allow
-        C) block hit:      block
-        D) no valid hits:  allow, but no cookies later (see checkAllowedException)
-     */
+    /* Case 5 */
     const lists = listsForFilter(snfeData);
-
-    if (Object.keys(lists).length === 0) {                                  // case A
+    if (Object.keys(lists).length === 0) {                                  // 5.A
       snfeData && logNetBlock('UserList', snfeData.raw); // always block
       return true;
     }
@@ -1244,22 +1234,21 @@ const adnauseam = (function () {
     for (let name in lists) {
       if (activeBlockList(name)) {
 
-        //console.log(`ACTIVE: name=${name}, result=${result} context=`, context, " snfe=", snfeData); // TMP-DEL
-
-        if (lists[name].indexOf('@@') === 0) {                              // case B
+        if (lists[name].indexOf('@@') === 0) {                              // 5.B
           logNetAllow(name, snfeData.raw, context.url);
           return false;
         }
 
-        logNetBlock(name, snfeData.raw, context.url);                       // case C
+        logNetBlock(name, snfeData.raw, context.url);                       // 5.C
         return true; // blocked, no need to continue
       }
       else {
-        if (!misses.contains(name)) misses.push(name); // save misses for [D]
+
+        if (!misses.contains(name)) misses.push(name); // [save misses for 5.D]
       }
     }
 
-    return adnAllowRequest(misses.join(','), snfeData.raw, context.url);    // case D
+    return adnAllowRequest(misses.join(','), snfeData.raw, context.url);    // 5.D
   };
 
   const adCount = function () {
@@ -1275,6 +1264,7 @@ const adnauseam = (function () {
     return ((dntHides || dntClicks) && us.dntDomains.contains(hostname));
   };
 
+  // see https://github.com/dhowe/AdNauseam/wiki/Developer-FAQ#how-does-adnauseam-handle-incoming-and-outgoing-cookies
   const adnAllowRequest = function (msg, raw, url) {
 
     // Note: need to store allowed requests here so that we can
@@ -1701,6 +1691,7 @@ const adnauseam = (function () {
     }
   };
 
+  // remove 
   /*exports.injectContentScripts = function (request, pageStore, tabId, frameId) {
 
     log('[INJECT] IFrame: ' + request.parentUrl, frameId + '/' + tabId);
@@ -1725,7 +1716,12 @@ const adnauseam = (function () {
     return false;
   };
 
-  /* returns true if request was modified */
+  /* 
+   * Returns true if request headers (the incoming 'headers' parameter) have been modified 
+   * Note that this is called from two places: 
+   *   - above in checkAllowedException() for adn-ALLOWed rules
+   *   - and in core::handleIncomingCookiesForAdVisits() for ad-visits
+   */
   const blockIncomingCookies = exports.blockIncomingCookies = function (headers, requestUrl, originalUrl) {
 
     const cookieAttr = function (cookie, name) {
@@ -1743,6 +1739,7 @@ const adnauseam = (function () {
 
     const originalHostname = hostnameFromURI(originalUrl);
 
+    // allow cookies from DNT requests
     if (dntAllowsRequest(originalUrl, originalHostname)) {
 
       log('[DNT] (AllowCookie1p)', originalUrl);
@@ -1763,8 +1760,7 @@ const adnauseam = (function () {
         const cval = headers[i].value.trim();
         const domain = cookieAttr(cval, 'domain');
 
-        if (1) { // don't block incoming cookies for 3rd party-requests coming from DNT-pages? [needs checking]
-
+        if (1) { // don't block incoming cookies for 3rd party-requests coming from DNT-pages? sure
           if (domain && µb.userSettings.dntDomains.contains(domain)) {
             log('[DNT] (AllowCookie3p) \'', cval + '\' dnt-domain: ' + domain);
             continue;
@@ -1777,8 +1773,8 @@ const adnauseam = (function () {
           (requestHostname && requestHostname !== originalHostname ? ' / ' + requestHostname : ''),
           (domain ? " 3pDomain: " + domain : ''));
 
-        headers.splice(i, 1);
-        modified = true; // we've remove a cookie from the headers, mark them as modified
+        headers.splice(i, 1); // remove cookie from headers
+        modified = true;     // and mark them as modified (will return true)
       }
     }
 
