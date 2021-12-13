@@ -716,7 +716,7 @@ const adnOnHeadersRecieved = function(details) {
     headers = onHeadersReceived(details)
   }
 
-  if (headers == undefined) {
+  if (headers === undefined) {
     // ublock hasn't modified it
     headers = details.responseHeaders;
   }
@@ -724,10 +724,16 @@ const adnOnHeadersRecieved = function(details) {
   // 3: Check for AdNauseam-allowed rule (if so, block incoming cookies)
   const fctxt = µb.filteringContext.fromWebrequestDetails(details);
   const pageStore = µb.pageStoreFromTabId(fctxt.tabId);
-  const modifiedHeadersForAdNauseamAllowed = pageStore &&
+
+  // Q: does does adnauseam.checkAllowedException() always return true/false ?
+  const modifiedHeadersForAdNauseamAllowed = typeof pageStore !== 'undefined' &&
     adnauseam.checkAllowedException(headers, details.url, pageStore.rawURL);
 
+  //console.log('modifiedHeadersForAdNauseamAllowed', modifiedHeadersForAdNauseamAllowed);
+
+  // Q: if so, this condition will never be true
   if (typeof modifiedHeadersForAdNauseamAllowed != "boolean") {
+    // bug here? would need to send blockingResponse
     return { responseHeaders: modifiedHeadersForAdNauseamAllowed };
   }
 }

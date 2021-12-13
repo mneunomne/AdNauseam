@@ -1195,8 +1195,11 @@ const adnauseam = (function () {
    *  4) whether the request is strictBlocked (iff strictBlocking is enabled)
    *      if so, return true;
    *
-   *  4) if any list that it was found on allows blocks
-   *  		if so, return true;
+   *  5) check if any list it was found on allows blocks
+   *  	A) user list:      block
+   *    B) exception hit:  allow
+   *    C) block hit:      block
+   *    D) no valid hits:  allow, but no cookies later (see checkAllowedException)
    */
   const isBlockableRequest = function (result, context) {
 
@@ -1252,7 +1255,7 @@ const adnauseam = (function () {
         return true; // blocked, no need to continue
       }
       else {
-        if (!misses.contains(name)) misses.push(name);
+        if (!misses.contains(name)) misses.push(name); // save misses for [D]
       }
     }
 
@@ -1698,32 +1701,32 @@ const adnauseam = (function () {
     }
   };
 
-  exports.injectContentScripts = function (request, pageStore, tabId, frameId) {
+  /*exports.injectContentScripts = function (request, pageStore, tabId, frameId) {
 
     log('[INJECT] IFrame: ' + request.parentUrl, frameId + '/' + tabId);
     vAPI.onLoadAllCompleted(tabId, frameId);
-  };
+  };*/  // why is this here?
 
-  exports.isBlockableException = function (requestUrl, originalUrl) {
+  /*exports.isBlockableException = function (requestUrl, originalUrl) {
 
-    if (typeof allowedExceptions[requestUrl] !== 'undefined') {
+    if (typeof allowedExceptions[requestUrl] !== 'undefined') { // is this correct??
 
       const originalHostname = hostnameFromURI(originalUrl);
       return !dntAllowsRequest(requestUrl, originalUrl);
     }
-  };
+  };*/ // why is this here?
 
   exports.checkAllowedException = function (headers, requestUrl, originalUrl) {
 
-    if (typeof allowedExceptions[requestUrl] !== 'undefined')
+    if (typeof allowedExceptions[requestUrl] !== 'undefined') {
       return blockIncomingCookies(headers, requestUrl, originalUrl);
+    }
 
     return false;
   };
 
+  /* returns true if request was modified */
   const blockIncomingCookies = exports.blockIncomingCookies = function (headers, requestUrl, originalUrl) {
-
-    let modified = false;
 
     const cookieAttr = function (cookie, name) {
 
@@ -1749,6 +1752,7 @@ const adnauseam = (function () {
     //console.log("1pDomain: '"+hostnameFromURI(originalUrl)+"' / '" +
     //hostnameFromURI(requestUrl)+"'", " original='"+originalUrl+"'");
 
+    let modified = false;
     for (let i = headers.length - 1; i >= 0; i--) {
 
       const name = headers[i].name.toLowerCase();
@@ -1774,7 +1778,7 @@ const adnauseam = (function () {
           (domain ? " 3pDomain: " + domain : ''));
 
         headers.splice(i, 1);
-        modified = true;
+        modified = true; // we've remove a cookie from the headers, mark them as modified
       }
     }
 
