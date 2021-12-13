@@ -367,6 +367,10 @@ header{
   transition:z-index 1s step-end, max-height 1s linear, max-width 1s linear;
 }
 
+.ad-item img.white-bg {
+  background: white;
+}
+
 .zoomStage {
 /*  position:relative;
   z-index: 100;*/

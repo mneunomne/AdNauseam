@@ -335,9 +335,13 @@
 
     appendAdStatus(ad, $a);
 
+    let img_src = (ad.contentData.src || ad.contentData);
+    var isPNGdata = img_src.includes('data:image/png');
+    var cl = isPNGdata ? "ad-item-img white-bg" : "ad-item-img";
+    
     $img = uDom(document.createElement('img'))
-      .attr('src', (ad.contentData.src || ad.contentData))
-      .addClass('ad-item-img')
+      .attr('src', img_src)
+      .addClass(cl)
       .on('click', "this.onerror=null; this.width=50; this.height=45; this.src='img/placeholder.svg'");
 
     $img.on("error", function () {
