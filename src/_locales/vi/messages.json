@@ -24,7 +24,7 @@
     "description": "Label for button to ignore unsaved changes"
   },
   "settingsPageName": {
-    "message": "Cấu hình",
+    "message": "Cài đặt",
     "description": "appears as tab name in dashboard"
   },
   "3pPageName": {
@@ -53,6 +53,10 @@
   },
   "aboutPageName": {
     "message": "Giới thiệu",
+    "description": "appears as tab name in dashboard"
+  },
+  "supportPageName": {
+    "message": "Hỗ trợ",
     "description": "appears as tab name in dashboard"
   },
   "assetViewerPageName": {
@@ -123,6 +127,10 @@
     "message": "Mở nhật ký",
     "description": "Tooltip used for the logger icon in the panel"
   },
+  "popupTipReport": {
+    "message": "Báo cáo lỗi trên trang này",
+    "description": "Tooltip used for the 'chat' icon in the panel"
+  },
   "popupTipNoPopups": {
     "message": "Bật/tắt chặn popup của trang này",
     "description": "Tooltip for the no-popups per-site switch"
@@ -176,7 +184,7 @@
     "description": "Tooltip for the no-scripting per-site switch"
   },
   "popupTipNoScripting2": {
-    "message": "Nhấn vào đây để không còn vô hiệu hóa JavaScript trên trang web này",
+    "message": "Nhấp để ngừng vô hiệu hóa JavaScript trên trang này",
     "description": "Tooltip for the no-scripting per-site switch"
   },
   "popupNoPopups_v2": {
@@ -188,7 +196,7 @@
     "description": "Caption for the no-large-media per-site switch"
   },
   "popupNoCosmeticFiltering_v2": {
-    "message": "Lọc phần tử ẩn",
+    "message": "Lọc phần tử hiển thị",
     "description": "Caption for the no-cosmetic-filtering per-site switch"
   },
   "popupNoRemoteFonts_v2": {
@@ -380,7 +388,7 @@
     "description": "background information: https://github.com/gorhill/uBlock/issues/3150"
   },
   "settingsUncloakCnamePrompt": {
-    "message": "Bỏ sót tên chuẩn",
+    "message": "Phát hiện tên miền theo dõi mạo danh của bên thứ ba (CNAME Trackers)",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
   "settingsLastRestorePrompt": {
@@ -847,6 +855,126 @@
     "message": "Đánh dấu",
     "description": "Label for radio-button to pick export text format"
   },
+  "supportOpenButton": {
+    "message": "Mở đường dẫn",
+    "description": "Text for button which open an external webpage in Support pane"
+  },
+  "supportReportSpecificButton": {
+    "message": "Tạo báo cáo",
+    "description": "Text for button which open an external webpage in Support pane"
+  },
+  "supportFindSpecificButton": {
+    "message": "Tìm các báo cáo tương tự",
+    "description": "A clickable link in the filter issue reporter section"
+  },
+  "supportS1H": {
+    "message": "Tài liệu hướng dẫn",
+    "description": "Header of 'Documentation' section in Support pane"
+  },
+  "supportS1P1": {
+    "message": "Đọc tài liệu tại <code>uBlock/wiki</code> để tìm hiểu về các tính năng của uBlock Origin.",
+    "description": "First paragraph of 'Documentation' section in Support pane"
+  },
+  "supportS2H": {
+    "message": "Hỗ trợ trả lời thắc mắc",
+    "description": "Header of 'Questions and support' section in Support pane"
+  },
+  "supportS2P1": {
+    "message": "Bạn có thể tìm thấy câu trả lời cho các thắc mắc của mình hoặc sự trợ giúp cho các vấn đề khác tại subreddit <code>/r/uBlockOrigin</code>.",
+    "description": "First paragraph of 'Questions and support' section in Support pane"
+  },
+  "supportS3H": {
+    "message": "Lỗi bộ lọc/ Trang web lỗi",
+    "description": "Header of 'Filter issues' section in Support pane"
+  },
+  "supportS3P1": {
+    "message": "<u>Cần tài khoản GitHub:</u> Báo cáo lỗi bộ lọc với tên miền cụ thể cho <code>uBlock Origin</code> tại <span data-url=\"https://github.com/uBlockOrigin/uBlock-issues/issues?q=is%3Aissue\">đây</span>. ",
+    "description": "First paragraph of 'Filter issues' section in Support pane"
+  },
+  "supportS3P2": {
+    "message": "<b>Chú ý:<b> Tránh sử dụng các bộ chặn có chức năng tương tự song song uBlock Origin vì có thể gây ra lỗi bộ lọc trên nhiều trang web.",
+    "description": "Second paragraph of 'Filter issues' section in Support pane"
+  },
+  "supportS3P3": {
+    "message": "<b>Mẹo:</b> Hãy đảm bảo các bộ lọc của bạn được cập nhật đầy đủ. <span data-url=\"logger-ui.html#_\">Nhật ký</span> là một công cụ hữu hiệu để chẩn đoán các lỗi bộ lọc.",
+    "description": "Third paragraph of 'Filter issues' section in Support pane"
+  },
+  "supportS4H": {
+    "message": "Báo cáo lỗi",
+    "description": "Header of 'Bug report' section in Support pane"
+  },
+  "supportS4P1": {
+    "message": "<u>Cần tài khoản GitHub:</u> Báo cáo lỗi với <code>uBlock Origin</code> tại <span data-url=\"https://github.com/uBlockOrigin/uBlock-issues/issues?q=is%3Aissue\">đây</span>. ",
+    "description": "First paragraph of 'Bug report' section in Support pane"
+  },
+  "supportS5H": {
+    "message": "Thông tin chẩn đoán lỗi",
+    "description": "Header of 'Troubleshooting Information' section in Support pane"
+  },
+  "supportS5P1": {
+    "message": "Đây là các thông tin kỹ thuật có thể giúp ích khi khắc phục lỗi.",
+    "description": "First paragraph of 'Troubleshooting Information' section in Support pane"
+  },
+  "supportS5P2": {
+    "message": "<b>Lưu ý:</b> Mặc định, các luật và bộ lọc cá nhân được ẩn. Điều này có thể khiến việc khắc phục lỗi khó khăn hơn.",
+    "description": "Second paragraph of 'Troubleshooting Information' section in Support pane"
+  },
+  "supportS6H": {
+    "message": "Báo cáo lỗi bộ lọc cụ thể",
+    "description": "Header of 'Report a filter issue' section in Support pane"
+  },
+  "supportS6P1S1": {
+    "message": "Để tránh tạo thêm gánh nặng cho các tình nguyện viên, hãy chắc chắn rằng chưa từng có vấn đề tương tự được báo cáo.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6URL": {
+    "message": "Địa chỉ trang web:",
+    "description": "Label for the URL of the page"
+  },
+  "supportS6Select1": {
+    "message": "Trang web...",
+    "description": "Label for widget to select type of issue"
+  },
+  "supportS6Select1Option0": {
+    "message": "--Chọn một lỗi--",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option1": {
+    "message": "Vẫn hiện quảng cáo hoặc vùng chứa quảng cáo",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option2": {
+    "message": "Xuất hiện \"lớp phủ\" hoặc các phần tử phiền toái khác",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option3": {
+    "message": "Phát hiện uBlock Origin",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option4": {
+    "message": "Có các cấn đề về riêng tư",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option5": {
+    "message": "Trục trặc khi bật uBlock Origin",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option6": {
+    "message": "Xuất hiện các tab và cửa sổ ngoài mong muốn",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Checkbox1": {
+    "message": "Đánh dấu \"NFSW\" - Not Safe For Work cho trang web. <a href=\"https://wikipedia.org/wiki/Not_safe_for_work\">Tìm hiểu về \"Not Safe For Work\"</a>",
+    "description": "A checkbox to use for NSFW sites"
+  },
+  "supportRedact": {
+    "message": "Ẩn bớt",
+    "description": "Text for 'Redact' button"
+  },
+  "supportUnredact": {
+    "message": "Hiện thêm",
+    "description": "Text for 'Unredact' button"
+  },
   "aboutPrivacyPolicy": {
     "message": "Chính sách bảo mật",
     "description": "Link to privacy policy on GitHub (English)"
@@ -854,18 +982,6 @@
   "aboutChangelog": {
     "message": "Thay đổi",
     "description": ""
-  },
-  "aboutWiki": {
-    "message": "Wiki",
-    "description": "English: project' wiki on GitHub"
-  },
-  "aboutSupport": {
-    "message": "Hỗ trợ",
-    "description": "A link for where to get support"
-  },
-  "aboutIssues": {
-    "message": "Theo dõi vấn đề",
-    "description": "Text for a link to official issue tracker"
   },
   "aboutCode": {
     "message": "Mã nguồn (GPLv3)",
@@ -1074,6 +1190,10 @@
   "genericCopyToClipboard": {
     "message": "Sao chép vào bảng tạm",
     "description": "Label for buttons used to copy something to the clipboard"
+  },
+  "genericSelectAll": {
+    "message": "Chọn tất cả",
+    "description": "Label for buttons used to select all text in editor"
   },
   "toggleBlockingProfile": {
     "message": "Bật tắt hồ sơ chặn",

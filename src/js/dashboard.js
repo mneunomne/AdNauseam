@@ -148,7 +148,7 @@ vAPI.broadcastListener.add(request => {
     ]);
 
     {
-        const details = results[0];
+        const details = results[0] || {};
         document.body.classList.toggle(
             'canUpdateShortcuts',
             details.canUpdateShortcuts === true
@@ -162,7 +162,7 @@ vAPI.broadcastListener.add(request => {
     }
 
     {
-        let pane = results[1];
+        let pane = results[1] || null;
         if ( self.location.hash !== '' ) {
             pane = self.location.hash.slice(1) || null;
         }

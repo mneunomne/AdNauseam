@@ -4,7 +4,7 @@
     "description": "extension name."
   },
   "extShortDesc": {
-    "message": "Konačno, efikasan bloker. Štedljiv na procesor i memoriju",
+    "message": "Konačno, efikasan bloker. Lagan na procesor i memoriju.",
     "description": "this will be in the Chrome web store: must be 132 characters or less"
   },
   "dashboardName": {
@@ -53,6 +53,10 @@
   },
   "aboutPageName": {
     "message": "O aplikaciji",
+    "description": "appears as tab name in dashboard"
+  },
+  "supportPageName": {
+    "message": "Podrška",
     "description": "appears as tab name in dashboard"
   },
   "assetViewerPageName": {
@@ -122,6 +126,10 @@
   "popupTipLog": {
     "message": "Otvorite zapisnik",
     "description": "Tooltip used for the logger icon in the panel"
+  },
+  "popupTipReport": {
+    "message": "Prijavite problem na ovoj web stranici",
+    "description": "Tooltip used for the 'chat' icon in the panel"
   },
   "popupTipNoPopups": {
     "message": "Uključite/isključite sve iskačujuće prozore na ovoj stranici",
@@ -847,6 +855,126 @@
     "message": "Markdown",
     "description": "Label for radio-button to pick export text format"
   },
+  "supportOpenButton": {
+    "message": "Otvori",
+    "description": "Text for button which open an external webpage in Support pane"
+  },
+  "supportReportSpecificButton": {
+    "message": "Napravite novu prijavu",
+    "description": "Text for button which open an external webpage in Support pane"
+  },
+  "supportFindSpecificButton": {
+    "message": "Pronađite slične prijave",
+    "description": "A clickable link in the filter issue reporter section"
+  },
+  "supportS1H": {
+    "message": "Dokumentacija",
+    "description": "Header of 'Documentation' section in Support pane"
+  },
+  "supportS1P1": {
+    "message": "Pročitajte dokumentaciju na <code>uBlock/wiki</code> da bi ste naučili sve o uBlock Origin-ovim funkcijama.",
+    "description": "First paragraph of 'Documentation' section in Support pane"
+  },
+  "supportS2H": {
+    "message": "Pitanja i podrška",
+    "description": "Header of 'Questions and support' section in Support pane"
+  },
+  "supportS2P1": {
+    "message": "Odgovori na pitanja i druge vrste podrške nalaze se na podreditu <code>r/uBlockOrigin</code>.",
+    "description": "First paragraph of 'Questions and support' section in Support pane"
+  },
+  "supportS3H": {
+    "message": "Problemi sa filterom/website ne radi",
+    "description": "Header of 'Filter issues' section in Support pane"
+  },
+  "supportS3P1": {
+    "message": "Prijavite probleme s filtriranjem određenih web stranica na <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> stranici za praćenje problema</span>. <u>Potreban će vam biti GitHub račun.</u>\n\n",
+    "description": "First paragraph of 'Filter issues' section in Support pane"
+  },
+  "supportS3P2": {
+    "message": "<b>Važno:</b> Nemojte koristiti druge blokere slične namjene zajedno sa uBlock Origin-om, jer bi to moglo uzrokovati probleme s filtriranjem na određenim web stranicama.",
+    "description": "Second paragraph of 'Filter issues' section in Support pane"
+  },
+  "supportS3P3": {
+    "message": "<b>Savjeti:</b> Provjerite jesu li vaše liste filtera ažurirane. <span data-url=\"logger-ui.html#_\">Zapisnik</span> je primarni alat za dijagnosticiranje problema povezanim sa filterima.",
+    "description": "Third paragraph of 'Filter issues' section in Support pane"
+  },
+  "supportS4H": {
+    "message": "Prijava greške",
+    "description": "Header of 'Bug report' section in Support pane"
+  },
+  "supportS4P1": {
+    "message": "Prijavite probleme sa samim uBlock Origin-om na <span data-url=\"https://github.com/uBlockOrigin/uBlock-issues/issues?q=is%3Aissue\"><code>uBlockOrigin/uBlock-problem</code> stranici za praćenje problema</span>. <u>Potreban če vam biti GitHub račun.</u>",
+    "description": "First paragraph of 'Bug report' section in Support pane"
+  },
+  "supportS5H": {
+    "message": "Informacija o rješavanju problema",
+    "description": "Header of 'Troubleshooting Information' section in Support pane"
+  },
+  "supportS5P1": {
+    "message": "Ispod se nalaze tehničke informacije koje bi vam mogle biti korisne kada vam dobrovoljci pokušavaju pomoći s rješenjem problema.",
+    "description": "First paragraph of 'Troubleshooting Information' section in Support pane"
+  },
+  "supportS5P2": {
+    "message": "<b>Važno:</b> Moguće privatna ili osjetljiva informacija je prema zadanim postavkama automatski zaklonjena. Zaklonjene informacije mogu otežati rješavanju problema.",
+    "description": "Second paragraph of 'Troubleshooting Information' section in Support pane"
+  },
+  "supportS6H": {
+    "message": "Prijavite problem sa filterom",
+    "description": "Header of 'Report a filter issue' section in Support pane"
+  },
+  "supportS6P1S1": {
+    "message": "Da bi ste izbjegli opterećivanje dobrovoljaca sa dupliciranim prijavama, molimo vas da provjerite da li je vaš problem već prijavljen, ili nije.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6URL": {
+    "message": "Adresa web stranice:",
+    "description": "Label for the URL of the page"
+  },
+  "supportS6Select1": {
+    "message": "Web stranica...",
+    "description": "Label for widget to select type of issue"
+  },
+  "supportS6Select1Option0": {
+    "message": "-- Odaberite unos --",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option1": {
+    "message": "Pokaže oglase ili ostatke oglasa",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option2": {
+    "message": "Ima prekrive ili druge dosade",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option3": {
+    "message": "Otkrije uBlock Origin",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option4": {
+    "message": "Ima probleme povezane za privatnost",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option5": {
+    "message": "Kvari se kad je uBlock Origin uključen",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option6": {
+    "message": "Otvara neželjene kartice ili prozore",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Checkbox1": {
+    "message": "Označite web stranicu kao “NSZP” (<a href=\"https://wikipedia.org/wiki/Not_safe_for_work\">“Ne-Sigurna-Za-Posao”</a>)",
+    "description": "A checkbox to use for NSFW sites"
+  },
+  "supportRedact": {
+    "message": "Zakloni",
+    "description": "Text for 'Redact' button"
+  },
+  "supportUnredact": {
+    "message": "Odzakloni",
+    "description": "Text for 'Unredact' button"
+  },
   "aboutPrivacyPolicy": {
     "message": "Pravila privatnosti",
     "description": "Link to privacy policy on GitHub (English)"
@@ -854,18 +982,6 @@
   "aboutChangelog": {
     "message": "Popis izmjena",
     "description": ""
-  },
-  "aboutWiki": {
-    "message": "Wiki",
-    "description": "English: project' wiki on GitHub"
-  },
-  "aboutSupport": {
-    "message": "Podrška",
-    "description": "A link for where to get support"
-  },
-  "aboutIssues": {
-    "message": "Pratilac problema",
-    "description": "Text for a link to official issue tracker"
   },
   "aboutCode": {
     "message": "Izvorni kod (GPLv3)",
@@ -1074,6 +1190,10 @@
   "genericCopyToClipboard": {
     "message": "Kopiraj u međuspremnik",
     "description": "Label for buttons used to copy something to the clipboard"
+  },
+  "genericSelectAll": {
+    "message": "Označi sve",
+    "description": "Label for buttons used to select all text in editor"
   },
   "toggleBlockingProfile": {
     "message": "(De)aktivacija blokiranja profila",

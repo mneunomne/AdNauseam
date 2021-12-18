@@ -72,6 +72,7 @@ const hiddenSettingsDefault = {
     filterOnHeaders: false,
     loggerPopupType: 'popup',
     manualUpdateAssetFetchPeriod: 500,
+    modifyWebextFlavor: 'unset',
     popupFontSize: 'unset',
     popupPanelDisabledSections: 0,
     popupPanelLockedSections: 0,
@@ -140,12 +141,33 @@ const userSettingsDefault = {
     webrtcIPAddressHidden: false,
 };
 
+const dynamicFilteringDefault = [
+    'behind-the-scene * * noop',
+    'behind-the-scene * image noop',
+    'behind-the-scene * 3p noop',
+    'behind-the-scene * inline-script noop',
+    'behind-the-scene * 1p-script noop',
+    'behind-the-scene * 3p-script noop',
+    'behind-the-scene * 3p-frame noop',
+];
+
+const hostnameSwitchesDefault = [
+    'no-large-media: behind-the-scene false',
+];
+// https://github.com/LiCybora/NanoDefenderFirefox/issues/196
+if ( vAPI.webextFlavor.soup.has('firefox') ) {
+    hostnameSwitchesDefault.push('no-csp-reports: * true');
+}
+
 const µBlock = {  // jshint ignore:line
     userSettingsDefault: userSettingsDefault,
     userSettings: Object.assign({}, userSettingsDefault),
     hiddenSettingsDefault: hiddenSettingsDefault,
     hiddenSettingsAdmin: {},
     hiddenSettings: Object.assign({}, hiddenSettingsDefault),
+
+    dynamicFilteringDefault,
+    hostnameSwitchesDefault,
 
     noDashboard: false,
 
@@ -179,8 +201,8 @@ const µBlock = {  // jshint ignore:line
 
     // Read-only
     systemSettings: {
-        compiledMagic: 37,  // Increase when compiled format changes
-        selfieMagic: 37,    // Increase when selfie format changes
+        compiledMagic: 39,  // Increase when compiled format changes
+        selfieMagic: 39,    // Increase when selfie format changes
     },
 
     // https://github.com/uBlockOrigin/uBlock-issues/issues/759#issuecomment-546654501
@@ -225,6 +247,11 @@ const µBlock = {  // jshint ignore:line
     // https://github.com/uBlockOrigin/uBlock-issues/issues/974
     //   This can be used to defer filtering decision-making.
     readyToFilter: false,
+
+    supportStats: {
+        launchToReadiness: 0,
+        launchFromSelfie: false,
+    },
 
     pageStores: new Map(),
     pageStoresToken: 0,

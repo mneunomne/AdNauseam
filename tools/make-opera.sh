@@ -29,6 +29,7 @@ cp platform/chromium/*.html        $DES/
 # Opera-specific
 echo "*** AdNauseam.opera: Copying opera-specific files"
 cp platform/opera/manifest.json $DES/
+
 rm -rf $DES/_locales/az   #ADN silent
 rm -rf $DES/_locales/cv
 rm -rf $DES/_locales/hi

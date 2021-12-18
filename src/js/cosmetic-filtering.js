@@ -23,6 +23,7 @@
 
 /******************************************************************************/
 
+import './utils.js';
 import logger from './logger.js';
 import µb from './background.js';
 import adnauseam from './adn/core.js'
@@ -408,7 +409,7 @@ FilterContainer.prototype.compileGenericHideSelector = function(
     parser,
     writer
 ) {
-    const { raw, compiled, pseudoclass } = parser.result;
+    const { raw, compiled } = parser.result;
     if ( compiled === undefined ) {
         const who = writer.properties.get('name') || '?';
         logger.writeOne({
@@ -453,7 +454,7 @@ FilterContainer.prototype.compileGenericHideSelector = function(
     // https://github.com/uBlockOrigin/uBlock-issues/issues/131
     //   Support generic procedural filters as per advanced settings.
     //   TODO: prevent double compilation.
-    if ( compiled !== raw && pseudoclass === false ) {
+    if ( compiled !== raw ) {
         if ( µb.hiddenSettings.allowGenericProceduralFilters === true ) {
             return this.compileSpecificSelector(parser, '', false, writer);
         }
@@ -1065,11 +1066,6 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
                         proceduralSet.delete(json);
                         continue;
                     }
-                }
-                if ( pfilter.pseudo !== undefined ) {
-                    injectedHideFilters.push(pfilter.selector);
-                    proceduralSet.delete(json);
-                    continue;
                 }
             }
             if ( proceduralSet.size !== 0 ) {

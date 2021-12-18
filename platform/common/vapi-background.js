@@ -26,6 +26,7 @@
 
 /******************************************************************************/
 
+import webext from './webext.js';
 import { ubolog } from './console.js';
 
 /******************************************************************************/
@@ -50,16 +51,6 @@ window.addEventListener('webextFlavor', function() {
     vAPI.supportsUserStylesheets =
         vAPI.webextFlavor.soup.has('user_stylesheet');
 }, { once: true });
-
-/******************************************************************************/
-
-vAPI.randomToken = function() {
-    const n = Math.random();
-    return String.fromCharCode(n * 26 + 97) +
-        Math.floor(
-            (0.25 + n * 0.75) * Number.MAX_SAFE_INTEGER
-        ).toString(36).slice(-8);
-};
 
 /******************************************************************************/
 
@@ -409,16 +400,6 @@ vAPI.Tabs = class {
             return;
         }
 
-        // https://github.com/gorhill/uBlock/issues/3053#issuecomment-332276818
-        //   Do not try to lookup uBO's own pages with FF 55 or less.
-        if (
-            vAPI.webextFlavor.soup.has('firefox') &&
-            vAPI.webextFlavor.major < 56
-        ) {
-            this.create(targetURL, details);
-            return;
-        }
-
         // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/query#Parameters
         //   "Note that fragment identifiers are not matched."
         //   Fragment identifiers ARE matched -- we need to remove the fragment.
@@ -533,9 +514,12 @@ vAPI.Tabs = class {
     }
 
     onUpdatedHandler(tabId, changeInfo, tab) {
+        // Ignore uninteresting update events
+        const { status = '', title = '', url = '' } = changeInfo;
+        if ( status === '' && title === '' && url === '' ) { return; }
         // https://github.com/gorhill/uBlock/issues/3073
         //   Fall back to `tab.url` when `changeInfo.url` is not set.
-        if ( typeof changeInfo.url !== 'string' ) {
+        if ( url === '' ) {
             changeInfo.url = tab && tab.url;
         }
         if ( changeInfo.url ) {
@@ -1257,50 +1241,6 @@ vAPI.Net = class {
     }
     canSuspend() {
         return false;
-    }
-    async benchmark() {
-        if ( typeof µBlock !== 'object' ) { return; }
-        const requests = await µBlock.loadBenchmarkDataset();
-        if ( Array.isArray(requests) === false || requests.length === 0 ) {
-            console.info('No requests found to benchmark');
-            return;
-        }
-        const mappedTypes = new Map([
-            [ 'document', 'main_frame' ],
-            [ 'subdocument', 'sub_frame' ],
-        ]);
-        console.info('vAPI.net.onBeforeSuspendableRequest()...');
-        const t0 = self.performance.now();
-        const promises = [];
-        const details = {
-            documentUrl: '',
-            tabId: -1,
-            parentFrameId: -1,
-            frameId: 0,
-            type: '',
-            url: '',
-        };
-        for ( const request of requests ) {
-            details.documentUrl = request.frameUrl;
-            details.tabId = -1;
-            details.parentFrameId = -1;
-            details.frameId = 0;
-            details.type = mappedTypes.get(request.cpt) || request.cpt;
-            details.url = request.url;
-            if ( details.type === 'main_frame' ) { continue; }
-            promises.push(this.onBeforeSuspendableRequest(details));
-        }
-        return Promise.all(promises).then(results => {
-            let blockCount = 0;
-            for ( const r of results ) {
-                if ( r !== undefined ) { blockCount += 1; }
-            }
-            const t1 = self.performance.now();
-            const dur = t1 - t0;
-            console.info(`Evaluated ${requests.length} requests in ${dur.toFixed(0)} ms`);
-            console.info(`\tBlocked ${blockCount} requests`);
-            console.info(`\tAverage: ${(dur / requests.length).toFixed(3)} ms per request`);
-        });
     }
 };
 

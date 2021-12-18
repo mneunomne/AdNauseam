@@ -28,6 +28,7 @@ import punycode from '../lib/punycode.js';
 
 import cacheStorage from './cachestorage.js';
 import cosmeticFilteringEngine from './cosmetic-filtering.js';
+import htmlFilteringEngine from './html-filtering.js';
 import logger from './logger.js';
 import lz4Codec from './lz4.js';
 import io from './assets.js';
@@ -36,10 +37,10 @@ import staticExtFilteringEngine from './static-ext-filtering.js';
 import staticFilteringReverseLookup from './reverselookup.js';
 import staticNetFilteringEngine from './static-net-filtering.js';
 import µb from './background.js';
+import webRequest from './traffic.js';
 import { denseBase64 } from './base64-custom.js';
 import { redirectEngine } from './redirect-engine.js';
 import { StaticFilteringParser } from './static-filtering-parser.js';
-import { webRequest } from './traffic.js';
 
 import {
     permanentFirewall,
@@ -129,7 +130,11 @@ const onMessage = function(request, sender, callback) {
         return;
 
     case 'scriptlet':
-        µb.scriptlets.inject(request.tabId, request.scriptlet, callback);
+        vAPI.tabs.executeScript(request.tabId, {
+            file: `/js/scriptlets/${request.scriptlet}.js`
+        }).then(result => {
+            callback(result);
+        });
         return;
 
     case 'sfneBenchmark':
@@ -497,15 +502,22 @@ const onMessage = function(request, sender, callback) {
 
     // Sync
     let response;
-    let pageStore;
 
     switch ( request.what ) {
-    case 'hasPopupContentChanged':
-        pageStore = µb.pageStoreFromTabId(request.tabId);
-        var lastModified = pageStore ? pageStore.contentLastModified : 0;
+    case 'hasPopupContentChanged': {
+        const pageStore = µb.pageStoreFromTabId(request.tabId);
+        const lastModified = pageStore ? pageStore.contentLastModified : 0;
         response = lastModified !== request.contentLastModified;
         break;
-
+    }
+    case 'launchReporter': {
+        const pageStore = µb.pageStoreFromTabId(request.tabId);
+        if ( pageStore === null ) { break; }
+        const supportURL = new URL(vAPI.getURL('support.html'));
+        supportURL.searchParams.set('reportURL', pageStore.rawURL);
+        µb.openNewTab({ url: supportURL.href, select: true, index: -1 });
+        break;
+    }
     case 'revertFirewallRules':
         // TODO: use Set() to message around sets of hostnames
         sessionFirewall.copyRules(
@@ -557,8 +569,8 @@ const onMessage = function(request, sender, callback) {
         response = popupDataFromTabId(request.tabId);
         break;
 
-    case 'toggleNetFiltering':
-        pageStore = µb.pageStoreFromTabId(request.tabId);
+    case 'toggleNetFiltering': {
+        const pageStore = µb.pageStoreFromTabId(request.tabId);
         if ( pageStore ) {
             pageStore.toggleNetFilteringSwitch(
                 request.url,
@@ -568,7 +580,7 @@ const onMessage = function(request, sender, callback) {
             µb.updateToolbarIcon(request.tabId);
         }
         break;
-
+    }
     default:
         return vAPI.messaging.UNHANDLED;
     }
@@ -1209,7 +1221,7 @@ var modifyRuleset = function(details) {
     }
 };
 
-// Shortcuts pane
+// Shortcuts
 const getShortcuts = function(callback) {
     if ( µb.canUseShortcuts === false ) {
         return callback([]);
@@ -1243,6 +1255,144 @@ let setShortcut = function(details) {
     vAPI.storage.set({ commandShortcuts: Array.from(µb.commandShortcuts) });
 };
 
+// Support
+const getSupportData = async function() {
+    const diffArrays = function(modified, original) {
+        const modifiedSet = new Set(modified);
+        const originalSet = new Set(original);
+        let added = [];
+        let removed = [];
+        for ( const item of modifiedSet ) {
+            if ( originalSet.has(item) ) { continue; }
+            added.push(item);
+        }
+        for ( const item of originalSet ) {
+            if ( modifiedSet.has(item) ) { continue; }
+            removed.push(item);
+        }
+        if ( added.length === 0 ) {
+            added = undefined;
+        }
+        if ( removed.length === 0 ) {
+            removed = undefined;
+        }
+        if ( added !== undefined || removed !== undefined ) {
+            return { added, removed };
+        }
+    };
+
+    const modifiedUserSettings = µb.getModifiedSettings(
+        µb.userSettings,
+        µb.userSettingsDefault
+    );
+
+    const modifiedHiddenSettings = µb.getModifiedSettings(
+        µb.hiddenSettings,
+        µb.hiddenSettingsDefault
+    );
+
+    let filterset = [];
+    const userFilters = await µb.loadUserFilters();
+    for ( const line of userFilters.content.split(/\s*\n+\s*/) ) {
+        if ( /^($|![^#])/.test(line) ) { continue; }
+        filterset.push(line);
+    }
+
+    const lists = µb.availableFilterLists;
+    let defaultListset = {};
+    let addedListset = {};
+    let removedListset = {};
+    for ( const listKey in lists ) {
+        if ( lists.hasOwnProperty(listKey) === false ) { continue; }
+        const list = lists[listKey];
+        if ( list.content !== 'filters' ) { continue; }
+        const used = µb.selectedFilterLists.includes(listKey);
+        const listDetails = [];
+        if ( used ) {
+            if ( typeof list.entryCount === 'number' ) {
+                listDetails.push(`${list.entryCount}-${list.entryCount-list.entryUsedCount}`);
+            }
+            if ( typeof list.writeTime !== 'number' || list.writeTime === 0 ) {
+                listDetails.push('never');
+            } else {
+                const delta = (Date.now() - list.writeTime) / 1000 | 0;
+                const days = (delta / 86400) | 0;
+                const hours = (delta % 86400) / 3600 | 0;
+                const minutes = (delta % 3600) / 60 | 0;
+                const parts = [];
+                if ( days > 0 ) { parts.push(`${days}d`); }
+                if ( hours > 0 ) { parts.push(`${hours}h`); }
+                if ( minutes > 0 ) { parts.push(`${minutes}m`); }
+                if ( parts.length === 0 ) { parts.push('now'); }
+                listDetails.push(parts.join('.'));
+            }
+        }
+        if ( list.isDefault ) {
+            if ( used ) {
+                defaultListset[listKey] = listDetails.join(', ');
+            } else {
+                removedListset[listKey] = null;
+            }
+        } else if ( used ) {
+            addedListset[listKey] = listDetails.join(', ');
+        }
+    }
+    if ( Object.keys(defaultListset).length === 0 ) {
+        defaultListset = undefined;
+    }
+    if ( Object.keys(addedListset).length === 0 ) {
+        addedListset = undefined;
+    }
+    if ( Object.keys(removedListset).length === 0 ) {
+        removedListset = undefined;
+    }
+
+    let browserFamily = (( ) => {
+        if ( vAPI.webextFlavor.soup.has('firefox') ) { return 'Firefox'; }
+        if ( vAPI.webextFlavor.soup.has('chromium') ) { return 'Chromium'; }
+        return 'Unknown';
+    })();
+    if ( vAPI.webextFlavor.soup.has('mobile') ) {
+        browserFamily += ' Mobile';
+    }
+
+    return {
+        [`${vAPI.app.name}`]: `${vAPI.app.version}`,
+        [`${browserFamily}`]: `${vAPI.webextFlavor.major}`,
+        'filterset (summary)': {
+            network: staticNetFilteringEngine.getFilterCount(),
+            cosmetic: cosmeticFilteringEngine.getFilterCount(),
+            scriptlet: scriptletFilteringEngine.getFilterCount(),
+            html: htmlFilteringEngine.getFilterCount(),
+        },
+        'listset (total-discarded, last updated)': {
+            removed: removedListset,
+            added: addedListset,
+            default: defaultListset,
+        },
+        'filterset (user)': filterset,
+        trustedset: diffArrays(
+            µb.arrayFromWhitelist(µb.netWhitelist),
+            µb.netWhitelistDefault
+        ),
+        switchRuleset: diffArrays(
+            sessionSwitches.toArray(),
+            µb.hostnameSwitchesDefault
+        ),
+        hostRuleset: diffArrays(
+            sessionFirewall.toArray(),
+            µb.dynamicFilteringDefault
+        ),
+        urlRuleset: diffArrays(
+            sessionURLFiltering.toArray(),
+            []
+        ),
+        modifiedUserSettings,
+        modifiedHiddenSettings,
+        supportStats: µb.supportStats,
+    };
+};
+
 const onMessage = function(request, sender, callback) {
     // Async
     switch ( request.what ) {
@@ -1261,6 +1411,13 @@ const onMessage = function(request, sender, callback) {
 
     case 'getShortcuts':
         return getShortcuts(callback);
+
+    case 'getSupportData': {
+        getSupportData().then(response => {
+            callback(response);
+        });
+        return;
+    }
 
     case 'readUserFilters':
         return µb.loadUserFilters().then(result => {
@@ -1762,6 +1919,8 @@ const onMessage = function(request, sender, callback) {
         break;
 
     case 'subscribeTo':
+        // https://github.com/uBlockOrigin/uBlock-issues/issues/1797
+        if ( /^(file|https?):\/\//.test(request.location) === false ) { break; }
         const url = encodeURIComponent(request.location);
         const title = encodeURIComponent(request.title);
         const hash = µb.selectedFilterLists.indexOf(request.location) !== -1
