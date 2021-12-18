@@ -121,14 +121,14 @@
         button.addClass("toggled0");
         break;
     case 1:
-        uDom('span[data-i18n="adnFirstRunThatsIt"]').css("display", "inline-block");
+        uDom('span[data-i18n="adnFirstRunLetsGo"]').css("display", "inline-block");
         button.removeClass("toggled0");
         button.removeClass("toggled2");
         button.addClass("large");
         button.addClass("toggled1");
         break;
     case 2:
-        uDom('span[data-i18n="adnFirstRunBetterButStill"]').css("display", "inline-block");
+        uDom('span[data-i18n="adnFirstRunLetsGo"]').css("display", "inline-block");
         button.removeClass("toggled1");
         button.removeClass("toggled3");
         button.addClass("toggled2");
