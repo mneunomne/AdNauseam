@@ -4,6 +4,9 @@ body {
     box-sizing: border-box;
     margin: 0;
     }
+body > div.body {
+    padding: 0 0.5em;
+    }
 h2, h3 {
     margin: 1em 0;
     }
