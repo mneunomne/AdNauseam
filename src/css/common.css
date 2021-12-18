@@ -1064,8 +1064,8 @@ label {
     width: 100%;
     }
 .checkbox > input[type="checkbox"]:checked + svg {
-    background-color: var(--checkbox-checked-ink);
-    border-color: var(--checkbox-checked-ink);
+    background-color: #0076FF;
+    border-color: #0076FF;
     stroke: var(--default-surface);
     }
 .checkbox[disabled],
