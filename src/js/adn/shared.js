@@ -764,8 +764,22 @@ const adsOnLoadHandler = function (adData, file) {
     data: adData,
     file: file
   }).then(data => {
+    toogleVaultLoading(false)
     postImportAlert(data);
   })
+}
+
+// loading while ads are being imported #1877
+function toogleVaultLoading(show) {
+  var $container = $("#container")
+  if (show) {
+    $container.css('opacity', '0');
+    $('#loading-img').show();
+    showAlert(false)
+  } else {
+    $container.css('opacity', '1');
+    $('#loading-img').hide();
+  }
 }
 
 function handleImportAds(evt) {
@@ -774,7 +788,11 @@ function handleImportAds(evt) {
 
   const reader = new FileReader();
 
+  console.log("[Adn] handleImportAds!")
+
   reader.onload = function (e) {
+
+    toogleVaultLoading(true)
 
     let adData;
     try {
@@ -782,11 +800,13 @@ function handleImportAds(evt) {
       adData = data.userSettings ? data.userSettings.admap : data;
 
       if (adData === undefined && data.userSettings && data.timeStamp) {
+        toogleVaultLoading(false)
         window.alert(vAPI.i18n('adnImportAlertFormat'));
         return;
       }
 
     } catch (e) {
+      toogleVaultLoading(false)
       postImportAlert({
         count: -1,
         error: e
