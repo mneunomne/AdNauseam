@@ -107,4 +107,4 @@ mv ${DES}/*.pem /tmp
 echo
 
 #ls -l artifacts
-open artifacts
+open $ARTS
