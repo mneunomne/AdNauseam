@@ -30,7 +30,7 @@
 </div>
 
 <div id="options">
-    <div class="li"><input type="checkbox" id="autoUpdate"><label data-i18n="3pAutoUpdatePrompt1" for="autoUpdate"></label>&ensp;</div>
+    <div class="li"><label><span class="input checkbox"><input type="checkbox" id="autoUpdate"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span><span data-i18n="3pAutoUpdatePrompt1"></span></label></div>
     <div class="li"><input type="checkbox" id="parseCosmeticFilters"><label data-i18n="3pParseAllABPHideFiltersPrompt1" for="parseCosmeticFilters"></label><button class="whatisthis"></button>
                <div class="whatisthis-expandable para" data-i18n="3pParseAllABPHideFiltersInfo"></div></div>
     <div class="li"><input type="checkbox" id="ignoreGenericCosmeticFilters"><label data-i18n="3pIgnoreGenericCosmeticFilters" for="ignoreGenericCosmeticFilters"></label><button class="whatisthis"></button>
@@ -68,7 +68,16 @@
      --><span class="counts"></span></span></span></label>
     </div>
     <div class="listEntry toImport">
-      <label><input type="checkbox" id="importLists"><span class="input checkbox"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span><span><span class="forinput" data-i18n="3pImport"></span> <a class="fa-icon info towiki" href="https://github.com/gorhill/uBlock/wiki/Filter-lists-from-around-the-web" target="_blank">info-circle</a></span></label><!--
+      <label>
+        <span class="input checkbox">
+          <input type="checkbox" id="importLists">
+            <svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg>
+          </span>
+          <span>
+            <span class="forinput" data-i18n="3pImport"></span>
+            <a class="fa-icon info towiki" href="https://github.com/gorhill/uBlock/wiki/Filter-lists-from-around-the-web" target="_blank">info-circle</a>
+          </span>
+        </label><!--
         --><!--
         --><textarea id="externalLists" dir="ltr" spellcheck="false" placeholder="3pExternalListsHint"></textarea>
     </div>
