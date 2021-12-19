@@ -68,7 +68,7 @@
     "description": "Title for the advanced settings page"
   },
   "popupPowerSwitchInfo": {
-    "message": "Painallus: Poista uBlock₀ käytöstä/ota se käyttöön tällä sivustolla.\n\nCtrl+painallus: Poista uBlock₀ käytöstä vain tällä sivulla.",
+    "message": "Painallus: Poista uBlock₀ käytöstä/ota se käyttöön tällä sivustolla.\n\nCtrl+painallus: poista uBlock₀ käytöstä vain tällä sivulla.",
     "description": "English: Click: disable/enable uBlock₀ for this site.\n\nCtrl+click: disable uBlock₀ only on this page."
   },
   "popupPowerSwitchInfo1": {
@@ -216,11 +216,11 @@
     "description": "Label to be used to hide popup panel sections"
   },
   "popupTipGlobalRules": {
-    "message": "Yleiset säännöt: Sarake säännöille, joita käytetään kaikilla sivustoilla.",
+    "message": "Yleiset säännöt: sarake säännöille, joita käytetään kaikilla sivustoilla.",
     "description": "Tooltip when hovering the top-most cell of the global-rules column."
   },
   "popupTipLocalRules": {
-    "message": "Paikalliset säännöt: Sarake säännöille, joita käytetään vain nykyisellä sivustolla.\nPaikalliset säännöt ohittavat yleiset säännöt.",
+    "message": "Paikalliset säännöt: sarake säännöille, joita käytetään vain nykyisellä sivustolla.\nPaikalliset säännöt ohittavat yleiset säännöt.",
     "description": "Tooltip when hovering the top-most cell of the local-rules column."
   },
   "popupTipSaveRules": {
@@ -888,7 +888,7 @@
     "description": "Header of 'Filter issues' section in Support pane"
   },
   "supportS3P1": {
-    "message": "Ilmoita sivustokohtaisista suodatusongelmista <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code>-vikaseurannassa</span>.<u>Vaatii GitHub-tilin.</u>",
+    "message": "Ilmoita sivustokohtaisista suodatusongelmista <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code>-ongelmaseurannassa</span>. <u>Vaatii GitHub-tilin</u>.",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
   "supportS3P2": {
@@ -904,7 +904,7 @@
     "description": "Header of 'Bug report' section in Support pane"
   },
   "supportS4P1": {
-    "message": "Ilmoita itse uBlock Origin -laajennuksen ongelmista <span data-url=\"https://github.com/uBlockOrigin/uBlock-issues/issues?q=is%3Aissue\"><code>uBlockOrigin/uBlock-issue</code> -vikaseurannassa</span>. <u>Vaatii GitHub-tilin.</u>",
+    "message": "Ilmoita itse uBlock Origin -laajennuksen ongelmista <span data-url=\"https://github.com/uBlockOrigin/uBlock-issues/issues?q=is%3Aissue\"><code>uBlockOrigin/uBlock-issue</code>-ongelmaseurannassa</span>. <u>Vaatii GitHub-tilin</u>.",
     "description": "First paragraph of 'Bug report' section in Support pane"
   },
   "supportS5H": {
