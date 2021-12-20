@@ -126,7 +126,9 @@ const initWorker = function() {
             })
         );
     }
-    return Promise.all(promises);
+    return Promise.all(promises).then(data => {
+        return entries; // adn
+    });
 };
 
 const fromNetFilter = async function(rawFilter) {
