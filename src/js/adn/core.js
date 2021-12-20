@@ -2186,7 +2186,10 @@ const adnauseam = (function () {
   
 
   exports.getNotifications = function () {
-    return notifications;
+    return {
+      notifications:notifications,
+      disableWarnings:µb.userSettings.disableWarnings
+    };
   };
 
   const exportAds = exports.exportAds = function (request) {
