@@ -27,12 +27,6 @@ import punycode from '../lib/punycode.js';
 
 /******************************************************************************/
 
-{
-// >>>>> start of local scope
-
-/******************************************************************************/
-
-
 let popupFontSize = 'unset';
 vAPI.localStorage.getItemAsync('popupFontSize').then(value => {
     if ( typeof value !== 'string' || value === 'unset' ) { return; }
@@ -570,9 +564,10 @@ const renderPopup = function() {
         }
     }
 
-    const canElementPicker = popupData.canElementPicker === true && isFiltering;
-    uDom.nodeFromId('gotoPick').classList.toggle('enabled', canElementPicker);
-    uDom.nodeFromId('gotoZap').classList.toggle('enabled', canElementPicker);
+    uDom.nodeFromId('basicTools').classList.toggle(
+        'canPick',
+        popupData.canElementPicker === true && isFiltering
+    );
 
     let blocked, total;
     if ( popupData.pageCounts !== undefined ) {
@@ -837,6 +832,35 @@ const gotoPick = function() {
     messaging.send('popupPanel', {
         what: 'launchElementPicker',
         tabId: popupData.tabId,
+    });
+
+    vAPI.closePopup();
+};
+
+/******************************************************************************/
+
+const gotoReport = function() {
+    const popupPanel = {
+        blocked: popupData.pageCounts.blocked.any,
+    };
+    const reportedStates = [
+        { name: 'enabled', prop: 'netFilteringSwitch', expected: true },
+        { name: 'no-cosmetic-filtering', prop: 'noCosmeticFiltering', expected: false },
+        { name: 'no-large-media', prop: 'noLargeMedia', expected: false },
+        { name: 'no-popups', prop: 'noPopups', expected: false },
+        { name: 'no-remote-fonts', prop: 'noRemoteFonts', expected: false },
+        { name: 'no-scripting', prop: 'noScripting', expected: false },
+        { name: 'can-element-picker', prop: 'canElementPicker', expected: true },
+    ];
+    for ( const { name, prop, expected } of reportedStates ) {
+        if ( popupData[prop] === expected ) { continue; }
+        popupPanel[name] = !expected;
+    }
+    messaging.send('popupPanel', {
+        what: 'launchReporter',
+        tabId: popupData.tabId,
+        pageURL: popupData.pageURL,
+        popupPanel: JSON.stringify(popupPanel),
     });
 
     vAPI.closePopup();
@@ -1382,6 +1406,7 @@ const getPopupData = async function(tabId, first = false) {
 uDom('#switch').on('click', toggleNetFilteringSwitch);
 uDom('#gotoZap').on('click', gotoZap);
 uDom('#gotoPick').on('click', gotoPick);
+uDom('#gotoReport').on('click', gotoReport);
 uDom('.hnSwitch').on('click', ev => { toggleHostnameSwitch(ev); });
 uDom('#saveRules').on('click', saveFirewallRules);
 uDom('#revertRules').on('click', ( ) => { revertFirewallRules(); });
@@ -1402,6 +1427,3 @@ document.querySelector('#firewall > [data-type="3p-frame"] .filter')
     });
 
 /******************************************************************************/
-
-// <<<<< end of local scope
-}

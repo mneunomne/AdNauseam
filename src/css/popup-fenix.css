@@ -181,6 +181,7 @@ body.needSave #revertRules {
     white-space: normal;
     }
 .toolRibbon .tool {
+    fill: white; /* ADN */
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -202,9 +203,11 @@ body.needSave #revertRules {
 body.mobile.no-tooltips .toolRibbon .tool {
     font-size: 1.6em;
     }
-#basicTools .fa-icon, .fa-icon-badged {
-  filter:invert(0.8);
-}
+
+#basicTools:not(.canPick) .needPick {
+    visibility: hidden;
+    }
+
 #extraTools .fa-icon {
     align-self: center;
     position: relative;
@@ -576,6 +579,14 @@ body.godMode #actionSelector > #dynaAllow {
     }
 :root:not(.mobile) #no-popups,
 :root body[data-ui~="+no-popups"] #no-popups {
+    display: flex;
+    }
+:root.mobile [href="logger-ui.html#_"],
+:root body[data-ui~="-logger"] [href="logger-ui.html#_"] {
+    display: none;
+    }
+:root:not(.mobile) [href="logger-ui.html#_"],
+:root body[data-ui~="+logger"] [href="logger-ui.html#_"] {
     display: flex;
     }
 body:not([data-more~="a"]) [data-more="a"],

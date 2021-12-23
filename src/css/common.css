@@ -1,7 +1,8 @@
-
 /* ============================================================
   RESET
 ============================================================ */
+@charset "UTF-8";
+
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -523,9 +524,7 @@ button.error{
   MORE
 ============================================================ */
 /* https://protocol.mozilla.org/assets/docs/css/protocol.css */
-@charset "UTF-8";
 
-/* Usage of FontAwesome is deprecated and will be removed eventually */
 @font-face {
     font-family: FontAwesome;
     font-weight: normal;
@@ -604,7 +603,8 @@ body {
 code, .code {
     background-color: var(--button-surface);
     font-family: monospace;
-    padding: 4px;
+    font-size: smaller;
+    padding: 2px 4px;
     }
 hr {
     border: 0;
@@ -1064,8 +1064,8 @@ label {
     width: 100%;
     }
 .checkbox > input[type="checkbox"]:checked + svg {
-    background-color: var(--checkbox-checked-ink);
-    border-color: var(--checkbox-checked-ink);
+    background-color: #0076FF;
+    border-color: #0076FF;
     stroke: var(--default-surface);
     }
 .checkbox[disabled],

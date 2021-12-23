@@ -148,7 +148,7 @@ vAPI.broadcastListener.add(request => {
     ]);
 
     {
-        const details = results[0];
+        const details = results[0] || {};
         document.body.classList.toggle(
             'canUpdateShortcuts',
             details.canUpdateShortcuts === true
@@ -162,7 +162,7 @@ vAPI.broadcastListener.add(request => {
     }
 
     {
-        let pane = results[1];
+        let pane = results[1] || null;
         if ( self.location.hash !== '' ) {
             pane = self.location.hash.slice(1) || null;
         }
@@ -187,9 +187,9 @@ vAPI.messaging.send(
       vAPI.messaging.send(
           'adnauseam', {
               what: 'getNotifications'
-          }).then(notifications => {
-          if (notifications && notifications.length)
-              renderNotifications(notifications, 'dashboard');
+          }).then(data => {
+          if (data.notifications && data.notifications.length)
+              renderNotifications(data.notifications, 'dashboard');
               resizeFrame();
         })
 });
