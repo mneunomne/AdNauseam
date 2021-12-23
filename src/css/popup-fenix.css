@@ -181,6 +181,7 @@ body.needSave #revertRules {
     white-space: normal;
     }
 .toolRibbon .tool {
+    fill: white; /* ADN */
     cursor: pointer;
     display: flex;
     flex-direction: column;
