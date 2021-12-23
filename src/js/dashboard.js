@@ -166,7 +166,7 @@ vAPI.broadcastListener.add(request => {
         if ( self.location.hash !== '' ) {
             pane = self.location.hash.slice(1) || null;
         }
-        loadDashboardPanel(pane !== null ? pane : 'settings.html', true);
+        loadDashboardPanel(pane !== null ? pane : 'options.html', true);
 
         uDom('.tabButton').on('click', onTabClickHandler);
 
