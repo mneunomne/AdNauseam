@@ -136,9 +136,9 @@
           vAPI.messaging.send(
               'adnauseam', {
                   what: 'getNotifications'
-              }).then(notifications => {
-              if (notifications && notifications.length)
-                  renderNotifications(notifications, 'vault');
+              }).then(data => {
+              if (data.notifications && data.notifications.length)
+                  renderNotifications(data.notifications, 'vault');
                   adjustHeight();
             })
         })

@@ -187,9 +187,9 @@ vAPI.messaging.send(
       vAPI.messaging.send(
           'adnauseam', {
               what: 'getNotifications'
-          }).then(notifications => {
-          if (notifications && notifications.length)
-              renderNotifications(notifications, 'dashboard');
+          }).then(data => {
+          if (data.notifications && data.notifications.length)
+              renderNotifications(data.notifications, 'dashboard');
               resizeFrame();
         })
 });

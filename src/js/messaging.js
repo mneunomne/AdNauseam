@@ -259,7 +259,7 @@ const onMessage = function(request, sender, callback) {
                 vAPI.browserSettings.canLeakLocalIPAddresses === true;
         }
         if (typeof response === 'undefined') { // ADN return notifications either way
-            response = { notifications: makeCloneable(adnauseam.getNotifications()) }; // #1163
+            response = { notifications: makeCloneable(adnauseam.getNotifications().notifications) }; // #1163
         }
         break;
 
