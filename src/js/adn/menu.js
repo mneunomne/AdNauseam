@@ -648,13 +648,11 @@
     // recalculate the height of ad-list
     
     let notification = document.getElementById('notifications')
-    console.log("disableWarnings", disableWarnings)
     var h = notification.offsetHeight;
     if (disableWarnings) {
       h = 0;  
     }
     const newh = 350 - h;
-    console.log("newh", newh)
     uDom('#ad-list').css('height', newh + 'px');
   };
 
