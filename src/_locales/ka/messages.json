@@ -55,6 +55,10 @@
     "message": "შესახებ",
     "description": "appears as tab name in dashboard"
   },
+  "supportPageName": {
+    "message": "მხარდაჭერა",
+    "description": "appears as tab name in dashboard"
+  },
   "assetViewerPageName": {
     "message": "uBlock₀ — რესურსები",
     "description": "Title for the asset viewer page"
@@ -122,6 +126,10 @@
   "popupTipLog": {
     "message": "აღმრიცხავის გახსნა",
     "description": "Tooltip used for the logger icon in the panel"
+  },
+  "popupTipReport": {
+    "message": "ამ საიტზე ხარვეზის მოხსენება",
+    "description": "Tooltip used for the 'chat' icon in the panel"
   },
   "popupTipNoPopups": {
     "message": "ამ საიტზე ყველა ამომხტომი ფანჯრის შეზღუდვის ჩართვა/გამორთვა",
@@ -847,6 +855,126 @@
     "message": "გაფორმებული",
     "description": "Label for radio-button to pick export text format"
   },
+  "supportOpenButton": {
+    "message": "გახსნა",
+    "description": "Text for button which open an external webpage in Support pane"
+  },
+  "supportReportSpecificButton": {
+    "message": "შექმენით ახალი მოსხენება",
+    "description": "Text for button which open an external webpage in Support pane"
+  },
+  "supportFindSpecificButton": {
+    "message": "იპოვეთ მსგავსი მოხსენებები",
+    "description": "A clickable link in the filter issue reporter section"
+  },
+  "supportS1H": {
+    "message": "მასალები",
+    "description": "Header of 'Documentation' section in Support pane"
+  },
+  "supportS1P1": {
+    "message": "დამატებითი მასალებისთვის, იხილეთ <code>uBlock/wiki</code>, რომ უკეთ გაეცნოთ uBlock Origin-ის შესაძლებლობებს.",
+    "description": "First paragraph of 'Documentation' section in Support pane"
+  },
+  "supportS2H": {
+    "message": "შეკითხვები და დახმარება",
+    "description": "Header of 'Questions and support' section in Support pane"
+  },
+  "supportS2P1": {
+    "message": "კითხვებზე პასუხისა და სხვა სახის მხარდაჭერის მისაღებად, ეწვიეთ Reddit-განყოფილებას <code>/r/uBlockOrigin</code>.",
+    "description": "First paragraph of 'Questions and support' section in Support pane"
+  },
+  "supportS3H": {
+    "message": "ფილტრის ხარვეზი/საიტი დაზიანდა",
+    "description": "Header of 'Filter issues' section in Support pane"
+  },
+  "supportS3P1": {
+    "message": "ცალკეულ საიტებზე ფილტრების ხარვეზების მოსახსენებლად, გამოიყენეთ <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> ხარვეზების აღსარიცხავი</span>. საჭიროებს GitHub-ანგარიშს.",
+    "description": "First paragraph of 'Filter issues' section in Support pane"
+  },
+  "supportS3P2": {
+    "message": "<b>ყურადღება:</b> ეცადეთ, არ გამოიყენოთ სხვა მსგავსი დანიშნულების შემზღუდავები uBlock Origin-თან ერთად, ვინაიდან წარმოშობს ფილტრების ხარვეზებს, ცალკეულ საიტებზე.",
+    "description": "Second paragraph of 'Filter issues' section in Support pane"
+  },
+  "supportS3P3": {
+    "message": "<b>რჩევა:</b> გადაამოწმეთ, რომ ფილტრები განახლებულია. <span data-url=\"logger-ui.html#_\">აღმრიცხავი</span> ხელსაწყო მთავარი საშუალებაა, ფილტრების ხარვეზების გამოსავლენად.",
+    "description": "Third paragraph of 'Filter issues' section in Support pane"
+  },
+  "supportS4H": {
+    "message": "ხარვეზის მოხსენება",
+    "description": "Header of 'Bug report' section in Support pane"
+  },
+  "supportS4P1": {
+    "message": "თავად uBlock Origin-ის ხარვეზების მოსახსენებლად, გამოიყენეთ <span data-url=\"https://github.com/uBlockOrigin/uBlock-issues/issues?q=is%3Aissue\"><code>uBlockOrigin/uBlock-issue</code> ხარვეზების აღსარიცხავი</span>. საჭიროებს GitHub-ანგარიშს.",
+    "description": "First paragraph of 'Bug report' section in Support pane"
+  },
+  "supportS5H": {
+    "message": "მონაცემები ხარვეზის მოსაგვარებლად",
+    "description": "Header of 'Troubleshooting Information' section in Support pane"
+  },
+  "supportS5P1": {
+    "message": "ქვემოთ მოცემულია ტექნიკური ინფორმაცია, რომელიც გამოადგებათ მოხალისეებს, უკეთ დაგეხმარონ ხარვეზის აღმოფხვრაში.",
+    "description": "First paragraph of 'Troubleshooting Information' section in Support pane"
+  },
+  "supportS5P2": {
+    "message": "<b>გაითვალისწინეთ:</b> მონაცემები, რომლებიც შესაძლოა პირადი და მნიშვნელოვანი იყოს, ნაგულისხმევად იკვეცება. ამასთან, შეკვეცილი ინფორმაციით, სავარაუდოდ გართულდება ხარვეზის გამოსწორება.",
+    "description": "Second paragraph of 'Troubleshooting Information' section in Support pane"
+  },
+  "supportS6H": {
+    "message": "ფილტრის ხარვეზის მოხსენება",
+    "description": "Header of 'Report a filter issue' section in Support pane"
+  },
+  "supportS6P1S1": {
+    "message": "მოხალისეები რომ არ მოცდნენ ერთნაირი მოსხენებების ნახვით, გთოხვთ გადაამოწმოთ, უკვე ხომ არაა გაგზავნილი საჩივარი ამ ხარვეზზე.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6URL": {
+    "message": "ვებგვერდის მისამართი",
+    "description": "Label for the URL of the page"
+  },
+  "supportS6Select1": {
+    "message": "ვებგვერდი...",
+    "description": "Label for widget to select type of issue"
+  },
+  "supportS6Select1Option0": {
+    "message": "-- შეარჩიეთ --",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option1": {
+    "message": "აჩვენებს რეკლამებს ან მის ნარჩენებს",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option2": {
+    "message": "ადებს შემაწუხებელ შრეებსა და მისთანებს",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option3": {
+    "message": "ამჩნევს, რომ uBlock Origin ჩართულია",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option4": {
+    "message": " პირადულობის დაცვის ხარვეზებითაა",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option5": {
+    "message": "ფუჭდება, როცა uBlock Origin ჩართულია",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option6": {
+    "message": "ხსნის არასასურველ ჩანართებს ან ფანჯრებს",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Checkbox1": {
+    "message": "გვერდი მოინიშნოს, როგორც „NSFW“ (<a href=\"https://wikipedia.org/wiki/Not_safe_for_work\">„შეუსაბამო“</a>)",
+    "description": "A checkbox to use for NSFW sites"
+  },
+  "supportRedact": {
+    "message": "შეკვეცილი",
+    "description": "Text for 'Redact' button"
+  },
+  "supportUnredact": {
+    "message": "შეუკვეცელი",
+    "description": "Text for 'Unredact' button"
+  },
   "aboutPrivacyPolicy": {
     "message": "პირადულობის დებულება",
     "description": "Link to privacy policy on GitHub (English)"
@@ -854,18 +982,6 @@
   "aboutChangelog": {
     "message": "ცვლილებათა ჟურნალი",
     "description": ""
-  },
-  "aboutWiki": {
-    "message": "Wiki",
-    "description": "English: project' wiki on GitHub"
-  },
-  "aboutSupport": {
-    "message": "მხარდაჭერა",
-    "description": "A link for where to get support"
-  },
-  "aboutIssues": {
-    "message": "ხარვეზების აღმრიცხავი",
-    "description": "Text for a link to official issue tracker"
   },
   "aboutCode": {
     "message": "წყაროს კოდი (GPLv3)",
@@ -1074,6 +1190,10 @@
   "genericCopyToClipboard": {
     "message": "ასლის აღება",
     "description": "Label for buttons used to copy something to the clipboard"
+  },
+  "genericSelectAll": {
+    "message": "ყველას მონიშვნა",
+    "description": "Label for buttons used to select all text in editor"
   },
   "toggleBlockingProfile": {
     "message": "შეზღუდვის პროფილის გადართვა",

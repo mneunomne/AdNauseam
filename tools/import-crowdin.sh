@@ -69,6 +69,13 @@ cp $SRC/vi/adnauseam.json    $DES/vi/adnauseam.json
 cp $SRC/zh-CN/adnauseam.json $DES/zh_CN/adnauseam.json
 cp $SRC/zh-TW/adnauseam.json $DES/zh_TW/adnauseam.json
 
+# Output files with possible misuse of `$`, as this can lead to severe
+# consequences, such as not being able to run the extension at all.
+# uBO does not use `$`, so any instance of `$` must be investigated.
+# See https://issues.adblockplus.org/ticket/6666
+echo "*** AdNauseam: Instances of '\$':"
+grep -FR "$" $DES/ || true
+
 cp $SRC/ar/description.txt    $DES/ar/description.txt
 cp $SRC/bg/description.txt    $DES/bg/description.txt
 cp $SRC/bn/description.txt    $DES/bn/description.txt

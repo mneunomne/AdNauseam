@@ -1383,7 +1383,8 @@ const strictBlockBypasser = {
 /******************************************************************************/
 
 const webRequest = {
-    start: (() => {
+    onBeforeRequest,
+    start: (( ) => {
         vAPI.net = new vAPI.Net();
         vAPI.net.suspend();
         return () => {
@@ -1410,6 +1411,6 @@ const webRequest = {
 
 /******************************************************************************/
 
-export { webRequest };
+export default webRequest;
 
 /******************************************************************************/

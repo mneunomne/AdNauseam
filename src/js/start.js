@@ -23,6 +23,18 @@
 
 /******************************************************************************/
 
+import './vapi-common.js';
+import './vapi-background.js';
+import './vapi-background-ext.js';
+
+// The following modules are loaded here until their content is better organized
+import './commands.js';
+import './messaging.js';
+import './storage.js';
+import './tab.js';
+import './ublock.js';
+import './utils.js';
+
 import cacheStorage from './cachestorage.js';
 import contextMenu from './contextmenu.js';
 import io from './assets.js';
@@ -31,9 +43,9 @@ import staticExtFilteringEngine from './static-ext-filtering.js';
 import staticFilteringReverseLookup from './reverselookup.js';
 import staticNetFilteringEngine from './static-net-filtering.js';
 import µb from './background.js';
+import webRequest from './traffic.js';
 import { redirectEngine } from './redirect-engine.js';
 import { ubolog } from './console.js';
-import { webRequest } from './traffic.js';
 import adnauseam from './adn/core.js'
 
 import {
@@ -255,6 +267,57 @@ const onCacheSettingsReady = async function(fetched) {
 
 /******************************************************************************/
 
+const onHiddenSettingsReady = async function() {
+    // Maybe customize webext flavor
+    if ( µb.hiddenSettings.modifyWebextFlavor !== 'unset' ) {
+        const tokens = µb.hiddenSettings.modifyWebextFlavor.split(/\s+/);
+        for ( const token of tokens ) {
+            switch ( token[0] ) {
+            case '+':
+                vAPI.webextFlavor.soup.add(token.slice(1));
+                break;
+            case '-':
+                vAPI.webextFlavor.soup.delete(token.slice(1));
+                break;
+            default:
+                vAPI.webextFlavor.soup.add(token);
+                break;
+            }
+        }
+        ubolog(`Override default webext flavor with ${tokens}`);
+    }
+
+    // Maybe override current network listener suspend state
+    if ( µb.hiddenSettings.suspendTabsUntilReady === 'no' ) {
+        vAPI.net.unsuspend(true);
+    } else if ( µb.hiddenSettings.suspendTabsUntilReady === 'yes' ) {
+        vAPI.net.suspend();
+    }
+
+    // Maybe disable WebAssembly
+    if ( vAPI.canWASM && µb.hiddenSettings.disableWebAssembly !== true ) {
+        const wasmModuleFetcher = function(path) {
+            return fetch(`${path}.wasm`, { mode: 'same-origin' }).then(
+                WebAssembly.compileStreaming
+            ).catch(reason => {
+                ubolog(reason);
+            });
+        };
+        staticNetFilteringEngine.enableWASM(wasmModuleFetcher, './js/wasm/').then(result => {
+            if ( result !== true ) { return; }
+            ubolog(`WASM modules ready ${Date.now()-vAPI.T0} ms after launch`);
+        });
+    }
+
+    // Matbe override default cache storage
+    const cacheBackend = await cacheStorage.select(
+        µb.hiddenSettings.cacheStorageAPI
+    );
+    ubolog(`Backend storage for cache will be ${cacheBackend}`);
+};
+
+/******************************************************************************/
+
 const onFirstFetchReady = function(fetched, adminExtra) {
     // https://github.com/uBlockOrigin/uBlock-issues/issues/507
     //   Firefox-specific: somehow `fetched` is undefined under certain
@@ -300,19 +363,9 @@ const fromFetch = function(to, fetched) {
 
 const createDefaultProps = function() {
     const fetchableProps = {
-        'dynamicFilteringString': [
-            'behind-the-scene * * noop',
-            'behind-the-scene * image noop',
-            'behind-the-scene * 3p noop',
-            'behind-the-scene * inline-script noop',
-            'behind-the-scene * 1p-script noop',
-            'behind-the-scene * 3p-script noop',
-            'behind-the-scene * 3p-frame noop',
-        ].join('\n'),
+        'dynamicFilteringString': µb.dynamicFilteringDefault.join('\n'),
         'urlFilteringString': '',
-        'hostnameSwitchesString': [
-            'no-large-media: behind-the-scene false'
-        ].join('\n'),
+        'hostnameSwitchesString': µb.hostnameSwitchesDefault.join('\n'),
         'lastRestoreFile': '',
         'lastRestoreTime': 0,
         'lastBackupFile': '',
@@ -320,10 +373,6 @@ const createDefaultProps = function() {
         'netWhitelist': µb.netWhitelistDefault,
         'version': '0.0.0.0'
     };
-    // https://github.com/LiCybora/NanoDefenderFirefox/issues/196
-    if ( vAPI.webextFlavor.soup.has('firefox') ) {
-        fetchableProps.hostnameSwitchesString += '\nno-csp-reports: * true';
-    }
     toFetch(µb.localSettings, fetchableProps);
     toFetch(µb.restoreBackupSettings, fetchableProps);
     return fetchableProps;
@@ -337,33 +386,8 @@ try {
     ubolog(`Admin settings ready ${Date.now()-vAPI.T0} ms after launch`);
 
     await µb.loadHiddenSettings();
+    await onHiddenSettingsReady();
     ubolog(`Hidden settings ready ${Date.now()-vAPI.T0} ms after launch`);
-
-    // Maybe override current network listener suspend state
-    if ( µb.hiddenSettings.suspendTabsUntilReady === 'no' ) {
-        vAPI.net.unsuspend(true);
-    } else if ( µb.hiddenSettings.suspendTabsUntilReady === 'yes' ) {
-        vAPI.net.suspend();
-    }
-
-    if ( vAPI.canWASM && µb.hiddenSettings.disableWebAssembly !== true ) {
-        const wasmModuleFetcher = function(path) {
-            return fetch(`${path}.wasm`, { mode: 'same-origin' }).then(
-                WebAssembly.compileStreaming
-            ).catch(reason => {
-                ubolog(reason);
-            });
-        };
-        staticNetFilteringEngine.enableWASM(wasmModuleFetcher, './js/wasm/').then(result => {
-            if ( result !== true ) { return; }
-            ubolog(`WASM modules ready ${Date.now()-vAPI.T0} ms after launch`);
-        });
-    }
-
-    const cacheBackend = await cacheStorage.select(
-        µb.hiddenSettings.cacheStorageAPI
-    );
-    ubolog(`Backend storage for cache will be ${cacheBackend}`);
 
     const adminExtra = await vAPI.adminStorage.get('toAdd');
     ubolog(`Extra admin settings ready ${Date.now()-vAPI.T0} ms after launch`);
@@ -413,6 +437,7 @@ let selfieIsValid = false;
 try {
     selfieIsValid = await µb.selfieManager.load();
     if ( selfieIsValid === true ) {
+        µb.supportStats.launchFromSelfie = true;
         ubolog(`Selfie ready ${Date.now()-vAPI.T0} ms after launch`);
     }
 } catch (ex) {
@@ -498,7 +523,8 @@ browser.runtime.onUpdateAvailable.addListener(details => {
     }
 });
 
-ubolog(`All ready ${Date.now()-vAPI.T0} ms after launch`);
+µb.supportStats.launchToReadiness = Date.now() - vAPI.T0;
+ubolog(`All ready ${µb.supportStats.launchToReadiness} ms after launch`);
 
 // <<<<< end of private scope
 })();

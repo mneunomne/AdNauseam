@@ -397,7 +397,7 @@ vAPI.SafeAnimationFrame = class {
     const startMutationObserver = function() {
         if ( domLayoutObserver !== undefined ) { return; }
         domLayoutObserver = new MutationObserver(observerHandler);
-        domLayoutObserver.observe(document.documentElement, {
+        domLayoutObserver.observe(document, {
             //attributeFilter: [ 'class', 'id' ],
             //attributes: true,
             childList: true,
@@ -473,13 +473,11 @@ vAPI.injectScriptlet = function(doc, text) {
     try {
         script = doc.createElement('script');
         script.appendChild(doc.createTextNode(text));
-        (doc.head || doc.documentElement).appendChild(script);
+        (doc.head || doc.documentElement || doc).appendChild(script);
     } catch (ex) {
     }
     if ( script ) {
-        if ( script.parentNode ) {
-            script.parentNode.removeChild(script);
-        }
+        script.remove();
         script.textContent = '';
     }
 };
@@ -1208,10 +1206,14 @@ vAPI.DOMFilterer = class {
             //   Look-up safe-only selectors to mitigate probability of
             //   html/body elements of erroneously being targeted.
             const ids = [], classes = [];
-            idFromNode(document.documentElement, ids);
-            idFromNode(document.body, ids);
-            classesFromNode(document.documentElement, classes);
-            classesFromNode(document.body, classes);
+            if ( document.documentElement !== null ) {
+                idFromNode(document.documentElement, ids);
+                classesFromNode(document.documentElement, classes);
+            }
+            if ( document.body !== null ) {
+                idFromNode(document.body, ids);
+                classesFromNode(document.body, classes);
+            }
             if ( ids.length !== 0 || classes.length !== 0 ) {
                 messaging.send('contentscript', {
                     what: 'retrieveGenericCosmeticSelectors',
