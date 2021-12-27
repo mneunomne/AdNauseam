@@ -31,4 +31,3 @@ cp -R $UASSETS/filters/* $DES/ublock/
 rm    $DES/ublock/annoyances.txt
 cp -R ./filters/adnauseam.txt                                    $DES/ublock/ # ADN
 
-echo "done."
