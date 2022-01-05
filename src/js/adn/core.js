@@ -1233,21 +1233,21 @@ const adnauseam = (function () {
     let misses = [];
     for (let name in lists) {
       if (activeBlockList(name)) {
-
+        // Check if this rule is an allow-rule, if yes, then don't block
         if (lists[name].indexOf('@@') === 0) {                              // 5.B
           logNetAllow(name, snfeData.raw, context.url);
           return false;
         }
-
+        // this a block rule from a blockEnabledList, so we don't need to block the cookies ourselves, uBlock already does that
         logNetBlock(name, snfeData.raw, context.url);                       // 5.C
         return true; // blocked, no need to continue
       }
       else {
-
         if (!misses.contains(name)) misses.push(name); // [save misses for 5.D]
       }
     }
-
+    // Adds the request url to the allowedExceptions list, later used to know which cookies need to be block by AdNauseam
+    // always returns false since it is allowed 
     return adnAllowRequest(misses.join(','), snfeData.raw, context.url);    // 5.D
   };
 
@@ -1691,28 +1691,16 @@ const adnauseam = (function () {
     }
   };
 
-  // remove 
-  /*exports.injectContentScripts = function (request, pageStore, tabId, frameId) {
-
-    log('[INJECT] IFrame: ' + request.parentUrl, frameId + '/' + tabId);
-    vAPI.onLoadAllCompleted(tabId, frameId);
-  };*/  // why is this here?
-
-  /*exports.isBlockableException = function (requestUrl, originalUrl) {
-
-    if (typeof allowedExceptions[requestUrl] !== 'undefined') { // is this correct??
-
-      const originalHostname = hostnameFromURI(originalUrl);
-      return !dntAllowsRequest(requestUrl, originalUrl);
-    }
-  };*/ // why is this here?
-
+  /* 
+   * checkAllowedException returns if the header was modified or not 
+   * if the cookie was removed, it returns the modified headers to the request on adnOnHeadersRecieved
+   */
   exports.checkAllowedException = function (headers, requestUrl, originalUrl) {
-
+    // check if the requestUrl is a Adn-allowed request
     if (typeof allowedExceptions[requestUrl] !== 'undefined') {
+      // if so, block the incoming cookie
       return blockIncomingCookies(headers, requestUrl, originalUrl);
     }
-
     return false;
   };
 
