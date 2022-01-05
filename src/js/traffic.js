@@ -714,7 +714,7 @@ const adnOnHeadersRecieved = function (details) {
 
     // 2: ublock filtering for the following request types:
     let headers;
-    const ublock_filtering_types = ['main_frame', 'sub_frame', 'image', 'media', 'xmlhttprequest'];
+    const ublock_filtering_types = ['main_frame', 'sub_frame', 'image', 'media', 'xmlhttprequest']; // where does this comes from?
     if (ublock_filtering_types.indexOf(details.type) > -1) {
         headers = onHeadersReceived(details); // return headers (if modified) or undefined
     }
@@ -731,11 +731,13 @@ const adnOnHeadersRecieved = function (details) {
     // 3: Check for AdNauseam-allowed rule (if so, block incoming cookies)
     const fctxt = µb.filteringContext.fromWebrequestDetails(details);
     const pageStore = µb.pageStoreFromTabId(fctxt.tabId);
-    const changedHeadersForAdnAllowed = typeof pageStore !== 'undefined'
-        && adnauseam.checkAllowedException(headers, details.url, pageStore.rawURL);
-
+    // this function not only checks if it an Adn-allow but also blocks the cookies from the request if thats the case
+    // to block the cookie, it changes the `headers` object removing the cookie from it
+    const isAdnAllowedException = adnauseam.checkAllowedException(headers, details.url, pageStore.rawURL); 
+    // check if the header has being changed (if there was a cookie to be blocked)
+    const changedHeadersForAdnAllowed = typeof pageStore !== 'undefined' && isAdnAllowedException
+    // if the header was changed either by uBlock or Adnauseam, return it as responseHeaders
     if (changedByUBlock || changedHeadersForAdnAllowed) return { responseHeaders: headers } // DH: fix for #1013
-    //if (typeof modifiedHeadersForAdNauseamAllowed != "boolean") return { responseHeaders: modifiedHeadersForAdNauseamAllowed };
 }
 
 const onHeadersReceived = function (details) {
