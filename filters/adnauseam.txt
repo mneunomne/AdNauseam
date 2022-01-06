@@ -488,6 +488,9 @@ www.washingtonpost.com##div.dn-hp-xs:has(wp-ad)
 # doodle
 doodle.com##div[id*=bottomAd]
 
+# cointelegraph.com
+cointelegraph.com##.NMM:has(iframe[src="about:blank"])
+
 ##################### Blocking rules ########################
 # found on wpri.com
 gfp_video_ads/
