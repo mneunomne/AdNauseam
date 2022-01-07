@@ -366,6 +366,9 @@ yandex.ru##.sticky_js_inited
 yandex.ru##*[id^="fu-"]
 yandex.ru##*[class^="desktop_js_inited"]
 
+# tweakers.net
+tweakers.net##.async[data-google-query-id]
+
 # yander email ads
 mail.yandex.ru##.mail-Layout-Content > div:has(div[style="width: 100%;"])
 mail.yandex.ru##.ns-view-left-box > div:has(div[style="width: 100%; height: 100%;"])
