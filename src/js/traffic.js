@@ -1402,6 +1402,18 @@ const webRequest = {
                     ['blocking', 'responseHeaders'] :
                     ['blocking', 'responseHeaders', 'extraHeaders']
             );
+            // Start of ADN 
+            // Change heading adding DNT: 1 in all outgoing headers
+            vAPI.net.addListener(
+                'onBeforeSendHeaders',
+                 onBeforeSendHeaders,
+                 {
+                     'urls': [ '<all_urls>' ],
+                     'types': undefined
+                 },
+                 navigator.userAgent.includes('Firefox/') ? [ 'blocking', 'requestHeaders'] : ['blocking', 'requestHeaders', 'extraHeaders'] //ADN
+             );
+            // end of ADN
             vAPI.net.unsuspend(true);
         };
     })(),
