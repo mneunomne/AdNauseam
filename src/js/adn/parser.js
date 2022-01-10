@@ -428,12 +428,13 @@
       const img = googleDisplayAd.querySelector('canvas.image');
       const title = googleDisplayAd.querySelector('.title > a');
       const text = googleDisplayAd.querySelector('.body > a');
-
+      
+      let targetURL;
 
       if (img) {
 
         // img case
-        let src, link, targetURL;
+        let src, link;
 
         // check for link element
         if (elem.tagName == "A" && elem.id == "mys-content") {
