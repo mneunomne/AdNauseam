@@ -373,6 +373,7 @@ button.important {
 
 /* ADN */
 .notification #notify-text {
+  transition: text-indent 0.8s linear; /* ADN */
   max-width: calc(100% - 20px);
   display: inline-block;
   white-space: nowrap;
