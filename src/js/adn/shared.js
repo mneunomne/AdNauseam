@@ -350,6 +350,9 @@ const appendNotifyDiv = function (notify, template) {
   const add_time = 500
   
   uDom(node.nodes[0]).on('mouseover', "#notify-text", function (e) {
+    setTimeout(function () {
+      console.log("button", node.descendants('#notify-button').nodes[0].clientWidth)
+    }, 1000)
     // set width value of text
     if ( text_width == null && width_diff == null) {
       text_width = text_node.nodes[0].clientWidth
