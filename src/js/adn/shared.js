@@ -315,11 +315,12 @@ const hasDNTNotification = function (notes) {
 const appendNotifyDiv = function (notify, template) {
 
   const node = template.clone(false);
+  const text_node =  node.descendants('#notify-text')
 
   node.addClass(notify.type);
   node.attr('id', notify.name);
   const text = document.querySelectorAll('span[data-i18n=' + notify.text + ']');
-  text.length > 0 && node.descendants('#notify-text').text(text[0].innerHTML);
+  text.length > 0 && text_node.text(text[0].innerHTML);
 
   const button = document.querySelectorAll('span[data-i18n=' + notify.button + ']');
   if (button && button[0]) {
@@ -330,6 +331,53 @@ const appendNotifyDiv = function (notify, template) {
   }
 
   node.descendants('#notify-link').attr('href', notify.link);
+
+  /*
+  * Slide text on hover, addressing texts not fitting in the menu
+  * https://github.com/dhowe/AdNauseam/issues/2026
+  */
+  
+  // timeout variables to be able to clearTimeout() later
+  notify.add_timeout = null
+  notify.remove_timeout = null
+
+  var text_width = null
+  var width_diff = null
+  
+  // constant values
+  const reading_width = 155
+  const remove_time = 4000
+  const add_time = 500
+  
+  uDom(node.nodes[0]).on('mouseover', "#notify-text", function (e) {
+    // set width value of text
+    if ( text_width == null && width_diff == null) {
+      text_width = text_node.nodes[0].clientWidth
+      width_diff = text_width - reading_width
+    }
+    // remove indent timeout
+    if (notify.remove_timeout == null) {
+      notify.remove_timeout = setTimeout(function () {
+        text_node.removeClass("hover");
+        text_node.css('text-indent', `0px`);
+        clearTimeout(notify.remove_timeout)
+        notify.remove_timeout = null
+      }, remove_time)
+    } else {
+      clearTimeout(notify.remove_timeout)
+      notify.remove_timeout = null
+    }
+    // add indent timeout
+    if (notify.add_timeout == null) {
+      notify.add_timeout = setTimeout(function () {
+        text_node.addClass("hover");
+        text_node.css('text-indent', `-${width_diff}px`);
+        clearTimeout(notify.add_timeout)
+        notify.add_timeout = null
+      }, add_time)
+    }
+  });
+  // end of text sliding code
 
   // add click handler to reactivate button (a better way to do this??)
   uDom(node.nodes[0]).on('click', "#notify-button", function (e) {

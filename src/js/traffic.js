@@ -733,9 +733,7 @@ const adnOnHeadersRecieved = function (details) {
     const pageStore = µb.pageStoreFromTabId(fctxt.tabId);
     // this function not only checks if it an Adn-allow but also blocks the cookies from the request if thats the case
     // to block the cookie, it changes the `headers` object removing the cookie from it
-    const isAdnAllowedException = adnauseam.checkAllowedException(headers, details.url, pageStore.rawURL); 
-    // check if the header has being changed (if there was a cookie to be blocked)
-    const changedHeadersForAdnAllowed = typeof pageStore !== 'undefined' && isAdnAllowedException
+    const changedHeadersForAdnAllowed = (typeof pageStore !== 'undefined' && pageStore !== null) && adnauseam.checkAllowedException(headers, details.url, pageStore.rawURL); 
     // if the header was changed either by uBlock or Adnauseam, return it as responseHeaders
     if (changedByUBlock || changedHeadersForAdnAllowed) return { responseHeaders: headers } // DH: fix for #1013
 }
