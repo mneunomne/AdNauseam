@@ -341,39 +341,49 @@ const appendNotifyDiv = function (notify, template) {
   notify.add_timeout = null
   notify.remove_timeout = null
 
+  // these variables we catch after hover, since some are not yet rendered
   var text_width = null
   var width_diff = null
+  var button_width = null
   
   // constant values
-  const reading_width = 155
-  const remove_time = 4000
+  const reading_width = 251
+  const remove_time = 2500
   const add_time = 500
-  
+
+  // mouseover event to create slide animation
   uDom(node.nodes[0]).on('mouseover', "#notify-text", function (e) {
     // set width value of text
     if ( text_width == null && width_diff == null) {
-      text_width = text_node.nodes[0].clientWidth
-      width_diff = text_width - reading_width
-    }
-    // remove indent timeout
-    if (notify.remove_timeout == null) {
-      notify.remove_timeout = setTimeout(function () {
-        text_node.removeClass("hover");
-        text_node.css('text-indent', `0px`);
-        clearTimeout(notify.remove_timeout)
-        notify.remove_timeout = null
-      }, remove_time)
-    } else {
-      clearTimeout(notify.remove_timeout)
-      notify.remove_timeout = null
+      text_width = text_node.nodes[0].scrollWidth
     }
     // add indent timeout
     if (notify.add_timeout == null) {
       notify.add_timeout = setTimeout(function () {
-        text_node.addClass("hover");
-        text_node.css('text-indent', `-${width_diff}px`);
+        // get button width to check what width need to slide
+        button_width = node.descendants('#notify-button').nodes[0].clientWidth
+        width_diff = (reading_width - button_width) - (text_width)
+        node.addClass("hover");
+        // only apply if needed
+        if (width_diff < 0) {
+          text_node.css('text-indent', `${width_diff}px`);
+        }
+        // clear add class timeout
         clearTimeout(notify.add_timeout)
         notify.add_timeout = null
+
+        // clear remove indent timeout if any
+        if (notify.remove_timeout !== null) {
+          clearTimeout(notify.remove_timeout)
+          notify.remove_timeout = null
+        }
+        // create a fresh "remove" timeout
+        notify.remove_timeout = setTimeout(function () {
+          node.removeClass("hover");
+          text_node.css('text-indent', `0px`);
+          clearTimeout(notify.remove_timeout)
+          notify.remove_timeout = null
+        }, remove_time)
       }, add_time)
     }
   });
