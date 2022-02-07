@@ -276,6 +276,9 @@ reuters.com##[src^="https://www.dianomi.com/"]
 # 2021-03-24 https://www.dimsumdaily.hk
 www.dimsumdaily.hk##.ps_instream
 www.dimsumdaily.hk##.adsbyvli
+||aniview.com^$important
+||playstream.media^$important
+www.dimsumdaily.hk##div[style*="z-index: 1000000;"]:has([id*="div-gpt-ad"])
 
 # https://g1.globo.com
 g1.globo.com##.publicidade
