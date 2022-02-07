@@ -276,8 +276,6 @@ reuters.com##[src^="https://www.dianomi.com/"]
 # 2021-03-24 https://www.dimsumdaily.hk
 www.dimsumdaily.hk##.ps_instream
 www.dimsumdaily.hk##.adsbyvli
-||aniview.com^$important
-||playstream.media^$important
 www.dimsumdaily.hk##div[style*="z-index: 1000000;"]:has([id*="div-gpt-ad"])
 
 # https://g1.globo.com
@@ -707,6 +705,10 @@ forum2go.nl##.adsbygoogle
 # myip.com #1906
 myip.com##.adsbygoogle:style(height: 0px !important)
 myip.com#@#.ads_1
+
+# video ads
+||aniview.com^$important
+||playstream.media^$important
 
 ##################### Exceptions below here ########################
 
