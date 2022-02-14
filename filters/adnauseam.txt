@@ -1,7 +1,9 @@
 # Generics (any page)
 ##iframe[src*="mellowads"]
 ##*[class*="Advert"]
-##*[class*="teads-"]
+##*[class*="teads-"]g
+###gwd-ad
+##ins.adsbygoogle
 
 # Generic exceptions
 tweakers.net#@#*[class*="Advert"]
