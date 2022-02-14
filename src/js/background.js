@@ -141,6 +141,14 @@ const userSettingsDefault = {
     webrtcIPAddressHidden: false,
 };
 
+/* Adn https://github.com/dhowe/AdNauseam/issues/2040 */
+
+const allowAnyBlockOnDomains = ['youtube.com', 'funnyordie.com']; // no dnt in here
+
+const strictBlockDefault = allowAnyBlockOnDomains.map(
+    d => d + ' * * strictBlock'
+)
+
 const dynamicFilteringDefault = [
     'behind-the-scene * * noop',
     'behind-the-scene * image noop',
@@ -149,11 +157,15 @@ const dynamicFilteringDefault = [
     'behind-the-scene * 1p-script noop',
     'behind-the-scene * 3p-script noop',
     'behind-the-scene * 3p-frame noop',
-];
+].concat(strictBlockDefault);
+
+/* end of Adn */
 
 const hostnameSwitchesDefault = [
     'no-large-media: behind-the-scene false',
 ];
+
+
 // https://github.com/LiCybora/NanoDefenderFirefox/issues/196
 if ( vAPI.webextFlavor.soup.has('firefox') ) {
     hostnameSwitchesDefault.push('no-csp-reports: * true');

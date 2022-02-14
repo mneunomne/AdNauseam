@@ -203,6 +203,7 @@
     /* syntax highlight: dynamic filtering */
     --df-allow-ink: #117700;
     --df-block-ink: #ff0000;
+    --df-strictBlock-ink: #b700ff;
     --df-noop-ink: var(--dark-gray-10);
     --df-key-ink: var(--violet-70);
 
