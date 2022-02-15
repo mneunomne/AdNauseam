@@ -1165,6 +1165,8 @@ const adnauseam = (function () {
     }
   }
 
+  /* not using anymore since https://github.com/dhowe/AdNauseam/issues/2036
+
   const isBlockableDomain = function (result, context) {
     const domain = context.docDomain, host = context.getHostname();
     for (let i = 0; i < allowAnyBlockOnDomains.length; i++) {
@@ -1174,7 +1176,9 @@ const adnauseam = (function () {
       }
     }
     return false;
+  
   };
+  */
 
   /**
    *  This is called AFTER our DNT rules, and checks the following cases.
@@ -1187,13 +1191,10 @@ const adnauseam = (function () {
    *  2) Whether we are have finished loading rules (listsLoaded == true)
    *      if not, return false
    *
-   *  3) whether *any* block on the domain is valid (domain in allowAnyBlockOnDomains)
-   *  		if so, return true;
-   *
-   *  4) whether the request is strictBlocked (iff strictBlocking is enabled)
+   *  3) whether the request is strictBlocked (iff strictBlocking is enabled)
    *      if so, return true;
    *
-   *  5) check if any list it was found on allows blocks
+   *  4) check if any list it was found on allows blocks
    *  	A) user list:      block
    *    B) exception hit:  allow
    *    C) block hit:      block
@@ -1211,12 +1212,7 @@ const adnauseam = (function () {
       return false;
     }
 
-    if (isBlockableDomain(result, context)) {
-      logNetBlock('Domains', context.docDomain + ' :: ' + context.url); // 3.
-      return true;
-    }
-
-    if (isStrictBlock(result, context)) {                               // 4.
+    if (isStrictBlock(result, context)) {                               // 3.
       return true;  
     }
 
@@ -1225,7 +1221,7 @@ const adnauseam = (function () {
 
     /* Case 5 */
     const lists = listsForFilter(snfeData);
-    if (Object.keys(lists).length === 0) {                                  // 5.A
+    if (Object.keys(lists).length === 0) {                                  // 4.A
       snfeData && logNetBlock('UserList', snfeData.raw); // always block
       return true;
     }
@@ -1234,21 +1230,21 @@ const adnauseam = (function () {
     for (let name in lists) {
       if (activeBlockList(name)) {
         // Check if this rule is an allow-rule, if yes, then don't block
-        if (lists[name].indexOf('@@') === 0) {                              // 5.B
+        if (lists[name].indexOf('@@') === 0) {                              // 4.B
           logNetAllow(name, snfeData.raw, context.url);
           return false;
         }
         // this a block rule from a blockEnabledList, so we don't need to block the cookies ourselves, uBlock already does that
-        logNetBlock(name, snfeData.raw, context.url);                       // 5.C
+        logNetBlock(name, snfeData.raw, context.url);                       // 4.C
         return true; // blocked, no need to continue
       }
       else {
-        if (!misses.contains(name)) misses.push(name); // [save misses for 5.D]
+        if (!misses.contains(name)) misses.push(name); // [save misses for 4.D]
       }
     }
     // Adds the request url to the allowedExceptions list, later used to know which cookies need to be block by AdNauseam
     // always returns false since it is allowed 
-    return adnAllowRequest(misses.join(','), snfeData.raw, context.url);    // 5.D
+    return adnAllowRequest(misses.join(','), snfeData.raw, context.url);    // 4.D
   };
 
   const adCount = function () {

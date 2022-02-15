@@ -376,7 +376,7 @@ header{
   z-index: 100;*/
 }
 .ad-item img:hover{
-  max-width:380px;
+  max-width:280px;
   max-height: 300px;
   z-index: 100;
 
