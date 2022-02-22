@@ -690,8 +690,14 @@ footer {
 button.pause,
 button.resume,
 button.settings {
+  /*
   width: 38%;
   min-width: 100px;
+  float: left;
+  margin-right: 6px;
+  */
+  width: 28%;
+  min-width: 69px;
   float: left;
   margin-right: 6px;
 }
