@@ -297,6 +297,17 @@ const matchBucket = function(url, hostname, bucket, start) {
 µb.reWhitelistHostnameExtractor = /([a-z0-9.\-_\[\]]+)(?::[\d*]+)?\/(?:[^\x00-\x20\/]|$)[^\x00-\x20]*$/;
 
 /******************************************************************************/
+// ADN - Strict Block List
+// Copy whitelist helper functions
+/******************************************************************************/
+
+µb.arrayFromStrictBlockList = µb.arrayFromWhitelist;
+µb.stringFromStrictBlockList =  µb.stringFromWhitelist;
+µb.strictBlockListFromArray = µb.whitelistFromArray;
+µb.trictBlockListFromString = µb.whitelistFromString;
+
+/******************************************************************************/
+
 
 µb.changeUserSettings = function(name, value) {
     let us = this.userSettings;

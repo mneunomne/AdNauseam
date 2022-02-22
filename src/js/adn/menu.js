@@ -670,15 +670,14 @@
   };
 
   /********************************************************************/
-  // on click strict block
+  // Adn on click strict block
 
-  function onClickStrict () {
+  function onClickStrict (ev) {
     vAPI.messaging.send(
       'adnauseam', {
       what: 'toggleStrictBlock',
       url: popupData.pageURL,
       scope: ev.altKey || ev.metaKey ? 'page' : '',
-      state: !uDom('#main').toggleClass('disabled').hasClass('disabled'),
       tabId: popupData.tabId
     });
   }

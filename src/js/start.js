@@ -189,6 +189,32 @@ const onNetWhitelistReady = function(netWhitelistRaw, adminExtra) {
     µb.netWhitelistModifyTime = Date.now();
 };
 
+
+
+/******************************************************************************/
+//                           Adn Strict Block List                            //
+/******************************************************************************/
+
+const onNetStrictBlockListReady = function(netStrictBlockListRaw, adminExtra) {
+    if ( typeof netStrictBlockListRaw === 'string' ) {
+        netStrictBlockListRaw = netStrictBlockListRaw.split('\n');
+    }
+    // Append admin-controlled trusted-site directives
+    if (
+        adminExtra instanceof Object &&
+        Array.isArray(adminExtra.untrustedSiteDirectives)
+    ) {
+        for ( const directive of adminExtra.trustedSiteDirectives ) {
+            µb.netStrictBlockListDefault.push(directive);
+            netStrictBlockListRaw.push(directive);
+        }
+    }
+    µb.netStrictBlockList = µb.strictBlockListFromArray(netStrictBlockListRaw);
+    µb.netStrictBlockListModifyTime = Date.now();
+};
+
+
+
 /******************************************************************************/
 
 // User settings are in memory
@@ -341,6 +367,9 @@ const onFirstFetchReady = function(fetched, adminExtra) {
     sessionSwitches.assign(permanentSwitches);
 
     onNetWhitelistReady(fetched.netWhitelist, adminExtra);
+    // Adn strict block list
+    onNetStrictBlockListReady(fetched.netStrictBlockList, adminExtra);
+    // end of adn
     onVersionReady(fetched.version);
 };
 
@@ -371,6 +400,7 @@ const createDefaultProps = function() {
         'lastBackupFile': '',
         'lastBackupTime': 0,
         'netWhitelist': µb.netWhitelistDefault,
+        'netStrictBlockList': µb.netStrictBlockListDefault, // ADN - strictBlockList
         'version': '0.0.0.0'
     };
     toFetch(µb.localSettings, fetchableProps);

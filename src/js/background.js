@@ -204,6 +204,15 @@ const µBlock = {  // jshint ignore:line
         'wyciwyg-scheme',   // Firefox's "What-You-Cache-Is-What-You-Get"
     ],
 
+    // Adn
+    // Strict Block List
+    netStrictBlockList: new Map(),
+    netStrictBlockListModifyTime: 0,
+    netStrictBlockListDefault: [
+        'youtube.com',
+        'facebook.com'
+    ],
+    // end of Adn
     localSettings: {
         blockedRequestCount: 0,
         allowedRequestCount: 0,

@@ -1531,6 +1531,11 @@ const adnauseam = (function () {
       wlId && vAPI.tabs.replace(wlId, vAPI.getURL("dashboard.html"));
     }
   };
+  // Adn - StrictBlockList
+  // toggle page strictBlock
+  exports.toggleStrictBlock = function (request, pageStore, tabId) { 
+    console.log("[ADN] toggleStrictBlock", request, pageStore, tabId)
+  }
 
   // Called when new top-level page is loaded
   exports.onPageLoad = function (tabId, requestURL) {
