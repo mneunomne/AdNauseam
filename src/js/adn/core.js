@@ -1219,10 +1219,10 @@ const adnauseam = (function () {
       return true;
     }
     
-    var isStrictBlocked = µb.isStrictBlocked(context.url)
+    var getIsPageStrictBlocked = µb.getIsPageStrictBlocked(context.url)
     // console.log("isStrictBlocked", isStrictBlocked, context.url, context.docDomain)
-    if (isStrictBlocked) {
-      logNetBlock('From StrictBlockList');
+    if (getIsPageStrictBlocked) {
+      logNetBlock('From StrictBlockList', context.url);
       return true;
     }
     ///////////////////////////////////////////////////////////////////////
@@ -1540,9 +1540,22 @@ const adnauseam = (function () {
       wlId && vAPI.tabs.replace(wlId, vAPI.getURL("dashboard.html"));
     }
   };
+
   // Adn - StrictBlockList
   // toggle page strictBlock
-  exports.toggleStrictBlock = function (request, pageStore, tabId) { 
+  exports.toggleStrictBlockButton = function (request, pageStore, tabId) { 
+    const store = µb.pageStoreFromTabId(request.tabId);
+    if (store) {
+
+      µb.toggleStrictBlock(request.url, request.scope, request.state);
+      // updateBadges();
+
+      // close strictblocklist if open (see gh #113)
+      const wlId = getExtPageTabId("dashboard.html#strictblocklist.html");
+      wlId && vAPI.tabs.replace(wlId, vAPI.getURL("dashboard.html"));
+    }
+
+
     console.log("[ADN] toggleStrictBlock", request, pageStore, tabId)
   }
 

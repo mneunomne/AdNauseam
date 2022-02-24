@@ -675,7 +675,7 @@
   function onClickStrict (ev) {
     vAPI.messaging.send(
       'adnauseam', {
-      what: 'toggleStrictBlock',
+      what: 'toggleStrictBlockButton',
       url: popupData.pageURL,
       scope: ev.altKey || ev.metaKey ? 'page' : '',
       tabId: popupData.tabId

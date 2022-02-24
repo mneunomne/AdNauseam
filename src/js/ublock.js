@@ -298,10 +298,10 @@ const matchBucket = function(url, hostname, bucket, start) {
 
 /******************************************************************************/
 // ADN - Strict Block List
-// Copy whitelist helper functions
+// Copy from whitelist helper functions
 /******************************************************************************/
 
-µb.isStrictBlocked = function(url) {
+µb.getIsPageStrictBlocked = function(url) {
     const hostname = hostnameFromURI(url);
     let key = hostname;
     for (;;) {
@@ -323,6 +323,126 @@ const matchBucket = function(url, hostname, bucket, start) {
 µb.strictBlockListFromArray = µb.whitelistFromArray;
 µb.strictBlockListFromString = µb.whitelistFromString;
 
+
+µb.toggleStrictBlock = function(url, scope, newState) {
+    // check if page was already strictBlocked
+    const currentState = this.getIsPageStrictBlocked(url);
+    if ( newState === undefined ) {
+        newState = !currentState;
+    }
+    if ( newState === currentState ) {
+        return currentState;
+    }
+
+    const netStrictBlockList = this.netStrictBlockList;
+    const pos = url.indexOf('#');
+    let targetURL = pos !== -1 ? url.slice(0, pos) : url;
+    const targetHostname = hostnameFromURI(targetURL);
+    let key = targetHostname;
+    let directive = scope === 'page' ? targetURL : targetHostname;
+
+    // Add to directive strictBlockList and remove from whitelist
+    if ( newState === false ) {
+        let bucket = this.netStrictBlockList.get(key);
+        if ( bucket === undefined ) {
+            bucket = [];
+            netStrictBlockList.set(key, bucket);
+        }
+        bucket.push(directive);
+        this.saveStrictBlockList();
+        this.removePageFromWhitelist(this.netWhitelist, targetURL, targetHostname)
+        return true;
+    }
+
+    // remove from StrictBlockList
+    this.removePageFromStrictBlockList(netStrictBlockList, targetURL, targetHostname)
+};
+
+// Remove all directives which cause current URL to be whitelisted
+µb.removePageFromWhitelist = function (netWhitelist, targetURL, targetHostname) {
+    let key = targetHostname;
+    for (;;) {
+        const bucket = netWhitelist.get(key);
+        if ( bucket !== undefined ) {
+            let i;
+            for (;;) {
+                i = matchBucket(targetURL, targetHostname, bucket, i);
+                if ( i === -1 ) { break; }
+                directive = bucket.splice(i, 1)[0];
+                if ( isHandcraftedWhitelistDirective(directive) ) {
+                    netWhitelist.get('#').push(`# ${directive}`);3
+                }
+            }
+            if ( bucket.length === 0 ) {
+                netWhitelist.delete(key);
+            }
+        }
+        const pos = key.indexOf('.');
+        if ( pos === -1 ) { break; }
+        key = key.slice(pos + 1);
+    }
+    const bucket = netWhitelist.get('//');
+    if ( bucket !== undefined ) {
+        let i;
+        for (;;) {
+            i = matchBucket(targetURL, targetHostname, bucket, i);
+            if ( i === -1 ) { break; }
+            directive = bucket.splice(i, 1)[0];
+            if ( isHandcraftedWhitelistDirective(directive) ) {
+                netWhitelist.get('#').push(`# ${directive}`);
+            }
+        }
+        if ( bucket.length === 0 ) {
+            netWhitelist.delete('//');
+        }
+    }
+    this.saveWhitelist();
+}
+
+
+// Remove all directives which cause current URL to be whitelisted
+µb.removePageFromStrictBlockList = function (netStrictBlockList, targetURL, targetHostname) {
+    let key = targetHostname;
+    for (;;) {
+        const bucket = netStrictBlockList.get(key);
+        if ( bucket !== undefined ) {
+            let i;
+            for (;;) {
+                i = matchBucket(targetURL, targetHostname, bucket, i);
+                if ( i === -1 ) { break; }
+                directive = bucket.splice(i, 1)[0];
+                if ( isHandcraftedWhitelistDirective(directive) ) {
+                    netStrictBlockList.get('#').push(`# ${directive}`);3
+                }
+            }
+            if ( bucket.length === 0 ) {
+                netStrictBlockList.delete(key);
+            }
+        }
+        const pos = key.indexOf('.');
+        if ( pos === -1 ) { break; }
+        key = key.slice(pos + 1);
+    }
+    const bucket = netStrictBlockList.get('//');
+    if ( bucket !== undefined ) {
+        let i;
+        for (;;) {
+            i = matchBucket(targetURL, targetHostname, bucket, i);
+            if ( i === -1 ) { break; }
+            directive = bucket.splice(i, 1)[0];
+            if ( isHandcraftedWhitelistDirective(directive) ) {
+                netStrictBlockList.get('#').push(`# ${directive}`);
+            }
+        }
+        if ( bucket.length === 0 ) {
+            netStrictBlockList.delete('//');
+        }
+    }
+    this.saveStrictBlockList();
+}
+
+/******************************************************************************/
+// End of Adn StrictBlockList
 /******************************************************************************/
 
 
