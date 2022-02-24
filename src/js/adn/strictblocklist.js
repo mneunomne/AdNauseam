@@ -40,7 +40,7 @@ const directiveFromLine = function(line) {
 
 /******************************************************************************/
 
-CodeMirror.defineMode("ubo-strictBlockList-directives", function() {
+CodeMirror.defineMode("ubo-whitelist-directives", function() {
     const reRegex = /^\/.+\/$/;
 
     return {

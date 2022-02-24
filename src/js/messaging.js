@@ -211,8 +211,8 @@ const onMessage = function(request, sender, callback) {
     case 'getStrictBlockList':
         response = {
             strictBlockList: µb.arrayFromStrictBlockList(µb.netStrictBlockList),
-            // reBadHostname: µb.reWhitelistBadHostname.source,
-            // reHostnameExtractor: µb.reWhitelistHostnameExtractor.source
+            reBadHostname: µb.reWhitelistBadHostname.source,
+            reHostnameExtractor: µb.reWhitelistHostnameExtractor.source
         };
         break;
     // end of adn

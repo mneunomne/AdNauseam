@@ -162,7 +162,7 @@ const matchBucket = function(url, hostname, bucket, start) {
                 if ( i === -1 ) { break; }
                 directive = bucket.splice(i, 1)[0];
                 if ( isHandcraftedWhitelistDirective(directive) ) {
-                    netWhitelist.get('#').push(`# ${directive}`);
+                    netWhitelist.get('#').push(`# ${directive}`);3
                 }
             }
             if ( bucket.length === 0 ) {
@@ -301,10 +301,27 @@ const matchBucket = function(url, hostname, bucket, start) {
 // Copy whitelist helper functions
 /******************************************************************************/
 
+µb.isStrictBlocked = function(url) {
+    const hostname = hostnameFromURI(url);
+    let key = hostname;
+    for (;;) {
+        if ( matchBucket(url, hostname, this.netStrictBlockList.get(key)) !== -1 ) {
+            return false;
+        }
+        const pos = key.indexOf('.');
+        if ( pos === -1 ) { break; }
+        key = key.slice(pos + 1);
+    }
+    if ( matchBucket(url, hostname, this.netStrictBlockList.get('//')) !== -1 ) {
+        return false;
+    }
+    return true;
+};
+
 µb.arrayFromStrictBlockList = µb.arrayFromWhitelist;
 µb.stringFromStrictBlockList =  µb.stringFromWhitelist;
 µb.strictBlockListFromArray = µb.whitelistFromArray;
-µb.trictBlockListFromString = µb.whitelistFromString;
+µb.strictBlockListFromString = µb.whitelistFromString;
 
 /******************************************************************************/
 

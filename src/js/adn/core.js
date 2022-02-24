@@ -1192,7 +1192,9 @@ const adnauseam = (function () {
    *      if not, return false
    *
    *  3) whether the request is strictBlocked (iff strictBlocking is enabled)
-   *      if so, return true;
+   *      if so, return true;\
+   *      A) If global Strict Block is enabled
+   *      B) If request domain/page is in the StrictBlockList
    *
    *  4) check if any list it was found on allows blocks
    *  	A) user list:      block
@@ -1212,10 +1214,17 @@ const adnauseam = (function () {
       return false;
     }
 
-    if (isStrictBlock(result, context)) {                               // 3.
-      return true;  
+    if (isStrictBlock(result, context)) {                               // 3.A
+      logNetBlock('Global Strict Block');
+      return true;
     }
-
+    
+    var isStrictBlocked = µb.isStrictBlocked(context.url)
+    // console.log("isStrictBlocked", isStrictBlocked, context.url, context.docDomain)
+    if (isStrictBlocked) {
+      logNetBlock('From StrictBlockList');
+      return true;
+    }
     ///////////////////////////////////////////////////////////////////////
     const snfe = staticNetFilteringEngine, snfeData = snfe.toLogData();
 
