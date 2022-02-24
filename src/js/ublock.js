@@ -148,6 +148,8 @@ const matchBucket = function(url, hostname, bucket, start) {
             netWhitelist.set(key, bucket);
         }
         bucket.push(directive);
+        // Adn, when whitelisted, remove page from StrictBlockList
+        µb.removePageFromStrictBlockList(this.netStrictBlockList, targetURL, targetHostname) // ADN
         this.saveWhitelist();
         return true;
     }
