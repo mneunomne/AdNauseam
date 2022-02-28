@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>AdNauseam — Settings</title>
+  <link rel="stylesheet" href="css/fonts/stylesheet.css">
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/dashboard-common.css">
+  <link rel="stylesheet" type="text/css" href="css/settings.css">
+  <link rel="stylesheet" type="text/css" href="css/fa-icons.css">
+</head>
+
+<body>
+  
+  <div style="margin: 2.5em 1em;">
+    <p>
+      <button class="custom" type="button" id="exportDialog">Test</button>&ensp;
+      <button class="custom" type="button" id="import" data-i18n="aboutRestoreDataButton">Teste</button>
+      <div class="state_btn-wrappper">
+        <div>
+          <input type="radio" value="" name="state_btn" id="strict"/><label class="label_strict label_left" for="strict_radio" id="strict-lbl">strict</label>
+        </div>
+        <div>
+          <input type="radio" value="" name="state_btn" id="active" checked="checked"/><label class="label_active label_middle" for="active_radio" id="active-lbl">active</label>
+        </div>
+        <div>
+          <input type="radio" value="" name="state_btn" id="disabled"/><label class="label_disabled label_right" for="disabled_radio" id="disabled-lbl">disabled</label>
+          <select style="position:absolute;top:0px;left:0px;width:200px; height:25px;line-height:20px;margin:0;padding:0;"
+          onchange="document.getElementById('displayValue').value=this.options[this.selectedIndex].text; document.getElementById('idValue').value=this.options[this.selectedIndex].value;">
+          <option></option>
+          <option value="one">one</option>
+          <option value="two">two</option>
+          <option value="three">three</option>
+        </select>
+        </div>
+      </div>
+    </p>
+  </div>
+</body>

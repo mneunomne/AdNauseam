@@ -211,6 +211,58 @@ a.external-link {
   border: transparent;
 }
 
+.state_btn-wrappper {
+  display: inline-block;
+  border: 2px solid #0076FF;
+  border-radius: 5px;
+  font-family: bebas_neue,sans-serif;
+  background: none;
+  box-shadow: none;
+  color: #0076FF;
+  fill: #0076FF;
+  font-size: 20px;
+  padding: 0px;
+  margin: 4px 0;
+}
+
+.state_btn-wrappper input {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  z-index: 9999;
+  margin: 0;
+}
+
+.state_btn-wrappper label {
+  padding: 2px;
+  border-radius: 3px;
+  border: 2px solid transparent;
+  margin: 1px;
+  margin: 1px;
+  padding: 1px 4px;
+}
+
+input[type="radio"]:checked + label {
+  background: #0076FF;
+  color: #000;
+  fill: #000;
+  opacity: 1;
+}
+
+.state_btn-wrappper div {
+  display: inline-block;
+  position: relative;
+}
+
+.state_btn-wrappper div:hover label {
+  border: 2px solid #0076FF;
+}
+
+.label_strict {}
+.label_active {}
+.label_disabled {}
 
 /* ============================================================
   TEMPLATE
