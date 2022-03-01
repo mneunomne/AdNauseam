@@ -26,6 +26,8 @@
 
   let ads, page, settings; // remove? only if we can find an updated ad already in the DOM
 
+  const ad_list_height = 360;
+
   vAPI.broadcastListener.add(request => {
 
     switch (request.what) {
@@ -532,7 +534,7 @@
     vAPI.closePopup();
   });
 
-  uDom('#settings-open').on('click', function () {
+  uDom('#btn-settings').on('click', function () {
 
     vAPI.messaging.send(
       'default', {
@@ -572,7 +574,7 @@
 
   const AboutURL = "https://github.com/dhowe/AdNauseam/wiki/"; // keep
 
-  uDom('#about-button').on('click', function () {
+  uDom('#btn-ublock').on('click', function () {
 
     window.open("./popup-fenix.html", '_self');
     //window.open(AboutURL);
@@ -652,7 +654,7 @@
     if (disableWarnings) {
       h = 0;  
     }
-    const newh = 350 - h;
+    const newh = ad_list_height - h;
     uDom('#ad-list').css('height', newh + 'px');
   };
 
