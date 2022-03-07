@@ -67,28 +67,20 @@
     page = json && json.pageUrl;
     settings  =json && json.prefs;
 
-    function disableMenu() {
-      uDom.nodeFromId('pause-button').disabled = true;
-      uDom.nodeFromId('resume-button').disabled = true;
-    }
+
 
     if (page) {
       // disable pause & resume buttons for options, vault, about/chrome
       if (page === vAPI.getURL("vault.html") ||
         page.indexOf(vAPI.getURL("dashboard.html")) === 0 ||
         page.indexOf("chrome") === 0 || page.indexOf("about:") === 0) {
-        disableMenu();
       }
-    }
-    else {
-      // for Firefox new tab page (see #1196)
-      disableMenu();
     }
 
     uDom("#alert").addClass('hide'); // reset state
+    console.log("dval()", dval())
     uDom('#main').toggleClass('disabled', dval());
 
-    updateMenuState();
 
     if (typeof json !== 'undefined' && json !== null ) {
       ads = json.data;
@@ -123,16 +115,6 @@
 
   const updateMenuState = function () {
 
-    if (uDom('#main').hasClass('disabled')) {
-
-      uDom('#resume-button').removeClass('hide').addClass('show');
-      uDom('#pause-button').removeClass('show').addClass('hide');
-
-    } else {
-
-      uDom('#pause-button').removeClass('hide').addClass('show');
-      uDom('#resume-button').removeClass('show').addClass('hide');
-    }
   }
 
   const setCounts = function (ads, total, recent) {
@@ -155,41 +137,6 @@
       uDom('.wrapper').css("margin-left", "-25px");
     }
   }
-
-  const updateInterface = function (json) {
-
-    const page = json.pageUrl;
-
-    // disable pause & resume buttons for options, vault, about/chrome
-    if (page === vAPI.getURL("vault.html") ||
-      page.indexOf(vAPI.getURL("dashboard.html")) === 0 ||
-      page.indexOf("chrome://") === 0 ||
-      page.indexOf("about:") === 0) {
-      uDom.nodeFromId('pause-button').disabled = true;
-      uDom.nodeFromId('resume-button').disabled = true;
-    }
-
-    uDom("#alert").addClass('hide'); // reset state
-    uDom('#main').toggleClass('disabled', dval());
-    uDom('#paused-on-page').toggleClass('hide', json.prefs.hidingDisabled);
-    uDom('#paused-no-hiding').toggleClass('hide', !json.prefs.hidingDisabled);
-
-    if (uDom('#main').hasClass('disabled')) {
-
-      uDom('#resume-button').removeClass('hide').addClass('show');
-      uDom('#pause-button').removeClass('show').addClass('hide');
-
-    } else {
-
-      uDom('#pause-button').removeClass('hide').addClass('show');
-      uDom('#resume-button').removeClass('show').addClass('hide');
-    }
-
-    uDom('#vault-count').text(json.data.length);
-    uDom('#visited').text(vAPI.i18n("adnMenuAdsClicked").replace("{{number}}", numVisits || 0));
-    uDom('#found').text(vAPI.i18n("adnMenuAdsDetected").replace("{{count}}", ads ? ads.length : 0));
-    //console.log("FOUND: " + ads.length);
-  };
 
   const layoutAds = function (json) {
 
@@ -447,7 +394,6 @@
   }
 
   const getPopupData = function (tabId) {
-
     const onPopupData = function (response) {
       cachePopupData(response);
       vAPI.messaging.send(
@@ -470,6 +416,8 @@
 
   const dval = function () {
 
+    console.log("popupData". popupData)
+
     return popupData.pageURL === '' || !popupData.netFilteringSwitch ||
       (popupData.pageHostname === 'behind-the-scene' && !popupData.advancedUserEnabled);
   }
@@ -486,11 +434,11 @@
   };
 
   const cachePopupData = function (data) {
-
+    console.log("cachePopupData", data)
     popupData = {};
     scopeToSrcHostnameMap['.'] = '';
     hostnameToSortableTokenMap = {};
-
+    
     if (typeof data !== 'object') {
       return popupData;
     }
@@ -500,7 +448,7 @@
     if (typeof hostnameDict !== 'object') {
       return popupData;
     }
-
+    
     let domain, prefix;
     for (const hostname in hostnameDict) {
       if (hostnameDict.hasOwnProperty(hostname) === false) {
@@ -625,25 +573,44 @@
     tip.classList.add('show');
   };
 
-  const toggleEnabled = function (ev) {
+  const onChangeState = function (evt) {
+    console.log("onChangeState", this.value)
+    switch (this.value) {
+      case 'strict':
+        onClickStrict();
+        break;
+      case 'disabled':
+        toggleEnabled(evt, false)
+        break;
+      case 'active':
+        toggleEnabled(evt, true)
+        break;
+      default:
+        break;
+    } 
+  }
 
+  const toggleEnabled = function (evt, state) {
+
+    
     if (!popupData || !popupData.pageURL || (popupData.pageHostname ===
       'behind-the-scene' && !popupData.advancedUserEnabled)) {
-
-      return;
-    }
+        
+        return;
+      }
+    console.log("toggleEnabled", state)
+    uDom('#main').toggleClass('disabled', !state)
 
     vAPI.messaging.send(
       'adnauseam', {
       what: 'toggleEnabled',
       url: popupData.pageURL,
-      scope: ev.altKey || ev.metaKey ? 'page' : '',
-      state: !uDom('#main').toggleClass('disabled').hasClass('disabled'),
+      scope: evt.altKey || evt.metaKey ? 'page' : '',
+      state: state,
       tabId: popupData.tabId
     });
 
-    updateMenuState();
-    // hashFromPopupData();
+    updateMenuState()
   };
 
   const adjustBlockHeight = function (disableWarnings) {
@@ -674,12 +641,18 @@
   /********************************************************************/
   // Adn on click strict block
 
-  function onClickStrict (ev) {
+  function onClickStrict () {
+    if (!popupData || !popupData.pageURL || (popupData.pageHostname ===
+      'behind-the-scene' && !popupData.advancedUserEnabled)) { 
+      return;
+    }
+    uDom('#main').removeClass('disabled')
     vAPI.messaging.send(
       'adnauseam', {
       what: 'toggleStrictBlockButton',
       url: popupData.pageURL,
-      scope: ev.altKey || ev.metaKey ? 'page' : '',
+      scope: '',
+      state: true,
       tabId: popupData.tabId
     });
   }
@@ -697,9 +670,14 @@
     }
     getPopupData(tabId);
 
+    // add click events
+    uDom('.adn_state_radio').on('change', onChangeState)
+    /*
     uDom('#pause-button').on('click', toggleEnabled);
     uDom('#resume-button').on('click', toggleEnabled);
     uDom('#strict-button').on('click', onClickStrict);
+    */
+    
     uDom('#notifications').on('click', setBackBlockHeight);
     uDom('body').on('mouseenter', '[data-tip]', onShowTooltip)
       .on('mouseleave', '[data-tip]', onHideTooltip);
