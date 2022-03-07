@@ -64,7 +64,7 @@
     "description": "Title for the asset viewer page"
   },
   "advancedSettingsPageName": {
-    "message": "上級者向け設定",
+    "message": "高度な設定",
     "description": "Title for the advanced settings page"
   },
   "popupPowerSwitchInfo": {
@@ -88,7 +88,7 @@
     "description": "English: on this page"
   },
   "popupBlockedStats": {
-    "message": "{{count}} ({{percent}}%)",
+    "message": "{{count}} 件 ({{percent}} %)",
     "description": "Example: 15 (13%)"
   },
   "popupBlockedSinceInstallPrompt": {
@@ -104,7 +104,7 @@
     "description": "For the new mobile-friendly popup design"
   },
   "popupBlockedSinceInstall_v2": {
-    "message": "インストールからの総ブロック数",
+    "message": "インストールからのブロック数",
     "description": "For the new mobile-friendly popup design"
   },
   "popupDomainsConnected_v2": {
@@ -268,7 +268,7 @@
     "description": "appears in popup"
   },
   "popupHitDomainCount": {
-    "message": "{{count}} / {{total}}",
+    "message": "{{count}} 件 ({{total}} 件中)",
     "description": "appears in popup"
   },
   "popupVersion": {
@@ -335,17 +335,25 @@
     "message": "色覚多様性に配慮した色を使用する",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "外観",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "テーマ",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "カスタムアクセントカラー",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "クラウドストレージのサポートを有効にする",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
-    "message": "私は上級者です (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>必ずお読みください</a>)",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "上級者向け設定",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "message": "私は上級者です",
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "先読み機能を無効にする (ブロックしているネットワークリクエストへの接続を完全に防ぐため)",
@@ -391,6 +399,18 @@
     "message": "CNAME クローキングを解除する",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "高度な設定",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "技術に詳しいユーザーのみを対象にした機能です",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "高度な設定",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "前回の復元:",
     "description": "English: Last restore:"
@@ -416,15 +436,15 @@
     "description": "A button in the in the _3rd-party filters_ pane"
   },
   "3pPurgeAll": {
-    "message": "すべてのキャッシュを削除",
+    "message": "キャッシュをすべて削除",
     "description": "A button in the in the _3rd-party filters_ pane"
   },
   "3pParseAllABPHideFiltersPrompt1": {
-    "message": "非表示フィルターを解析して実行する",
+    "message": "非表示フィルターを解析して適用する",
     "description": "English: Parse and enforce Adblock+ element hiding filters."
   },
   "3pParseAllABPHideFiltersInfo": {
-    "message": "非表示フィルターは、ネットワークリクエストに基づいたフィルタリングエンジンではブロックできない、ウェブページ上の邪魔とみなされる視覚的要素を隠すという機能を果たします。",
+    "message": "非表示フィルターは、ネットワークリクエストに基づいたフィルタリングエンジンではブロックできない、邪魔とみなされる視覚的要素をウェブページ上から隠すという機能を果たします。",
     "description": "Describes the purpose of the 'Parse and enforce cosmetic filters' feature."
   },
   "3pIgnoreGenericCosmeticFilters": {
@@ -432,8 +452,12 @@
     "description": "This will cause uBO to ignore all generic cosmetic filters."
   },
   "3pIgnoreGenericCosmeticFiltersInfo": {
-    "message": "汎用非表示フィルターは、すべてのウェブサイトに適用するように意図された非表示フィルターです。このオプションを有効にすると、汎用非表示フィルターを処理する結果としてウェブページに加わる、メモリーと CPU のオーバーヘッドが削減されます。\n\n性能の低い端末ではこのオプションを有効にすることをおすすめします。",
+    "message": "汎用非表示フィルターとは、すべてのウェブサイトに適用することを目的とした非表示フィルターです。このオプションを有効にすると、汎用非表示フィルターを処理する結果としてウェブページに加わる、メモリーと CPU のオーバーヘッドが削減されます。\n\n性能の低い端末ではこのオプションを有効にすることをお勧めします。",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
+  },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "フィルターリストをすべて読み込むまで、ネットワークアクティビティを停止する",
+    "description": "A checkbox in the 'Filter lists' pane"
   },
   "3pListsOfBlockedHostsHeader": {
     "message": "ブロックしたホストの一覧",
@@ -484,7 +508,7 @@
     "description": "Short information about how to use the textarea to import external filter lists by URL"
   },
   "3pExternalListObsolete": {
-    "message": "更新待ちです。",
+    "message": "期限切れです。",
     "description": "used as a tooltip for the out-of-date icon beside a list"
   },
   "3pViewContent": {
@@ -504,7 +528,7 @@
     "description": "used as a tooltip for error icon beside a list"
   },
   "1pFormatHint": {
-    "message": "1 行につき 1 つのフィルターです。フィルターは単純なホスト名でも、EasyList と同じ形式でもかまいません。<code>!</code> から始まる行は無視されます。",
+    "message": "1 行につき 1 つのフィルターです。フィルターは単純なホスト名でも EasyList と同じ形式でも構いません。<code>!</code> から始まる行は無視されます。",
     "description": "Short information about how to create custom filters"
   },
   "1pImport": {
@@ -656,7 +680,7 @@
     "description": "Tooltip for the eraser in the logger page; used to blank the content of the logger"
   },
   "loggerPauseTip": {
-    "message": "ログの出力を停止します (以後のデータはすべて破棄)",
+    "message": "ログの出力を中断します (以後のデータはすべて破棄)",
     "description": "Tooltip for the pause button in the logger page"
   },
   "loggerUnpauseTip": {
@@ -792,11 +816,11 @@
     "description": "Used in the static filtering wizard"
   },
   "loggerStaticFilteringFinderSentence1": {
-    "message": "静的フィルター <code>{{filter}}</code> を含むフィルターリスト:",
+    "message": "この静的フィルター <code>{{filter}}</code> を含むフィルターリスト:",
     "description": "Below this sentence, the filter list(s) in which the filter was found"
   },
   "loggerStaticFilteringFinderSentence2": {
-    "message": "静的フィルターを含む現在有効のフィルターリストを特定できませんでした",
+    "message": "この静的フィルターは現在有効なフィルターリストに含まれていません",
     "description": "Message to show when a filter cannot be found in any filter lists"
   },
   "loggerSettingDiscardPrompt": {
@@ -860,7 +884,7 @@
     "description": "Text for button which open an external webpage in Support pane"
   },
   "supportReportSpecificButton": {
-    "message": "新しい報告を作成する",
+    "message": "新しい報告を作成",
     "description": "Text for button which open an external webpage in Support pane"
   },
   "supportFindSpecificButton": {
@@ -872,7 +896,7 @@
     "description": "Header of 'Documentation' section in Support pane"
   },
   "supportS1P1": {
-    "message": "uBlock Origin のすべての機能については、<code>uBlock/wiki</code> のドキュメントをお読みください。",
+    "message": "uBlock Origin のすべての機能については <code>uBlock/wiki</code> のドキュメントをお読みください。",
     "description": "First paragraph of 'Documentation' section in Support pane"
   },
   "supportS2H": {
@@ -896,7 +920,7 @@
     "description": "Second paragraph of 'Filter issues' section in Support pane"
   },
   "supportS3P3": {
-    "message": "<b>ヒント:</b> フィルターリストが最新か確認しましょう。<span data-url=\"logger-ui.html#_\">ログ</span>はフィルター関連の問題の原因を調査するための第一のツールです。",
+    "message": "<b>ヒント:</b> フィルターリストが最新か確認しましょう。<span data-url=\"logger-ui.html#_\">ログ</span>はフィルターに関連する問題の原因を調査するための第一のツールです。",
     "description": "Third paragraph of 'Filter issues' section in Support pane"
   },
   "supportS4H": {
@@ -944,7 +968,7 @@
     "description": "An entry in the widget used to select the type of issue"
   },
   "supportS6Select1Option2": {
-    "message": "オーバーレイなど邪魔な要素があります",
+    "message": "オーバーレイなど邪魔なものがあります",
     "description": "An entry in the widget used to select the type of issue"
   },
   "supportS6Select1Option3": {
@@ -956,7 +980,7 @@
     "description": "An entry in the widget used to select the type of issue"
   },
   "supportS6Select1Option5": {
-    "message": "uBlock Origin を有効にすると誤作動します",
+    "message": "uBlock Origin を有効にすると誤動作します",
     "description": "An entry in the widget used to select the type of issue"
   },
   "supportS6Select1Option6": {
@@ -1008,11 +1032,11 @@
     "description": "Shown in the About pane"
   },
   "aboutCDNs": {
-    "message": "uBO の内製フィルターリストは以下の <a href=\"https://ja.wikipedia.org/wiki/%E3%82%B3%E3%83%B3%E3%83%86%E3%83%B3%E3%83%84%E3%83%87%E3%83%AA%E3%83%90%E3%83%AA%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF\">CDN</a> に無料でホストしています:",
+    "message": "uBO の内製フィルターリストは以下の <a href=\"https://ja.wikipedia.org/wiki/%E3%82%B3%E3%83%B3%E3%83%86%E3%83%B3%E3%83%84%E3%83%87%E3%83%AA%E3%83%90%E3%83%AA%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF\">CDN</a> にホストしています:",
     "description": "Shown in the About pane"
   },
   "aboutCDNsInfo": {
-    "message": "ランダムに選択された CDN がフィルターリストの更新が必要なときに使用されます",
+    "message": "フィルターリストの更新が必要なときにはランダムに選択した CDN を使用します",
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
@@ -1048,7 +1072,7 @@
     "description": "English: Network error: {{msg}}"
   },
   "subscriberConfirm": {
-    "message": "カスタムフィルターリストに以下の URL を追加しますか？\n\nフィルター名: \"{{title}}\"\nURL: {{url}}",
+    "message": "以下の URL をカスタムフィルターリストに追加しますか？\n\nフィルター名: \"{{title}}\"\nURL: {{url}}",
     "description": "No longer used"
   },
   "subscribeButton": {
@@ -1100,7 +1124,7 @@
     "description": "Used in the strict-blocking page"
   },
   "docblockedNoParamsPrompt": {
-    "message": "パラメーターを除去した URL",
+    "message": "パラメーターなし",
     "description": "label to be used for the parameter-less URL: https://cloud.githubusercontent.com/assets/585534/9832014/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
   },
   "docblockedFoundIn": {
@@ -1148,7 +1172,7 @@
     "description": "used as a prompt for the user to provide a custom device name"
   },
   "advancedSettingsWarning": {
-    "message": "警告！ 以下の上級者向け設定の変更は自己責任で行ってください。",
+    "message": "警告！ 以下の高度な設定の変更は自己責任で行ってください。",
     "description": "A warning to users at the top of 'Advanced settings' page"
   },
   "genericSubmit": {

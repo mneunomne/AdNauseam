@@ -128,7 +128,7 @@
     "description": "Tooltip used for the logger icon in the panel"
   },
   "popupTipReport": {
-    "message": "דווח על בעיה באתר אינטרנט זה",
+    "message": "דווח על סוגייה באתר זה",
     "description": "Tooltip used for the 'chat' icon in the panel"
   },
   "popupTipNoPopups": {
@@ -335,17 +335,25 @@
     "message": "ידידותי לעיוורי צבעים",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "Appearance",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "Theme",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "Custom accent color",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "הפעל אחסון בענן",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
     "message": "אני משתמש מתקדם (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>נדרש לקרוא</a>)",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "הגדרות מתקדמות",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "כבה אחזור מוקדם של משאבים (על מנת למנוע מחיבורים של בקשות רשת חסומות להישלח)",
@@ -391,6 +399,18 @@
     "message": "חשוף רשומות DNS מסוג CNAME",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "Advanced",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "Features suitable only for technical users",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "הגדרות מתקדמות",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "שחזור אחרון:",
     "description": "English: Last restore:"
@@ -434,6 +454,10 @@
   "3pIgnoreGenericCosmeticFiltersInfo": {
     "message": "מסננים קוסמטיים כלליים - אלה הם המסננים הקוסמטיים, אשר מיועדים להיות מוחלים על כל דפי האינטרנט. אפשור הגדרה זו תוריד את צריכת הזיכרון והמעבד אשר מתווספות לדפי אינטרנט כתוצאה משימוש במסננים קוסמטיים כלליים.\n\nמומלץ לאפשר הגדרה זו במכשירים פחות חזקים.",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
+  },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "השהה פעילות רשת עד לסיום טעינת כל רשימות הסינון",
+    "description": "A checkbox in the 'Filter lists' pane"
   },
   "3pListsOfBlockedHostsHeader": {
     "message": "רשימה של דומיינים חסומים",
@@ -496,7 +520,7 @@
     "description": "used as a tooltip for the clock icon beside a list"
   },
   "3pUpdating": {
-    "message": "מעדכן...",
+    "message": "מעדכן…",
     "description": "used as a tooltip for the spinner icon beside a list"
   },
   "3pNetworkError": {
@@ -552,7 +576,7 @@
     "description": "Will discard manually-edited content and exit manual-edit mode"
   },
   "rulesImport": {
-    "message": "ייבא מקובץ...",
+    "message": "ייבא מקובץ…",
     "description": ""
   },
   "rulesExport": {
@@ -864,7 +888,7 @@
     "description": "Text for button which open an external webpage in Support pane"
   },
   "supportFindSpecificButton": {
-    "message": "חיפוש דוחות דומים",
+    "message": "מצא דוחות דומים",
     "description": "A clickable link in the filter issue reporter section"
   },
   "supportS1H": {
@@ -920,7 +944,7 @@
     "description": "Second paragraph of 'Troubleshooting Information' section in Support pane"
   },
   "supportS6H": {
-    "message": "דיווח על בעיית מסנן",
+    "message": "דווח על סוגיית מסנן",
     "description": "Header of 'Report a filter issue' section in Support pane"
   },
   "supportS6P1S1": {
@@ -928,11 +952,11 @@
     "description": "A paragraph in the filter issue reporter section"
   },
   "supportS6URL": {
-    "message": "כתובת דף האינטרנט:",
+    "message": "כתובת של דף האינטרנט:",
     "description": "Label for the URL of the page"
   },
   "supportS6Select1": {
-    "message": "דף האינטרנט...",
+    "message": "דף האינטרנט…",
     "description": "Label for widget to select type of issue"
   },
   "supportS6Select1Option0": {
@@ -1140,7 +1164,7 @@
     "description": "tooltip"
   },
   "cloudNoData": {
-    "message": "...\n...",
+    "message": "…\n…",
     "description": ""
   },
   "cloudDeviceNamePrompt": {

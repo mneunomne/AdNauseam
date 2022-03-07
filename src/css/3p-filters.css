@@ -59,6 +59,23 @@ body.hideUnused #listsOfBlockedHostsPrompt:before {
     margin: 0.5em 0 0 0;
     padding: 0;
     }
+
+#listsOfBlockedHostsPrompt::before,
+.groupEntry:not([data-groupkey="user"]) .geDetails::before {
+    color: var(--ink-3);
+    content: '\2212';
+    font-family: monospace;
+    font-size: large;
+    margin-inline-end: 0.25em;
+    -webkit-margin-end: 0.25em;
+    }
+body.hideUnused #listsOfBlockedHostsPrompt::before,
+.groupEntry.hideUnused:not([data-groupkey="user"]) .geDetails::before {
+    content: '+';
+    }
+.groupEntry {
+    margin: 0.5em 0;
+    }
 .groupEntry .geDetails {
     cursor: pointer;
     }
@@ -102,17 +119,17 @@ body.hideUnused #listsOfBlockedHostsPrompt:before {
 .listEntry.toRemove .listname {
     text-decoration: line-through;
     }
+.listEntry a,
 .listEntry .fa-icon,
 .listEntry .counts {
-    fill: rgba(150,150,150, 0.9);
-    opacity: 0.5;
-    color: rgba(150,150,150, 0.9);
+    color: var(--info0-ink);
+        fill: var(--info0-ink);
     display: none;
-    fill: rgba(150,150,150, 0.9);
+    font-size: 120%;
     margin: 0 0.2em 0 0;
     }
 .listEntry .fa-icon:hover {
-    opacity: 1;
+    transform: scale(1.25);
     }
 .listEntry .content {
     display: inline-flex;
@@ -126,28 +143,22 @@ body:not(.updating) .listEntry.checked.obsolete .obsolete {
 .listEntry  a.towiki {
     display: inline-block;
     }
-.listEntry  a.fa:hover, .listEntry a.fa-icon:hover, .listEntry span.fa-icon:hover {
-    opacity: 1;
+.listEntry .remove,
+.listEntry .unsecure,
+.listEntry .failed {
+    color: var(--info3-ink);
+        fill: var(--info3-ink);
     cursor: pointer;
-}
-.listEntry.support  a.support {
-    display: inline-block;
-}
-.listEntry  .remove,
-.listEntry  .remove:visited {
-    fill: red;
-    color: red;
     }
 .listEntry.external  .remove {
     display: inline-block;
     }
-.listEntry.mustread  a.mustread {
-    display: inline-block;
+.listEntry.mustread a.mustread {
+    color: var(--info1-ink);
+        fill: var(--info1-ink);
+    display: inline-flex;
     }
-.listEntry.mustread  a.mustread:hover {
-    color: mediumblue;
-    }
-.listEntry  .counts {
+.listEntry .counts {
     display: none;
     font-size: smaller;
 }
@@ -173,12 +184,6 @@ li.listEntry span.status {
     cursor: default;
     display: none;
 }
-.listEntry span.status:hover {
-    opacity: 1;
-    }
-.listEntry span.unsecure {
-    color: darkred;
-    }
 .listEntry.checked.unsecure .unsecure {
         display: inline-flex;
     }
@@ -192,10 +197,11 @@ li.listEntry span.status {
     cursor: pointer;
     }
 .listEntry.checked.cached:not(.obsolete) .cache {
-        display: inline-flex;
+    display: inline-flex;
     }
-.listEntry span.obsolete {
-    color: hsl(36, 100%, 40%);
+.listEntry .obsolete {
+    color: var(--info2-ink);
+        fill: var(--info2-ink);
     }
 body:not(.updating) .listEntry.checked.obsolete .obsolete {
         display: inline-flex;
@@ -240,6 +246,27 @@ body.updating .listEntry.checked.obsolete .updating {
   fill:#0076FF;
 }
 /* touch-screen devices */
-:root.mobile .listEntry.checked .counts{
-  display: none;
-}
+:root.mobile .listEntry .fa-icon {
+    font-size: 120%;
+    margin: 0 0.5em 0 0;
+    }
+:root.mobile .listEntries {
+    margin-inline-start: 0;
+    -webkit-margin-start: 0;
+    }
+:root.mobile .li.listEntry {
+    /* background-color: var(--bg-1); */
+    overflow-x: auto;
+    }
+:root.mobile .li.listEntry label > span:not([class]) {
+    flex-grow: 1;
+    }
+:root.mobile .li.listEntry .listname,
+:root.mobile .li.listEntry .iconbar {
+    align-items: flex-start;
+    display: flex;
+    white-space: nowrap;
+    }
+:root.mobile .li.listEntry .iconbar {
+    margin-top: 0.2em;
+    }

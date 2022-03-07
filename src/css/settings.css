@@ -8,6 +8,7 @@ ul {
 }
     body {
     margin-bottom: 6rem;
+<<<<<<< HEAD
 }
 .synopsis {
     font-size: 90%;
@@ -72,6 +73,56 @@ ul#userSettings .subgroup> ul {
 ul#userSettings .subgroup> ul> li label {
   margin-left: 5px;
 }
+=======
+    }
+
+.synopsis {
+    color: var(--ink-0);
+    font-size: var(--font-size-smaller);
+    opacity: var(--medium-em);
+    }
+
+/* surface/ink */
+#themeMood {
+    align-items: stretch;
+    align-self: stretch;
+    display: inline-flex;
+    justify-content: stretch
+    user-select: none;
+    }
+#themeMood > span {
+    border: 1px solid var(--ink-1);
+    color: var(--ink-1);
+    display: inline-flex;
+    background-color: var(--surface-1);
+    display: inline-block;
+    padding: 0 0.5em;
+    text-align: center;
+    user-select: none;
+    }
+
+/* primary color */
+#themePrimary {
+    align-items: stretch;
+    align-self: stretch;
+    display: inline-flex;
+    justify-content: stretch
+    position: relative;
+    }
+#themePrimary > span {
+    background-color: rgb(var(--primary-50));
+    display: inline-flex;
+    width: 2em;
+    }
+
+[href="advanced-settings.html"] {
+    display: none;
+    }
+body.advancedUser [href="advanced-settings.html"] {
+    display: inline-flex;
+    }
+
+>>>>>>> upstream1.41.2
 #localData > div {
     margin-bottom: var(--default-gap-small);
     }

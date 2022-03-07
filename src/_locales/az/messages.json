@@ -128,7 +128,7 @@
     "description": "Tooltip used for the logger icon in the panel"
   },
   "popupTipReport": {
-    "message": "Bu veb bir problem hesabat",
+    "message": "Bu veb-saytdakı problemi bildir",
     "description": "Tooltip used for the 'chat' icon in the panel"
   },
   "popupTipNoPopups": {
@@ -280,7 +280,7 @@
     "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
   },
   "popup3pFrameFilterTip": {
-    "message": "↑: Qeyd edək simli olan var, kənar çərçivəsi",
+    "message": "↑: 3-cü tərəf çərçivələri olan sətirləri vurğula",
     "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
   },
   "pickerCreate": {
@@ -335,17 +335,25 @@
     "message": "Rəng seçmə qabiliyyəti olmayanlar üçün rəngləmə rejimi",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "Appearance",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "Theme",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "Custom accent color",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "Bulud yaddaşı dəstəyini işə sal",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
     "message": "Mən təcrübəli istifadəçiyəm (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>mütləq oxuyun</a>)",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "əlavə parametrlər",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "Erkən yükləməni dayandır (əngəllənmiş şəbəkə sorğuları üzrə qoşulmalara yol verməmək üçün)",
@@ -391,6 +399,18 @@
     "message": "Canonical adları ortaya çıxarın",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "Advanced",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "Features suitable only for technical users",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "əlavə parametrlər",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "Son bərpa əməliyyatının tarixi:",
     "description": "English: Last restore:"
@@ -434,6 +454,10 @@
   "3pIgnoreGenericCosmeticFiltersInfo": {
     "message": "Ümumi kosmetik filtrlərin bütün veb-saytlarda istifadəsi nəzərdə tutulur. Bu seçimi etdiyiniz təqdirdə veb-səhifələrdə ümumi kosmetik filtrlərin işlənməsi ilə əlaqədar yaddaşdan istifadə və prosessor yükü azalacaq.\n\nAz güclü cihazlarda bu seçimin aktivləşdirilməsi tövsiyə olunur.",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
+  },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "Filter siyahıları yüklənənə kimi şəbəkə fəaliyyətini dayandır",
+    "description": "A checkbox in the 'Filter lists' pane"
   },
   "3pListsOfBlockedHostsHeader": {
     "message": "Lists of blocked hosts",
@@ -884,7 +908,7 @@
     "description": "First paragraph of 'Questions and support' section in Support pane"
   },
   "supportS3H": {
-    "message": "Filter problemləri / veb sınıq",
+    "message": "Filter problemləri / vebsəhifə işləmir",
     "description": "Header of 'Filter issues' section in Support pane"
   },
   "supportS3P1": {
@@ -920,7 +944,7 @@
     "description": "Second paragraph of 'Troubleshooting Information' section in Support pane"
   },
   "supportS6H": {
-    "message": "Report a filter issue",
+    "message": "Filter problemini bildir",
     "description": "Header of 'Report a filter issue' section in Support pane"
   },
   "supportS6P1S1": {
@@ -932,7 +956,7 @@
     "description": "Label for the URL of the page"
   },
   "supportS6Select1": {
-    "message": "The web page...",
+    "message": "Səhifə...",
     "description": "Label for widget to select type of issue"
   },
   "supportS6Select1Option0": {
@@ -1140,7 +1164,7 @@
     "description": "tooltip"
   },
   "cloudNoData": {
-    "message": "...\n...",
+    "message": "…\n…",
     "description": ""
   },
   "cloudDeviceNamePrompt": {
@@ -1168,11 +1192,11 @@
     "description": ""
   },
   "contextMenuBlockElementInFrame": {
-    "message": "Block element in frame...",
+    "message": "Çərçivədəki elementi əngəllə",
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuSubscribeToList": {
-    "message": "Subscribe to filter list...",
+    "message": "Filter siyahısına abunə ol",
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuTemporarilyAllowLargeMediaElements": {

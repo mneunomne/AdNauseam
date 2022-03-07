@@ -335,17 +335,25 @@
     "message": "Kolore-itsuentzat egokia",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "Appearance",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "Theme",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "Custom accent color",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "Gaitu hodei biltegiratzearen euskarria",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
     "message": "Erabiltzaile aurreratua naiz (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>Irakurri beharrekoa</a>)",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "ezarpen aurreratuak",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "Desgaitu aurrez-kargatzea (blokeatutako sare eskaeretako edozein konexio galarazteko)",
@@ -391,6 +399,18 @@
     "message": "Erakutsi izen kanonikoak",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "Advanced",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "Features suitable only for technical users",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "ezarpen aurreratuak",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "Azken berreskuratzea:",
     "description": "English: Last restore:"
@@ -434,6 +454,10 @@
   "3pIgnoreGenericCosmeticFiltersInfo": {
     "message": "<p>Iragazki kosmetiko orokorrak webgune guztietan aplikatzeko sortu diren iragazki kosmetikoak dira. <p>uBlock₀ aplikazioak ongi kudeatzen baditu ere iragazki kosmetiko orokorrek wegune batzuetan memoria edo PUZ erabilera nabarmena ekar dezakete handiak eta antzinakoak diren horietan gehienbat. <p>Aukera hau gaituz iragazki kosmetiko orokorren erabileraren ondoriozko memoria eta PUZ erabilera gehigarria sahiestuko da, eta baita uBlock₀ beraren memoria erabilera gutxiagotu. <p> Ahalmen gutxiagoko gailuetan aukera hau gaitzea aholkatzen da.",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
+  },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "Eten sarearen jarduera iragazki-zerrenda guztiak kargatuta egon arte",
+    "description": "A checkbox in the 'Filter lists' pane"
   },
   "3pListsOfBlockedHostsHeader": {
     "message": "Lists of blocked hosts",
@@ -904,7 +928,7 @@
     "description": "Header of 'Bug report' section in Support pane"
   },
   "supportS4P1": {
-    "message": "Report issues with uBlock Origin itself to the <span data-url=\"https://github.com/uBlockOrigin/uBlock-issues/issues?q=is%3Aissue\"><code>uBlockOrigin/uBlock-issue</code> issue tracker</span>. <u>Requires a GitHub account.</u>",
+    "message": "Arazoak jakinarazi uBlock Originekin arazoen erregistroan <span data-url=\"https://github.com/uBlockOrigin/uBlock-issues/issues?q=is%3Aissue\"><code>uBlockOrigin/uBlock-issue</code>issue tracker</span>. <u>GitHub kontua beharrezkoa da.</u>",
     "description": "First paragraph of 'Bug report' section in Support pane"
   },
   "supportS5H": {
@@ -912,11 +936,11 @@
     "description": "Header of 'Troubleshooting Information' section in Support pane"
   },
   "supportS5P1": {
-    "message": "Below is technical information that might be useful when volunteers are trying to help you solve a problem.",
+    "message": "Jarraian, boluntarioek arazo bat konpontzen laguntzen saiatzen direnean baliagarria izan daitekeen informazio teknikoa aurkituko duzu.",
     "description": "First paragraph of 'Troubleshooting Information' section in Support pane"
   },
   "supportS5P2": {
-    "message": "<b>Important:</b> Potentially private or sensitive information is redacted by default. Redacted information may make it more difficult to solve a problem.",
+    "message": "<b>Garrantzitsua:</b> Pribatua edo sentikorra izan daitekeen informazioa modu lehenetsian idazten da. Idatzitako informazioak arazo bat konpontzea zaildu dezake.",
     "description": "Second paragraph of 'Troubleshooting Information' section in Support pane"
   },
   "supportS6H": {
@@ -1140,7 +1164,7 @@
     "description": "tooltip"
   },
   "cloudNoData": {
-    "message": "...\n...",
+    "message": "…\n…",
     "description": ""
   },
   "cloudDeviceNamePrompt": {

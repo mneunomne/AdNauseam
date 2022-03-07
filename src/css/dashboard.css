@@ -8,11 +8,8 @@ html, body {
     width: 100vw;
     }
 #dashboard-nav {
-    background-color: var(--default-surface);
     border: 0;
-    font-size: 20px;
-    line-height: 25px;
-    margin: 0;
+    border-bottom: 1px solid var(--border-1);
     display: flex;
     flex-shrink: 0;
     flex-wrap: wrap;
@@ -46,23 +43,17 @@ html, body {
     color: #fff;
 }
 .tabButton {
-    font-family: bebas_neue,sans-serif;
-    background-color: #222;
-    border: 2px solid #444;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    border-bottom-width: 1px;
-    color: #ccc;
-    cursor: pointer;
-    display: inline-block;
-    font-size: 110%;
-    margin: 0 0.2em 0 0;
-    overflow: hidden;
-    padding: 4px;
-    position: relative;
+    background-color: transparent;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    color: var(--dashboard-tab-ink);
+        fill: var(--dashboard-tab-ink);
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    padding: 0.7em 1.4em calc(0.7em - 3px);
     text-decoration: none;
-    top: 1px;
-    opacity: 0.75;
+    white-space: nowrap;
     }
 .tabButton:hover{
   background-color: #333;
@@ -79,6 +70,19 @@ html, body {
     color: #fff;
     border-color: #444;
     opacity: 1;
+}
+/* 
+ * TODO: support keyboard-driven navigation
+ * 
+.tabButton:not(:active):focus {
+    background-color: var(--dashboard-tab-focus-surface);
+    }
+ */
+.tabButton.selected {
+    background-color: var(--dashboard-tab-active-surface);
+    border-bottom: 3px solid var(--dashboard-tab-active-ink);
+    color: var(--dashboard-tab-active-ink);
+        fill: var(--dashboard-tab-active-ink);
     }
 iframe {
     background-color: transparent;
@@ -156,7 +160,18 @@ body.noDashboard #dashboard-nav {
     #dashboard-nav-widgets span {
         display: none;
     }
-}
+
+/* hover-able devices */
+:root.desktop .tabButton {
+    cursor: default;
+    }
+:root.desktop .tabButton:not(.selected) {
+    cursor: pointer;
+    }
+:root.desktop .tabButton:not(.selected):hover {
+    background-color: var(--dashboard-tab-hover-surface);
+    border-bottom-color: var(--dashboard-tab-hover-border);
+    }
 
 /* touch-screen devices */
 :root.mobile #dashboard-nav {
@@ -171,3 +186,4 @@ body.noDashboard #dashboard-nav {
 :root.mobile #dashboard-nav .logo {
     display: none;
     }
+}

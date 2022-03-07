@@ -1411,23 +1411,7 @@ const webRequest = {
                  },
                  navigator.userAgent.includes('Firefox/') ? [ 'blocking', 'requestHeaders'] : ['blocking', 'requestHeaders', 'extraHeaders'] //ADN
              );
-            // end of ADN
-            vAPI.net.unsuspend({ force: true });
-            // Mitigation: force-reload active tabs for environments not
-            // supporting suspended network request listeners.
-            if (
-                vAPI.net.canSuspend() !== true ||
-                µb.hiddenSettings.suspendTabsUntilReady === 'no'
-            ) {
-                const tabs = await vAPI.tabs.query({
-                    active: true,
-                    url: [ 'https://*/*', 'http://*/*' ],
-                    windowType: 'normal',
-                });
-                for ( const tab of tabs ) {
-                    vAPI.tabs.reload(tab.id);
-                }
-            }
+            vAPI.net.unsuspend({ all: true });
         };
     })(),
 

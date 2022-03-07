@@ -40,14 +40,14 @@
     <span class="tabButton" data-pane="no-dashboard.html"></span>
     -->
 </div>
-<div id="unsavedWarning">
+<section id="unsavedWarning" class="notice">
     <div>
         <span data-i18n="dashboardUnsavedWarning"></span>&emsp;
-        <button data-i18n="dashboardUnsavedWarningStay"></button>&emsp;
-        <button data-i18n="dashboardUnsavedWarningIgnore"></button>
+        <button type="button" data-i18n="dashboardUnsavedWarningStay">_<span class="hover"></span></button>&ensp;
+        <button type="button" data-i18n="dashboardUnsavedWarningIgnore">_<span class="hover"></span></button>
     </div>
     <div></div>
-</div>
+</section>
 
 <iframe id="iframe" src=""></iframe>
 
@@ -75,6 +75,8 @@
   <span data-i18n="adnNotificationDisable"></span>
   <span data-i18n="adnNotificationReactivate"></span>
 </div>
+<script src="lib/hsluv/hsluv-0.1.0.min.js"></script>
+
 <script src="js/vapi.js"></script>
 <script src="js/vapi-common.js"></script>
 <script src="js/vapi-client.js"></script>
