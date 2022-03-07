@@ -56,7 +56,7 @@
     "description": "appears as tab name in dashboard"
   },
   "supportPageName": {
-    "message": "Support",
+    "message": "Sprijini",
     "description": "appears as tab name in dashboard"
   },
   "assetViewerPageName": {
@@ -589,7 +589,7 @@
   },
   "whitelistPrompt": {
     "message": "Lista ta de nume de gazde unde uBlock va fi dezactivat. Fiecare adresă pe o singură linie. Adresele nevalide vor fi ignorate automat.",
-    "description": "The name of the trusted sites pane."
+    "description": "A concise description of the 'Trusted sites' pane."
   },
   "whitelistImport": {
     "message": "Importă și adaugă",
@@ -960,7 +960,7 @@
     "description": "An entry in the widget used to select the type of issue"
   },
   "supportS6Select1Option6": {
-    "message": "Opens unwanted tabs or windows",
+    "message": "Deschide file sau ferestre nedorite",
     "description": "An entry in the widget used to select the type of issue"
   },
   "supportS6Checkbox1": {

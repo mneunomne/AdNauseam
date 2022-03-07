@@ -124,7 +124,7 @@ const TRIE0_START = TRIE0_SLOT + 4 << 2;    //       272
 
 const roundToPageSize = v => (v + PAGE_SIZE-1) & ~(PAGE_SIZE-1);
 
-const HNTrieContainer = class {
+class HNTrieContainer {
 
     constructor() {
         const len = PAGE_SIZE * 2;
@@ -223,10 +223,7 @@ const HNTrieContainer = class {
         return -1;
     }
 
-    createOne(args) {
-        if ( Array.isArray(args) ) {
-            return new this.HNTrieRef(this, args[0], args[1]);
-        }
+    createTrie() {
         // grow buffer if needed
         if ( (this.buf32[CHAR0_SLOT] - this.buf32[TRIE1_SLOT]) < 12 ) {
             this.growBuf(12, 0);
@@ -236,13 +233,112 @@ const HNTrieContainer = class {
         this.buf32[iroot+0] = 0;
         this.buf32[iroot+1] = 0;
         this.buf32[iroot+2] = 0;
-        return new this.HNTrieRef(this, iroot, 0);
+        return iroot;
     }
 
-    compileOne(trieRef) {
-        return [ trieRef.iroot, trieRef.size ];
+    createTrieFromIterable(hostnames) {
+        const itrie = this.createTrie();
+        for ( const hn of hostnames ) {
+            if ( hn === '' ) { continue; }
+            this.setNeedle(hn).add(itrie);
+        }
+        return itrie;
     }
 
+    createTrieFromStoredDomainOpt(i, n) {
+        const itrie = this.createTrie();
+        const jend = i + n;
+        let j = i, offset = 0, k = 0, c = 0;
+        while ( j !== jend ) {
+            offset = this.buf32[CHAR0_SLOT]; // Important
+            k = 0;
+            for (;;) {
+                if ( j === jend ) { break; }
+                c = this.buf[offset+j];
+                j += 1;
+                if ( c === 0x7C /* '|' */ ) { break; }
+                if ( k === 255 ) { continue; }
+                this.buf[k] = c;
+                k += 1;
+            }
+            if ( k !== 0 ) {
+                this.buf[255] = k;
+                this.add(itrie);
+            }
+        }
+        this.needle = ''; // Important
+        return itrie;
+    }
+
+    dumpTrie(iroot) {
+        let hostnames = Array.from(this.trieIterator(iroot));
+        if ( String.prototype.padStart instanceof Function ) {
+            const maxlen = Math.min(
+                hostnames.reduce((maxlen, hn) => Math.max(maxlen, hn.length), 0),
+                64
+            );
+            hostnames = hostnames.map(hn => hn.padStart(maxlen));
+        }
+        for ( const hn of hostnames ) {
+            console.log(hn);
+        }
+    }
+
+    trieIterator(iroot) {
+        return {
+            value: undefined,
+            done: false,
+            next() {
+                if ( this.icell === 0 ) {
+                    if ( this.forks.length === 0 ) {
+                        this.value = undefined;
+                        this.done = true;
+                        return this;
+                    }
+                    this.charPtr = this.forks.pop();
+                    this.icell = this.forks.pop();
+                }
+                for (;;) {
+                    const idown = this.container.buf32[this.icell+0];
+                    if ( idown !== 0 ) {
+                        this.forks.push(idown, this.charPtr);
+                    }
+                    const v = this.container.buf32[this.icell+2];
+                    let i0 = this.container.buf32[CHAR0_SLOT] + (v >>> 8);
+                    const i1 = i0 + (v & 0x7F);
+                    while ( i0 < i1 ) {
+                        this.charPtr -= 1;
+                        this.charBuf[this.charPtr] = this.container.buf[i0];
+                        i0 += 1;
+                    }
+                    this.icell = this.container.buf32[this.icell+1];
+                    if ( (v & 0x80) !== 0 ) {
+                        return this.toHostname();
+                    }
+                }
+            },
+            toHostname() {
+                this.value = this.textDecoder.decode(
+                    new Uint8Array(this.charBuf.buffer, this.charPtr)
+                );
+                return this;
+            },
+            container: this,
+            icell: this.buf32[iroot],
+            charBuf: new Uint8Array(256),
+            charPtr: 256,
+            forks: [],
+            textDecoder: new TextDecoder(),
+            [Symbol.iterator]() { return this; },
+        };
+    }
+
+    // TODO:
+    //   Rework code to add from a string already present in the character
+    //   buffer, i.e. not having to go through setNeedle() when adding a new
+    //   hostname to a trie. This will require much work though, and probably
+    //   changing the order in which string segments are stored in the
+    //   character buffer.
     addJS(iroot) {
         let lhnchar = this.buf[255];
         if ( lhnchar === 0 ) { return 0; }
@@ -348,15 +444,6 @@ const HNTrieContainer = class {
         };
     }
 
-    fromIterable(hostnames, add) {
-        if ( add === undefined ) { add = 'add'; }
-        const trieRef = this.createOne();
-        for ( const hn of hostnames ) {
-            trieRef[add](hn);
-        }
-        return trieRef;
-    }
-
     serialize(encoder) {
         if ( encoder instanceof Object ) {
             return encoder.encode(
@@ -436,6 +523,31 @@ const HNTrieContainer = class {
         return textDecoder.decode(this.buf.subarray(offset, offset + n));
     }
 
+    storeDomainOpt(s) {
+        let n = s.length;
+        if ( n === this.lastStoredLen && s === this.lastStored ) {
+            return this.lastStoredIndex;
+        }
+        this.lastStored = s;
+        this.lastStoredLen = n;
+        if ( (this.buf.length - this.buf32[CHAR1_SLOT]) < n ) {
+            this.growBuf(0, n);
+        }
+        const offset = this.buf32[CHAR1_SLOT];
+        this.buf32[CHAR1_SLOT] = offset + n;
+        const buf8 = this.buf;
+        for ( let i = 0; i < n; i++ ) {
+            buf8[offset+i] = s.charCodeAt(i);
+        }
+        return (this.lastStoredIndex = offset - this.buf32[CHAR0_SLOT]);
+    }
+
+    extractDomainOpt(i, n) {
+        const textDecoder = new TextDecoder();
+        const offset = this.buf32[CHAR0_SLOT] + i;
+        return textDecoder.decode(this.buf.subarray(offset, offset + n));
+    }
+
     matchesHostname(hn, i, n) {
         this.setNeedle(hn);
         const buf8 = this.buf;
@@ -475,6 +587,13 @@ const HNTrieContainer = class {
         this.matches = this.matchesWASM = instance.exports.matches;
         this.add = this.addWASM = instance.exports.add;
         return true;
+    }
+
+    dumpInfo() {
+        return [
+            `Buffer size (Uint8Array): ${this.buf32[CHAR1_SLOT].toLocaleString('en')}`,
+            `WASM: ${this.wasmMemory === null ? 'disabled' : 'enabled'}`,
+        ].join('\n');
     }
 
     //--------------------------------------------------------------------------
@@ -612,149 +731,13 @@ const HNTrieContainer = class {
         }
         this.buf32 = new Uint32Array(this.buf.buffer);
     }
-};
+}
 
 HNTrieContainer.prototype.matches = HNTrieContainer.prototype.matchesJS;
 HNTrieContainer.prototype.matchesWASM = null;
 
 HNTrieContainer.prototype.add = HNTrieContainer.prototype.addJS;
 HNTrieContainer.prototype.addWASM = null;
-
-/*******************************************************************************
-
-    Class to hold reference to a specific trie
-
-*/
-
-HNTrieContainer.prototype.HNTrieRef = class {
-
-    constructor(container, iroot, size) {
-        this.container = container;
-        this.iroot = iroot;
-        this.size = size;
-        this.needle = '';
-        this.last = -1;
-    }
-
-    add(hn) {
-        if ( this.container.setNeedle(hn).add(this.iroot) > 0 ) {
-            this.last = -1;
-            this.needle = '';
-            this.size += 1;
-            return true;
-        }
-        return false;
-    }
-
-    addJS(hn) {
-        if ( this.container.setNeedle(hn).addJS(this.iroot) > 0 ) {
-            this.last = -1;
-            this.needle = '';
-            this.size += 1;
-            return true;
-        }
-        return false;
-    }
-
-    addWASM(hn) {
-        if ( this.container.setNeedle(hn).addWASM(this.iroot) > 0 ) {
-            this.last = -1;
-            this.needle = '';
-            this.size += 1;
-            return true;
-        }
-        return false;
-    }
-
-    matches(needle) {
-        if ( needle !== this.needle ) {
-            this.needle = needle;
-            this.last = this.container.setNeedle(needle).matches(this.iroot);
-        }
-        return this.last;
-    }
-
-    matchesJS(needle) {
-        if ( needle !== this.needle ) {
-            this.needle = needle;
-            this.last = this.container.setNeedle(needle).matchesJS(this.iroot);
-        }
-        return this.last;
-    }
-
-    matchesWASM(needle) {
-        if ( needle !== this.needle ) {
-            this.needle = needle;
-            this.last = this.container.setNeedle(needle).matchesWASM(this.iroot);
-        }
-        return this.last;
-    }
-
-    dump() {
-        let hostnames = Array.from(this);
-        if ( String.prototype.padStart instanceof Function ) {
-            const maxlen = Math.min(
-                hostnames.reduce((maxlen, hn) => Math.max(maxlen, hn.length), 0),
-                64
-            );
-            hostnames = hostnames.map(hn => hn.padStart(maxlen));
-        }
-        for ( const hn of hostnames ) {
-            console.log(hn);
-        }
-    }
-
-    [Symbol.iterator]() {
-        return {
-            value: undefined,
-            done: false,
-            next: function() {
-                if ( this.icell === 0 ) {
-                    if ( this.forks.length === 0 ) {
-                        this.value = undefined;
-                        this.done = true;
-                        return this;
-                    }
-                    this.charPtr = this.forks.pop();
-                    this.icell = this.forks.pop();
-                }
-                for (;;) {
-                    const idown = this.container.buf32[this.icell+0];
-                    if ( idown !== 0 ) {
-                        this.forks.push(idown, this.charPtr);
-                    }
-                    const v = this.container.buf32[this.icell+2];
-                    let i0 = this.container.buf32[CHAR0_SLOT] + (v >>> 8);
-                    const i1 = i0 + (v & 0x7F);
-                    while ( i0 < i1 ) {
-                        this.charPtr -= 1;
-                        this.charBuf[this.charPtr] = this.container.buf[i0];
-                        i0 += 1;
-                    }
-                    this.icell = this.container.buf32[this.icell+1];
-                    if ( (v & 0x80) !== 0 ) {
-                        return this.toHostname();
-                    }
-                }
-            },
-            toHostname: function() {
-                this.value = this.textDecoder.decode(
-                    new Uint8Array(this.charBuf.buffer, this.charPtr)
-                );
-                return this;
-            },
-            container: this.container,
-            icell: this.container.buf32[this.iroot],
-            charBuf: new Uint8Array(256),
-            charPtr: 256,
-            forks: [],
-            textDecoder: new TextDecoder()
-        };
-    }
-};
-
-HNTrieContainer.prototype.HNTrieRef.prototype.last = -1;
-HNTrieContainer.prototype.HNTrieRef.prototype.needle = '';
 
 /******************************************************************************/
 
