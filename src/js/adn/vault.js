@@ -255,19 +255,23 @@
     else if (ad.contentType == "text") data.totalText ++;
     try {
       let network = ad.adNetwork ? ad.adNetwork : parseHostname(ad.targetUrl);
+      console.log("network", network)
       // merge common ad system
       if (network.indexOf("adssettings.google") > -1 ) {
         //ignore adsettings
         return data;
-      } else if(network.indexOf("doubleclick") > -1 || network.indexOf("google") > -1 || ad.pageUrl.indexOf("google.com/search") > -1){
+      } else if(network.indexOf("doubleclick") > -1 || network.indexOf("google") > -1 || ad.pageUrl.indexOf("google.com/search") > -1 || network.indexOf("youtube") > -1){
         // Merge double click, google ads, google search
         network = "google ads";
       } else if(network.indexOf("amazon") > -1){
         network = "amazon ad system";
       } else if(network.indexOf("facebook") > -1){
         network = "facebook";
+      } else {
+        // no ad network detected
+        return data;
       }
-        addToDict(network, data.adNetworks);
+      addToDict(network, data.adNetworks);
     }
     catch{
       // can't parse
@@ -712,28 +716,13 @@
         $img.attr('alt', 'Unable to load image');
         $img.off("error");
     });
-    // max ad size, addressing https://github.com/dhowe/AdNauseam/issues/2050
-    let max_size = 800;
+
     // fix for #291
     $img.on('load', function() {
       // cache the dimensions of the img-item AFTER load
       const $this = $(this);
-      let w = $this.width()
-      let h = $this.height()
-      // adjust to max size
-      if (w > max_size) {
-        let prop = max_size/w
-        w = max_size;
-        h = h * prop
-      } else if (h > max_size) {
-        let prop = max_size/h
-        h = max_size;
-        w = w * prop
-      }
-      $this.width(w)
-      $this.height(h)
-      $div.attr('data-width', w);
-      $div.attr('data-height', h);
+      $div.attr('data-width', $this.width());
+      $div.attr('data-height', $this.height());
     });
   }
 
