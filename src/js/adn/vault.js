@@ -255,7 +255,6 @@
     else if (ad.contentType == "text") data.totalText ++;
     try {
       let network = ad.adNetwork ? ad.adNetwork : parseHostname(ad.targetUrl);
-      console.log("network", network)
       // merge common ad system
       if (network.indexOf("adssettings.google") > -1 ) {
         //ignore adsettings
@@ -716,7 +715,6 @@
         $img.attr('alt', 'Unable to load image');
         $img.off("error");
     });
-
     // max ad size, addressing https://github.com/dhowe/AdNauseam/issues/2050
     let max_size = 800;
     // fix for #291
