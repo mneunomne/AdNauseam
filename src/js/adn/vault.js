@@ -713,12 +713,28 @@
         $img.off("error");
     });
 
+    // max ad size, addressing https://github.com/dhowe/AdNauseam/issues/2050
+    let max_size = 800;
     // fix for #291
     $img.on('load', function() {
       // cache the dimensions of the img-item AFTER load
       const $this = $(this);
-      $div.attr('data-width', $this.width());
-      $div.attr('data-height', $this.height());
+      let w = $this.width()
+      let h = $this.height()
+      // adjust to max size
+      if (w > max_size) {
+        let prop = max_size/w
+        w = max_size;
+        h = h * prop
+      } else if (h > max_size) {
+        let prop = max_size/h
+        h = max_size;
+        w = w * prop
+      }
+      $this.width(w)
+      $this.height(h)
+      $div.attr('data-width', w);
+      $div.attr('data-height', h);
     });
   }
 
