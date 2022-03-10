@@ -67,8 +67,6 @@
     page = json && json.pageUrl;
     settings = json && json.prefs;
 
-
-
     if (page) {
       // disable pause & resume buttons for options, vault, about/chrome
       if (page === vAPI.getURL("vault.html") ||
@@ -80,7 +78,6 @@
     uDom("#alert").addClass('hide'); // reset state
     console.log("dval()", dval())
     uDom('#main').toggleClass('disabled', dval());
-
 
     if (typeof json !== 'undefined' && json !== null) {
       ads = json.data;
@@ -118,16 +115,12 @@
   }
 
   const setCounts = function (ads, total, recent) {
-
     const numVisits = recent ? 0 : (visitedCount(ads) || 0);
     uDom('#vault-count').text(total || 0);
-
     uDom('#visited').text(vAPI.i18n("adnMenuAdsClicked").replace("{{number}}", numVisits || 0));
     uDom('#found').text(vAPI.i18n("adnMenuAdsDetected").replace("{{count}}", (ads && !recent) ? ads.length : 0));
     setCost(numVisits);
-
     adjustStatCSS();
-
   }
 
   const adjustStatCSS = function () {
@@ -139,18 +132,15 @@
   }
 
   const layoutAds = function (json) {
-
     const $items = uDom('#ad-list-items');
     $items.removeClass().empty();
 
     let ads = json.data;
     if (ads) {
-
       if (json.recent) doRecent();
-
-      for (let i = 0, j = ads.length; i < j; i++)
+      for (let i = 0, j = ads.length; i < j; i++) {
         appendAd($items, ads[i]);
-
+      }
       setAttempting(json.current);
     }
   };
@@ -159,7 +149,6 @@
 
     let title = ad.title + ' ';
     if (ad.visitedTs < 1) {
-
       // adds . to title for each failed attempt
       for (let i = 0; i < ad.attempts; i++)
         title += '.';
@@ -181,7 +170,6 @@
 
       // update the visited count
       if (ad.pageUrl === page) { // global page here
-
         const numVisits = visitedCount(ads);
         uDom('#visited').text(vAPI.i18n("adnMenuAdsClicked").replace("{{number}}", numVisits || 0));
         setCost(numVisits);
@@ -191,20 +179,14 @@
   }
 
   const verify = function (ad) { // uses global ads
-
-    //if (!ads) console.error("[WARN] no global ads!");
-
     if (ad && ads) {
-
       for (let i = 0; i < ads.length; i++) {
-
         if (ads[i].id === ad.id) {
           ads[i] = ad;
           return true;
         }
       }
     }
-
     return false;
   }
 
@@ -217,23 +199,18 @@
     if (ad.private && ad.adNetwork != null) return; // skip private ads after removal of content
 
     if (ad.contentType === 'img') {
-
       appendImageAd(ad, $items);
-
     } else if (ad.contentType === 'text') {
-
       appendTextAd(ad, $items);
     }
   }
 
   const removeClassFromAll = function (cls) {
-
     uDom('.ad-item').removeClass(cls);
     uDom('.ad-item-text').removeClass(cls);
   };
 
   const setAttempting = function (ad) {
-
     // one 'attempt' at a time
     removeClassFromAll('attempting');
 
@@ -243,25 +220,19 @@
   }
 
   const updateAdClasses = function (ad) {
-
     const $ad = uDom('#ad' + ad.id); //$('#ad' + ad.id);
-
     // allow only one just-* at a time...
     removeClassFromAll('just-visited just-failed');
-
     // See https://github.com/dhowe/AdNauseam/issues/61
     const cls = ad.visitedTs > 0 ? 'just-visited' : 'just-failed';
     // Update the status
     const txt = cls === 'just-visited' ? 'visited' : 'failed';
     $ad.descendants('.adStatus').text(vAPI.i18n("adnAdClickingStatus" + txt));
-
     $ad.removeClass('failed visited attempting').addClass(cls);
-
     // timed for animation
     setTimeout(function () {
       $ad.addClass(visitedClass(ad));
     }, 300);
-
     return $ad;
   }
 
@@ -294,7 +265,6 @@
       .on('click', "this.onerror=null; this.width=50; this.height=45; this.src='img/placeholder.svg'");
 
     $img.on("error", function () {
-
       $img.css({
         width: 80,
         height: 40
@@ -305,8 +275,6 @@
     });
 
     $img.appendTo($span);
-
-    //    $span.appendTo($a);
 
     uDom(document.createElement('span'))
       .addClass('title')
@@ -325,13 +293,10 @@
     const $status = uDom(document.createElement('span'))
       .addClass('adStatus').text(vAPI.i18n("adnAdClickingStatus" + adStatus(ad)));
     $status.appendTo(parent);
-
   }
 
   const adStatus = function (ad) {
-
     let status = settings.clickingDisabled ? "SkippedDisabled" : "Pending";
-
     if (!ad.noVisit) {
       if (ad.attempts > 0) {
         status = ad.visitedTs > 0 ? 'Visited' : 'Failed';
@@ -372,7 +337,6 @@
       $cite.text($cite.text() + ' (#' + ad.id + ')'); // testing-only
       $cite.appendTo($li);
     }
-
     uDom(document.createElement('div'))
       .addClass('ads-creative')
       .text(ad.contentData.text).appendTo($li);
@@ -381,13 +345,11 @@
   }
 
   const visitedClass = function (ad) {
-
     return ad.dntAllowed ? 'dnt-allowed' : (ad.visitedTs > 0 ? 'visited' :
       (ad.visitedTs < 0 && ad.attempts >= 3) ? 'failed' : '');
   }
 
   const visitedCount = function (arr) {
-
     return (!(arr && arr.length)) ? 0 : arr.filter(function (ad) {
       return ad.visitedTs > 0;
     }).length;
@@ -415,9 +377,6 @@
   };
 
   const dval = function () {
-
-    console.log("popupData".popupData)
-
     return popupData.pageURL === '' || !popupData.netFilteringSwitch ||
       (popupData.pageHostname === 'behind-the-scene' && !popupData.advancedUserEnabled);
   }
@@ -467,55 +426,51 @@
   };
 
   uDom('#vault-button').on('click', function () {
-
     vAPI.messaging.send(
-      'default', {
-      what: 'gotoURL',
-      details: {
-        url: "vault.html",
-        select: true,
-        index: -1
+      'default',
+      {
+        what: 'gotoURL',
+        details: {
+          url: "vault.html",
+          select: true,
+          index: -1
+        }
       }
-    }
     )
-
     vAPI.closePopup();
   });
 
   uDom('#btn-settings').on('click', function () {
-
     vAPI.messaging.send(
-      'default', {
-      what: 'gotoURL',
-      details: {
-        url: "dashboard.html#options.html",
-        select: true,
-        index: -1
+      'default', 
+      {
+        what: 'gotoURL',
+        details: {
+          url: "dashboard.html#options.html",
+          select: true,
+          index: -1
+        }
       }
-    }
     );
-
     vAPI.closePopup();
   });
 
   uDom('#help-button').on('click', function () {
-
     vAPI.messaging.send(
-      'default', {
-      what: 'gotoURL',
-      details: {
-        url: "https://github.com/dhowe/AdNauseam/wiki/FAQ",
-        select: true,
-        index: -1
+      'default', 
+      {
+        what: 'gotoURL',
+        details: {
+          url: "https://github.com/dhowe/AdNauseam/wiki/FAQ",
+          select: true,
+          index: -1
+        }
       }
-    }
     );
-
     vAPI.closePopup();
   });
 
   uDom('#settings-close').on('click', function () {
-
     uDom('.page').toggleClass('hide');
     uDom('.settings').toggleClass('hide');
   });
@@ -523,13 +478,11 @@
   const AboutURL = "https://github.com/dhowe/AdNauseam/wiki/"; // keep
 
   uDom('#btn-ublock').on('click', function () {
-
     window.open("./popup-fenix.html", '_self');
     //window.open(AboutURL);
   });
 
   const onHideTooltip = function () {
-
     uDom.nodeFromId('tooltip').classList.remove('show');
   };
 
@@ -591,16 +544,12 @@
   }
 
   const toggleEnabled = function (evt, state) {
-
-
     if (!popupData || !popupData.pageURL || (popupData.pageHostname ===
       'behind-the-scene' && !popupData.advancedUserEnabled)) {
-
       return;
     }
     console.log("toggleEnabled", state)
     uDom('#main').toggleClass('disabled', !state)
-
     vAPI.messaging.send(
       'adnauseam', {
       what: 'toggleEnabled',
@@ -609,7 +558,6 @@
       state: state,
       tabId: popupData.tabId
     });
-
     updateMenuState()
   };
 
@@ -626,20 +574,18 @@
   };
 
   const setBackBlockHeight = function () {
-
     let height = document.getElementById('ad-list').offsetHeight;
     let top = parseInt(uDom('#paused-menu').css('top'));
-
     const unit = 39; // ?
     height += unit;
     top -= unit;
-
     uDom('#ad-list').css('height', height + 'px');
     uDom('#paused-menu').css('top', top + 'px');
   };
 
-  /********************************************************************/
-  // Adn on click strict block
+  /*******************************************************************
+  Adn on click strict block
+  ********************************************************************/
 
   function onClickStrict() {
     if (!popupData || !popupData.pageURL || (popupData.pageHostname ===
@@ -700,8 +646,6 @@
     ) {
       document.body.classList.add('mobile');
     }
-
-
   })();
 
   /********************************************************************/
