@@ -259,15 +259,18 @@
       if (network.indexOf("adssettings.google") > -1 ) {
         //ignore adsettings
         return data;
-      } else if(network.indexOf("doubleclick") > -1 || network.indexOf("google") > -1 || ad.pageUrl.indexOf("google.com/search") > -1){
+      } else if(network.indexOf("doubleclick") > -1 || network.indexOf("google") > -1 || ad.pageUrl.indexOf("google.com/search") > -1 || network.indexOf("youtube") > -1){
         // Merge double click, google ads, google search
         network = "google ads";
       } else if(network.indexOf("amazon") > -1){
         network = "amazon ad system";
       } else if(network.indexOf("facebook") > -1){
         network = "facebook";
+      } else {
+        // no ad network detected
+        return data;
       }
-        addToDict(network, data.adNetworks);
+      addToDict(network, data.adNetworks);
     }
     catch{
       // can't parse
