@@ -710,6 +710,12 @@ footer > span  {
   right: 3px;
 }
 
+.btn_radio_label {
+  font-family: bebas_neue,sans-serif;
+  font-size: 20px;
+  display: block;
+}
+
 #state_btn-wrappper {
   left: 50%;
   transform: translateX(-50%);
@@ -726,14 +732,52 @@ footer > span  {
   width: 244px;
 }
 
-#state_btn-wrappper > span {
+.btn_radio_wrapper {
   position: relative;
-  width: 32.2%;
+  display: block;
+}
+
+.btn_radio_wrapper-left {
+  width: 72px;
+}
+.btn_radio_wrapper-center {
+  width: 73px;
+}
+.btn_radio_wrapper-right {
+  width: 87px;
+}
+
+.popup_arrow {
+  padding: 2px;
+  transform: rotate(180deg);
+}
+
+.popup_arrow:hover {
+  background: red;
+}
+
+.popup_arrow svg {
+  transform: rotate(180deg);
+}
+
+.popup_arrow.open svg {
+  transform: rotate(0deg);
+}
+
+.btn_radio_wrapper-right label {
+  text-align: right !important;
+}
+
+.btn_radio_wrapper::after {
+  content: none;
+}
+
+#state_btn-wrappper > .btn_radio_wrapper {
   text-align: center;
   display: inline-block;
 }
 
-#state_btn-wrappper input {
+.btn_radio {
   position: absolute;
   left: 0;
   width: 100%;
@@ -753,11 +797,15 @@ footer > span  {
   text-align: center;
 }
 
-input[type="radio"]:checked + label {
+.btn_radio:checked + .btn_radio_label {
   background: #0076FF;
-  color: #000;
+  color: white;
   fill: #000;
   opacity: 1;
+}
+
+.btn_radio:checked + .btn_radio_label path {
+  stroke: white;
 }
 
 #state_btn-wrappper div {
@@ -765,7 +813,11 @@ input[type="radio"]:checked + label {
   position: relative;
 }
 
-.footer-btn span:hover label {
+.btn_radio:hover + .btn_radio_label {
+  color: white;
+}
+
+.btn_radio:checked + .btn_radio_label {
   color: white;
 }
 
@@ -775,6 +827,51 @@ input[type="radio"]:checked + label {
 
 #btn-ublock:hover svg path {
   fill: white;
+}
+
+.inner-popup {
+  display: inline-block;
+  text-align: center;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #333333;
+  background: black;
+}
+
+.inner-popup_wrapper {
+  position: absolute;
+  bottom: 42px;
+  left: 147px;
+}
+
+.inner-popup .btn_radio_wrapper:not(:first-child) {
+  border-top: 1px solid #333333;
+  z-index: 1;
+}
+
+.inner-popup .btn_radio_label {
+  padding: 6px;
+  width: 160px;
+  padding: 10px 0px;
+  color: #0076FF;
+}
+
+.inner-popup_wrapper::after {
+  z-index: 0;
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  margin-left: 0;
+  bottom: 1px;
+  border-radius: 1px;
+  left: 75%;
+  box-sizing: border-box;
+  border: 5px solid #fff;
+  border-color: transparent black black transparent;
+  transform-origin: 0 0;
+  transform: rotate(45deg);
+  box-shadow: 1px 1px 0px 0px #333333;
 }
 
 
