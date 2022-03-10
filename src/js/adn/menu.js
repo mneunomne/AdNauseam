@@ -65,7 +65,7 @@
 
   const renderPage = function (json) {
     page = json && json.pageUrl;
-    settings  =json && json.prefs;
+    settings = json && json.prefs;
 
 
 
@@ -82,7 +82,7 @@
     uDom('#main').toggleClass('disabled', dval());
 
 
-    if (typeof json !== 'undefined' && json !== null ) {
+    if (typeof json !== 'undefined' && json !== null) {
       ads = json.data;
       setCounts(ads, json.total, json.recent);
     } else {
@@ -287,7 +287,7 @@
     let img_src = (ad.contentData.src || ad.contentData);
     var isPNGdata = img_src.includes('data:image/png');
     var cl = isPNGdata ? "ad-item-img white-bg" : "ad-item-img";
-    
+
     $img = uDom(document.createElement('img'))
       .attr('src', img_src)
       .addClass(cl)
@@ -416,7 +416,7 @@
 
   const dval = function () {
 
-    console.log("popupData". popupData)
+    console.log("popupData".popupData)
 
     return popupData.pageURL === '' || !popupData.netFilteringSwitch ||
       (popupData.pageHostname === 'behind-the-scene' && !popupData.advancedUserEnabled);
@@ -438,7 +438,7 @@
     popupData = {};
     scopeToSrcHostnameMap['.'] = '';
     hostnameToSortableTokenMap = {};
-    
+
     if (typeof data !== 'object') {
       return popupData;
     }
@@ -448,7 +448,7 @@
     if (typeof hostnameDict !== 'object') {
       return popupData;
     }
-    
+
     let domain, prefix;
     for (const hostname in hostnameDict) {
       if (hostnameDict.hasOwnProperty(hostname) === false) {
@@ -587,17 +587,17 @@
         break;
       default:
         break;
-    } 
+    }
   }
 
   const toggleEnabled = function (evt, state) {
 
-    
+
     if (!popupData || !popupData.pageURL || (popupData.pageHostname ===
       'behind-the-scene' && !popupData.advancedUserEnabled)) {
-        
-        return;
-      }
+
+      return;
+    }
     console.log("toggleEnabled", state)
     uDom('#main').toggleClass('disabled', !state)
 
@@ -615,11 +615,11 @@
 
   const adjustBlockHeight = function (disableWarnings) {
     // recalculate the height of ad-list
-    
+
     let notification = document.getElementById('notifications')
     var h = notification.offsetHeight;
     if (disableWarnings) {
-      h = 0;  
+      h = 0;
     }
     const newh = ad_list_height - h;
     uDom('#ad-list').css('height', newh + 'px');
@@ -641,9 +641,9 @@
   /********************************************************************/
   // Adn on click strict block
 
-  function onClickStrict () {
+  function onClickStrict() {
     if (!popupData || !popupData.pageURL || (popupData.pageHostname ===
-      'behind-the-scene' && !popupData.advancedUserEnabled)) { 
+      'behind-the-scene' && !popupData.advancedUserEnabled)) {
       return;
     }
     uDom('#main').removeClass('disabled')
@@ -677,7 +677,7 @@
     uDom('#resume-button').on('click', toggleEnabled);
     uDom('#strict-button').on('click', onClickStrict);
     */
-    
+
     uDom('#notifications').on('click', setBackBlockHeight);
     uDom('body').on('mouseenter', '[data-tip]', onShowTooltip)
       .on('mouseleave', '[data-tip]', onHideTooltip);
