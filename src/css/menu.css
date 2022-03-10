@@ -683,7 +683,7 @@ footer {
   bottom: 0;
   position: absolute;
   width:100%;
-  z-index:2;
+  z-index:200;
   display: inline-block;
   height: 40px;
   width: 320px;
@@ -714,6 +714,10 @@ footer > span  {
   font-family: bebas_neue,sans-serif;
   font-size: 20px;
   display: block;
+  -webkit-user-select: none; /* Safari */        
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
 }
 
 #state_btn-wrappper {
@@ -748,12 +752,15 @@ footer > span  {
 }
 
 .popup_arrow {
+  position: absolute;
+  z-index: 9999;
+  right: 1px;
   padding: 2px;
   transform: rotate(180deg);
 }
 
-.popup_arrow:hover {
-  background: red;
+.popup_arrow:hover svg path {
+  stroke: white;
 }
 
 .popup_arrow svg {
@@ -765,7 +772,7 @@ footer > span  {
 }
 
 .btn_radio_wrapper-right label {
-  text-align: right !important;
+  /* text-align: right !important; */
 }
 
 .btn_radio_wrapper::after {
@@ -897,7 +904,7 @@ footer > span  {
   background: #000 url(../img/gray_grid.png);
   opacity: 0.95;
   padding: 145px 5px 0;
-  z-index: 10000;
+  z-index: 100;
   text-align: center;
 }
 

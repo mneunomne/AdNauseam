@@ -111,7 +111,7 @@
   }
 
   const updateMenuState = function () {
-
+    // do smth here
   }
 
   const setCounts = function (ads, total, recent) {
@@ -532,7 +532,7 @@
       case 'strict':
         onClickStrict();
         break;
-      case 'disabled':
+      case 'disable':
         toggleEnabled(evt, false)
         break;
       case 'active':
@@ -548,7 +548,10 @@
       'behind-the-scene' && !popupData.advancedUserEnabled)) {
       return;
     }
-    console.log("toggleEnabled", state)
+    console.log("toggleEnabled", evt, state)
+    if (state == false) { // if click on disable
+
+    }
     uDom('#main').toggleClass('disabled', !state)
     vAPI.messaging.send(
       'adnauseam', {
@@ -560,6 +563,47 @@
     });
     updateMenuState()
   };
+
+  const onClickDisableArrow = function (evt) {
+    evt.preventDefault && evt.preventDefault();
+    evt.stopPropagation && evt.stopPropagation()
+    uDom("#disable").prop('checked',true);
+    var $this = uDom(this)
+    var isOpen = $this.hasClass('open')
+    console.log("onClickDisableArrow", isOpen, $this)
+
+    var onAnyClickAfterOpen = function (event) {
+      console.log("on any click after open", event)
+      if (event.target.name == 'disable_type') {
+        // here deal with choices of disable type
+      } else {
+        // here close the popup
+        closePopup()
+      }
+    }
+
+    var closePopup = function () {
+      $this.removeClass("open")
+      uDom(".inner-popup_wrapper").addClass("hidden")
+      document.removeEventListener('click', onAnyClickAfterOpen)
+    }
+
+    var openPopup = function () {
+      $this.addClass("open")
+      uDom(".inner-popup_wrapper").removeClass("hidden")
+      document.addEventListener('click', onAnyClickAfterOpen)
+    }
+
+    if (isOpen) {
+      closePopup()
+    } else {
+      openPopup()
+    }
+  }
+
+  const toggleDisablePopup = function () {
+    var isOpen = uDom(".popup_arrow").hasClass("open")
+  }
 
   const adjustBlockHeight = function (disableWarnings) {
     // recalculate the height of ad-list
@@ -618,6 +662,7 @@
 
     // add click events
     uDom('.adn_state_radio').on('change', onChangeState)
+    uDom('.popup_arrow').on('click', onClickDisableArrow)
     /*
     uDom('#pause-button').on('click', toggleEnabled);
     uDom('#resume-button').on('click', toggleEnabled);
