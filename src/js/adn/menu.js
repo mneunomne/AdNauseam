@@ -77,8 +77,21 @@
     }
 
     uDom("#alert").addClass('hide'); // reset state
-    uDom('#main').toggleClass('disabled', dval());
-    getCurPageState()
+    uDom('#main').toggleClass('disabled', getIsDisabled());
+
+    // set button state
+    if (getIsDisabled()) {
+      // disabled 
+      uDom('#disable').prop('checked', true);
+    } else if (getIsStrictBlocked()) {
+      // strict blocked
+      uDom('#strict').prop('checked', true);
+    } else {
+      // active
+      uDom('#active').prop('checked', true);
+    }
+    
+    
     // disable 3 state toggle button
 
     if (typeof json !== 'undefined' && json !== null) {
@@ -378,13 +391,13 @@
     })
   };
 
-  const dval = function () {
+  const getIsDisabled = function () {
     return popupData.pageURL === '' || !popupData.netFilteringSwitch ||
       (popupData.pageHostname === 'behind-the-scene' && !popupData.advancedUserEnabled);
   }
 
-  const getCurPageState = function () {
-    console.log("popupData",popupData)
+  const getIsStrictBlocked = function () {
+    return popupData.strictBlocked
   }
 
   /******************************************************************************/

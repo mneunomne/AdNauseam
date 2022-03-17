@@ -1533,11 +1533,16 @@ const adnauseam = (function () {
     if (store) {
 
       store.toggleNetFilteringSwitch(request.url, request.scope, request.state);
+      µb.toggleStrictBlock(request.url, request.scope, false); // adn remove strictBlock
       updateBadges();
 
       // close whitelist if open (see gh #113)
       const wlId = getExtPageTabId("dashboard.html#whitelist.html");
       wlId && vAPI.tabs.replace(wlId, vAPI.getURL("dashboard.html"));
+
+      // ADN - close strictblocklist if open
+      const wlIdSb = getExtPageTabId("dashboard.html#strictblocklist.html");
+      wlIdSb && vAPI.tabs.replace(wlIdSb, vAPI.getURL("dashboard.html"));
     }
   };
 
@@ -1549,11 +1554,16 @@ const adnauseam = (function () {
     if (store) {
 
       µb.toggleStrictBlock(request.url, request.scope, request.state);
+      store.toggleNetFilteringSwitch(request.url, request.scope, true);
       // updateBadges();
 
       // close strictblocklist if open (see gh #113)
       const wlId = getExtPageTabId("dashboard.html#strictblocklist.html");
       wlId && vAPI.tabs.replace(wlId, vAPI.getURL("dashboard.html"));
+
+      // close whitelist if open (see gh #113)
+      const wlIdwl = getExtPageTabId("dashboard.html#whitelist.html");
+      wlIdwl && vAPI.tabs.replace(wlIdwl, vAPI.getURL("dashboard.html"));
     }
   }
 
