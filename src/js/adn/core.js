@@ -1543,7 +1543,8 @@ const adnauseam = (function () {
 
   // Adn - StrictBlockList
   // toggle page strictBlock
-  exports.toggleStrictBlockButton = function (request, pageStore, tabId) { 
+  exports.toggleStrictBlockButton = function (request) { 
+    console.log("[ADN] toggleStrictBlock", request)
     const store = µb.pageStoreFromTabId(request.tabId);
     if (store) {
 
@@ -1554,9 +1555,6 @@ const adnauseam = (function () {
       const wlId = getExtPageTabId("dashboard.html#strictblocklist.html");
       wlId && vAPI.tabs.replace(wlId, vAPI.getURL("dashboard.html"));
     }
-
-
-    console.log("[ADN] toggleStrictBlock", request, pageStore, tabId)
   }
 
   // Called when new top-level page is loaded

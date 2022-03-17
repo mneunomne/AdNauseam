@@ -72,12 +72,14 @@
       if (page === vAPI.getURL("vault.html") ||
         page.indexOf(vAPI.getURL("dashboard.html")) === 0 ||
         page.indexOf("chrome") === 0 || page.indexOf("about:") === 0) {
+          uDom('#state_btn-wrapper').addClass('disabled');
       }
     }
 
     uDom("#alert").addClass('hide'); // reset state
-    console.log("dval()", dval())
     uDom('#main').toggleClass('disabled', dval());
+    getCurPageState()
+    // disable 3 state toggle button
 
     if (typeof json !== 'undefined' && json !== null) {
       ads = json.data;
@@ -379,6 +381,10 @@
   const dval = function () {
     return popupData.pageURL === '' || !popupData.netFilteringSwitch ||
       (popupData.pageHostname === 'behind-the-scene' && !popupData.advancedUserEnabled);
+  }
+
+  const getCurPageState = function () {
+    console.log("popupData",popupData)
   }
 
   /******************************************************************************/

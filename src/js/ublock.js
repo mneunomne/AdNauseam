@@ -308,16 +308,16 @@ const matchBucket = function(url, hostname, bucket, start) {
     let key = hostname;
     for (;;) {
         if ( matchBucket(url, hostname, this.netStrictBlockList.get(key)) !== -1 ) {
-            return false;
+            return true;
         }
         const pos = key.indexOf('.');
         if ( pos === -1 ) { break; }
         key = key.slice(pos + 1);
     }
     if ( matchBucket(url, hostname, this.netStrictBlockList.get('//')) !== -1 ) {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 };
 
 µb.arrayFromStrictBlockList = µb.arrayFromWhitelist;
@@ -344,7 +344,7 @@ const matchBucket = function(url, hostname, bucket, start) {
     let directive = scope === 'page' ? targetURL : targetHostname;
 
     // Add to directive strictBlockList and remove from whitelist
-    if ( newState === false ) {
+    if ( newState === true ) {
         let bucket = this.netStrictBlockList.get(key);
         if ( bucket === undefined ) {
             bucket = [];
