@@ -76,7 +76,8 @@
       }
     }
 
-    uDom("#alert-noads").addClass('hide'); // reset state
+    uDom("#alert-noads").addClass('hide'); // reset state of no ads showned
+    uDom("#alert-strictblock").addClass('hide'); // reset state of no ads showned
     uDom('#main').toggleClass('disabled', getIsDisabled());
 
     // set button state
@@ -374,9 +375,9 @@
   const toggleStrictAlert = function (pageUrl, state) {
     console.log("toggleStrictAlert", pageUrl)
     if (state) {
-      uDom("#alert-noads").removeClass('hide');
+      uDom("#alert-strictblock").removeClass('hide');
     } else {
-      uDom("#alert-noads").addClass('hide');
+      uDom("#alert-strictblock").addClass('hide');
     }
   }
 
