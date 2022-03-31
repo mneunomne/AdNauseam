@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="css/fonts/stylesheet.css">
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/menu.css">
+  <link rel="stylesheet" href="css/fa-icons.css">
+
 </head>
 
 <body class="active">
@@ -53,7 +55,7 @@
 
         <div id="alert-strictblock" class="alert hide">
           <img src="img/alert.png" alt="alert">
-          <p data-i18n="adnThisPageStrictBlocked"></p>
+          <p><span data-i18n="adnThisPageStrictBlocked" class="text"></span><span><a class="fa-icon info" href="https://github.com/dhowe/AdNauseam/wiki/Developer-FAQ#what-is-strict-blocking-and-when-should-i-use-it" target="_blank">question-circle</a></span></p>
         </div>
 
         <ul id='ad-list-items'></ul>
@@ -153,6 +155,7 @@
 
 
   </div>
+  <script src="js/fa-icons.js"></script>
   <script src="js/vapi.js"></script>
   <script src="js/vapi-common.js"></script>
   <script src="js/vapi-client.js"></script>

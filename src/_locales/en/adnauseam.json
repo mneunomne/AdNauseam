@@ -188,7 +188,7 @@
     "description": "shown in menu when only 'recent' Ads are shown"
   },
   "adnThisPageStrictBlocked": {
-    "message": "{{domain}} is correct strict blocked.",
+    "message": "{{domain}} is currently strict blocked.",
     "description": "shown in menu when the current page is strict blocked"
   },
   "adnExportedAdsFilename": {
