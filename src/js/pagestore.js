@@ -861,7 +861,7 @@ const PageStore = class {
         if ( result === 0 || result === 3 || result === 4) { // ADN: added result === 4 scenario
 
            const snfe = staticNetFilteringEngine;
-           const updatedResult = snfe.matchString(fctxt);
+           const updatedResult = snfe.matchRequest(fctxt);
            result = result === 4 ? 4 : updatedResult;
            // End of ADN: keep result === 4 so that static filtering info can be added later
             if ( result !== 0 ) {
