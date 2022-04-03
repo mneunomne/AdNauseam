@@ -738,6 +738,9 @@ myip.com#@#.ads_1
 @@||ssl.gstatic.com/gb/images/
 @@||ssl.gstatic.com/images/
 
+# google fonts https://github.com/dhowe/AdNauseam/issues/2072
+@@||gstaticadssl.l.google.com^$~font,third-party,~xmlhttprequest
+
 # pikabu.ru
 @@||an.yandex.ru^$third-party,domain=pikabu.ru
 
