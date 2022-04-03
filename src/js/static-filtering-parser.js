@@ -416,6 +416,13 @@ const Parser = class {
                 len === 3 && this.slices[i+2] > 2 ||
                 len > 3 && hasBits(this.slices[i+len-3], BITSlash)
             );
+            // https://github.com/uBlockOrigin/uBlock-issues/issues/1932
+            //   Resolve ambiguity with options ending with `/` by verifying
+            //   that when a `$` is present, what follows make sense regex-wise.
+            if ( patternIsRegex && hasBits(this.allBits, BITDollar) ) {
+                patternIsRegex =
+                    this.strFromSpan(this.patternSpan).search(/[^\\]\$[^/|)]/) === -1;
+            }
         }
 
         // If the pattern is not a regex, there might be options.
@@ -658,7 +665,7 @@ const Parser = class {
         // https://github.com/gorhill/uBlock/issues/3034
         //   We can remove anchoring if we need to match all at the end.
         if ( hasBits(this.flavorBits, BITFlavorNetRightAnchor) ) {
-            const i = this.patternLeftAnchorSpan;
+            const i = this.patternRightAnchorSpan.i;
             if (
                 this.patternSpan.len === 0 ||
                 hasBits(this.slices[i-3], BITIgnore|BITAsterisk)

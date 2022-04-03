@@ -19,11 +19,10 @@ body {
 }
 #diff {
     border: 0;
-    border-top: 1px solid #eee;
     white-space: nowrap;
 }
 #diff .tools > * {
-    margin-bottom: 0.5em;
+    margin-bottom: 1em;
     }
 #diff .ruleActions {
     border: 0;
@@ -63,9 +62,11 @@ body:not(.editing) #diff.dirty #commitButton:hover {
 
 #ruleFilter {
     align-items: center;
+    background-color: var(--surface-2);
     direction: ltr;
     display: flex;
     justify-content: center;
+    padding: 0.5em 0;
     }
 #ruleFilter #diffCollapse {
     padding: 0 0.5em;
@@ -78,6 +79,9 @@ body:not(.editing) #diff.dirty #commitButton:hover {
 .codeMirrorContainer {
     flex-grow: 1;
     }
+.codeMirrorContainer .CodeMirror {
+    background-color: var(--surface-1);
+    }
 .CodeMirror-merge, .CodeMirror-merge-pane, .CodeMirror-merge .CodeMirror {
     box-sizing: border-box;
     height: 100%;
@@ -86,11 +90,8 @@ body.editing .CodeMirror-merge-copy,
 body.editing .CodeMirror-merge-copy-reverse {
     display: none;
     }
-body.editing .CodeMirror-merge-left .CodeMirror {
-    color: var(--fg-0-60);
-    }
 body.editing .CodeMirror-merge-editor .CodeMirror {
-    background-color: var(--bg-transient-notice);
+    background-color: var(--surface-0);
     }
 body[dir="rtl"] .CodeMirror-merge-pane-rightmost {
     right: unset;

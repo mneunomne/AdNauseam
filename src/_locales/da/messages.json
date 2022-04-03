@@ -335,17 +335,25 @@
     "message": "Optimeret til farveblinde",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "Udseende",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "Tema",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "Tilpasset accentfarve",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "Aktivér understøttelse for Skylagring",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
-    "message": "Dette er (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>obligatorisk læsning</a>) for den erfarne bruger",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "avancerede indstillinger",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "message": "Jeg er en erfarne bruger",
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "Deaktivér præindlæsning (for at hindre enhver forbindelse for blokerede netværksanmodninger)",
@@ -391,6 +399,18 @@
     "message": "Vis kanoniske navne",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "Avanceret",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "Funktioner kun egnet til tekniske brugere.",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "avancerede indstillinger",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "Seneste gendannelse:",
     "description": "English: Last restore:"
@@ -435,6 +455,10 @@
     "message": "Generiske kosmetiske filtre er de kosmetiske filtre, der er beregnet til at gælde på alle websteder. Aktivering af denne indstilling vil eliminere hukommelse- og CPU-forbrug, der tilføjes til websider som et resultat af håndtering af generiske kosmetiske filtre.\n\nDet anbefales at aktivere denne indstilling på mindre kraftfulde enheder.",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
   },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "Suspendér netværksaktivitet, indtil alle filterlister er indlæst",
+    "description": "A checkbox in the 'Filter lists' pane"
+  },
   "3pListsOfBlockedHostsHeader": {
     "message": "Liste over blokerede værter",
     "description": "English: Lists of blocked hosts"
@@ -476,7 +500,7 @@
     "description": "English: Custom"
   },
   "3pImport": {
-    "message": "Importer...",
+    "message": "Importér...",
     "description": "The label for the checkbox used to import external filter lists"
   },
   "3pExternalListsHint": {

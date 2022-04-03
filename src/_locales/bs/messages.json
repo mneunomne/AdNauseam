@@ -335,17 +335,25 @@
     "message": "Mod za daltoniste",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "Appearance",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "Theme",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "Custom accent color",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "Uključi podršku za pohranu u oblaku",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
     "message": "Ja sam napredni korisnik (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>obavezna literatura</a>)",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "napredne postavke",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "Onemogućite predučitavanje (da bi ste spriječili bilo koju vezu za blokirane mrežne zahtjeve)",
@@ -391,6 +399,18 @@
     "message": "Otkrijte kanonske nazive",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "Advanced",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "Features suitable only for technical users",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "napredne postavke",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "Posljednji prijašnji povratak:",
     "description": "English: Last restore:"
@@ -434,6 +454,10 @@
   "3pIgnoreGenericCosmeticFiltersInfo": {
     "message": "Opći estetski filteri su onakvi estetski filteri koji su namijenjeni za primjenu na svim sajtovima. Uključivanjem ove postavke će se eliminirati dodatna upotreba memorije i procesora na sajtovima kao rezultat upravljanja općih estetskih filtera.\n\nPreporučeno je omogućiti ovu postavku na slabijim uređajima.",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
+  },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "Suspend network activity until all filter lists are loaded",
+    "description": "A checkbox in the 'Filter lists' pane"
   },
   "3pListsOfBlockedHostsHeader": {
     "message": "Lista blokiranih hostova",

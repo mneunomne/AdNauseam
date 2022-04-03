@@ -335,17 +335,25 @@
     "message": "వర్ణ అంధులకనుకూలమైన",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "Appearance",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "Theme",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "Custom accent color",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "క్లౌడ్ లో పొందుపర్చడాన్న్ది అనుమతించు",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
-    "message": "మీరు నిపుణత కలిగిన వినియోగాదారులితే (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>ఇది తప్పనిసరిగా చదవాలి</a>)",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "అధునాతన అమరికలు",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "message": "మీరు నిపుణత కలిగిన వినియోగాదారులైతే (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>అవసరమైన సమాచారం</a>)",
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "అంశాలను ముందుగానే తీసుకురావడాన్ని నిషేధించు (ఎవైనా అవాంఛనీయ అనుసంధానాలను నివారించడానికి)",
@@ -391,6 +399,18 @@
     "message": "కానానికల్ పేర్లను తెరవండి",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "Advanced",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "Features suitable only for technical users",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "అధునాతన అమరికలు",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "గత పునరుద్ధారణ:",
     "description": "English: Last restore:"
@@ -434,6 +454,10 @@
   "3pIgnoreGenericCosmeticFiltersInfo": {
     "message": "<p>సాధారణ కాస్మెటిక్ ఫిల్టర్లు అన్ని సైట్లపై ఉపయోగించబడుతాయి.<p>వీటిని uBlock₀ సమర్థవంతంగా ఉపయోగించగలిగినా, కొన్ని భారీ లేదా దీర్ఘకాలికంగా వీక్షిస్తున్న పేజీలలో CPU ఇంకా RAM వాడుకను ఇవి పెంచగలవు.<p>ఈ ఎంపికను ఎంచుకోవడంవలన, సాధారణ కాస్మెటిక్ ఫిల్టర్లు కొరకు అదనపు CPU ఉపయోగాన్ని నివారిస్తుంది, పైగా uBlock₀ యొక్క RAM వాడుక తగ్గడానికి తోడ్పడుతుంది.<p>అల్పసామర్ధ్య పరికరాలలో దీన్ని ఎంచుకోవడం శ్రేయస్కరం.",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
+  },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "Suspend network activity until all filter lists are loaded",
+    "description": "A checkbox in the 'Filter lists' pane"
   },
   "3pListsOfBlockedHostsHeader": {
     "message": "నిరోధించబడిన చిరునామాల జాబితా",
@@ -496,7 +520,7 @@
     "description": "used as a tooltip for the clock icon beside a list"
   },
   "3pUpdating": {
-    "message": "నవీకరిస్తున్నది...",
+    "message": "నవీకరిస్తోంది...",
     "description": "used as a tooltip for the spinner icon beside a list"
   },
   "3pNetworkError": {
@@ -932,7 +956,7 @@
     "description": "Label for the URL of the page"
   },
   "supportS6Select1": {
-    "message": "The web page...",
+    "message": "The web page…",
     "description": "Label for widget to select type of issue"
   },
   "supportS6Select1Option0": {
@@ -1028,7 +1052,7 @@
     "description": "English: Restore from file..."
   },
   "aboutResetDataButton": {
-    "message": "సంస్థాపన ఐచ్చికాలను పునరుద్దరించు...",
+    "message": "సంస్థాపన అమరికలను పునరుద్దరించు...",
     "description": "English: Reset to default settings..."
   },
   "aboutRestoreDataConfirm": {
@@ -1140,7 +1164,7 @@
     "description": "tooltip"
   },
   "cloudNoData": {
-    "message": "...\n...",
+    "message": "…\n…",
     "description": ""
   },
   "cloudDeviceNamePrompt": {

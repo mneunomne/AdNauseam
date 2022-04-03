@@ -619,14 +619,14 @@ body {
     font: 14px sans-serif;
     }
 code, .code {
-    background-color: var(--button-surface);
+    background-color: var(--surface-2);
     font-family: monospace;
     font-size: smaller;
     padding: 2px 4px;
     }
 hr {
     border: 0;
-    border-top: 1px solid var(--hr-ink);
+    border-top: 1px solid var(--surface-2);
     margin: 1em 0;
     }
 .hiddenFileInput {
@@ -1019,29 +1019,43 @@ button.important[disabled] {
     filter: var(--button-disabled-filter);
     pointer-events: none;
     }
-button.preferred {
+button.preferred:not(.disabled):not([disabled]) {
     background-color: var(--button-preferred-surface);
     color: var(--button-preferred-ink);
+        fill: var(--button-preferred-ink);
     }
-button.iconifiable > .fa-icon {
-    padding-left: 0;
-    padding-right: 0.4em;
+button.preferred:not(.disabled):not([disabled]):hover > .hover {
+    background-color: var(--elevation-down-surface);
+    opacity: var(--elevation-down1-opacity);
     }
-button.iconifiable > .fa-icon {
+button.iconified.notext {
+    background-color: transparent;
+    }
+button.iconified > .fa-icon {
     font-size: 120%;
-    }
-body[dir="rtl"] button.iconifiable > .fa-icon {
-    padding-left: 0.4em;
-    padding-right: 0;
-    }
-body[dir] button.iconifiable > .fa-icon:last-child {
     padding-left: 0;
     padding-right: 0;
-}
+    }
+button.iconified > .fa-icon + [data-i18n] {
+    padding-right: 0;
+    padding-left: 0.4em;
+    }
+body[dir="rtl"] button.iconified > .fa-icon + [data-i18n] {
+    padding-right: 0.4em;
+    padding-left: 0;
+    }
 label {
     align-items: center;
     display: inline-flex;
     position: relative;
+    }
+section.notice {
+    background-color: var(--notice-surface);
+    box-shadow: var(--notice-surface-shadow);
+    color: var(--notice-ink);
+    }
+:root:not(.classic) section.notice a {
+    color: var(--surface-2);
     }
 
 /**
@@ -1093,7 +1107,7 @@ label {
     }
 .checkbox[disabled],
 .checkbox[disabled] ~ span {
-    opacity: 0.5;
+    filter: var(--checkbox-disabled-filter);
     }
 
 select {
@@ -1105,6 +1119,11 @@ select {
     height: 0;
     visibility: hidden;
     width: 0;
+    }
+.subtil {
+    color: var(--subtil-ink);
+    cursor: default;
+    opacity: 66%;
     }
 .fieldset {
     margin: var(--font-size);
@@ -1130,11 +1149,11 @@ font-family: bebas_neue,sans-serif;
     -webkit-margin-start: 2em;
     }
 @media (max-width: 640px) {
-    button.iconifiable > .fa-icon {
+    button.iconified > .fa-icon {
         font-size: 1.2rem;
         padding: 0;
         }
-    button.iconifiable > [data-i18n] {
+    button.iconified > [data-i18n] {
         display: none;
         }
     }

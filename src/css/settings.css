@@ -6,72 +6,56 @@ ul {
     padding-left: 1em;
     padding-right: 0;
 }
-    body {
+body {
     margin-bottom: 6rem;
 }
+
 .synopsis {
-    font-size: 90%;
-}
+    color: var(--ink-0);
+    font-size: var(--font-size-smaller);
+    opacity: var(--medium-em);
+    }
+
+/* surface/ink */
+#themeMood {
+    align-items: stretch;
+    align-self: stretch;
+    display: inline-flex;
+    justify-content: stretch;
+    user-select: none;
+    }
+#themeMood > span {
+    border: 1px solid var(--ink-1);
+    color: var(--ink-1);
+    display: inline-flex;
+    background-color: var(--surface-1);
+    display: inline-block;
+    padding: 0 0.5em;
+    text-align: center;
+    user-select: none;
+    }
+
+/* primary color */
+#themePrimary {
+    align-items: stretch;
+    align-self: stretch;
+    display: inline-flex;
+    justify-content: stretch;
+    position: relative;
+    }
+#themePrimary > span {
+    background-color: rgb(var(--primary-50));
+    display: inline-flex;
+    width: 2em;
+    }
+
 [href="advanced-settings.html"] {
     display: none;
-}
-body[dir="rtl"] ul {
-    padding-left: 0;
-    padding-right: 1em;
-}
+    }
+body.advancedUser [href="advanced-settings.html"] {
+    display: inline-flex;
+    }
 
-ul#userSettings {
-  padding-left: 0;
-  margin: 50px;
-  margin-top: 20px;
-}
-li {
-  margin-top: 0.25em;
-}
-ul#userSettings, ul#userSettings ul {
-  list-style-type: none;
-}
-ul#userSettings .subgroup {
-  margin: 1em 0 2em;
-}
-ul#userSettings .subgroup p {
-  margin: 0 22px 0 50px;
-  line-height: 1.5em;
-  float:left;
-  cursor: default;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-
-}
-
-ul#userSettings .subgroup p.last {
-  margin-right:15px;
-  padding-right: 0;
-}
-
-ul#userSettings .subgroup .subgroupDescription {
-    clear: both;
-}
-ul#userSettings .subgroup .subgroupDescription p{
-    margin-right: 0.3em;
-}
-div> p:last-child {
-  margin-bottom: 0;
-}
-ul#userSettings .subgroup> span {
-  font-size: larger;
-  font-weight: bold;
-  font-family: 'bebas_neue',sans-serif;
-}
-ul#userSettings .subgroup> ul {
-  padding: 5px 0 15px 44px;
-  clear:both;
-}
-ul#userSettings .subgroup> ul> li label {
-  margin-left: 5px;
-}
 #localData > div {
     margin-bottom: var(--default-gap-small);
     }

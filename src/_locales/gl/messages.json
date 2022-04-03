@@ -335,17 +335,25 @@
     "message": "Accesible para daltónicos",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "Appearance",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "Theme",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "Custom accent color",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "Activar soporte para almacenamento na nube",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
     "message": "Sonche un usuario experto (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>Precisas ler isto</a>)",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "configuración avanzada",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "Desactivar a precarga de sitios (prevén calquera conexión para peticións de red bloqueadas)",
@@ -391,6 +399,18 @@
     "message": "Uncloak canonical names",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "Advanced",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "Features suitable only for technical users",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "configuración avanzada",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "Última recuperación:",
     "description": "English: Last restore:"
@@ -434,6 +454,10 @@
   "3pIgnoreGenericCosmeticFiltersInfo": {
     "message": "<p>Os filtros cosméticos xenéricos estanche pensados para seren aplicados en todas as páxinas.<p>Aínda que o uBlock₀ os xestiona dun xeito eficiente, algúns deles precisan de altas cantidades de memoria e sobreemprego da CPU, especialmente nas páxinas grandes e nas máis duradeiras.<p>Activar esta opción suprimirá os requerimentos de memoria e CPU por causa destes filtros cosméticos xenéricos, así como reducirá a cantidade de memoria ocupada polo uBlock₀ mesmo.<p>Recomendámosche activar esta opción sobre todo nos dispositivos menos potentes.",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
+  },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "Suspend network activity until all filter lists are loaded",
+    "description": "A checkbox in the 'Filter lists' pane"
   },
   "3pListsOfBlockedHostsHeader": {
     "message": "Lista dos servidores bloqueados",
@@ -932,7 +956,7 @@
     "description": "Label for the URL of the page"
   },
   "supportS6Select1": {
-    "message": "The web page...",
+    "message": "The web page…",
     "description": "Label for widget to select type of issue"
   },
   "supportS6Select1Option0": {
@@ -1168,11 +1192,11 @@
     "description": ""
   },
   "contextMenuBlockElementInFrame": {
-    "message": "Block element in frame...",
+    "message": "Block element in frame…",
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuSubscribeToList": {
-    "message": "Subscribe to filter list...",
+    "message": "Subscribe to filter list…",
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuTemporarilyAllowLargeMediaElements": {

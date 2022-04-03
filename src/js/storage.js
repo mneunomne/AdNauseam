@@ -240,12 +240,6 @@ import {
         if ( typeof hs[key] !== typeof hsDefault[key] ) { continue; }
         this.hiddenSettings[key] = hs[key];
     }
-    if ( typeof this.hiddenSettings.suspendTabsUntilReady === 'boolean' ) {
-        this.hiddenSettings.suspendTabsUntilReady =
-            this.hiddenSettings.suspendTabsUntilReady
-                ? 'yes'
-                : 'unset';
-    }
     this.fireDOMEvent('hiddenSettingsChanged');
 };
 
@@ -634,8 +628,9 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 
     // User filter list.
     newAvailableLists[this.userFiltersPath] = {
+        content: 'filters',
         group: 'user',
-        title: vAPI.i18n('1pPageName')
+        title: vAPI.i18n('1pPageName'),
     };
 
     // Custom filter lists.
@@ -817,7 +812,9 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
     const onFilterListsReady = function(lists) {
         this.availableFilterLists = lists;
 
-        vAPI.net.suspend();
+        if ( vAPI.net.canSuspend() ) {
+            vAPI.net.suspend();
+        }
         redirectEngine.reset();
         staticExtFilteringEngine.reset();
         staticNetFilteringEngine.reset();

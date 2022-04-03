@@ -30,11 +30,18 @@
 </div>
 
 <div id="options">
-    <div class="li"><label><span class="input checkbox"><input type="checkbox" id="autoUpdate"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span><span data-i18n="3pAutoUpdatePrompt1"></span></label></div>
-    <div class="li"><input type="checkbox" id="parseCosmeticFilters"><label data-i18n="3pParseAllABPHideFiltersPrompt1" for="parseCosmeticFilters"></label><button class="whatisthis"></button>
+    <div class="li">
+      <label><span class="input checkbox"><input type="checkbox" id="autoUpdate"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span><span data-i18n="3pAutoUpdatePrompt1"></span></label></div>
+    <div class="li">
+      <input type="checkbox" id="parseCosmeticFilters"><label data-i18n="3pParseAllABPHideFiltersPrompt1" for="parseCosmeticFilters"></label><button class="whatisthis"></button>
                <div class="whatisthis-expandable para" data-i18n="3pParseAllABPHideFiltersInfo"></div></div>
-    <div class="li"><input type="checkbox" id="ignoreGenericCosmeticFilters"><label data-i18n="3pIgnoreGenericCosmeticFilters" for="ignoreGenericCosmeticFilters"></label><button class="whatisthis"></button>
-               <div class="whatisthis-expandable para" data-i18n="3pIgnoreGenericCosmeticFiltersInfo"></div></div>
+    <div class="li">
+      <input type="checkbox" id="ignoreGenericCosmeticFilters"><label data-i18n="3pIgnoreGenericCosmeticFilters" for="ignoreGenericCosmeticFilters"></label><button class="whatisthis"></button><div class="whatisthis-expandable para" data-i18n="3pIgnoreGenericCosmeticFiltersInfo"></div>
+    </div>
+    <div class="li">
+      <label><span class="input checkbox"><input type="checkbox" id="suspendUntilListsAreLoaded"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span><span data-i18n="3pSuspendUntilListsAreLoaded"></span></label>
+    </div>
+  </div>
 </div>
 
 <div>
@@ -82,6 +89,8 @@
         --><textarea id="externalLists" dir="ltr" spellcheck="false" placeholder="3pExternalListsHint"></textarea>
     </div>
 </div>
+
+<script src="lib/hsluv/hsluv-0.1.0.min.js"></script>
 
 <script src="js/fa-icons.js"></script>
 <script src="js/vapi.js"></script>
