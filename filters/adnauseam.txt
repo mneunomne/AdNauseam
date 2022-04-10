@@ -169,7 +169,7 @@ torrentfunk2.com##.__fp-a
 # columbiagreenemedia.com
 columbiagreenemedia.com###sawyer_container
 
-##iframe[src*=‘/ad/']
+##iframe[src*='/ad/']
 
 # 163.com
 ##.head-ad
@@ -229,7 +229,7 @@ fortune.com##._3sDrBk7f
 fortune.com##.small-12.column:nth-of-type(9) > .row
 fortune.com##.small-12.column > .row:nth-of-type(2) > .small-12.column > .row > .large-3.medium-6.small-12.column
 
-＃ baidu.com
+# baidu.com
 ##.ad-imax
 ##.search-aside-adWrap
 ##DIV[class^="baidu-adv"]
