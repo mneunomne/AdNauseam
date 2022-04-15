@@ -137,7 +137,7 @@ const onMessage = function(request, sender, callback) {
         });
         return;
 
-    case 'sfneBenchmark':
+    case 'snfeBenchmark':
         µb.benchmarkStaticNetFiltering({ redirectEngine }).then(result => {
             callback(result);
         });
@@ -207,7 +207,15 @@ const onMessage = function(request, sender, callback) {
             reHostnameExtractor: µb.reWhitelistHostnameExtractor.source
         };
         break;
-
+    // Adn - strictBlockList
+    case 'getStrictBlockList':
+        response = {
+            strictBlockList: µb.arrayFromStrictBlockList(µb.netStrictBlockList),
+            reBadHostname: µb.reWhitelistBadHostname.source,
+            reHostnameExtractor: µb.reWhitelistHostnameExtractor.source
+        };
+        break;
+    // end of adn
     case 'launchElementPicker':
         // Launched from some auxiliary pages, clear context menu coords.
         µb.epickerArgs.mouse = false;
@@ -230,6 +238,10 @@ const onMessage = function(request, sender, callback) {
     case 'setWhitelist':
         µb.netWhitelist = µb.whitelistFromString(request.whitelist);
         µb.saveWhitelist();
+        break;
+    case 'setStrictBlockList':
+        µb.netStrictBlockList = µb.strictBlockListFromString(request.strictBlockList);
+        µb.saveStrictBlockList();
         break;
 
     case 'reactivateList':
@@ -261,6 +273,14 @@ const onMessage = function(request, sender, callback) {
         if (typeof response === 'undefined') { // ADN return notifications either way
             response = { notifications: makeCloneable(adnauseam.getNotifications().notifications) }; // #1163
         }
+        break;
+
+    case 'snfeDump':
+        response = staticNetFilteringEngine.dump();
+        break;
+
+    case 'cfeDump':
+        response = cosmeticFilteringEngine.dump();
         break;
 
     default:
@@ -374,6 +394,7 @@ const popupDataFromTabId = function(tabId, tabTitle) {
         fontSize: µbhs.popupFontSize,
         godMode: µbhs.filterAuthorMode,
         netFilteringSwitch: false,
+        strictBlocked: false,
         rawURL: tabContext.rawURL,
         pageURL: tabContext.normalURL,
         pageHostname: rootHostname,
@@ -396,6 +417,7 @@ const popupDataFromTabId = function(tabId, tabTitle) {
     if ( pageStore ) {
         r.pageCounts = pageStore.counts;
         r.netFilteringSwitch = pageStore.getNetFilteringSwitch();
+        r.strictBlocked = pageStore.getIsPageStrictBlocked(); // ADN
         getHostnameDict(pageStore.getAllHostnameDetails(), r);
         r.contentLastModified = pageStore.contentLastModified;
         getFirewallRules(rootHostname, r);
@@ -1343,6 +1365,13 @@ const getSupportData = async function() {
     }
     if ( Object.keys(addedListset).length === 0 ) {
         addedListset = undefined;
+    } else if ( Object.keys(addedListset).length > 20 ) {
+        const added = Object.keys(addedListset);
+        const truncated = added.slice(20);
+        for ( const key of truncated ) {
+            delete addedListset[key];
+        }
+        addedListset[`[${truncated.length} lists not shown]`] = '[too many]';
     }
     if ( Object.keys(removedListset).length === 0 ) {
         removedListset = undefined;
@@ -1376,6 +1405,12 @@ const getSupportData = async function() {
             µb.arrayFromWhitelist(µb.netWhitelist),
             µb.netWhitelistDefault
         ),
+        // Adn
+        untrustedset: diffArrays(
+            µb.arrayFromStrictBlockList(µb.netStrictBlockList),
+            µb.netStrictBlockListDefault
+        ),
+        // end of adn
         switchRuleset: diffArrays(
             sessionSwitches.toArray(),
             µb.hostnameSwitchesDefault

@@ -350,6 +350,7 @@ const appendNotifyDiv = function (notify, template) {
   const reading_width = 251
   const remove_time = 2500
   const add_time = 500
+  const ad_list_height = 360
 
   // mouseover event to create slide animation
   uDom(node.nodes[0]).on('mouseover', "#notify-text", function (e) {
@@ -397,7 +398,7 @@ const appendNotifyDiv = function (notify, template) {
   uDom('#notifications').append(node);
 
   const h = document.getElementById('notifications').offsetHeight;
-  const newh = 350 - h;
+  const newh = ad_list_height - h;
   uDom('#ad-list').css('height', newh + 'px');
   // vAPI.i18n.render();
 }
@@ -605,16 +606,16 @@ const trimChar = function (s, chr) {
   return s;
 };
 
-const showAlert = function (msg) {
+const showVaultAlert = function (msg) {
 
   if (msg) {
 
-    $("#alert").removeClass('hide');
-    $("#alert p").text(msg);
+    $("#alert-vault").removeClass('hide');
+    $("#alert-vault p").text(msg);
 
   } else {
 
-    $("#alert").addClass('hide');
+    $("#alert-vault").addClass('hide');
   }
 };
 
@@ -833,7 +834,7 @@ function toogleVaultLoading(show) {
   if (show) {
     $container.css('opacity', '0');
     $('#loading-img').show();
-    showAlert(false)
+    showVaultAlert(false)
   } else {
     $container.css('opacity', '1');
     $('#loading-img').hide();

@@ -34,16 +34,3 @@ ul {
     margin: 0.5em 0;
     /* margin-bottom: 6rem; ublock change, test*/
     }
-#dev {
-    align-items: flex-start;
-    display: none;
-    }
-#dev.enabled {
-    display: flex;
-    }
-#dev > * {
-    margin-inline-end: 1em;
-    }
-#dev > div {
-    white-space: pre;
-    }

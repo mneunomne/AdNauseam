@@ -189,6 +189,32 @@ const onNetWhitelistReady = function(netWhitelistRaw, adminExtra) {
     µb.netWhitelistModifyTime = Date.now();
 };
 
+
+
+/******************************************************************************/
+//                           Adn Strict Block List                            //
+/******************************************************************************/
+
+const onNetStrictBlockListReady = function(netStrictBlockListRaw, adminExtra) {
+    if ( typeof netStrictBlockListRaw === 'string' ) {
+        netStrictBlockListRaw = netStrictBlockListRaw.split('\n');
+    }
+    // Append admin-controlled trusted-site directives
+    if (
+        adminExtra instanceof Object &&
+        Array.isArray(adminExtra.untrustedSiteDirectives)
+    ) {
+        for ( const directive of adminExtra.trustedSiteDirectives ) {
+            µb.netStrictBlockListDefault.push(directive);
+            netStrictBlockListRaw.push(directive);
+        }
+    }
+    µb.netStrictBlockList = µb.strictBlockListFromArray(netStrictBlockListRaw);
+    µb.netStrictBlockListModifyTime = Date.now();
+};
+
+
+
 /******************************************************************************/
 
 // User settings are in memory
@@ -255,9 +281,11 @@ const onCacheSettingsReady = async function(fetched) {
     if ( fetched.compiledMagic !== µb.systemSettings.compiledMagic ) {
         µb.compiledFormatChanged = true;
         µb.selfieIsInvalid = true;
+        ubolog(`Serialized format of static filter lists changed`);
     }
     if ( fetched.selfieMagic !== µb.systemSettings.selfieMagic ) {
         µb.selfieIsInvalid = true;
+        ubolog(`Serialized format of selfie changed`);
     }
     if ( µb.selfieIsInvalid ) {
         µb.selfieManager.destroy();
@@ -291,7 +319,7 @@ const onHiddenSettingsReady = async function() {
     if ( µb.hiddenSettings.suspendTabsUntilReady === 'no' ) {
         vAPI.net.unsuspend(true);
     } else if ( µb.hiddenSettings.suspendTabsUntilReady === 'yes' ) {
-        vAPI.net.suspend();
+        vAPI.net.suspend(true);
     }
 
     // Maybe disable WebAssembly
@@ -309,7 +337,7 @@ const onHiddenSettingsReady = async function() {
         });
     }
 
-    // Matbe override default cache storage
+    // Maybe override default cache storage
     const cacheBackend = await cacheStorage.select(
         µb.hiddenSettings.cacheStorageAPI
     );
@@ -341,6 +369,9 @@ const onFirstFetchReady = function(fetched, adminExtra) {
     sessionSwitches.assign(permanentSwitches);
 
     onNetWhitelistReady(fetched.netWhitelist, adminExtra);
+    // Adn strict block list
+    onNetStrictBlockListReady(fetched.netStrictBlockList, adminExtra);
+    // end of adn
     onVersionReady(fetched.version);
 };
 
@@ -371,6 +402,7 @@ const createDefaultProps = function() {
         'lastBackupFile': '',
         'lastBackupTime': 0,
         'netWhitelist': µb.netWhitelistDefault,
+        'netStrictBlockList': µb.netStrictBlockListDefault, // ADN - strictBlockList
         'version': '0.0.0.0'
     };
     toFetch(µb.localSettings, fetchableProps);
@@ -437,7 +469,6 @@ let selfieIsValid = false;
 try {
     selfieIsValid = await µb.selfieManager.load();
     if ( selfieIsValid === true ) {
-        µb.supportStats.launchFromSelfie = true;
         ubolog(`Selfie ready ${Date.now()-vAPI.T0} ms after launch`);
     }
 } catch (ex) {
@@ -523,7 +554,10 @@ browser.runtime.onUpdateAvailable.addListener(details => {
     }
 });
 
-µb.supportStats.launchToReadiness = Date.now() - vAPI.T0;
+µb.supportStats.launchToReadiness = `${Date.now() - vAPI.T0} ms`;
+if ( selfieIsValid ) {
+    µb.supportStats.launchToReadiness += ' (selfie)';
+}
 ubolog(`All ready ${µb.supportStats.launchToReadiness} ms after launch`);
 
 // <<<<< end of private scope

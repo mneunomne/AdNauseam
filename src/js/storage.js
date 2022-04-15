@@ -370,6 +370,17 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 };
 
 /******************************************************************************/
+// ADN
+/******************************************************************************/
+
+µb.saveStrictBlockList = function() {
+    vAPI.storage.set({
+        netStrictBlockList: this.arrayFromStrictBlockList(this.netStrictBlockList)
+    });
+    this.netStrictBlockListModifyTime = Date.now();
+};
+
+/******************************************************************************/
 
 µb.loadSelectedFilterLists = async function() {
     const bin = await vAPI.storage.get('selectedFilterLists');
@@ -988,6 +999,8 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 
     parser.setMaxTokenLength(staticNetFilteringEngine.MAX_TOKEN_LENGTH);
 
+    compiler.start(writer);
+
     while ( lineIter.eot() === false ) {
         let line = lineIter.next();
 
@@ -1021,6 +1034,8 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
             });
         }
     }
+
+    compiler.finish(writer);
 
     // https://github.com/uBlockOrigin/uBlock-issues/issues/1365
     //   Embed version into compiled list itself: it is encoded in as the
@@ -1510,6 +1525,23 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         bin.netWhitelist = data.netWhitelist.split('\n');
         binNotEmpty = true;
     }
+
+    /* Adn */
+    if (
+        Array.isArray(toOverwrite.untrustedSiteDirectives) &&
+        toOverwrite.untrustedSiteDirectives.length !== 0
+    ) {
+        µb.netStrictBlockListDefault = toOverwrite.untrustedSiteDirectives.slice();
+        bin.netStrictBlockList = toOverwrite.untrustedSiteDirectives.slice();
+        binNotEmpty = true;
+    } else if ( Array.isArray(data.strictBlockList) ) {
+        bin.netStrictBlockList = data.strictBlockList;
+        binNotEmpty = true;
+    } else if ( typeof data.netStrictBlockList === 'string' ) {
+        bin.netStrictBlockList = data.netStrictBlockList.split('\n');
+        binNotEmpty = true;
+    }
+    /* End of Adn */
 
     if ( typeof data.dynamicFilteringString === 'string' ) {
         bin.dynamicFilteringString = data.dynamicFilteringString;

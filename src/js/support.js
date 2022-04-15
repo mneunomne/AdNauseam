@@ -32,9 +32,10 @@ const uselessKeys = [
     'modifiedHiddenSettings.consoleLogLevel',
     'modifiedHiddenSettings.uiPopupConfig',
     'modifiedUserSettings.alwaysDetachLogger',
-    'modifiedUserSettings.popupPanelSections',
+    'modifiedUserSettings.firewallPaneMinimized',
     'modifiedUserSettings.externalLists',
     'modifiedUserSettings.importedLists',
+    'modifiedUserSettings.popupPanelSections',
 ];
 
 const sensitiveValues = [
@@ -42,6 +43,7 @@ const sensitiveValues = [
     'modifiedUserSettings.popupPanelSections',
     'modifiedHiddenSettings.userResourcesLocation',
     'trustedset.added',
+    'untrustedset.added', // adn
     'hostRuleset.added',
     'switchRuleset.added',
     'urlRuleset.added',
