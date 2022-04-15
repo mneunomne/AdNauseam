@@ -73,7 +73,7 @@
       if (page === vAPI.getURL("vault.html") ||
         page.indexOf(vAPI.getURL("dashboard.html")) === 0 ||
         page.indexOf("chrome") === 0 || page.indexOf("about:") === 0) {
-          uDom('#state_btn-wrapper').addClass('disabled');
+        uDom('#state_btn-wrapper').addClass('disabled');
       }
     }
 
@@ -125,10 +125,6 @@
 
       });
     });
-  }
-
-  const updateMenuState = function () {
-    // do smth here
   }
 
   const setCounts = function (ads, total, recent) {
@@ -207,6 +203,7 @@
     return false;
   }
 
+  // if there are any ads on current domain, show recent
   const doRecent = function () {
     uDom("#alert-noads").removeClass('hide');
     uDom('#ad-list-items').addClass('recent-ads');
@@ -409,12 +406,14 @@
       onPopupData(details);
     })
   };
-
+  
+  // check if current page/domain is whitelisted
   const getIsDisabled = function () {
     return popupData.pageURL === '' || !popupData.netFilteringSwitch ||
-      (popupData.pageHostname === 'behind-the-scene' && !popupData.advancedUserEnabled);
+    (popupData.pageHostname === 'behind-the-scene' && !popupData.advancedUserEnabled);
   }
-
+  
+  // check if current page/domain is on strictBlockList
   const getIsStrictBlocked = function () {
     return popupData.strictBlocked
   }
@@ -479,7 +478,7 @@
 
   uDom('#btn-settings').on('click', function () {
     vAPI.messaging.send(
-      'default', 
+      'default',
       {
         what: 'gotoURL',
         details: {
@@ -494,7 +493,7 @@
 
   uDom('#help-button').on('click', function () {
     vAPI.messaging.send(
-      'default', 
+      'default',
       {
         what: 'gotoURL',
         details: {
@@ -563,6 +562,8 @@
     tip.classList.add('show');
   };
 
+
+  // on change state of toggle button
   const onChangeState = function (evt) {
     switch (this.value) {
       case 'strict':
@@ -583,8 +584,9 @@
     }
   }
 
+  // when changing "page" and "domain" scope from the popup menu on the "disable button" 
   const onChangeDisabledScope = function (evt) {
-    var scope = uDom(".disable_type_radio:checked") ? uDom(".disable_type_radio:checked").val() : '' 
+    var scope = uDom(".disable_type_radio:checked") ? uDom(".disable_type_radio:checked").val() : ''
     // first remove previous whichever previous scope from whitelist 
     vAPI.messaging.send(
       'adnauseam', {
@@ -604,6 +606,7 @@
         tabId: popupData.tabId
       });
       setTimeout(function () {
+        // always close popup after selecting
         closePopup()
       }, 500)
     });
@@ -626,9 +629,9 @@
       state: state,
       tabId: popupData.tabId
     });
-    updateMenuState()
   };
 
+  // always close popup after any click outside of it 
   const onAnyClickAfterOpen = function (event) {
     if (event.target.name == 'disable_type') {
       // here deal with choices of disable type
@@ -651,11 +654,8 @@
   }
 
   const onClickDisableArrow = function () {
-    // evt.preventDefault && evt.preventDefault();
-    // evt.stopPropagation && evt.stopPropagation()
-    uDom("#disable").prop('checked',true);
+    uDom("#disable").prop('checked', true);
     var isOpen = uDom(".popup_arrow").hasClass('open')
-
     if (isOpen) {
       closePopup()
     } else {
@@ -663,15 +663,11 @@
     }
   }
 
-  const toggleDisablePopup = function () {
-    var isOpen = uDom(".popup_arrow").hasClass("open")
-  }
-
   const adjustBlockHeight = function (disableWarnings) {
     // recalculate the height of ad-list
-
     let notification = document.getElementById('notifications')
     var h = notification.offsetHeight;
+    // if disable warning is enable, don't count height of notifications strip
     if (disableWarnings) {
       h = 0;
     }

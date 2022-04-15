@@ -1192,7 +1192,7 @@ const adnauseam = (function () {
    *      if not, return false
    *
    *  3) whether the request is strictBlocked (iff strictBlocking is enabled)
-   *      if so, return true;\
+   *      if so, return true;
    *      A) If global Strict Block is enabled
    *      B) If request domain/page is in the StrictBlockList
    *
@@ -1213,18 +1213,19 @@ const adnauseam = (function () {
       logNetAllow('Loading', context.docDomain + ' :: ' + context.url); // 2.
       return false;
     }
-
+    
     if (isStrictBlock(result, context)) {                               // 3.A
       logNetBlock('Global Strict Block');
       return true;
     }
     
+    // Check if specific page is strict-blocked by the StrictBlockList
     var getIsPageStrictBlocked = µb.getIsPageStrictBlocked(context.url)
-    // console.log("isStrictBlocked", isStrictBlocked, context.url, context.docDomain)
     if (getIsPageStrictBlocked) {
       logNetBlock('From StrictBlockList', context.url);
       return true;
     }
+
     ///////////////////////////////////////////////////////////////////////
     const snfe = staticNetFilteringEngine, snfeData = snfe.toLogData();
 
@@ -1552,8 +1553,9 @@ const adnauseam = (function () {
     console.log("[ADN] toggleStrictBlock", request)
     const store = µb.pageStoreFromTabId(request.tabId);
     if (store) {
-
+      // enable strict blocking for the current domain...
       µb.toggleStrictBlock(request.url, request.scope, request.state);
+      // and remove the domain from the whitelist if it is there.
       store.toggleNetFilteringSwitch(request.url, request.scope, true);
       // updateBadges();
 
