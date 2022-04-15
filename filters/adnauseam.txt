@@ -497,6 +497,10 @@ doodle.com##div[id*=bottomAd]
 # cointelegraph.com
 cointelegraph.com##.NMM:has(iframe[src="about:blank"])
 
+# infoworld.com
+www.infoworld.com##.brVideoContainer:has(.ad-placement)
+
+
 ##################### Blocking rules ########################
 # found on wpri.com
 gfp_video_ads/
