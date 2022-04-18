@@ -2077,8 +2077,6 @@ const adnauseam = (function () {
   exports.getIconState = function (state, pageDomain, isClick, isStrict) {
     const isDNT = µb.userSettings.dntDomains.contains(pageDomain);
 
-    console.log("isStrict", isStrict)
-
     let iconStatus = state ? (isDNT ? 'dnt' : (isStrict ? 'strict' : 'on')) : 'off'; // ADN
 
     if (iconStatus !== 'off') {

@@ -732,7 +732,7 @@ vAPI.setIcon = (( ) => {
                     imgData.data[0] !== 0 ||
                     imgData.data[1] !== 0 ||
                     imgData.data[2] !== 0 ||
-                    imgData.data[3] !== 0 ||
+                    imgData.data[3] !== 0 || // Adn
                     imgData.data[4] !== 0 || // Adn
                     imgData.data[5] !== 0  // Adn
                 ) {
