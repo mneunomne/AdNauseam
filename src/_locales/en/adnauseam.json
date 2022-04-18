@@ -188,12 +188,12 @@
     "description": "shown in menu when only 'recent' Ads are shown"
   },
   "adnThisPageStrictBlocked": {
-    "message": "{{domain}} is currently strict blocked.",
-    "description": "shown in menu when the current page is strict blocked"
+    "message": "{{domain}} is currently strict-blocked.",
+    "description": "shown in menu when the current page is strict-blocked"
   },
   "adnStrictBlockListDescription": {
-    "message": "The strict block list serves to help the users to strict block specific domains or pages more easily.",
-    "description": "Description on the strict block list tab, which is found on the dashboard"
+    "message": "The strict-block list serves to help the users to strict-block specific domains or pages more easily.",
+    "description": "Description on the strict-block list tab, which is found on the dashboard"
   },
   "adnExportedAdsFilename": {
     "message": "AdNauseam_Export_{{datetime}}.json",
@@ -269,7 +269,7 @@
   },
   "adnMenuStrict": {
     "message": "Strict",
-    "description": "Activate Strict Block -> appears in ADN popup menu three state button"
+    "description": "Activate Strict-Block -> appears in ADN popup menu three state button"
   },
   "adnMenuDisableScopeDomain": {
     "message": "on domain.com",
@@ -468,7 +468,7 @@
     "description": "appears as tab name in dashboard"
   },
   "strictBlockListPageName": {
-    "message": "Strict Block List",
+    "message": "Strict-Block List",
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
@@ -484,7 +484,7 @@
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Activate Strict Blocking Mode",
-    "description": "English: Activate Strict Blocking Mode"
+    "message": "Activate Strict-Blocking Mode",
+    "description": "English: Activate Strict-Blocking Mode"
   }
 }
