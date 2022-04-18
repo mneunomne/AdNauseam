@@ -1557,7 +1557,7 @@ const adnauseam = (function () {
       µb.toggleStrictBlock(request.url, request.scope, request.state);
       // and remove the domain from the whitelist if it is there.
       store.toggleNetFilteringSwitch(request.url, request.scope, true);
-      // updateBadges();
+      updateBadges();
 
       // close strictblocklist if open (see gh #113)
       const wlId = getExtPageTabId("dashboard.html#strictblocklist.html");
@@ -1712,14 +1712,10 @@ const adnauseam = (function () {
 
   // update tab badges if we're showing them
   const updateBadges = exports.updateBadges = function () {
-
     const optionsUrl = vAPI.getURL('options.html');
-
-    for (const tabId in µb.pageStores) {
-
-      const store = µb.pageStoreFromTabId(tabId);
-      if (store !== null && !store.rawURL.startsWith(optionsUrl)) {
-        µb.updateToolbarIcon(tabId);
+    for (let [key, pageStore] of µb.pageStores.entries()) {
+      if (pageStore.tabId !== -1 && !pageStore.rawURL.startsWith(optionsUrl)) {
+        µb.updateToolbarIcon(pageStore.tabId);
       }
     }
   };
@@ -2078,9 +2074,10 @@ const adnauseam = (function () {
     return adlist(url, true).length || adlist(url).length;
   };
 
-  exports.getIconState = function (state, pageDomain, isClick) {
+  exports.getIconState = function (state, pageDomain, isClick, isStrict) {
     const isDNT = µb.userSettings.dntDomains.contains(pageDomain);
-    let iconStatus = state ? (isDNT ? 'dnt' : 'on') : 'off'; // ADN
+
+    let iconStatus = state ? (isDNT ? 'dnt' : (isStrict ? 'strict' : 'on')) : 'off'; // ADN
 
     if (iconStatus !== 'off') {
       iconStatus += (isClick ? 'active' : '');
@@ -2100,6 +2097,12 @@ const adnauseam = (function () {
         break;
       case 'dntactive':
         state = 4;
+        break;
+      case 'strict':
+        state = 5;
+        break;
+      case 'strictactive':
+        state = 6;
         break;
       default:
         state = 0;
