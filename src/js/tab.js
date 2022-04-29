@@ -1142,11 +1142,12 @@ vAPI.tabs = new vAPI.Tabs();
         }
 
          vAPI.setIcon(tabId, { parts, state, badge, color });
+         /* Adn start */
          isClick && vAPI.setTimeout(( ) => {
-             state = adnauseam.getIconState(state, pageDomain, false);
+             state = adnauseam.getIconState(state, pageDomain, isStrict);
              vAPI.setIcon(tabId, { parts, state, badge, color });
-         }, 600);
-
+        }, 600);
+        /* Adn ends */
     };
 
     // parts: bit 0 = icon
