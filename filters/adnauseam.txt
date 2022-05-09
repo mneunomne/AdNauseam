@@ -716,6 +716,12 @@ myip.com#@#.ads_1
 ||aniview.com^$important
 ||playstream.media^$important
 
+# forums.anandtech.com
+forums.anandtech.com###jwplayer-container-div:has(div.afs_ads)
+
+# machinelearningknowledge.ai
+machinelearningknowledge.ai##.td-visible-desktop > a[href^="https://click.linksynergy.com/"]
+
 ##################### Exceptions below here ########################
 
 # Requests that influence visual ads
