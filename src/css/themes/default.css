@@ -44,6 +44,7 @@
     --light-gray-80: #8f8f9e;
     --light-gray-90: #80808f;
     --orange-80: #9e280b;
+    --orange-60: #e03910;
     --purple-60: #952bb9;
     --red-60: #e22850;
     --violet-40: #ab71ff;
@@ -196,8 +197,8 @@
     --sf-notice-ink: var(--light-gray-60);
     --sf-readonly-ink: var(--light-gray-80);
     --sf-tag-ink: #117700;
-    --sf-value-ink: var(--orange-80);
-    --sf-variable-ink: var(--violet-60);
+    --sf-value-ink: var(--orange-60); /* Adn */
+    --sf-variable-ink: var(--violet-40); /* Adn */
     --sf-warning-ink: var(--yellow-50);
 
     /* syntax highlight: dynamic filtering */
