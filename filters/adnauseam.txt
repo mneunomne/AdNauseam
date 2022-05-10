@@ -1,5 +1,6 @@
 # Generics (any page)
 ##iframe[src*="mellowads"]
+##iframe[id^=openwrap-ad-]
 ##*[class*="Advert"]
 ##*[class*="teads-"]g
 ###gwd-ad
