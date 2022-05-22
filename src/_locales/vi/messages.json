@@ -104,7 +104,7 @@
     "description": "For the new mobile-friendly popup design"
   },
   "popupBlockedSinceInstall_v2": {
-    "message": "Bị chặn kể từ khi cài đặt",
+    "message": "Đã chặn từ khi cài đặt",
     "description": "For the new mobile-friendly popup design"
   },
   "popupDomainsConnected_v2": {
@@ -136,11 +136,11 @@
     "description": "Tooltip for the no-popups per-site switch"
   },
   "popupTipNoPopups1": {
-    "message": "Nhấp để chặn tất cả cửa sổ bật lên trên trang này",
+    "message": "Nhấp để chặn tất cả cửa sổ popup trên trang này",
     "description": "Tooltip for the no-popups per-site switch"
   },
   "popupTipNoPopups2": {
-    "message": "Nhấp để hủy chặn tất cả cửa sổ bật lên trên trang này",
+    "message": "Nhấp để hủy chặn tất cả cửa sổ popup trên trang này",
     "description": "Tooltip for the no-popups per-site switch"
   },
   "popupTipNoLargeMedia": {
@@ -172,11 +172,11 @@
     "description": "Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipNoRemoteFonts1": {
-    "message": "Bấm để chặn phông từ xa trên trang này",
+    "message": "Nhấp để chặn phông tải về trên trang này",
     "description": "Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipNoRemoteFonts2": {
-    "message": "Bấm để không chặn phông từ xa trên trang này",
+    "message": "Nhấp để không chặn phông tải về trên trang này",
     "description": "Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipNoScripting1": {
@@ -200,7 +200,7 @@
     "description": "Caption for the no-cosmetic-filtering per-site switch"
   },
   "popupNoRemoteFonts_v2": {
-    "message": "Phông từ xa",
+    "message": "Phông tải về",
     "description": "Caption for the no-remote-fonts per-site switch"
   },
   "popupNoScripting_v2": {
@@ -589,7 +589,7 @@
   },
   "whitelistPrompt": {
     "message": "Danh sách tên các máy chủ mà uBlock Origin sẽ bị chặn. Một mục nhập trên mỗi dòng. Tên máy chủ không hợp lệ sẽ được tự động bỏ qua.",
-    "description": "The name of the trusted sites pane."
+    "description": "A concise description of the 'Trusted sites' pane."
   },
   "whitelistImport": {
     "message": "Nhập và thêm vào",
@@ -856,7 +856,7 @@
     "description": "Label for radio-button to pick export text format"
   },
   "supportOpenButton": {
-    "message": "Mở đường dẫn",
+    "message": "Mở",
     "description": "Text for button which open an external webpage in Support pane"
   },
   "supportReportSpecificButton": {
@@ -1008,7 +1008,7 @@
     "description": "Shown in the About pane"
   },
   "aboutCDNs": {
-    "message": "Danh sách các bộ lọc của uBO được lưu trữ miễn phí trên các CDN.",
+    "message": "Danh sách các bộ lọc của riêng uBO được lưu trữ miễn phí tại các <a href=\"https://wikipedia.org/wiki/Content_delivery_network\">CDN</a> sau:",
     "description": "Shown in the About pane"
   },
   "aboutCDNsInfo": {

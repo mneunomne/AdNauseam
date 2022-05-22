@@ -281,9 +281,11 @@ const onCacheSettingsReady = async function(fetched) {
     if ( fetched.compiledMagic !== µb.systemSettings.compiledMagic ) {
         µb.compiledFormatChanged = true;
         µb.selfieIsInvalid = true;
+        ubolog(`Serialized format of static filter lists changed`);
     }
     if ( fetched.selfieMagic !== µb.systemSettings.selfieMagic ) {
         µb.selfieIsInvalid = true;
+        ubolog(`Serialized format of selfie changed`);
     }
     if ( µb.selfieIsInvalid ) {
         µb.selfieManager.destroy();
@@ -317,7 +319,7 @@ const onHiddenSettingsReady = async function() {
     if ( µb.hiddenSettings.suspendTabsUntilReady === 'no' ) {
         vAPI.net.unsuspend(true);
     } else if ( µb.hiddenSettings.suspendTabsUntilReady === 'yes' ) {
-        vAPI.net.suspend();
+        vAPI.net.suspend(true);
     }
 
     // Maybe disable WebAssembly
@@ -335,7 +337,7 @@ const onHiddenSettingsReady = async function() {
         });
     }
 
-    // Matbe override default cache storage
+    // Maybe override default cache storage
     const cacheBackend = await cacheStorage.select(
         µb.hiddenSettings.cacheStorageAPI
     );
@@ -467,7 +469,6 @@ let selfieIsValid = false;
 try {
     selfieIsValid = await µb.selfieManager.load();
     if ( selfieIsValid === true ) {
-        µb.supportStats.launchFromSelfie = true;
         ubolog(`Selfie ready ${Date.now()-vAPI.T0} ms after launch`);
     }
 } catch (ex) {
@@ -553,7 +554,10 @@ browser.runtime.onUpdateAvailable.addListener(details => {
     }
 });
 
-µb.supportStats.launchToReadiness = Date.now() - vAPI.T0;
+µb.supportStats.launchToReadiness = `${Date.now() - vAPI.T0} ms`;
+if ( selfieIsValid ) {
+    µb.supportStats.launchToReadiness += ' (selfie)';
+}
 ubolog(`All ready ${µb.supportStats.launchToReadiness} ms after launch`);
 
 // <<<<< end of private scope

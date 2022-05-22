@@ -137,7 +137,7 @@ const onMessage = function(request, sender, callback) {
         });
         return;
 
-    case 'sfneBenchmark':
+    case 'snfeBenchmark':
         µb.benchmarkStaticNetFiltering({ redirectEngine }).then(result => {
             callback(result);
         });
@@ -273,6 +273,14 @@ const onMessage = function(request, sender, callback) {
         if (typeof response === 'undefined') { // ADN return notifications either way
             response = { notifications: makeCloneable(adnauseam.getNotifications().notifications) }; // #1163
         }
+        break;
+
+    case 'snfeDump':
+        response = staticNetFilteringEngine.dump();
+        break;
+
+    case 'cfeDump':
+        response = cosmeticFilteringEngine.dump();
         break;
 
     default:
@@ -641,8 +649,8 @@ const retrieveContentScriptParameters = async function(sender, request) {
 
     const noSpecificCosmeticFiltering =
         pageStore.shouldApplySpecificCosmeticFilters(frameId) === false;
-    const noGenericCosmeticFiltering =
-        pageStore.shouldApplyGenericCosmeticFilters(frameId) === false;
+    // ADN https://github.com/dhowe/AdNauseam/issues/2038
+    const noGenericCosmeticFiltering = false; //pageStore.shouldApplyGenericCosmeticFilters(frameId) === false;
 
     const response = {
         collapseBlocked: µb.userSettings.collapseBlocked,
@@ -1357,6 +1365,13 @@ const getSupportData = async function() {
     }
     if ( Object.keys(addedListset).length === 0 ) {
         addedListset = undefined;
+    } else if ( Object.keys(addedListset).length > 20 ) {
+        const added = Object.keys(addedListset);
+        const truncated = added.slice(20);
+        for ( const key of truncated ) {
+            delete addedListset[key];
+        }
+        addedListset[`[${truncated.length} lists not shown]`] = '[too many]';
     }
     if ( Object.keys(removedListset).length === 0 ) {
         removedListset = undefined;

@@ -221,6 +221,14 @@ const FrameStore = class {
         return null;
     }
 
+    updateURL(url) {
+        if ( typeof url !== 'string' ) { return; }
+        this.rawURL = url;
+        this.hostname = hostnameFromURI(url);
+        this.domain = domainFromHostname(this.hostname) || this.hostname;
+        this._cosmeticFilteringBits = undefined;
+    }
+
     getCosmeticFilteringBits(tabId) {
         if ( this._cosmeticFilteringBits !== undefined ) {
             return this._cosmeticFilteringBits;
@@ -236,6 +244,7 @@ const FrameStore = class {
                     .duplicate()
                     .fromTabId(tabId)
                     .setURL(this.rawURL)
+                    .setDocOriginFromURL(this.rawURL)
                     .setRealm('network')
                     .setType('specifichide')
                     .setFilter(staticNetFilteringEngine.toLogData())
@@ -255,6 +264,7 @@ const FrameStore = class {
                     .duplicate()
                     .fromTabId(tabId)
                     .setURL(this.rawURL)
+                    .setDocOriginFromURL(this.rawURL)
                     .setRealm('network')
                     .setType('generichide')
                     .setFilter(staticNetFilteringEngine.toLogData())
@@ -490,6 +500,8 @@ const PageStore = class {
         return this.frames.get(frameId) || null;
     }
 
+    // https://github.com/uBlockOrigin/uBlock-issues/issues/1858
+    //   Mind that setFrameURL() can be called from navigation event handlers.
     setFrameURL(details) {
         let { frameId, url, parentFrameId } = details;
         if ( frameId === undefined ) { frameId = 0; }
@@ -506,6 +518,9 @@ const PageStore = class {
         frameStore = FrameStore.factory(url, parentFrameId);
         this.frames.set(frameId, frameStore);
         this.frameAddCount += 1;
+        if ( url.startsWith('about:') ) {
+            frameStore.updateURL(this.getEffectiveFrameURL({ frameId }));
+        }
         if ( (this.frameAddCount & 0b111111) === 0 ) {
             this.pruneFrames();
         }
@@ -854,7 +869,7 @@ const PageStore = class {
         if ( result === 0 || result === 3 || result === 4) { // ADN: added result === 4 scenario
 
            const snfe = staticNetFilteringEngine;
-           const updatedResult = snfe.matchString(fctxt);
+           const updatedResult = snfe.matchRequest(fctxt);
            result = result === 4 ? 4 : updatedResult;
            // End of ADN: keep result === 4 so that static filtering info can be added later
             if ( result !== 0 ) {

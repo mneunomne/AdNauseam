@@ -1184,10 +1184,10 @@ const injectCSP = function (fctxt, pageStore, responseHeaders) {
     fctxt.type = requestType;
     const staticDirectives =
         staticNetFilteringEngine.matchAndFetchModifiers(fctxt, 'csp');
-    if (staticDirectives !== undefined) {
-        for (const directive of staticDirectives) {
-            if (directive.result !== 1) { continue; }
-            cspSubsets.push(directive.modifier.value);
+    if ( staticDirectives !== undefined ) {
+        for ( const directive of staticDirectives ) {
+            if ( directive.result !== 1 ) { continue; }
+            cspSubsets.push(directive.value);
         }
     }
 
@@ -1387,7 +1387,7 @@ const webRequest = {
     start: (( ) => {
         vAPI.net = new vAPI.Net();
         vAPI.net.suspend();
-        return () => {
+        return async ( ) => {
             vAPI.net.setSuspendableListener(onBeforeRequest);
             vAPI.net.addListener(
                 'onHeadersReceived',
@@ -1413,6 +1413,21 @@ const webRequest = {
              );
             // end of ADN
             vAPI.net.unsuspend(true);
+            // Mitigation: force-reload active tabs for environments not
+            // supporting suspended network request listeners.
+            if (
+                vAPI.net.canSuspend() !== true &&
+                µb.hiddenSettings.suspendTabsUntilReady === 'unset'
+            ) {
+                const tabs = await vAPI.tabs.query({
+                    active: true,
+                    url: [ 'https://*/*', 'http://*/*' ],
+                    windowType: 'normal',
+                });
+                for ( const tab of tabs ) {
+                    vAPI.tabs.reload(tab.id);
+                }
+            }
         };
     })(),
 

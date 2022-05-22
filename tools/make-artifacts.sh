@@ -57,7 +57,15 @@ then
   fi
   #cp ${DES}/adnauseam.chromium.crx ${ARTS}/adnauseam-${VERSION}.chromium.crx
   cd ${DES} > /dev/null 2>&1
+
   zip -9 -r -q --exclude=*.DS_Store* ../../artifacts/adnauseam-${VERSION}.chromium.zip adnauseam.chromium
+
+  # see #2046
+  cp ../../artifacts/adnauseam-${VERSION}.chromium.zip ../../artifacts/adnauseam.chromium.zip
+
+  # will a sym-link work here? not sure
+  #ln -s ../../artifacts/adnauseam-${VERSION}.chromium.zip ../../artifacts/adnauseam.chromium.zip
+
   cd - > /dev/null 2>&1
 fi
 

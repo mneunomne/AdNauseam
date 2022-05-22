@@ -1108,13 +1108,15 @@ vAPI.tabs = new vAPI.Tabs();
         let state = 0;
         let badge = '';
         let color = '#666';
-        let count = 0; //ADN
-
+        let count = 0; // ADN
+        let isStrict = 0 // ADN
+        
         const pageStore = µb.pageStoreFromTabId(tabId);
         let pageDomain = pageStore ? domainFromHostname(pageStore.tabHostname) : null; // ADN;
-
+        
         if ( pageStore !== null ) {
             state = pageStore.getNetFilteringSwitch() ? 1 : 0;
+            isStrict = pageStore.getIsPageStrictBlocked() ? 1 : 0 // ADN
             if ( state === 1 ) {
                 if ( (parts & 0b0010) !== 0 ) {
                     const blockCount = pageStore.counts.blocked.any;
@@ -1129,7 +1131,7 @@ vAPI.tabs = new vAPI.Tabs();
                 }
             }
 
-          state = adnauseam.getIconState(state, pageDomain, isClick); // ADN
+          state = adnauseam.getIconState(state, pageDomain, isClick, isStrict); // ADN
           count = adnauseam.currentCount(pageStore.rawURL); // ADN
           badge = µb.formatCount(count);
         }
@@ -1140,11 +1142,12 @@ vAPI.tabs = new vAPI.Tabs();
         }
 
          vAPI.setIcon(tabId, { parts, state, badge, color });
+         /* Adn start */
          isClick && vAPI.setTimeout(( ) => {
-             state = adnauseam.getIconState(state, pageDomain, false);
+             state = adnauseam.getIconState(state, pageDomain, isStrict);
              vAPI.setIcon(tabId, { parts, state, badge, color });
-         }, 600);
-
+        }, 600);
+        /* Adn ends */
     };
 
     // parts: bit 0 = icon

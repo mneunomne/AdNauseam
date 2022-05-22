@@ -114,7 +114,9 @@ vAPI.browserSettings = (( ) => {
 
     return {
         // https://github.com/uBlockOrigin/uBlock-issues/issues/1723#issuecomment-919913361
-        canLeakLocalIPAddresses: vAPI.webextFlavor.soup.has('mobile'),
+        canLeakLocalIPAddresses:
+            vAPI.webextFlavor.soup.has('firefox') &&
+            vAPI.webextFlavor.soup.has('mobile'),
 
         set: function(details) {
             for ( const setting in details ) {
@@ -666,6 +668,8 @@ vAPI.setIcon = (( ) => {
         { path: { '16': 'img/adn_active_16.png', '32': 'img/adn_active_32.png' } },
         { path: { '16': 'img/adn_dnt_on_16.png', '32': 'img/adn_dnt_on_32.png' } },
         { path: { '16': 'img/adn_dnt_active_16.png', '32': 'img/adn_dnt_active_32.png' } },
+        { path: { '16': 'img/adn_strict_on_16.png', '32': 'img/adn_strict_on_32.png' } },
+        { path: { '16': 'img/adn_strict_active_16.png', '32': 'img/adn_strict_active_32.png' } },
     ];
 
     (( ) => {
@@ -714,7 +718,7 @@ vAPI.setIcon = (( ) => {
                 if ( img.r.complete === false ) { return; }
             }
             const ctx = document.createElement('canvas').getContext('2d');
-            const iconData = [ null, null, null, null, null];
+            const iconData = [ null, null, null, null, null, null, null]; // adn
             for ( const img of imgs ) {
                 const w = img.r.naturalWidth, h = img.r.naturalHeight;
                 ctx.width = w; ctx.height = h;
@@ -728,7 +732,9 @@ vAPI.setIcon = (( ) => {
                     imgData.data[0] !== 0 ||
                     imgData.data[1] !== 0 ||
                     imgData.data[2] !== 0 ||
-                    imgData.data[3] !== 0
+                    imgData.data[3] !== 0 || // Adn
+                    imgData.data[4] !== 0 || // Adn
+                    imgData.data[5] !== 0  // Adn
                 ) {
                     return;
                 }

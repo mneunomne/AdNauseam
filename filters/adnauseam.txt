@@ -1,7 +1,10 @@
 # Generics (any page)
 ##iframe[src*="mellowads"]
+##iframe[id^=openwrap-ad-]
 ##*[class*="Advert"]
-##*[class*="teads-"]
+##*[class*="teads-"]g
+###gwd-ad
+##ins.adsbygoogle
 
 # Generic exceptions
 tweakers.net#@#*[class*="Advert"]
@@ -167,7 +170,7 @@ torrentfunk2.com##.__fp-a
 # columbiagreenemedia.com
 columbiagreenemedia.com###sawyer_container
 
-##iframe[src*=‘/ad/']
+##iframe[src*='/ad/']
 
 # 163.com
 ##.head-ad
@@ -227,7 +230,7 @@ fortune.com##._3sDrBk7f
 fortune.com##.small-12.column:nth-of-type(9) > .row
 fortune.com##.small-12.column > .row:nth-of-type(2) > .small-12.column > .row > .large-3.medium-6.small-12.column
 
-＃ baidu.com
+# baidu.com
 ##.ad-imax
 ##.search-aside-adWrap
 ##DIV[class^="baidu-adv"]
@@ -495,6 +498,10 @@ doodle.com##div[id*=bottomAd]
 # cointelegraph.com
 cointelegraph.com##.NMM:has(iframe[src="about:blank"])
 
+# infoworld.com
+www.infoworld.com##.brVideoContainer:has(.ad-placement)
+
+
 ##################### Blocking rules ########################
 # found on wpri.com
 gfp_video_ads/
@@ -710,6 +717,12 @@ myip.com#@#.ads_1
 ||aniview.com^$important
 ||playstream.media^$important
 
+# forums.anandtech.com
+forums.anandtech.com###jwplayer-container-div:has(div.afs_ads)
+
+# machinelearningknowledge.ai
+machinelearningknowledge.ai##.td-visible-desktop > a[href^="https://click.linksynergy.com/"]
+
 ##################### Exceptions below here ########################
 
 # Requests that influence visual ads
@@ -735,6 +748,9 @@ myip.com#@#.ads_1
 # google icon images
 @@||ssl.gstatic.com/gb/images/
 @@||ssl.gstatic.com/images/
+
+# google fonts https://github.com/dhowe/AdNauseam/issues/2072
+@@||gstaticadssl.l.google.com^$~font,third-party,~xmlhttprequest
 
 # pikabu.ru
 @@||an.yandex.ru^$third-party,domain=pikabu.ru
