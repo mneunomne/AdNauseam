@@ -1220,9 +1220,9 @@ const adnauseam = (function () {
     }
     
     // Check if specific page is strict-blocked by the StrictBlockList
-    var getIsPageStrictBlocked = µb.getIsPageStrictBlocked(context.url)
+    var getIsPageStrictBlocked = µb.getIsPageStrictBlocked(context.tabOrigin)
     if (getIsPageStrictBlocked) {
-      logNetBlock('From StrictBlockList', context.url);
+      logNetBlock('From StrictBlockList', context.tabOrigin);
       return true;
     }
 
