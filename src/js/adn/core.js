@@ -1193,6 +1193,8 @@ const adnauseam = (function () {
    *
    *  3) whether the request is strictBlocked (iff strictBlocking is enabled)
    *      if so, return true;
+   *      A) If global Strict Block is enabled
+   *      B) If request domain/page is in the StrictBlockList
    *
    *  4) check if any list it was found on allows blocks
    *  	A) user list:      block
@@ -1211,9 +1213,17 @@ const adnauseam = (function () {
       logNetAllow('Loading', context.docDomain + ' :: ' + context.url); // 2.
       return false;
     }
-
-    if (isStrictBlock(result, context)) {                               // 3.
-      return true;  
+    
+    if (isStrictBlock(result, context)) {                               // 3.A
+      logNetBlock('Global Strict Block');
+      return true;
+    }
+    
+    // Check if specific page is strict-blocked by the StrictBlockList
+    var getIsPageStrictBlocked = µb.getIsPageStrictBlocked(context.url)
+    if (getIsPageStrictBlocked) {
+      logNetBlock('From StrictBlockList', context.url);
+      return true;
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -1524,13 +1534,40 @@ const adnauseam = (function () {
     if (store) {
 
       store.toggleNetFilteringSwitch(request.url, request.scope, request.state);
+      µb.toggleStrictBlock(request.url, request.scope, false); // adn remove strictBlock
       updateBadges();
 
       // close whitelist if open (see gh #113)
       const wlId = getExtPageTabId("dashboard.html#whitelist.html");
       wlId && vAPI.tabs.replace(wlId, vAPI.getURL("dashboard.html"));
+
+      // ADN - close strictblocklist if open
+      const wlIdSb = getExtPageTabId("dashboard.html#strictblocklist.html");
+      wlIdSb && vAPI.tabs.replace(wlIdSb, vAPI.getURL("dashboard.html"));
     }
   };
+
+  // Adn - StrictBlockList
+  // toggle page strictBlock
+  exports.toggleStrictBlockButton = function (request) { 
+    console.log("[ADN] toggleStrictBlock", request)
+    const store = µb.pageStoreFromTabId(request.tabId);
+    if (store) {
+      // enable strict blocking for the current domain...
+      µb.toggleStrictBlock(request.url, request.scope, request.state);
+      // and remove the domain from the whitelist if it is there.
+      store.toggleNetFilteringSwitch(request.url, request.scope, true);
+      updateBadges();
+
+      // close strictblocklist if open (see gh #113)
+      const wlId = getExtPageTabId("dashboard.html#strictblocklist.html");
+      wlId && vAPI.tabs.replace(wlId, vAPI.getURL("dashboard.html"));
+
+      // close whitelist if open (see gh #113)
+      const wlIdwl = getExtPageTabId("dashboard.html#whitelist.html");
+      wlIdwl && vAPI.tabs.replace(wlIdwl, vAPI.getURL("dashboard.html"));
+    }
+  }
 
   // Called when new top-level page is loaded
   exports.onPageLoad = function (tabId, requestURL) {
@@ -1675,14 +1712,10 @@ const adnauseam = (function () {
 
   // update tab badges if we're showing them
   const updateBadges = exports.updateBadges = function () {
-
     const optionsUrl = vAPI.getURL('options.html');
-
-    for (const tabId in µb.pageStores) {
-
-      const store = µb.pageStoreFromTabId(tabId);
-      if (store !== null && !store.rawURL.startsWith(optionsUrl)) {
-        µb.updateToolbarIcon(tabId);
+    for (let [key, pageStore] of µb.pageStores.entries()) {
+      if (pageStore.tabId !== -1 && !pageStore.rawURL.startsWith(optionsUrl)) {
+        µb.updateToolbarIcon(pageStore.tabId);
       }
     }
   };
@@ -2041,9 +2074,10 @@ const adnauseam = (function () {
     return adlist(url, true).length || adlist(url).length;
   };
 
-  exports.getIconState = function (state, pageDomain, isClick) {
+  exports.getIconState = function (state, pageDomain, isClick, isStrict) {
     const isDNT = µb.userSettings.dntDomains.contains(pageDomain);
-    let iconStatus = state ? (isDNT ? 'dnt' : 'on') : 'off'; // ADN
+
+    let iconStatus = state ? (isDNT ? 'dnt' : (isStrict ? 'strict' : 'on')) : 'off'; // ADN
 
     if (iconStatus !== 'off') {
       iconStatus += (isClick ? 'active' : '');
@@ -2063,6 +2097,12 @@ const adnauseam = (function () {
         break;
       case 'dntactive':
         state = 4;
+        break;
+      case 'strict':
+        state = 5;
+        break;
+      case 'strictactive':
+        state = 6;
         break;
       default:
         state = 0;

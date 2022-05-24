@@ -610,7 +610,10 @@ housekeep itself.
         this.onGCBarrier = false;
         this.netFiltering = true;
         this.netFilteringReadTime = 0;
-
+        /* ADN - Strict Block List Filtering */
+        this.strictBlockFiltering = true;
+        this.strictBlockFilteringReadTime = 0;
+        /* end of ADN */
         tabContexts.set(tabId, this);
     };
 
@@ -681,6 +684,7 @@ housekeep itself.
     // root URL.
     TabContext.prototype.update = function() {
         this.netFilteringReadTime = 0;
+        this.strictBlockFilteringReadTime = 0; // Adn
         if ( this.stack.length === 0 ) {
             this.rawURL =
             this.normalURL =
@@ -748,6 +752,26 @@ housekeep itself.
         this.netFilteringReadTime = Date.now();
         return this.netFiltering;
     };
+
+    /* ADN */
+    TabContext.prototype.getIsPageStrictBlocked = function() {
+        if ( this.strictBlockFilteringReadTime > µb.strictBlockFilteringModifyTime ) {
+            return this.strictBlockFiltering;
+        }
+        // https://github.com/chrisaljoudi/uBlock/issues/1078
+        // Use both the raw and normalized URLs.
+        this.strictBlockFiltering = µb.getIsPageStrictBlocked(this.normalURL);
+        if (
+            this.strictBlockFiltering &&
+            this.rawURL !== this.normalURL &&
+            this.rawURL !== ''
+        ) {
+            this.strictBlockFiltering = µb.getIsPageStrictBlocked(this.rawURL);
+        }
+        this.strictBlockFilteringReadTime = Date.now();
+        return this.strictBlockFiltering;
+    };
+    /* End of ADN */
 
     // These are to be used for the API of the tab context manager.
 
@@ -1084,13 +1108,15 @@ vAPI.tabs = new vAPI.Tabs();
         let state = 0;
         let badge = '';
         let color = '#666';
-        let count = 0; //ADN
-
+        let count = 0; // ADN
+        let isStrict = 0 // ADN
+        
         const pageStore = µb.pageStoreFromTabId(tabId);
         let pageDomain = pageStore ? domainFromHostname(pageStore.tabHostname) : null; // ADN;
-
+        
         if ( pageStore !== null ) {
             state = pageStore.getNetFilteringSwitch() ? 1 : 0;
+            isStrict = pageStore.getIsPageStrictBlocked() ? 1 : 0 // ADN
             if ( state === 1 ) {
                 if ( (parts & 0b0010) !== 0 ) {
                     const blockCount = pageStore.counts.blocked.any;
@@ -1105,7 +1131,7 @@ vAPI.tabs = new vAPI.Tabs();
                 }
             }
 
-          state = adnauseam.getIconState(state, pageDomain, isClick); // ADN
+          state = adnauseam.getIconState(state, pageDomain, isClick, isStrict); // ADN
           count = adnauseam.currentCount(pageStore.rawURL); // ADN
           badge = µb.formatCount(count);
         }
@@ -1116,11 +1142,12 @@ vAPI.tabs = new vAPI.Tabs();
         }
 
          vAPI.setIcon(tabId, { parts, state, badge, color });
+         /* Adn start */
          isClick && vAPI.setTimeout(( ) => {
-             state = adnauseam.getIconState(state, pageDomain, false);
+             state = adnauseam.getIconState(state, pageDomain, isStrict);
              vAPI.setIcon(tabId, { parts, state, badge, color });
-         }, 600);
-
+        }, 600);
+        /* Adn ends */
     };
 
     // parts: bit 0 = icon
