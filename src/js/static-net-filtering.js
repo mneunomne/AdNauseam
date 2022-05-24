@@ -1553,7 +1553,7 @@ const FilterModifier = class {
         filterData[idata+2] = args[2];          // type
         filterData[idata+3] = filterRefAdd({
             value: args[3],
-            cache: null,
+            $cache: null,
         });
         return idata;
     }
@@ -1602,11 +1602,11 @@ const FilterModifierResult = class {
     }
 
     get cache() {
-        return this.refs.cache;
+        return this.refs.$cache;
     }
 
     set cache(a) {
-        this.refs.cache = a;
+        this.refs.$cache = a;
     }
 
     logData() {
@@ -3493,7 +3493,7 @@ FilterCompiler.prototype.FILTER_UNSUPPORTED = 2;
 
 const FilterContainer = function() {
     this.compilerVersion = '6';
-    this.selfieVersion = '7';
+    this.selfieVersion = '8';
 
     this.MAX_TOKEN_LENGTH = MAX_TOKEN_LENGTH;
     this.optimizeTaskId = undefined;
