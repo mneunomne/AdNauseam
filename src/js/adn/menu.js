@@ -24,7 +24,9 @@
 (function () {
   'use strict';
 
-  let ads, page, settings; // remove? only if we can find an updated ad already in the DOM
+  let ads, page, settings, recent; // remove? only if we can find an updated ad already in the DOM
+
+  const ad_list_height = 360;
 
   vAPI.broadcastListener.add(request => {
 
@@ -63,32 +65,24 @@
 
   const renderPage = function (json) {
     page = json && json.pageUrl;
-    settings  =json && json.prefs;
-
-    function disableMenu() {
-      uDom.nodeFromId('pause-button').disabled = true;
-      uDom.nodeFromId('resume-button').disabled = true;
-    }
+    settings = json && json.prefs;
+    recent = json && json.recent
 
     if (page) {
       // disable pause & resume buttons for options, vault, about/chrome
       if (page === vAPI.getURL("vault.html") ||
         page.indexOf(vAPI.getURL("dashboard.html")) === 0 ||
         page.indexOf("chrome") === 0 || page.indexOf("about:") === 0) {
-        disableMenu();
+        uDom('#state_btn-wrapper').addClass('disabled');
       }
     }
-    else {
-      // for Firefox new tab page (see #1196)
-      disableMenu();
-    }
 
-    uDom("#alert").addClass('hide'); // reset state
-    uDom('#main').toggleClass('disabled', dval());
+    uDom("#alert-noads").addClass('hide'); // reset state of no ads showned
+    uDom("#alert-strictblock").addClass('hide'); // reset state of no ads showned
+    uDom('#main').toggleClass('disabled', getIsDisabled());
 
-    updateMenuState();
 
-    if (typeof json !== 'undefined' && json !== null ) {
+    if (typeof json !== 'undefined' && json !== null) {
       ads = json.data;
       setCounts(ads, json.total, json.recent);
     } else {
@@ -115,35 +109,31 @@
       }).then((data) => {
         renderNotifications(data.notifications)
         adjustBlockHeight(data.disableWarnings)
+
+        // set button state
+        if (getIsDisabled()) {
+          // disabled 
+          uDom('#disable').prop('checked', true);
+        } else if (getIsStrictBlocked()) {
+          // strict blocked
+          uDom('#strict').prop('checked', true);
+          toggleStrictAlert(page, true)
+        } else {
+          // active
+          uDom('#active').prop('checked', true);
+        }
+
       });
     });
   }
 
-  const updateMenuState = function () {
-
-    if (uDom('#main').hasClass('disabled')) {
-
-      uDom('#resume-button').removeClass('hide').addClass('show');
-      uDom('#pause-button').removeClass('show').addClass('hide');
-
-    } else {
-
-      uDom('#pause-button').removeClass('hide').addClass('show');
-      uDom('#resume-button').removeClass('show').addClass('hide');
-    }
-  }
-
   const setCounts = function (ads, total, recent) {
-
     const numVisits = recent ? 0 : (visitedCount(ads) || 0);
     uDom('#vault-count').text(total || 0);
-
     uDom('#visited').text(vAPI.i18n("adnMenuAdsClicked").replace("{{number}}", numVisits || 0));
     uDom('#found').text(vAPI.i18n("adnMenuAdsDetected").replace("{{count}}", (ads && !recent) ? ads.length : 0));
     setCost(numVisits);
-
     adjustStatCSS();
-
   }
 
   const adjustStatCSS = function () {
@@ -154,54 +144,16 @@
     }
   }
 
-  const updateInterface = function (json) {
-
-    const page = json.pageUrl;
-
-    // disable pause & resume buttons for options, vault, about/chrome
-    if (page === vAPI.getURL("vault.html") ||
-      page.indexOf(vAPI.getURL("dashboard.html")) === 0 ||
-      page.indexOf("chrome://") === 0 ||
-      page.indexOf("about:") === 0) {
-      uDom.nodeFromId('pause-button').disabled = true;
-      uDom.nodeFromId('resume-button').disabled = true;
-    }
-
-    uDom("#alert").addClass('hide'); // reset state
-    uDom('#main').toggleClass('disabled', dval());
-    uDom('#paused-on-page').toggleClass('hide', json.prefs.hidingDisabled);
-    uDom('#paused-no-hiding').toggleClass('hide', !json.prefs.hidingDisabled);
-
-    if (uDom('#main').hasClass('disabled')) {
-
-      uDom('#resume-button').removeClass('hide').addClass('show');
-      uDom('#pause-button').removeClass('show').addClass('hide');
-
-    } else {
-
-      uDom('#pause-button').removeClass('hide').addClass('show');
-      uDom('#resume-button').removeClass('show').addClass('hide');
-    }
-
-    uDom('#vault-count').text(json.data.length);
-    uDom('#visited').text(vAPI.i18n("adnMenuAdsClicked").replace("{{number}}", numVisits || 0));
-    uDom('#found').text(vAPI.i18n("adnMenuAdsDetected").replace("{{count}}", ads ? ads.length : 0));
-    //console.log("FOUND: " + ads.length);
-  };
-
   const layoutAds = function (json) {
-
     const $items = uDom('#ad-list-items');
     $items.removeClass().empty();
 
-    let ads = json.data;
+    ads = json.data;
     if (ads) {
-
       if (json.recent) doRecent();
-
-      for (let i = 0, j = ads.length; i < j; i++)
+      for (let i = 0, j = ads.length; i < j; i++) {
         appendAd($items, ads[i]);
-
+      }
       setAttempting(json.current);
     }
   };
@@ -210,7 +162,6 @@
 
     let title = ad.title + ' ';
     if (ad.visitedTs < 1) {
-
       // adds . to title for each failed attempt
       for (let i = 0; i < ad.attempts; i++)
         title += '.';
@@ -232,7 +183,6 @@
 
       // update the visited count
       if (ad.pageUrl === page) { // global page here
-
         const numVisits = visitedCount(ads);
         uDom('#visited').text(vAPI.i18n("adnMenuAdsClicked").replace("{{number}}", numVisits || 0));
         setCost(numVisits);
@@ -242,25 +192,20 @@
   }
 
   const verify = function (ad) { // uses global ads
-
-    //if (!ads) console.error("[WARN] no global ads!");
-
     if (ad && ads) {
-
       for (let i = 0; i < ads.length; i++) {
-
         if (ads[i].id === ad.id) {
           ads[i] = ad;
           return true;
         }
       }
     }
-
     return false;
   }
 
+  // if there are any ads on current domain, show recent
   const doRecent = function () {
-    uDom("#alert").removeClass('hide');
+    uDom("#alert-noads").removeClass('hide');
     uDom('#ad-list-items').addClass('recent-ads');
   }
 
@@ -268,23 +213,18 @@
     if (ad.private && ad.adNetwork != null) return; // skip private ads after removal of content
 
     if (ad.contentType === 'img') {
-
       appendImageAd(ad, $items);
-
     } else if (ad.contentType === 'text') {
-
       appendTextAd(ad, $items);
     }
   }
 
   const removeClassFromAll = function (cls) {
-
     uDom('.ad-item').removeClass(cls);
     uDom('.ad-item-text').removeClass(cls);
   };
 
   const setAttempting = function (ad) {
-
     // one 'attempt' at a time
     removeClassFromAll('attempting');
 
@@ -294,25 +234,19 @@
   }
 
   const updateAdClasses = function (ad) {
-
     const $ad = uDom('#ad' + ad.id); //$('#ad' + ad.id);
-
     // allow only one just-* at a time...
     removeClassFromAll('just-visited just-failed');
-
     // See https://github.com/dhowe/AdNauseam/issues/61
     const cls = ad.visitedTs > 0 ? 'just-visited' : 'just-failed';
     // Update the status
     const txt = cls === 'just-visited' ? 'visited' : 'failed';
     $ad.descendants('.adStatus').text(vAPI.i18n("adnAdClickingStatus" + txt));
-
     $ad.removeClass('failed visited attempting').addClass(cls);
-
     // timed for animation
     setTimeout(function () {
       $ad.addClass(visitedClass(ad));
     }, 300);
-
     return $ad;
   }
 
@@ -338,14 +272,13 @@
     let img_src = (ad.contentData.src || ad.contentData);
     var isPNGdata = img_src.includes('data:image/png');
     var cl = isPNGdata ? "ad-item-img white-bg" : "ad-item-img";
-    
+
     $img = uDom(document.createElement('img'))
       .attr('src', img_src)
       .addClass(cl)
       .on('click', "this.onerror=null; this.width=50; this.height=45; this.src='img/placeholder.svg'");
 
     $img.on("error", function () {
-
       $img.css({
         width: 80,
         height: 40
@@ -356,8 +289,6 @@
     });
 
     $img.appendTo($span);
-
-    //    $span.appendTo($a);
 
     uDom(document.createElement('span'))
       .addClass('title')
@@ -376,13 +307,10 @@
     const $status = uDom(document.createElement('span'))
       .addClass('adStatus').text(vAPI.i18n("adnAdClickingStatus" + adStatus(ad)));
     $status.appendTo(parent);
-
   }
 
   const adStatus = function (ad) {
-
     let status = settings.clickingDisabled ? "SkippedDisabled" : "Pending";
-
     if (!ad.noVisit) {
       if (ad.attempts > 0) {
         status = ad.visitedTs > 0 ? 'Visited' : 'Failed';
@@ -423,7 +351,6 @@
       $cite.text($cite.text() + ' (#' + ad.id + ')'); // testing-only
       $cite.appendTo($li);
     }
-
     uDom(document.createElement('div'))
       .addClass('ads-creative')
       .text(ad.contentData.text).appendTo($li);
@@ -432,20 +359,34 @@
   }
 
   const visitedClass = function (ad) {
-
     return ad.dntAllowed ? 'dnt-allowed' : (ad.visitedTs > 0 ? 'visited' :
       (ad.visitedTs < 0 && ad.attempts >= 3) ? 'failed' : '');
   }
 
   const visitedCount = function (arr) {
-
     return (!(arr && arr.length)) ? 0 : arr.filter(function (ad) {
       return ad.visitedTs > 0;
     }).length;
   }
 
-  const getPopupData = function (tabId) {
+  const toggleStrictAlert = function (pageUrl, state) {
+    let hostname = (new URL(pageUrl)).hostname;
+    uDom("#alert-strictblock .text").text(uDom("#alert-strictblock .text").text().replace("{{domain}}", hostname))
+    if (state) {
+      uDom("#alert-strictblock").removeClass('hide');
+      uDom("#alert-noads").addClass('hide');
+      uDom('#ad-list-items').addClass('recent-ads');
+    } else {
+      if (recent) {
+        uDom("#alert-noads").removeClass('hide');
+      } else {
+        uDom('#ad-list-items').removeClass('recent-ads');
+      }
+      uDom("#alert-strictblock").addClass('hide');
+    }
+  }
 
+  const getPopupData = function (tabId) {
     const onPopupData = function (response) {
       cachePopupData(response);
       vAPI.messaging.send(
@@ -465,11 +406,16 @@
       onPopupData(details);
     })
   };
-
-  const dval = function () {
-
+  
+  // check if current page/domain is whitelisted
+  const getIsDisabled = function () {
     return popupData.pageURL === '' || !popupData.netFilteringSwitch ||
-      (popupData.pageHostname === 'behind-the-scene' && !popupData.advancedUserEnabled);
+    (popupData.pageHostname === 'behind-the-scene' && !popupData.advancedUserEnabled);
+  }
+  
+  // check if current page/domain is on strictBlockList
+  const getIsStrictBlocked = function () {
+    return popupData.strictBlocked
   }
 
   /******************************************************************************/
@@ -484,7 +430,6 @@
   };
 
   const cachePopupData = function (data) {
-
     popupData = {};
     scopeToSrcHostnameMap['.'] = '';
     hostnameToSortableTokenMap = {};
@@ -517,69 +462,63 @@
   };
 
   uDom('#vault-button').on('click', function () {
-
     vAPI.messaging.send(
-      'default', {
-      what: 'gotoURL',
-      details: {
-        url: "vault.html",
-        select: true,
-        index: -1
+      'default',
+      {
+        what: 'gotoURL',
+        details: {
+          url: "vault.html",
+          select: true,
+          index: -1
+        }
       }
-    }
     )
-
     vAPI.closePopup();
   });
 
-  uDom('#settings-open').on('click', function () {
-
+  uDom('#btn-settings').on('click', function () {
     vAPI.messaging.send(
-      'default', {
-      what: 'gotoURL',
-      details: {
-        url: "dashboard.html#options.html",
-        select: true,
-        index: -1
+      'default',
+      {
+        what: 'gotoURL',
+        details: {
+          url: "dashboard.html#options.html",
+          select: true,
+          index: -1
+        }
       }
-    }
     );
-
     vAPI.closePopup();
   });
 
   uDom('#help-button').on('click', function () {
-
     vAPI.messaging.send(
-      'default', {
-      what: 'gotoURL',
-      details: {
-        url: "https://github.com/dhowe/AdNauseam/wiki/FAQ",
-        select: true,
-        index: -1
+      'default',
+      {
+        what: 'gotoURL',
+        details: {
+          url: "https://github.com/dhowe/AdNauseam/wiki/FAQ",
+          select: true,
+          index: -1
+        }
       }
-    }
     );
-
     vAPI.closePopup();
   });
 
   uDom('#settings-close').on('click', function () {
-
     uDom('.page').toggleClass('hide');
     uDom('.settings').toggleClass('hide');
   });
 
   const AboutURL = "https://github.com/dhowe/AdNauseam/wiki/"; // keep
 
-  uDom('#about-button').on('click', function () {
-
+  uDom('#btn-ublock').on('click', function () {
     window.open("./popup-fenix.html", '_self');
     //window.open(AboutURL);
   });
 
   const onHideTooltip = function () {
-
     uDom.nodeFromId('tooltip').classList.remove('show');
   };
 
@@ -623,51 +562,150 @@
     tip.classList.add('show');
   };
 
-  const toggleEnabled = function (ev) {
 
-    if (!popupData || !popupData.pageURL || (popupData.pageHostname ===
-      'behind-the-scene' && !popupData.advancedUserEnabled)) {
-
-      return;
+  // on change state of toggle button
+  const onChangeState = function (evt) {
+    switch (this.value) {
+      case 'strict':
+        onClickStrict();
+        break;
+      case 'disable':
+        toggleStrictAlert(popupData.pageURL, false)
+        toggleEnabled(evt, false)
+        // open dropdown menu
+        onClickDisableArrow()
+        break;
+      case 'active':
+        toggleStrictAlert(popupData.pageURL, false)
+        toggleEnabled(evt, true)
+        break;
+      default:
+        break;
     }
+  }
 
+  // when changing "page" and "domain" scope from the popup menu on the "disable button" 
+  const onChangeDisabledScope = function (evt) {
+    var scope = uDom(".disable_type_radio:checked") ? uDom(".disable_type_radio:checked").val() : ''
+    // first remove previous whichever previous scope from whitelist 
     vAPI.messaging.send(
       'adnauseam', {
       what: 'toggleEnabled',
       url: popupData.pageURL,
-      scope: ev.altKey || ev.metaKey ? 'page' : '',
-      state: !uDom('#main').toggleClass('disabled').hasClass('disabled'),
+      scope: scope,
+      state: true,
+      tabId: popupData.tabId
+    }).then(() => {
+      // then re-add it with current scope
+      vAPI.messaging.send(
+        'adnauseam', {
+        what: 'toggleEnabled',
+        url: popupData.pageURL,
+        scope: scope,
+        state: false,
+        tabId: popupData.tabId
+      });
+      setTimeout(function () {
+        // always close popup after selecting
+        closePopup()
+      }, 500)
+    });
+  }
+
+  // keep in mind:
+  // state == false -> disabled 
+  // state == true -> active 
+  const toggleEnabled = function (evt, state, _scope) {
+    if (!popupData || !popupData.pageURL || (popupData.pageHostname ===
+      'behind-the-scene' && !popupData.advancedUserEnabled)) {
+      return;
+    }
+    uDom('#main').toggleClass('disabled', !state)
+    vAPI.messaging.send(
+      'adnauseam', {
+      what: 'toggleEnabled',
+      url: popupData.pageURL,
+      scope: evt.altKey || evt.metaKey ? 'page' : '',
+      state: state,
       tabId: popupData.tabId
     });
-
-    updateMenuState();
-    // hashFromPopupData();
   };
+
+  // always close popup after any click outside of it 
+  const onAnyClickAfterOpen = function (event) {
+    if (event.target.name == 'disable_type') {
+      // here deal with choices of disable type
+    } else {
+      // here close the popup
+      closePopup()
+    }
+  }
+
+  const closePopup = function () {
+    uDom(".popup_arrow").removeClass("open")
+    uDom(".inner-popup_wrapper").addClass("hidden")
+    document.removeEventListener('click', onAnyClickAfterOpen)
+  }
+
+  const openPopup = function () {
+    uDom(".popup_arrow").addClass("open")
+    uDom(".inner-popup_wrapper").removeClass("hidden")
+    document.addEventListener('click', onAnyClickAfterOpen)
+  }
+
+  const onClickDisableArrow = function () {
+    uDom("#disable").prop('checked', true);
+    var isOpen = uDom(".popup_arrow").hasClass('open')
+    if (isOpen) {
+      closePopup()
+    } else {
+      openPopup()
+    }
+  }
 
   const adjustBlockHeight = function (disableWarnings) {
     // recalculate the height of ad-list
-    
     let notification = document.getElementById('notifications')
     var h = notification.offsetHeight;
+    // if disable warning is enable, don't count height of notifications strip
     if (disableWarnings) {
-      h = 0;  
+      h = 0;
     }
-    const newh = 350 - h;
+    const newh = ad_list_height - h;
     uDom('#ad-list').css('height', newh + 'px');
   };
 
   const setBackBlockHeight = function () {
-
     let height = document.getElementById('ad-list').offsetHeight;
     let top = parseInt(uDom('#paused-menu').css('top'));
-
     const unit = 39; // ?
     height += unit;
     top -= unit;
-
     uDom('#ad-list').css('height', height + 'px');
     uDom('#paused-menu').css('top', top + 'px');
   };
+
+  /*******************************************************************
+  Adn on click strict block
+  ********************************************************************/
+
+  function onClickStrict() {
+    if (!popupData || !popupData.pageURL || (popupData.pageHostname ===
+      'behind-the-scene' && !popupData.advancedUserEnabled)) {
+      return;
+    }
+    // enable alert
+    toggleStrictAlert(popupData.pageURL, true)
+    uDom('#main').removeClass('disabled')
+    vAPI.messaging.send(
+      'adnauseam', {
+      what: 'toggleStrictBlockButton',
+      url: popupData.pageURL,
+      scope: '',
+      state: true,
+      tabId: popupData.tabId
+    });
+  }
 
   /********************************************************************/
 
@@ -682,8 +720,16 @@
     }
     getPopupData(tabId);
 
+    // add click events
+    uDom('.adn_state_radio').on('change', onChangeState)
+    uDom('.disable_type_radio').on('change', onChangeDisabledScope)
+    uDom('.popup_arrow').on('click', onClickDisableArrow)
+    /*
     uDom('#pause-button').on('click', toggleEnabled);
     uDom('#resume-button').on('click', toggleEnabled);
+    uDom('#strict-button').on('click', onClickStrict);
+    */
+
     uDom('#notifications').on('click', setBackBlockHeight);
     uDom('body').on('mouseenter', '[data-tip]', onShowTooltip)
       .on('mouseleave', '[data-tip]', onHideTooltip);
@@ -706,8 +752,6 @@
     ) {
       document.body.classList.add('mobile');
     }
-
-
   })();
 
   /********************************************************************/

@@ -575,6 +575,14 @@ const PageStore = class {
                  .getNetFilteringSwitch();
     }
 
+    /* ADN - Strict Block List Filtering */
+    getIsPageStrictBlocked() {
+        return µb.tabContextManager
+                 .mustLookup(this.tabId)
+                 .getIsPageStrictBlocked();
+    }
+    /* end of ADN */
+
     toggleNetFilteringSwitch(url, scope, state) {
         µb.toggleNetFilteringSwitch(url, scope, state);
         this.netFilteringCache.empty();

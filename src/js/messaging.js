@@ -207,7 +207,15 @@ const onMessage = function(request, sender, callback) {
             reHostnameExtractor: µb.reWhitelistHostnameExtractor.source
         };
         break;
-
+    // Adn - strictBlockList
+    case 'getStrictBlockList':
+        response = {
+            strictBlockList: µb.arrayFromStrictBlockList(µb.netStrictBlockList),
+            reBadHostname: µb.reWhitelistBadHostname.source,
+            reHostnameExtractor: µb.reWhitelistHostnameExtractor.source
+        };
+        break;
+    // end of adn
     case 'launchElementPicker':
         // Launched from some auxiliary pages, clear context menu coords.
         µb.epickerArgs.mouse = false;
@@ -230,6 +238,10 @@ const onMessage = function(request, sender, callback) {
     case 'setWhitelist':
         µb.netWhitelist = µb.whitelistFromString(request.whitelist);
         µb.saveWhitelist();
+        break;
+    case 'setStrictBlockList':
+        µb.netStrictBlockList = µb.strictBlockListFromString(request.strictBlockList);
+        µb.saveStrictBlockList();
         break;
 
     case 'reactivateList':
@@ -387,6 +399,7 @@ const popupDataFromTabId = function(tabId, tabTitle) {
         fontSize: µbhs.popupFontSize,
         godMode: µbhs.filterAuthorMode,
         netFilteringSwitch: false,
+        strictBlocked: false,
         rawURL: tabContext.rawURL,
         pageURL: tabContext.normalURL,
         pageHostname: rootHostname,
@@ -409,6 +422,7 @@ const popupDataFromTabId = function(tabId, tabTitle) {
     if ( pageStore ) {
         r.pageCounts = pageStore.counts;
         r.netFilteringSwitch = pageStore.getNetFilteringSwitch();
+        r.strictBlocked = pageStore.getIsPageStrictBlocked(); // ADN
         getHostnameDict(pageStore.getAllHostnameDetails(), r);
         r.contentLastModified = pageStore.contentLastModified;
         getFirewallRules(rootHostname, r);
@@ -1397,6 +1411,12 @@ const getSupportData = async function() {
             µb.arrayFromWhitelist(µb.netWhitelist),
             µb.netWhitelistDefault
         ),
+        // Adn
+        untrustedset: diffArrays(
+            µb.arrayFromStrictBlockList(µb.netStrictBlockList),
+            µb.netStrictBlockListDefault
+        ),
+        // end of adn
         switchRuleset: diffArrays(
             sessionSwitches.toArray(),
             µb.hostnameSwitchesDefault

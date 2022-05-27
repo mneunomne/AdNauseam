@@ -43,6 +43,7 @@ const sensitiveValues = [
     'modifiedUserSettings.popupPanelSections',
     'modifiedHiddenSettings.userResourcesLocation',
     'trustedset.added',
+    'untrustedset.added', // adn
     'hostRuleset.added',
     'switchRuleset.added',
     'urlRuleset.added',
