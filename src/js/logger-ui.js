@@ -1032,7 +1032,7 @@ const onLogBufferRead = function(response) {
     processLoggerEntries(response);
 
     // Synchronize DOM with sent logger data
-    document.body.classList.toggle(
+    document.documentElement.classList.toggle(
         'colorBlind',
         response.colorBlind === true
     );

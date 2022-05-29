@@ -335,17 +335,25 @@
     "message": "Mesra buta warna",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "Appearance",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "Tema",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "Custom accent color",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "Membolehkan sokongan storan awangan",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
     "message": "Saya adalah pengguna mahir  (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>memerlukan pembacaan</a>)",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "tetapan lanjutan",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "Lumpuhkan pra-ambilan (untuk mengelakkan apa-apa sambungan untuk permintaan rangkaian yang disekat)",
@@ -391,6 +399,18 @@
     "message": "Mendedahkan nama kanonik",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "Advanced",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "Features suitable only for technical users",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "tetapan lanjutan",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "Pemulihan lalu:",
     "description": "English: Last restore:"
@@ -434,6 +454,10 @@
   "3pIgnoreGenericCosmeticFiltersInfo": {
     "message": "Penapis kosmetik generik adalah penapis kosmetik itu mengubah kesemua laman web. Mendayakan tetapan ini akan mengurangkan penggunaan memori dan overhed CPU dari laman web sebagai hasil pengendalian penapis kosmetik generik.\n\nIa disyorkan untuk mengaktifkan tetapan ini untuk peranti yang lemah.",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
+  },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "Suspend network activity until all filter lists are loaded",
+    "description": "A checkbox in the 'Filter lists' pane"
   },
   "3pListsOfBlockedHostsHeader": {
     "message": "Lists of blocked hosts",
@@ -1140,7 +1164,7 @@
     "description": "tooltip"
   },
   "cloudNoData": {
-    "message": "...\n...",
+    "message": "…\n…",
     "description": ""
   },
   "cloudDeviceNamePrompt": {

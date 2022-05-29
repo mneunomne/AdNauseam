@@ -335,17 +335,25 @@
     "message": "Adatto ai daltonici",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "Aspetto",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "Tema",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "Colore di risalto personalizzato",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "Abilita supporto salvataggio nel cloud",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
     "message": "Sono un utente avanzato (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>Lettura obbligatoria</a>)",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "impostazioni avanzate",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "Disattiva pre-fetching (per evitare qualsiasi connessione per le richieste di rete bloccate)",
@@ -391,6 +399,18 @@
     "message": "Rivela i nomi canonici",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "Avanzate",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "Caratteristiche adatte solo ad utenti tecnici.",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "impostazioni avanzate",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "Ultimo ripristino:",
     "description": "English: Last restore:"
@@ -434,6 +454,10 @@
   "3pIgnoreGenericCosmeticFiltersInfo": {
     "message": "<p>I filtri cosmetici generici sono i filtri cosmetici intesi per essere applicati a tutti i siti Web.<p>Benché questi siano gestiti in modo efficiente da uBlock₀, i filtri cosmetici generici potrebbero contribuire a un carico elevato in termini di memoria e CPU su alcune pagine Web, in particolare quelle di notevoli dimensioni e a lunga scadenza.<p>L'attivazione di quest'opzione eliminerà il carico elevato in termini di memoria e CPU aggiunto alle pagine Web in conseguenza della gestione dei filtri cosmetici generici, e inoltre ridurrà l'impatto sulla memoria di uBlock₀ stesso.<p>È raccomandato abilitare quest'opzione sui dispositivi meno potenti.",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
+  },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "Sospendi l'attività di rete finché non vengono caricate tutte le liste filtri",
+    "description": "A checkbox in the 'Filter lists' pane"
   },
   "3pListsOfBlockedHostsHeader": {
     "message": "Lista degli hosts bloccati",

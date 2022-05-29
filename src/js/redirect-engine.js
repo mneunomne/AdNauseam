@@ -66,7 +66,7 @@ const redirectableResources = new Map([
     } ],
     [ 'ampproject_v0.js', {
         alias: 'ampproject.org/v0.js',
-    } ],
+    } ],  
     [ 'chartbeat.js', {
         alias: 'static.chartbeat.com/chartbeat.js',
     } ],
@@ -81,6 +81,9 @@ const redirectableResources = new Map([
         data: 'text',   // Important!
     } ],
     [ 'fingerprint2.js', {
+        data: 'text',
+    } ],
+    [ 'fingerprint3.js', {
         data: 'text',
     } ],
     [ 'google-analytics_analytics.js', {
@@ -168,6 +171,9 @@ const redirectableResources = new Map([
         data: 'text',
     } ],
     [ 'popads-dummy.js', {
+        data: 'text',
+    } ],
+    [ 'prebid-ads.js', {
         data: 'text',
     } ],
     [ 'scorecardresearch_beacon.js', {

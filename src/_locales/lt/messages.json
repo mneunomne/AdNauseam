@@ -335,17 +335,25 @@
     "message": "Draugiškas neskiriantiems spalvų",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "Appearance",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "Theme",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "Custom accent color",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "Įjungti nuotolinės saugyklos palaikymą",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
     "message": "Aš esu patyręs naudotojas (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>privaloma perskaityti</a>)",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "sudėtingesni nustatymai",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "Išjungti išankstinį gavimą (visiems blokuotų tinklo užklausų prisijungimams išvengti)",
@@ -391,6 +399,18 @@
     "message": "Uncloak canonical names",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "Advanced",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "Features suitable only for technical users",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "sudėtingesni nustatymai",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "Paskutinis atkūrimas:",
     "description": "English: Last restore:"
@@ -434,6 +454,10 @@
   "3pIgnoreGenericCosmeticFiltersInfo": {
     "message": "<p>Daugybiniai kosmetiniai filtrai yra tokie kosmetiniai filtrai, kurie taikomi visoms svetainėms.<p>Nors uBlock₀ juos apdoroja efektyviai, daugybiniai kosmetiniai filtrai vis tiek gali prisidėti prie pamatuojamo atminties ir procesoriaus panaudojimo kai kuriose svetainėse, ypač didelėse ir ilgai gyvuojančiose.<p>Šio nustatymo įjungimas sumažins atminties ir procesoriaus naudojimą, kurį sukelia svetainės dėl daugybinių kosmetinių filtrų apdorojimo, bei sumažins bendrą uBlock₀ atminties naudojimą.<p>Rekomenduojama įjungti šį nustatymą mažiau galinguose įrenginiuose.",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
+  },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "Suspend network activity until all filter lists are loaded",
+    "description": "A checkbox in the 'Filter lists' pane"
   },
   "3pListsOfBlockedHostsHeader": {
     "message": "Blokuotų serverių sąrašas",
@@ -648,7 +672,7 @@
     "description": "Tooltip for the popup panel button in the logger page"
   },
   "loggerInfoTip": {
-    "message": "„uBlock Origin“ vikis: žurnalas",
+    "message": "„uBlock Origin“ viki: žurnalas",
     "description": "Tooltip for the top-right info label in the logger page"
   },
   "loggerClearTip": {
@@ -932,7 +956,7 @@
     "description": "Label for the URL of the page"
   },
   "supportS6Select1": {
-    "message": "The web page...",
+    "message": "The web page…",
     "description": "Label for widget to select type of issue"
   },
   "supportS6Select1Option0": {
@@ -1140,7 +1164,7 @@
     "description": "tooltip"
   },
   "cloudNoData": {
-    "message": "...\n...",
+    "message": "…\n…",
     "description": ""
   },
   "cloudDeviceNamePrompt": {
@@ -1168,11 +1192,11 @@
     "description": ""
   },
   "contextMenuBlockElementInFrame": {
-    "message": "Block element in frame...",
+    "message": "Block element in frame…",
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuSubscribeToList": {
-    "message": "Subscribe to filter list...",
+    "message": "Subscribe to filter list…",
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuTemporarilyAllowLargeMediaElements": {

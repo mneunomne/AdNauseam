@@ -312,7 +312,7 @@
     "description": "English: Click, Ctrl-click"
   },
   "pickerContextMenuEntry": {
-    "message": "Bloqueja l'element",
+    "message": "Bloca l'element",
     "description": "An entry in the browser's contextual menu"
   },
   "settingsCollapseBlockedPrompt": {
@@ -335,17 +335,25 @@
     "message": "Configuració per a persones daltòniques",
     "description": "English: Color-blind friendly"
   },
+  "settingsAppearance": {
+    "message": "Aparença",
+    "description": "Section for controlling user interface appearance"
+  },
+  "settingsThemeLabel": {
+    "message": "Tema",
+    "description": "Label for checkbox to enable a custom dark theme"
+  },
+  "settingsThemeAccent0Label": {
+    "message": "Color d'accent personalitzat",
+    "description": "Label for checkbox to pick an accent color"
+  },
   "settingsCloudStorageEnabledPrompt": {
     "message": "Habilita el suport d'emmagatzematge al núvol",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
-    "message": "Sóc un usuari avançat (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>Lectura necessària</a>)",
-    "description": ""
-  },
-  "settingsAdvancedUserSettings": {
-    "message": "configuració avançada",
-    "description": "For the tooltip of a link which gives access to advanced settings"
+    "message": "Sóc un usuari avançat (<a href='https://github.com/gorhill/uBlock/wiki/Advanced-user-features'>lectura necessària</a>)",
+    "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
     "message": "Inhabilita la cerca prèvia (per evitar qualsevol connexió de xarxa per a sol·licituds blocades)",
@@ -391,6 +399,18 @@
     "message": "Revela els noms canònics",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
+  "settingsAdvanced": {
+    "message": "Avançat",
+    "description": "Section for controlling advanced-user settings"
+  },
+  "settingsAdvancedSynopsis": {
+    "message": "Característiques adequades només per a usuaris tècnics.",
+    "description": "Description of section controlling advanced-user settings"
+  },
+  "settingsAdvancedUserSettings": {
+    "message": "configuració avançada",
+    "description": "For the tooltip of a link which gives access to advanced settings"
+  },
   "settingsLastRestorePrompt": {
     "message": "Darrera restauració:",
     "description": "English: Last restore:"
@@ -434,6 +454,10 @@
   "3pIgnoreGenericCosmeticFiltersInfo": {
     "message": "<p>Els filtres cosmètics genèrics són filtres que no s'apliquen a tots els llocs web.<p>Tot i que l'uBlock₀ els gestiona de manera eficient, aquests filtres encara poden contribuir a un augment d'ús de la memòria o sobrecàrrega de la CPU en algunes pàgines web, especialment si tenen molt contingut, elements d'animació o temps real.<p>En habilitar aquesta opció s'elimina el risc de sobrecàrrega a la CPU i excés d'ús de la memòria com a resultat de la manipulació de filtres cosmètics genèrics i també es redueix el consum de memòria de l'uBlock₀.<p>Es recomana habilitar aquesta opció en dispositius poc potents.",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
+  },
+  "3pSuspendUntilListsAreLoaded": {
+    "message": "Suspèn l'activitat de la xarxa fins a carregar totes les llistes de filtres",
+    "description": "A checkbox in the 'Filter lists' pane"
   },
   "3pListsOfBlockedHostsHeader": {
     "message": "Llistes de servidors bloquejats",
@@ -628,7 +652,7 @@
     "description": "Appears in the logger's tab selector"
   },
   "logBehindTheScene": {
-    "message": "Peticions ocultes",
+    "message": "Peticions amagades",
     "description": "Pretty name for behind-the-scene network requests"
   },
   "loggerCurrentTab": {
@@ -636,7 +660,7 @@
     "description": "Appears in the logger's tab selector"
   },
   "loggerReloadTip": {
-    "message": "Refresca la pestanya",
+    "message": "Torna a carregar el contingut de la pestanya",
     "description": "Tooltip for the reload button in the logger page"
   },
   "loggerDomInspectorTip": {
@@ -796,7 +820,7 @@
     "description": "Below this sentence, the filter list(s) in which the filter was found"
   },
   "loggerStaticFilteringFinderSentence2": {
-    "message": "No s'ha pogut trobar el filtre estàtic <code>{{filter}}</code> en cap de les llistes de filtres actualment activades",
+    "message": "No s'ha trobat el filtre estàtic <code>{{filter}}</code> a cap de les llistes de filtres actualment habilitades",
     "description": "Message to show when a filter cannot be found in any filter lists"
   },
   "loggerSettingDiscardPrompt": {
@@ -916,7 +940,7 @@
     "description": "First paragraph of 'Troubleshooting Information' section in Support pane"
   },
   "supportS5P2": {
-    "message": "<b>Important:</b> per defecte es redacta informació potencialment privada o confidencial. La informació redactada pot dificultar la resolució d'un problema.",
+    "message": "<b>Important:</b> Per defecte es redacta informació potencialment privada o confidencial. La informació redactada pot dificultar la resolució d'un problema.",
     "description": "Second paragraph of 'Troubleshooting Information' section in Support pane"
   },
   "supportS6H": {
@@ -972,7 +996,7 @@
     "description": "Text for 'Redact' button"
   },
   "supportUnredact": {
-    "message": "No redactar",
+    "message": "No redactis",
     "description": "Text for 'Unredact' button"
   },
   "aboutPrivacyPolicy": {
@@ -1024,11 +1048,11 @@
     "description": "English: my-ublock-backup_{{datetime}}.txt"
   },
   "aboutRestoreDataButton": {
-    "message": "Restaurar des d'un fitxer...",
+    "message": "Restaura des d'un fitxer...",
     "description": "English: Restore from file..."
   },
   "aboutResetDataButton": {
-    "message": "Restaurar als valors de fàbrica...",
+    "message": "Restaura als valors per defecte...",
     "description": "English: Reset to default settings..."
   },
   "aboutRestoreDataConfirm": {
@@ -1048,7 +1072,7 @@
     "description": "English: Network error: {{msg}}"
   },
   "subscriberConfirm": {
-    "message": "uBlock₀: Voleu afegir aquesta URL a la llista de filtres personalitzats?\n\nTítol: \"{{title}}\"\nURL: {{url}}",
+    "message": "uBlock₀: Voleu afegir aquest URL a la llista de filtres personalitzats?\n\nTítol: \"{{title}}\"\nURL: {{url}}",
     "description": "No longer used"
   },
   "subscribeButton": {
@@ -1140,7 +1164,7 @@
     "description": "tooltip"
   },
   "cloudNoData": {
-    "message": "...\n...",
+    "message": "…\n…",
     "description": ""
   },
   "cloudDeviceNamePrompt": {
@@ -1172,7 +1196,7 @@
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuSubscribeToList": {
-    "message": "Subscriviu-vos a la llista de filtres... ",
+    "message": "Uniu-vos a la llista de filtres... ",
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuTemporarilyAllowLargeMediaElements": {

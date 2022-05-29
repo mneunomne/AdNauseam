@@ -8,11 +8,11 @@ html, body {
     width: 100vw;
     }
 #dashboard-nav {
-    background-color: var(--default-surface);
     border: 0;
     font-size: 20px;
     line-height: 25px;
     margin: 0;
+    border-bottom: 1px solid var(--border-1);
     display: flex;
     flex-shrink: 0;
     flex-wrap: wrap;
@@ -157,6 +157,18 @@ body.noDashboard #dashboard-nav {
         display: none;
     }
 }
+
+/* hover-able devices */
+:root.desktop .tabButton {
+    cursor: default;
+    }
+:root.desktop .tabButton:not(.selected) {
+    cursor: pointer;
+    }
+:root.desktop .tabButton:not(.selected):hover {
+    background-color: var(--dashboard-tab-hover-surface);
+    border-bottom-color: var(--dashboard-tab-hover-border);
+    }
 
 /* touch-screen devices */
 :root.mobile #dashboard-nav {
