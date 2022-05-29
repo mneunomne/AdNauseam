@@ -231,6 +231,7 @@ body.mobile.no-tooltips .toolRibbon .tool {
     grid-template: auto / 1fr 1fr;
     justify-items: stretch;
     margin: 1px 0 0 0;
+    fill: #999;
     }
 #moreOrLess > span {
     cursor: pointer;

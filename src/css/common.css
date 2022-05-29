@@ -615,34 +615,17 @@ button.error{
       -webkit-user-select: none;
     }
 body {
-    background-color: var(--surface-1);
-    border: 0;
-    box-sizing: border-box;
-    color: var(--ink-1);
-        fill: var(--ink-1);
-    font-family: var(--font-family);
-    font-size: var(--font-size);
-    line-height: 1.5;
-    margin: 0;
-    padding: 0;
-    }
-a {
-    color: var(--link-ink);
-        fill: var(--link-ink);
-    }
-a:hover {
-    color: var(--link-hover-ink);
-        fill: var(--link-hover-ink);
+    font: 14px sans-serif;
     }
 code, .code {
-    background-color: var(--surface-2);
+    background-color: var(--button-surface);
     font-family: monospace;
     font-size: smaller;
     padding: 2px 4px;
     }
 hr {
     border: 0;
-    border-top: 1px solid var(--surface-2);
+    border-top: 1px solid var(--hr-ink);
     margin: 1em 0;
     }
 .hiddenFileInput {
@@ -1035,43 +1018,31 @@ button.important[disabled] {
     filter: var(--button-disabled-filter);
     pointer-events: none;
     }
-button.preferred:not(.disabled):not([disabled]) {
+button.preferred {
+  /* Adn
     background-color: var(--button-preferred-surface);
     color: var(--button-preferred-ink);
-        fill: var(--button-preferred-ink);
+    */
     }
-button.preferred:not(.disabled):not([disabled]):hover > .hover {
-    background-color: var(--elevation-down-surface);
-    opacity: var(--elevation-down1-opacity);
-    }
-button.iconified.notext {
-    background-color: transparent;
-    }
-button.iconified > .fa-icon {
-    font-size: 120%;
+button.iconifiable > .fa-icon {
     padding-left: 0;
-    padding-right: 0;
-    }
-button.iconified > .fa-icon + [data-i18n] {
-    padding-right: 0;
-    padding-left: 0.4em;
-    }
-body[dir="rtl"] button.iconified > .fa-icon + [data-i18n] {
     padding-right: 0.4em;
-    padding-left: 0;
     }
+button.iconifiable > .fa-icon {
+    font-size: 120%;
+    }
+body[dir="rtl"] button.iconifiable > .fa-icon {
+    padding-left: 0.4em;
+    padding-right: 0;
+    }
+body[dir] button.iconifiable > .fa-icon:last-child {
+    padding-left: 0;
+    padding-right: 0;
+}
 label {
     align-items: center;
     display: inline-flex;
     position: relative;
-    }
-section.notice {
-    background-color: var(--notice-surface);
-    box-shadow: var(--notice-surface-shadow);
-    color: var(--notice-ink);
-    }
-:root:not(.classic) section.notice a {
-    color: var(--surface-2);
     }
 
 /**
@@ -1119,11 +1090,11 @@ section.notice {
 .checkbox > input[type="checkbox"]:checked + svg {
     background-color: #0076FF;
     border-color: #0076FF;
-    stroke: var(--default-surface);
+    stroke: #000;
     }
 .checkbox[disabled],
 .checkbox[disabled] ~ span {
-    filter: var(--checkbox-disabled-filter);
+    opacity: 0.5;
     }
 
 select {
@@ -1135,11 +1106,6 @@ select {
     height: 0;
     visibility: hidden;
     width: 0;
-    }
-.subtil {
-    color: var(--subtil-ink);
-    cursor: default;
-    opacity: 66%;
     }
 .fieldset {
     margin: var(--font-size);
@@ -1165,11 +1131,11 @@ font-family: bebas_neue,sans-serif;
     -webkit-margin-start: 2em;
     }
 @media (max-width: 640px) {
-    button.iconified > .fa-icon {
+    button.iconifiable > .fa-icon {
         font-size: 1.2rem;
         padding: 0;
         }
-    button.iconified > [data-i18n] {
+    button.iconifiable > [data-i18n] {
         display: none;
         }
     }

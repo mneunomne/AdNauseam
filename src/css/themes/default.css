@@ -302,6 +302,7 @@
     --cm-foldmarker-ink: rgb(var(--blue-40));
     --cm-gutter-border: var(--surface-1);
     --cm-gutter-surface: var(--dark-gray-70); /* Adn */
+    --cm-gutter-ink: #fff; /* Adn */
     --cm-matchingbracket: rgb(var(--green-30));
     --cm-merge-copy-ink: rgb(var(--blue-50));
     --cm-merge-chunk-border: rgb(var(--surface-0-rgb) / 40%);
