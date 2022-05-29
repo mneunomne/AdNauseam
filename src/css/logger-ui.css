@@ -31,12 +31,18 @@ textarea {
 .permatoolbar button.iconified {
     padding-left: var(--default-gap-xsmall);
     padding-right: var(--default-gap-xsmall);
+    /* ADN */
+    height: auto;
+    margin-right: 6px;
+    margin-left: 6px;
+    border: none;
+    /* end of adn */
     }
 .permatoolbar button.active {
     fill: rgb(var(--primary-50));
     }
 .permatoolbar button > .fa-icon {
-    font-size: 180%;
+    font-size: 140%; /* ADN */
     }
 
 #loggerColorKey img { /* ADN */
@@ -104,7 +110,7 @@ textarea {
 }
 #netInspector.paused #pause > .fa-icon[data-i18n-title="loggerUnpauseTip"] {
     display: inline-flex;
-    fill: #5F9EA0;
+    /*fill: #5F9EA0;*/ /* ADN */
 }
 #netInspector #filterExprGroup {
     display: flex;
