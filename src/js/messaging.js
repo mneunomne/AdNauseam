@@ -252,12 +252,17 @@ const onMessage = function(request, sender, callback) {
         µb.toggleHostnameSwitch(request);
         break;
 
+    case 'uiAccentStylesheet':
+        µb.uiAccentStylesheet = request.stylesheet;
+        break;
+
     case 'uiStyles':
         response = {
+            uiAccentCustom: µb.userSettings.uiAccentCustom,
+            uiAccentCustom0: µb.userSettings.uiAccentCustom0,
+            uiAccentStylesheet: µb.uiAccentStylesheet,
             uiStyles: µb.hiddenSettings.uiStyles,
-            uiTheme: vAPI.webextFlavor.soup.has('devbuild')
-                ? µb.hiddenSettings.uiTheme
-                : 'unset',
+            uiTheme: µb.userSettings.uiTheme,
         };
         break;
 
@@ -1132,6 +1137,7 @@ const getLists = async function(callback) {
         isUpdating: io.isUpdating(),
         netFilterCount: staticNetFilteringEngine.getFilterCount(),
         parseCosmeticFilters: µb.userSettings.parseAllABPHideFilters,
+        suspendUntilListsAreLoaded: µb.userSettings.suspendUntilListsAreLoaded,
         userFiltersPath: µb.userFiltersPath
     };
     const [ lists, metadata ] = await Promise.all([
@@ -1350,7 +1356,7 @@ const getSupportData = async function() {
                 listDetails.push(parts.join('.'));
             }
         }
-        if ( list.isDefault ) {
+        if ( list.isDefault || listKey === µb.userFiltersPath ) {
             if ( used ) {
                 defaultListset[listKey] = listDetails.join(', ');
             } else {

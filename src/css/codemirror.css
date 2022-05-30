@@ -5,22 +5,56 @@
     position: relative;
     }
 .CodeMirror {
-    background-color: var(--default-surface);
+    background-color: var(--surface-0);
     box-sizing: border-box;
-    color: var(--default-ink);
+    color: var(--ink-1);
     flex-grow: 1;
     height: 100%;
     width: 100%;
     }
-.CodeMirror-lines {
-    padding-bottom: 6rem;
+.CodeMirror-cursor {
+    border-color: var(--cm-cursor);
+    }
+.CodeMirror-selected {
+    background-color: var(--cm-selection-surface);
+    }
+.CodeMirror-focused .CodeMirror-selected {
+    background-color: var(--cm-selection-focused-surface);
+    }
+.CodeMirror-foldmarker {
+    color: var(--cm-foldmarker-ink);
+    font-size: large;
+    text-shadow: none;
     }
 .CodeMirror-gutters {
     background-color: var(--cm-gutter-surface);
     border-color: var(--cm-gutter-border);
     }
+.CodeMirror-line::selection,
+.CodeMirror-line > span::selection,
+.CodeMirror-line > span > span::selection {
+    background-color: var(--cm-selection-focused-surface);
+    }
 .CodeMirror-linenumber {
     color: var(--cm-gutter-ink);
+    }
+.CodeMirror-lines {
+    padding-bottom: 6rem;
+    }
+.CodeMirror-matchingbracket {
+    color: unset;
+    }
+.CodeMirror-matchingbracket {
+    background-color: var(--cm-matchingbracket) !important;
+    color: inherit !important;
+    font-weight: bold;
+    }
+
+.CodeMirror-search-match {
+    background: none;
+    background-color: var(--cm-search-match-surface);
+    border: 0;
+    opacity: 1;
     }
 
 /* For when panels are used */
@@ -32,18 +66,6 @@
 
 .codeMirrorContainer.codeMirrorBreakAll .CodeMirror-wrap pre {
     word-break: break-all;
-    }
-
-/* CodeMirror theme overrides */
-.CodeMirror-focused .CodeMirror-selected {
-    background: var(--cm-selection-surface);
-    color: var(--cm-selection-ink);
-    }
-.CodeMirror-line::selection,
-.CodeMirror-line > span::selection,
-.CodeMirror-line > span > span::selection {
-    background: var(--cm-selection-surface);
-    color: var(--cm-selection-ink);
     }
 
 .cm-s-default .cm-comment {
@@ -74,6 +96,12 @@
 .cm-s-default .cm-keyword {
     color: var(--sf-keyword-ink);
     }
+.cm-s-default .cm-negative {
+    color: var(--cm-negative);
+    }
+.cm-s-default .cm-positive {
+    color: var(--cm-positive);
+    }
 .cm-s-default .cm-notice {
     text-underline-position: under;
     text-decoration-color: var(--sf-notice-ink);
@@ -88,6 +116,7 @@
     color: var(--sf-variable-ink);
     }
 .cm-s-default .cm-warning {
+    background-color: var(--sf-warning-surface);
     text-decoration: underline var(--sf-warning-ink);
     text-underline-position: under;
     }
@@ -116,15 +145,6 @@
     color: var(--sf-keyword-ink);
     }
 
-div.CodeMirror span.CodeMirror-matchingbracket {
-    color: unset;
-    }
-.CodeMirror-matchingbracket {
-    background-color: #afa;
-    color: inherit !important;
-    font-weight: bold;
-    }
-
 .cm-search-widget {
     align-items: center;
     background-color: var(--cm-gutter-surface);
@@ -149,7 +169,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     font-size: 140%;
     }
 .cm-search-widget .fa-icon:not(.fa-icon-ro):hover {
-    fill: #000;
+    fill: var(--ink-1);
     }
 .cm-search-widget-input input {
     border: 1px solid var(--cm-gutter-ink);
@@ -174,13 +194,25 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 .cm-search-widget .sourceURL[href=""] {
     display: none;
     }
-.cm-searching {
-    background-color: var(--cm-searching-surface) !important;
-    border: 1px dotted black;
+.cm-searching.cm-overlay {
+    background-color: var(--cm-searching-surface);
+    border: 0;
+    color: var(--cm-searching-ink);
     }
 
 .CodeMirror-merge {
     border-color: var(--cm-gutter-border);
+    }
+.CodeMirror-merge-copy,
+.CodeMirror-merge-copy-reverse {
+    color: var(--cm-merge-copy-ink);
+    }
+.CodeMirror-merge-l-chunk {
+    background-color: var(--cm-merge-chunk-surface);
+    }
+.CodeMirror-merge-l-chunk-start,
+.CodeMirror-merge-l-chunk-end {
+    border-color: var(--cm-merge-chunk-border);
     }
 .CodeMirror-merge-l-deleted {
     background-image: none;
@@ -195,9 +227,16 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     vertical-align: top;
     }
 .CodeMirror-merge-spacer {
-    background-color: var(--cm-gutter-surface);
+    background-color: var(--cm-merge-chunk-surface);
     }
 
 .CodeMirror-hints {
     z-index: 10000;
+    }
+
+/* Must appear after other background color declarations to be sure it
+ * overrides them
+ * */
+.CodeMirror-activeline-background {
+    background-color: var(--cm-active-line);
     }

@@ -1412,7 +1412,7 @@ const webRequest = {
                  navigator.userAgent.includes('Firefox/') ? [ 'blocking', 'requestHeaders'] : ['blocking', 'requestHeaders', 'extraHeaders'] //ADN
              );
             // end of ADN
-            vAPI.net.unsuspend(true);
+            vAPI.net.unsuspend({ all: true });
             // Mitigation: force-reload active tabs for environments not
             // supporting suspended network request listeners.
             if (

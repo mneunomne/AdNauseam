@@ -1019,8 +1019,10 @@ button.important[disabled] {
     pointer-events: none;
     }
 button.preferred {
+  /* Adn
     background-color: var(--button-preferred-surface);
     color: var(--button-preferred-ink);
+    */
     }
 button.iconifiable > .fa-icon {
     padding-left: 0;
@@ -1088,7 +1090,7 @@ label {
 .checkbox > input[type="checkbox"]:checked + svg {
     background-color: #0076FF;
     border-color: #0076FF;
-    stroke: var(--default-surface);
+    stroke: #000;
     }
 .checkbox[disabled],
 .checkbox[disabled] ~ span {

@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <title data-i18n="dashboardName"></title>
 <link rel="stylesheet" href="css/fonts/stylesheet.css">
-<link href="css/dashboard.css" rel="stylesheet" type="text/css">
 <link href="css/common.css" rel="stylesheet" type="text/css">
 <link href="css/dashboard.css" rel="stylesheet" type="text/css">
 <link rel="shortcut icon" type="image/png" href="img/icon_16.png"/>
@@ -25,6 +24,7 @@
         <a class="tabButton" data-pane="whitelist.html" data-i18n="whitelistPageName"></a>
         <a class="tabButton" data-pane="strictblocklist.html" data-i18n="strictBlockListPageName"></a> 
         <a class="tabButton" data-pane="shortcuts.html" data-i18n="shortcutsPageName"></a>
+        <a class="tabButton" data-pane="support.html" data-i18n="supportPageName"></a>
         <a class="tabButton" data-pane="links.html" data-i18n="aboutPageName"></a>
         <a class="tabButton" data-pane="no-dashboard.html"></a>
     </div>
@@ -41,14 +41,14 @@
     <span class="tabButton" data-pane="no-dashboard.html"></span>
     -->
 </div>
-<div id="unsavedWarning">
+<section id="unsavedWarning" class="notice">
     <div>
         <span data-i18n="dashboardUnsavedWarning"></span>&emsp;
-        <button data-i18n="dashboardUnsavedWarningStay"></button>&emsp;
-        <button data-i18n="dashboardUnsavedWarningIgnore"></button>
+        <button type="button" data-i18n="dashboardUnsavedWarningStay">_<span class="hover"></span></button>&ensp;
+        <button type="button" data-i18n="dashboardUnsavedWarningIgnore">_<span class="hover"></span></button>
     </div>
     <div></div>
-</div>
+</section>
 
 <iframe id="iframe" src=""></iframe>
 
@@ -76,6 +76,7 @@
   <span data-i18n="adnNotificationDisable"></span>
   <span data-i18n="adnNotificationReactivate"></span>
 </div>
+<script src="lib/hsluv/hsluv-0.1.0.min.js"></script>
 <script src="js/vapi.js"></script>
 <script src="js/vapi-common.js"></script>
 <script src="js/vapi-client.js"></script>

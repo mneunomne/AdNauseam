@@ -152,20 +152,36 @@ vAPI.browserSettings = (( ) => {
                     }
                     break;
 
-                case 'webrtcIPAddress':
-                    if ( this.canLeakLocalIPAddresses === false ) { return; }
-                    if ( !!details[setting] ) {
-                        bp.network.webRTCIPHandlingPolicy.clear({
-                            scope: 'regular',
-                        });
-                    } else {
+                case 'webrtcIPAddress': {
+                    // https://github.com/uBlockOrigin/uBlock-issues/issues/1928
+                    // https://www.reddit.com/r/uBlockOrigin/comments/sl7p74/
+                    //   Hypothetical: some browsers _think_ uBO is still using
+                    //   the setting possibly based on cached state from the
+                    //   past, and making an explicit API call that uBO is not
+                    //   using the setting appears to solve those unexpected
+                    //   reported occurrences of uBO interfering despite never
+                    //   using the API.
+                    const mustEnable = !details[setting];
+                    if ( this.canLeakLocalIPAddresses === false ) {
+                        if ( mustEnable && vAPI.webextFlavor.soup.has('chromium') ) {
+                            bp.network.webRTCIPHandlingPolicy.clear({
+                                scope: 'regular',
+                            });
+                        }
+                        continue;
+                    }
+                    if ( mustEnable ) {
                         bp.network.webRTCIPHandlingPolicy.set({
                             value: 'default_public_interface_only',
                             scope: 'regular'
                         });
+                    } else {
+                        bp.network.webRTCIPHandlingPolicy.clear({
+                            scope: 'regular',
+                        });
                     }
                     break;
-
+                }
                 default:
                     break;
                 }
@@ -1230,12 +1246,10 @@ vAPI.Net = class {
     }
     unsuspendAllRequests() {
     }
-    suspend(force = false) {
-        if ( this.canSuspend() || force ) {
-            this.suspendDepth += 1;
-        }
+    suspend() {
+        this.suspendDepth += 1;
     }
-    unsuspend(all = false) {
+    unsuspend({ all = false, discard = false } = {}) {
         if ( this.suspendDepth === 0 ) { return; }
         if ( all ) {
             this.suspendDepth = 0;
@@ -1243,7 +1257,7 @@ vAPI.Net = class {
             this.suspendDepth -= 1;
         }
         if ( this.suspendDepth !== 0 ) { return; }
-        this.unsuspendAllRequests();
+        this.unsuspendAllRequests(discard);
     }
     canSuspend() {
         return false;
