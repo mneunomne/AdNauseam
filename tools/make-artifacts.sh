@@ -20,6 +20,7 @@ ARTS=artifacts
 
 CHROME_OPTS=--pack-extension=${DES}/adnauseam.chromium
 OPERA_OPTS=--pack-extension=${DES}/adnauseam.opera
+CHROME_PEM_PATH=/Users/albertoharres/AdNauseam/private_key.pem
 VERSION=`jq .version manifest.json | tr -d '"'`
 
 # CLEAN
@@ -47,9 +48,10 @@ then
   command "${CHROME}" --version || { echo >&2 "Chrome is not installed."; exit 1; }
   ./tools/make-chromium.sh
   if [ -f $CHROME_PEM ]; then  # do we have the signing key?
-    "${CHROME}" "${CHROME_OPTS}" "--pack-extension-key $CHROME_PEM" > /dev/null 2>&1
+    "${CHROME}" "${CHROME_OPTS}" "--pack-extension-key" > /dev/null 2>&1
     mv ${DES}/adnauseam.chromium.crx ${ARTS}/adnauseam-${VERSION}.chromium.crx
     echo "*** AdNauseam.chromium: Signed with local .pem\\n"
+    echo "${CHROME}" "${CHROME_OPTS}" "--pack-extension-key=$CHROME_PEM_PATH"
   else
     "${CHROME}" "${CHROME_OPTS}"
     mv ${DES}/adnauseam.chromium.crx ${ARTS}/adnauseam-${VERSION}.chromium-UNSIGNED.crx

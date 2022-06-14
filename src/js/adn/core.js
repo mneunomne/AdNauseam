@@ -50,6 +50,8 @@ import {
   logNetEvent
 } from './log.js'
 
+let messageId = 1;
+
 const adnauseam = (function () {
   'use strict';
 
@@ -1097,6 +1099,35 @@ const adnauseam = (function () {
     return (ad.pageDomain === ad.targetDomain);
   };
 
+  /*
+  // TEST 14.06.2022
+  const fromNetFilter = async function(rawFilter) {
+    if ( typeof rawFilter !== 'string' || rawFilter === '' ) { return; }
+
+    const writer = new CompiledListWriter();
+    const parser = new StaticFilteringParser();
+    parser.setMaxTokenLength(staticNetFilteringEngine.MAX_TOKEN_LENGTH);
+    parser.analyze(rawFilter);
+
+    const compiler = staticNetFilteringEngine.createCompiler(parser);
+    if ( compiler.compile(writer) === false ) { return; }
+
+    await staticFilteringReverseLookup.initWorker();
+
+    const id = messageId++;
+    worker.postMessage({
+        what: 'fromNetFilter',
+        id: id,
+        compiledFilter: writer.last(),
+        rawFilter: rawFilter
+    });
+
+    return new Promise(resolve => {
+        pendingResponses.set(id, resolve);
+    });
+};
+*/
+
   const listsForFilter = function (filter) {
     const lists = {};
     if (filter == null) return lists;
@@ -1204,6 +1235,10 @@ const adnauseam = (function () {
    */
   const isBlockableRequest = function (result, context) {
 
+    if (context.url.includes("dozubatan.com")) {
+      console.log("Hey!", context.docDomain + ' :: ' + context.url)
+    }
+
     if (µb.userSettings.blockingMalware === false) {
       logNetAllow('NoBlock', context.docDomain + ' :: ' + context.url); // 1.
       return false;
@@ -1231,6 +1266,13 @@ const adnauseam = (function () {
 
     /* Case 5 */
     const lists = listsForFilter(snfeData);
+
+    /* TEST
+    fromNetFilter(snfeData.raw).then((_lists) => {
+      console.log("fromNetFilter_lists", _lists)
+    })
+    */
+      
     if (Object.keys(lists).length === 0) {                                  // 4.A
       snfeData && logNetBlock('UserList', snfeData.raw); // always block
       return true;

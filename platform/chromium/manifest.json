@@ -91,12 +91,8 @@
   "storage": {
     "managed_schema": "managed_storage.json"
   },
-<<<<<<< Updated upstream
-  "version": "1.41.0",
-=======
   "version": "3.13.2",
   "key": "mbfbgdonmnbmjjhhfoinempobihojlao",
->>>>>>> Stashed changes
   "web_accessible_resources": [
     "/web_accessible_resources/*"
   ]
