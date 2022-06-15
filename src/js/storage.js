@@ -821,6 +821,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
                 title: assetKey,
                 content: compiled
             });
+            // end of adn
         }
         loadedListKeys.push(assetKey);
     };
