@@ -50,8 +50,6 @@ import {
   logNetEvent
 } from './log.js'
 
-let messageId = 1;
-
 const adnauseam = (function () {
   'use strict';
 
@@ -1233,7 +1231,6 @@ const adnauseam = (function () {
 
     /* Case 5 */
     const lists = listsForFilter(snfeData);
-      
     if (Object.keys(lists).length === 0) {                                  // 4.A
       snfeData && logNetBlock('UserList', snfeData.raw); // always block
       return true;
