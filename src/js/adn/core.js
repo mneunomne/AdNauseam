@@ -1629,6 +1629,13 @@ const adnauseam = (function () {
 
   // called each time a single list is updated
   exports.onListUpdated = function (path, details) {
+    if (listEntries == undefined) {
+      console.log("lists not yet loaded", listEntries)
+      return
+      // await onListsLoaded();
+    }
+    console.log("onListUpdated listEntries", listEntries)
+    console.log("onListUpdated", path, details, listEntries)
     if (listEntries[path] == undefined) {
       // content, supportUrl Title
       listEntries[path] = details

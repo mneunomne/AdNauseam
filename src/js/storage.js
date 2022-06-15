@@ -816,6 +816,11 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
                 acceptedCount;
             entry.entryUsedCount = entry.entryCount -
                 (snfe.discardedCount + sxfe.discardedCount - discardedCount);
+            // adn, tell core that the list is updated 
+            adnauseam.onListUpdated(assetKey, {
+                title: assetKey,
+                content: compiled
+            });
         }
         loadedListKeys.push(assetKey);
     };
@@ -1637,6 +1642,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 /******************************************************************************/
 
 µb.assetObserver = function(topic, details) {
+    // console.log("assetObserver")
     // Do not update filter list if not in use.
     // Also, ignore really bad lists, i.e. those which should not even be
     // fetched from a remote server.
