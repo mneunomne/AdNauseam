@@ -180,11 +180,11 @@ const onMessage = function(request, sender, callback) {
         break;
 
     case 'forceUpdateAdnauseam':
-        µb.assets.forceUpdate("Adnauseam");
+        io.forceUpdate("Adnauseam");
         break;
 
     case 'forceUpdateEff':
-        µb.assets.forceUpdate("Eff");
+        io.forceUpdate("Eff");
         break;
 
     case 'getAppData':
