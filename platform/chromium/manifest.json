@@ -91,7 +91,6 @@
   "storage": {
     "managed_schema": "managed_storage.json"
   },
-  "version": "3.13.2",
   "key": "mbfbgdonmnbmjjhhfoinempobihojlao",
   "web_accessible_resources": [
     "/web_accessible_resources/*"
