@@ -1643,7 +1643,6 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 /******************************************************************************/
 
 µb.assetObserver = function(topic, details) {
-    // console.log("assetObserver")
     // Do not update filter list if not in use.
     // Also, ignore really bad lists, i.e. those which should not even be
     // fetched from a remote server.
