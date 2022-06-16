@@ -697,6 +697,7 @@ forum2go.nl##.adsbygoogle
 
 # gmail fake ads
 ||mail-ads.google.com/mail/u/0/ads/*$xhr,domain=mail.google.com,important
+||mail-ads.google.com^
 
 # from multiple stream websites such as mazystreams
 ||d2kadvyeq051an.cloudfront.net^$important
