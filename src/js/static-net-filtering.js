@@ -4315,6 +4315,11 @@ FilterContainer.prototype.matchRequest = function(fctxt, modifiers = 0) {
     const r = this.realmMatchString(BlockAction, typeBits, partyBits);
     if ( r || (modifiers & 0b0010) !== 0 ) {
         if ( $isBlockImportant ) { return 1; }
+        // Adn
+        // Adn always need to check for important blocks, to know if its an adnauseam filter trying to overwrite a adn-allowed block
+        // read more on https://github.com/dhowe/AdNauseam/issues/2110
+        this.realmMatchString(BlockImportant, typeBits, partyBits)
+        // end of Adn
         if ( this.realmMatchString(AllowAction, typeBits, partyBits) ) {
             if ( this.realmMatchString(BlockImportant, typeBits, partyBits) ) {
                 return 1;

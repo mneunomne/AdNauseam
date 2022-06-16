@@ -1229,7 +1229,7 @@ const adnauseam = (function () {
     ///////////////////////////////////////////////////////////////////////
     const snfe = staticNetFilteringEngine, snfeData = snfe.toLogData();
 
-    /* Case 5 */
+    /* Case 4 */
     const lists = listsForFilter(snfeData);
     if (Object.keys(lists).length === 0) {                                  // 4.A
       snfeData && logNetBlock('UserList', snfeData.raw); // always block
