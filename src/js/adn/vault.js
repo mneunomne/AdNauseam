@@ -24,7 +24,7 @@
 (function () {
   'use strict';
 
-  const States = ['pending', 'visited', 'failed', 'dnt-allowed'],
+  const States = ['pending', 'visited', 'failed', 'dnt-allowed', 'image-error'],
     Zooms = [400, 200, 150, 100, 75, 50, 25, 12.5, 7.5, 5],
     EnableContextMenu = 1,
     MaxStartNum = 300,
@@ -709,7 +709,7 @@
     }).appendTo($ad);
 
     $img.on("error", function() {
-
+        setItemClass($div, 'image-error');
         $img.css({ width: 80, height: 40 });
         $img.attr('src', 'img/placeholder.svg');
         $img.attr('alt', 'Unable to load image');
@@ -2080,6 +2080,23 @@
     }
   }
 
+  function onPurgeDeadAds () {
+    let deadAds = getDeadAds()
+    if (deadAds.length > 0) {
+      purgeDeadAds(getDeadAds())
+    } else {
+      console.log("no dead ads to purge")
+    }
+  }
+  function getDeadAds () {
+    let adsGids = []
+    document.querySelectorAll(".image-error").forEach(el => {
+      adsGids.push(parseInt(el.getAttribute('data-gid')))
+    })
+    let deadAds = gAdSets.filter(adset => adsGids.includes(adset.gid))
+    return deadAds
+  }
+
   /********************************************************************/
 
   const TEXT_MINW = 150,
@@ -2258,4 +2275,5 @@
   $('#import').on('click', startImportFilePicker);
   $('#importFilePicker').on('change', handleImportAds);
   $('#reset').on('click', clearAds);
+  $('#purge').on('click', onPurgeDeadAds);
 })();

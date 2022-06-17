@@ -906,6 +906,17 @@ const clearAds = function () {
   }
 };
 
+const purgeDeadAds = function (deadAds) {
+  const msg = vAPI.i18n('adnPurgeConfirm');
+  const proceed = window.confirm(msg); // changed from vAPI.confirm merge1.14.12
+  if (proceed) {
+    vAPI.messaging.send('adnauseam', {
+      what: 'purgeDeadAds',
+      'deadAds': deadAds
+    });
+  }
+};
+
 /********* decode html entities in ads titles in vault and menu *********/
 
 const decodeEntities = (function () {
