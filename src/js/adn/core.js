@@ -811,6 +811,25 @@ const adnauseam = (function () {
 
     admap = {}; // redundant, remove
   };
+  
+  const purgeDeadAdsAdmap = function (deadAds) {
+    let deadIds = deadAds.map(deadad => deadad.children.map(c => c.id))[0]
+    const pages = Object.keys(admap);
+    for (let i = 0; i < pages.length; i++) {
+      if (admap[pages[i]]) {
+        const hashes = Object.keys(admap[pages[i]]);
+        for (let j = 0; j < hashes.length; j++) {
+          let ad = admap[pages[i]][hashes[j]];
+          if (deadIds.includes(ad.id)) {
+            delete admap[pages[i]][hashes[j]];
+          }
+        }
+      }
+      if (admap[pages[i]].length < 1) {
+        delete admap[pages[i]];
+      }
+    }
+  }
 
   const millis = function () {
 
@@ -2127,6 +2146,16 @@ const adnauseam = (function () {
     visitedURLs.clear(); // user visits #1214
 
     log('[CLEAR] ' + pre + ' ads cleared', admap);
+  };
+
+  const purgeDeadAds = exports.purgeDeadAds = function (request) {
+    let count = request.deadAds.length 
+    purgeDeadAdsAdmap(request.deadAds);
+    reloadExtPage('vault.html');
+    updateBadges();
+    storeAdData(true);
+    computeNextId();
+    log('[PURGE DEAD ADS] ' + count + ' ads purged', admap);
   };
 
   exports.importAds = function (request) {

@@ -211,6 +211,10 @@
     "message": "This action will permanently remove ALL of your Ads",
     "description": "appears in ADN settings"
   },
+  "adnPurgeConfirm": {
+    "message": "This action will permanently remove all ads with load image error. Make sure your internet is connected, otherwise all your ads will be deleted.",
+    "description": "appears in ADN settings"
+  },
   "adnAdClickingStatusPending": {
     "message": "Pending",
     "description": "Menu & AdVault: Pending"
@@ -345,6 +349,10 @@
   },
   "adnVaultClear": {
     "message": "Clear",
+    "description": "appears on vault page"
+  },
+  "adnPurgeDeadAds": {
+    "message": "Purge Dead Ads",
     "description": "appears on vault page"
   },
   "adnVaultFound": {

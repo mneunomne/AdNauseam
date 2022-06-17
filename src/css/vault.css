@@ -354,10 +354,11 @@ div.tooltip {
 #actions {
 	position: relative;
 	z-index: 100;
-	float:right;
-	height:17px;
-	width:300px;
+	float: right;
+	height: 17px;
+	width: auto;
 	margin-top: -3px;
+	right: 154px;
 }
 
 #bottom-text{
