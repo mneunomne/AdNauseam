@@ -816,6 +816,12 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
                 acceptedCount;
             entry.entryUsedCount = entry.entryCount -
                 (snfe.discardedCount + sxfe.discardedCount - discardedCount);
+            // adn, tell core that the list is updated 
+            adnauseam.onListUpdated(assetKey, {
+                title: assetKey,
+                content: compiled
+            });
+            // end of adn
         }
         loadedListKeys.push(assetKey);
     };

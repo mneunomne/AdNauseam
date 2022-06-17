@@ -1587,6 +1587,9 @@ const adnauseam = (function () {
 
   // called each time a single list is updated
   exports.onListUpdated = function (path, details) {
+    // relasted to https://github.com/dhowe/AdNauseam/issues/2110
+    // to do: change the calls of "onListUpdated" and "onListsLoaded" so this next condition is not needed
+    if (listEntries == undefined) return;
     if (listEntries[path] == undefined) {
       // content, supportUrl Title
       listEntries[path] = details
