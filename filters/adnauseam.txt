@@ -709,10 +709,13 @@ forum2go.nl##.adsbygoogle
 ||syndication.realsrv.com^$important
 ||a.realsrv.com^$important
 
-# https://github.com/dhowe/AdNauseam/issues/2108
+# notification ads https://github.com/dhowe/AdNauseam/issues/2108
 ##a[href^="//ngp1.mybetterck.com/adServe"]
 ##a[href^="//ousoasoper.xyz"]
 ##a[href^="//eu.messenger-notify.xyz"]
+||d301cxwfymy227.cloudfront.net^$script,important
+||awigglespouter.cam^$important
+||trienestooth.com^$script,important
 ##.image_block[href*="https://shapelcounset.xyz"]
 
 # myip.com #1906
