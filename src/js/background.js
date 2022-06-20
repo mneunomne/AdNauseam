@@ -210,7 +210,7 @@ const µBlock = {  // jshint ignore:line
     netStrictBlockList: new Map(),
     netStrictBlockListModifyTime: 0,
     netStrictBlockListDefault: [
-        'youtube.com',
+        // 'youtube.com',
         'facebook.com',
         'gmail.com',
         'funnyordie.com'
