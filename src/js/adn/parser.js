@@ -441,8 +441,6 @@
     }
 
     const findGoogleResponsiveDisplayAd = function (elem) {
-
-      console.log("[ADN] parser findGoogleResponsiveDisplayAd")
       
       // a#mys-content href
       //   div.GoogleActiveViewElement
@@ -462,7 +460,7 @@
       let targetURL;
 
       if (img) {
-        
+
         // img case
         let src, link;
 
