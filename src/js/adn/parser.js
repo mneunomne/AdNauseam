@@ -366,7 +366,7 @@
             logP('No img found, check other cases', elem);
 
             // if no img found within the element
-            findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) || GoogleActiveViewElement(elem)
+            findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) || GoogleActiveViewElement(elem) || findYoutubeTextAd(elem)
               || logP('No images in children of', elem);
           }
 
@@ -384,7 +384,6 @@
       const googleDisplayAd = elem.querySelector('.GoogleActiveViewElement');
       if (!googleDisplayAd) return;
 
-      let background_image = null
       let title = elem.querySelector(".title a, [class*=title] a")
       let body = elem.querySelector(".body a")
       let site = title
@@ -412,7 +411,40 @@
       }
     } 
 
+    const findYoutubeTextAd = function (elem) {
+      if (location.href.includes("youtube.com")){
+        console.log("here!")
+      } else {
+        return
+      }
+      const youtubeAd = document.querySelector('ytd-promoted-sparkles-web-renderer #sparkles-container');
+      if (!youtubeAd) {
+        console.log("[PARSER] no youtubeAd", youtubeAd)
+        return;
+      }
+
+      logP("[Parser]  Youtube Ads")
+
+      const img = youtubeAd.querySelector('yt-img-shadow img');
+      const title = youtubeAd.querySelector('#title').innerText;
+      const text = youtubeAd.querySelector('#description').innerText;
+      const link = youtubeAd.querySelector('#website-text').innerText
+      var targetURL = ""
+      if (img) {
+        var src = img.src
+        targetURL = "http://" + link;
+        if (img && src && targetURL) {
+          createImageAd(img, src, targetURL);
+        } else {
+          logP("[Google Responsive Display Ad] Can't find element", img, src, targetURL);
+        }
+      }
+      // vAPI.textAdParser.youtubeAds(youtubeAd)
+    }
+
     const findGoogleResponsiveDisplayAd = function (elem) {
+
+      console.log("[ADN] parser findGoogleResponsiveDisplayAd")
       
       // a#mys-content href
       //   div.GoogleActiveViewElement
@@ -432,31 +464,12 @@
       let targetURL;
 
       if (img) {
-
-        // img case
-        let src, link;
-
-        // check for link element
-        if (elem.tagName == "A" && elem.id == "mys-content") {
-          link = elem;
-        } else {
-          link = elem.querySelector('a#mys-content');
-        }
-
-        // try to get the targetURL
-        if (link && link.hasAttribute("href")) {
-          targetURL = link.getAttribute("href");          
-        } else if (title && title.hasAttribute("href")) {
-          // if cant get link element, try to get it from the title
-          targetURL = title.getAttribute("href")
-        } else {
-          const clickableElement = img;
-          // if no href, fake click event
-          if (document.createEvent) {
-            const ev = document.createEvent('HTMLEvents');
-            ev.initEvent('mousedown', true, false);
-            clickableElement.dispatchEvent(ev);
-          }
+        const clickableElement = img;
+        // if no href, fake click event
+        if (document.createEvent) {
+          const ev = document.createEvent('HTMLEvents');
+          ev.initEvent('mousedown', true, false);
+          clickableElement.dispatchEvent(ev);
         }
 
         const attribute = getComputedStyle(img).backgroundImage;
