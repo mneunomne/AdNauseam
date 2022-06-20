@@ -412,18 +412,16 @@
     } 
 
     const findYoutubeTextAd = function (elem) {
-      if (location.href.includes("youtube.com")){
-        console.log("here!")
-      } else {
-        return
+      if (!location.href.includes("youtube.com")){
+        return // youtube specific ad banners 
       }
       const youtubeAd = document.querySelector('ytd-promoted-sparkles-web-renderer #sparkles-container');
       if (!youtubeAd) {
-        console.log("[PARSER] no youtubeAd", youtubeAd)
+        // console.log("[PARSER] no youtubeAd", youtubeAd)
         return;
       }
 
-      logP("[Parser]  Youtube Ads")
+      logP("[Parser] Youtube Banner Ad Detected")
 
       const img = youtubeAd.querySelector('yt-img-shadow img');
       const title = youtubeAd.querySelector('#title').innerText;
