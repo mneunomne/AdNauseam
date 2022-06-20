@@ -473,7 +473,8 @@
 
     return {
       process: process,
-      findGoogleTextAd: findGoogleTextAd
+      findGoogleTextAd: findGoogleTextAd,
+      youtubeAds: youtubeAds
     };
 
   })();

@@ -366,7 +366,7 @@
             logP('No img found, check other cases', elem);
 
             // if no img found within the element
-            findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) || GoogleActiveViewElement(elem)
+            findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) || GoogleActiveViewElement(elem) || findYoutubeTextAd(elem)
               || logP('No images in children of', elem);
           }
 
@@ -384,7 +384,6 @@
       const googleDisplayAd = elem.querySelector('.GoogleActiveViewElement');
       if (!googleDisplayAd) return;
 
-      let background_image = null
       let title = elem.querySelector(".title a, [class*=title] a")
       let body = elem.querySelector(".body a")
       let site = title
@@ -411,6 +410,35 @@
         return false
       }
     } 
+
+    const findYoutubeTextAd = function (elem) {
+      if (!location.href.includes("youtube.com")){
+        return // youtube specific ad banners 
+      }
+      const youtubeAd = document.querySelector('ytd-promoted-sparkles-web-renderer #sparkles-container');
+      if (!youtubeAd) {
+        // console.log("[PARSER] no youtubeAd", youtubeAd)
+        return;
+      }
+
+      logP("[Parser] Youtube Banner Ad Detected")
+
+      const img = youtubeAd.querySelector('yt-img-shadow img');
+      const title = youtubeAd.querySelector('#title').innerText;
+      const text = youtubeAd.querySelector('#description').innerText;
+      const link = youtubeAd.querySelector('#website-text').innerText
+      var targetURL = ""
+      if (img) {
+        var src = img.src
+        targetURL = "http://" + link;
+        if (img && src && targetURL) {
+          createImageAd(img, src, targetURL);
+        } else {
+          logP("[Google Responsive Display Ad] Can't find element", img, src, targetURL);
+        }
+      }
+      // vAPI.textAdParser.youtubeAds(youtubeAd)
+    }
 
     const findGoogleResponsiveDisplayAd = function (elem) {
       
