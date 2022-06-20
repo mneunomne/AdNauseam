@@ -462,12 +462,31 @@
       let targetURL;
 
       if (img) {
-        const clickableElement = img;
-        // if no href, fake click event
-        if (document.createEvent) {
-          const ev = document.createEvent('HTMLEvents');
-          ev.initEvent('mousedown', true, false);
-          clickableElement.dispatchEvent(ev);
+        
+        // img case
+        let src, link;
+
+        // check for link element
+        if (elem.tagName == "A" && elem.id == "mys-content") {
+          link = elem;
+        } else {
+          link = elem.querySelector('a#mys-content');
+        }
+
+        // try to get the targetURL
+        if (link && link.hasAttribute("href")) {
+          targetURL = link.getAttribute("href");          
+        } else if (title && title.hasAttribute("href")) {
+          // if cant get link element, try to get it from the title
+          targetURL = title.getAttribute("href")
+        } else {
+          const clickableElement = img;
+          // if no href, fake click event
+          if (document.createEvent) {
+            const ev = document.createEvent('HTMLEvents');
+            ev.initEvent('mousedown', true, false);
+            clickableElement.dispatchEvent(ev);
+          }
         }
 
         const attribute = getComputedStyle(img).backgroundImage;
