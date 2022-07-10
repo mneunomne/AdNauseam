@@ -159,25 +159,24 @@
       return ads;
     };
 
-    const googleText = function (li) {
+    const googleText = function (div) {
       let ad;
 
-      const // title must contains href
-      title = $find(li, '.ad_cclk a:nth-child(2)');
-
-      const text = $find(li, '.ads-creative');
-      const site = $find(li, '.ads-visurl cite');
+      const title = div.querySelector('[role="heading"] span').innerText;
+      // element has no class, attribute, so it needs to be fetched like this 
+      const text = div.childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerText
+      const site = div.querySelector('[data-dtld]').getAttribute('data-dtld')
+      const href = div.querySelector('[data-pcu]').getAttribute('data-pcu') 
 
       if (text.length && site.length && title.length) {
-
-        ad = vAPI.adParser.createAd('google', $attr(title, 'href'), {
-          title: $text(title),
-          text: $text(text),
-          site: $text(site)
+        ad = vAPI.adParser.createAd('google', href, {
+          title: title,
+          text: text,
+          site: site
         });
 
       } else {
-        console.warn('[TEXTADS] googleTextHandler.fail: ', $text(title), $text(text), $text(site));
+        console.warn('[TEXTADS] googleTextHandler.fail: ', title, text, site);
       }
 
       return [ad];
@@ -357,7 +356,7 @@
     const googleRegex = /^(www\.)*google\.((com\.|co\.|it\.)?([a-z]{2})|com)$/i;
 
     const filters = [{
-      selector: 'li.ads-ad',
+      selector: '[data-text-ad]',
       handler: googleText,
       name: 'google',
       domain: googleRegex
