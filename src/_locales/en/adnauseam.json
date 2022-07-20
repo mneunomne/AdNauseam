@@ -488,7 +488,7 @@
     "description": "English:Disable warnings"
   },
   "showAdsDebugPrompt": {
-    "message": "show ads for ad-collection debugging",
+    "message": "Show ads for ad-collection debugging",
     "description": "English: Show ads for ad-collection debugging"
   },
   "removeAdsInPrivate": {

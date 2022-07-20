@@ -941,7 +941,7 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
     ) {
         //Adn
         out.injectedCSS = `${injected.join(',\n')}\n{display:none!important;}`;
-        if (µb.userSettings.showAdsDebug) out.injectedCSS = "/**/"
+        if (µb.userSettings.showAdsDebug) `${injected.join(',\n')}\n{/*display:none!important;*/}`;
         vAPI.tabs.insertCSS(request.tabId, {
             code: out.injectedCSS,
             cssOrigin: 'user',
@@ -1125,6 +1125,10 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
                 injectedCSS.push(
                     `${injectedHideFilters.join(',\n')}\n{display:none!important;}`
                 );
+            } else {
+                injectedCSS.push(
+                    `${injectedHideFilters.join(',\n')}\n{/*display:none!important;*/}`
+                );
             }
         }
 
@@ -1163,6 +1167,8 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         if ( networkFilters.length !== 0 ) {
             if (!µb.userSettings.showAdsDebug) { // Adn
                 details.code = networkFilters.join('\n') + '\n{display:none!important;}';
+            } else {
+                details.code = networkFilters.join('\n') + '\n{/*display:none!important;*/}';
             }
             if ( request.tabId !== undefined ) {
                 vAPI.tabs.insertCSS(request.tabId, details);
