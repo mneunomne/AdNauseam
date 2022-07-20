@@ -230,7 +230,7 @@
         });
     });
 
-    uDom('[data-setting-name="noLargeMedia"] ~ label:first-of-type > input[type="number"]')
+    uDom('[data-setting-name="largeMediaSize"]')
       .attr('data-setting-name', 'largeMediaSize')
       .attr('data-setting-type', 'input');
 
