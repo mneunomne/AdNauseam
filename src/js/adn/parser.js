@@ -214,10 +214,6 @@
 
 
     const createImageAd = function (img, src, targetUrl) {
-      if (src.includes("icon")) {
-        console.log("icon!")
-      }
-
       let wFallback = parseInt(img.getAttribute("width") || -1)
       let hFallback = parseInt(img.getAttribute("height") || -1)
       
