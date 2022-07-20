@@ -95,6 +95,7 @@ const userSettingsDefault = {
     dntDomains: [],
     parseTextAds: true,
     eventLogging: false,
+    showAdsDebug: false,
     firstInstall: true,
 
     hidingAds: false,

@@ -940,7 +940,8 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
         !adnauseam.contentPrefs(request.hostname).hidingDisabled // ADN Don't inject user stylesheets if hiding is disabled
     ) {
         //Adn
-        out.injectedCSS = `${injected.join(',\n')}\n{display:block!important;}`;
+        out.injectedCSS = `${injected.join(',\n')}\n{display:none!important;}`;
+        if (µb.userSettings.showAdsDebug) out.injectedCSS = "/**/"
         vAPI.tabs.insertCSS(request.tabId, {
             code: out.injectedCSS,
             cssOrigin: 'user',
@@ -1120,9 +1121,11 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         }
 
         if ( injectedHideFilters.length !== 0 ) {
-            injectedCSS.push(
-                `${injectedHideFilters.join(',\n')}\n{display:block!important;}`
-            );
+            if (!µb.userSettings.showAdsDebug) { // Adn
+                injectedCSS.push(
+                    `${injectedHideFilters.join(',\n')}\n{display:none!important;}`
+                );
+            }
         }
 
         // Important: always clear used registers before leaving.
@@ -1158,7 +1161,9 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         const networkFilters = [];
         cacheEntry.retrieve('net', networkFilters);
         if ( networkFilters.length !== 0 ) {
-            details.code = networkFilters.join('\n') + '\n{display:block!important;}';
+            if (!µb.userSettings.showAdsDebug) { // Adn
+                details.code = networkFilters.join('\n') + '\n{display:none!important;}';
+            }
             if ( request.tabId !== undefined ) {
                 vAPI.tabs.insertCSS(request.tabId, details);
             }
