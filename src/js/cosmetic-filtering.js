@@ -940,7 +940,7 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
         !adnauseam.contentPrefs(request.hostname).hidingDisabled // ADN Don't inject user stylesheets if hiding is disabled
     ) {
         //Adn
-        out.injectedCSS = `${injected.join(',\n')}\n{display:none!important;}`;
+        out.injectedCSS = `${injected.join(',\n')}\n{display:block!important;}`;
         vAPI.tabs.insertCSS(request.tabId, {
             code: out.injectedCSS,
             cssOrigin: 'user',
@@ -1121,7 +1121,7 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
 
         if ( injectedHideFilters.length !== 0 ) {
             injectedCSS.push(
-                `${injectedHideFilters.join(',\n')}\n{display:none!important;}`
+                `${injectedHideFilters.join(',\n')}\n{display:block!important;}`
             );
         }
 
@@ -1158,7 +1158,7 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         const networkFilters = [];
         cacheEntry.retrieve('net', networkFilters);
         if ( networkFilters.length !== 0 ) {
-            details.code = networkFilters.join('\n') + '\n{display:none!important;}';
+            details.code = networkFilters.join('\n') + '\n{display:block!important;}';
             if ( request.tabId !== undefined ) {
                 vAPI.tabs.insertCSS(request.tabId, details);
             }
