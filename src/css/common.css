@@ -131,7 +131,7 @@ a.external-link {
   margin: 0px 4px 0 0!important;
   vertical-align: baseline!important;
 }
-.custom-check ul#clickingFrequency{
+.custom-check #clickingFrequency{
   margin: .5em 0 0 -.5em;
   padding:.5em 1em .3em .5em;
   border-radius: 8px;
@@ -1075,8 +1075,8 @@ label {
     width: 100%;
     }
 .checkbox > input[type="checkbox"] + svg {
-    background-color: transparent;
-    border: 2px solid var(--checkbox-ink);
+    background-color: black;
+    border: 2px solid #0076FF;
     border-radius: 2px;
     box-sizing: border-box;
     fill: none;

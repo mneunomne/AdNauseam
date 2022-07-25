@@ -20,7 +20,7 @@ body[dir="rtl"] ul {
     padding-right: 1em;
 }
 
-ul#userSettings {
+#userSettings {
   padding-left: 0;
   margin: 50px;
   margin-top: 20px;
@@ -28,13 +28,13 @@ ul#userSettings {
 li {
   margin-top: 0.25em;
 }
-ul#userSettings, ul#userSettings ul {
+#userSettings, #userSettings ul {
   list-style-type: none;
 }
-ul#userSettings .subgroup {
+#userSettings .subgroup {
   margin: 1em 0 2em;
 }
-ul#userSettings .subgroup p {
+#userSettings .subgroup p {
   margin: 0 22px 0 50px;
   line-height: 1.5em;
   float:left;
@@ -46,30 +46,38 @@ ul#userSettings .subgroup p {
 
 }
 
-ul#userSettings .subgroup p.last {
+#userSettings .subgroup p.last {
   margin-right:15px;
   padding-right: 0;
 }
 
-ul#userSettings .subgroup .subgroupDescription {
+#userSettings .subgroup .subgroupDescription {
     clear: both;
 }
-ul#userSettings .subgroup .subgroupDescription p{
-    margin-right: 0.3em;
+#userSettings .subgroup .subgroupDescription p{
+    margin-right: 0em;
 }
+
+#userSettings .fa-icon {
+  margin-left: 0.2em;
+}
+
 div> p:last-child {
   margin-bottom: 0;
 }
-ul#userSettings .subgroup> span {
+#userSettings .subgroup> span {
   font-size: larger;
   font-weight: bold;
   font-family: 'bebas_neue',sans-serif;
 }
-ul#userSettings .subgroup> ul {
+#userSettings .subgroup .custom-check {
   padding: 5px 0 15px 44px;
   clear:both;
 }
-ul#userSettings .subgroup> ul> li label {
+#userSettings .subgroup> ul> li label {
+  margin-left: 5px;
+}
+#userSettings .subgroup> .custom-check .li label {
   margin-left: 5px;
 }
 #localData > div {
@@ -109,7 +117,7 @@ input[type=range] {
    border-radius: 5px;
    background-color: transparent;
    height: 10px;
-   width: 96%;
+   width: 95%;
    border-color: #0076FF;
    padding:0;
    margin:0;
@@ -275,6 +283,6 @@ input[type=range]:disabled::-moz-range-progress {
 :root.mobile button {
   width:100%;
 }
-:root.mobile ul#userSettings .subgroup> ul {
+:root.mobile #userSettings .subgroup> ul {
     padding-left: 20px;
 }

@@ -48,6 +48,16 @@ input[type="number"] {
 input[type="checkbox"][disabled] + label {
     opacity: 0.5;
 }
+
+span > input[type="checkbox"][disabled] + span {
+    opacity: 0.5;
+}
+
+
+.custom-check > div.disabled label span {
+    opacity: 0.5
+}
+
 .para {
     width: 40em;
 }
