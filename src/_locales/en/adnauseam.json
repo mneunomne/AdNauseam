@@ -276,7 +276,7 @@
     "description": "Activate Strict-Block -> appears in ADN popup menu three state button"
   },
   "adnMenuDisableScopeDomain": {
-    "message": "on domain.com",
+    "message": "on {{domain}}",
     "description": "Disable AdNaueam Block On this Domain -> Popup option that appears inside ADN menu"
   },
   "adnMenuDisableScopePage": {

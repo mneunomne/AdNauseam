@@ -3,7 +3,7 @@
 # This script assumes a linux environment
 
 DES=$1
-UBLOCK=`jq .version platform/chromium/manifest.json | tr -d '"'` # ADN:ublock-version
+UBLOCK=$( cat dist/version ) # ADN:ublock-version
 
 bash ./tools/make-assets.sh        $DES
 bash ./tools/make-locales.sh       $DES

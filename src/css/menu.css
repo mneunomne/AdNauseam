@@ -824,6 +824,18 @@ footer > span  {
   opacity: 1;
 }
 
+#on_domain-lbl {
+  text-align: center;
+}
+
+#on_domain-lbl span {
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  white-space: nowrap;
+}
+
 .btn_radio:checked + .btn_radio_label path {
   stroke: white;
 }

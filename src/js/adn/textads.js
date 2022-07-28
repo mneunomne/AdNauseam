@@ -162,11 +162,20 @@
     const googleText = function (div) {
       let ad;
 
-      const title = div.querySelector('[role="heading"] span').innerText;
+      var title = div.querySelector('[role="heading"] span').innerText;
       // element has no class, attribute, so it needs to be fetched like this 
-      const text = div.childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[0].innerText
-      const site = div.querySelector('[data-dtld]').getAttribute('data-dtld')
-      const href = div.querySelector('[data-pcu]').getAttribute('data-pcu') 
+      var text = ""
+      var textDiv = null
+      if (div.childNodes[0].childNodes[1].className == "") {
+        textDiv = div.childNodes[0].childNodes[1]
+      } else {
+        textDiv = div.childNodes[0].childNodes[2]
+      }
+      var textElement = textDiv.childNodes[0].childNodes[0].childNodes[0]
+      text = textElement.innerText || textElement.wholeText
+
+      var site = div.querySelector('[data-dtld]').getAttribute('data-dtld')
+      var href = div.querySelector('[data-pcu]').getAttribute('data-pcu') 
 
       if (text.length && site.length && title.length) {
         ad = vAPI.adParser.createAd('google', href, {

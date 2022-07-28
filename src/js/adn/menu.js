@@ -645,12 +645,16 @@
     uDom(".popup_arrow").removeClass("open")
     uDom(".inner-popup_wrapper").addClass("hidden")
     document.removeEventListener('click', onAnyClickAfterOpen)
+    var msg = vAPI.i18n('adnMenuDisableScopeDomain')
+    uDom("#on_domain-lbl span").text(msg)
   }
 
   const openPopup = function () {
     uDom(".popup_arrow").addClass("open")
-    uDom(".inner-popup_wrapper").removeClass("hidden")
+    uDom(".inner-popup_wrapper").removeClass("hidden");
     document.addEventListener('click', onAnyClickAfterOpen)
+    var msg = vAPI.i18n('adnMenuDisableScopeDomain').replace("{{domain}}", popupData.pageDomain)
+    uDom("#on_domain-lbl span").text(msg)
   }
 
   const onClickDisableArrow = function () {

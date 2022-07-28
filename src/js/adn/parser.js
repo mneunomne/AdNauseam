@@ -214,9 +214,11 @@
 
 
     const createImageAd = function (img, src, targetUrl) {
-
-      const iw = img.naturalWidth || -1;
-      const ih = img.naturalHeight || -1;
+      let wFallback = parseInt(img.getAttribute("width") || -1)
+      let hFallback = parseInt(img.getAttribute("height") || -1)
+      
+      const iw = img.naturalWidth || wFallback;
+      const ih = img.naturalHeight || hFallback;
       const minDim = Math.min(iw, ih);
       const maxDim = Math.max(iw, ih);
 
