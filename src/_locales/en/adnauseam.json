@@ -471,6 +471,10 @@
     "message":"Update",
     "description":"English: update"
   },
+  "adnFilterUpdateButtonHoverText": {
+    "message": "Adnauseam Filters last modified on {{ago}}.\nClick to force an update.",
+    "description": "English: tooltip on Adnauseam Filters update button"
+  },
   "whitelistPageName": {
     "message": "Whitelists",
     "description": "appears as tab name in dashboard"

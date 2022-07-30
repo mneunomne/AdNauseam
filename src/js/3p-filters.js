@@ -200,17 +200,6 @@ const renderFilterLists = function(soft) {
                 'title',
                 lastUpdateString
             );
-            // AdNauseam update button
-            let button = li.querySelector('#buttonUpdateAdNauseam');
-            if ( button != null ) {
-                button.setAttribute(
-                    'title',
-                    lastUpdateTemplateString.replace(
-                        '{{ago}}',
-                        renderElapsedTimeToString(asset.writeTime)
-                    )
-                );
-          }
         } else {
             li.classList.remove('cached');
         }
@@ -222,6 +211,11 @@ const renderFilterLists = function(soft) {
         // ADN: add adnauseam update button
         if (listKey === "adnauseam-filters") {
             const button = document.getElementById("buttonUpdateAdNauseam");
+            const lastMofified = document.getElementById("AdnFilterLastModifiedDate").innerText
+            button.setAttribute(
+                'title',
+                vAPI.i18n('adnFilterUpdateButtonHoverText').replace('{{ago}}', lastMofified)
+            );
             li.appendChild(button);
         }
 

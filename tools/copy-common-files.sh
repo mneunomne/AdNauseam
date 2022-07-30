@@ -4,6 +4,7 @@
 
 DES=$1
 UBLOCK=$( cat dist/version ) # ADN:ublock-version
+ADNAUSEAM_FILTER_LAST_MODIFIED=$( git log -1 --pretty="format:%cs" filters/adnauseam.txt ) # ADN: last time file modified
 
 bash ./tools/make-assets.sh        $DES
 bash ./tools/make-locales.sh       $DES
@@ -24,6 +25,7 @@ cp LICENSE.txt                     $DES/
 
 # ADN
 awk -v s=$UBLOCK '{gsub(/{UBLOCK_VERSION}/, s)}1' $DES/links.html > /tmp/links.html && mv /tmp/links.html $DES/links.html
+awk -v s=$ADNAUSEAM_FILTER_LAST_MODIFIED '{gsub(/{ADNAUSEAM_FILTER_LAST_MODIFIED_DATE}/, s)}1' $DES/3p-filters.html > /tmp/3p-filters.html && mv /tmp/3p-filters.html $DES/3p-filters.html
 
 # Remove the following files
 rm $DES/js/adn/tests.js
