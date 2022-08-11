@@ -798,5 +798,7 @@ youtube.com#@#.sparkles-light-cta
 youtube.com#@#ytd-promoted-sparkles-web-renderer
 youtube.com##ytd-promoted-sparkles-web-renderer #sparkles-container:style(height: 0px !important; opacity: 0 !important;) 
 
-
 www.hktvmall.com##.topBannerGa
+
+# Block ad blocker detector
+||cdn.jsdelivr.net/gh/vli-platform/adb-analytics@77bebb/v1.0.min.js$script,important
