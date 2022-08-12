@@ -15,6 +15,10 @@ OPERA=/Applications/Opera.app/Contents/MacOS/Opera
 hash web-ext 2>/dev/null || { echo >&2 "Webext is not installed. Please do npm install --global web-ext."; exit 1; }
 echo
 
+# In order to have consitent appid, you need the original .pem key
+# once you have it, use it as a an enveiroment variable:
+# export CHROME_PEM=/path/to/pem/adnauseam.chromium.pem
+
 DES=dist/build
 ARTS=artifacts
 
