@@ -1135,7 +1135,7 @@ vAPI.DOMFilterer = class {
                 const isSpecialLocalIframes = (location.href=="about:blank" || location.href=="") && (window.self !== window.top)
                 domFilterer.addCSSRule(
                     selectors,
-                    vAPI.showAdsDebug ? vAPI.notHideStyle : vAPI.hideStyle,
+                    vAPI.showAdsDebug ? vAPI.notHideStyle : vAPI.hideStyle, // ADN
                     { mustInject: isSpecialLocalIframes ? true : false } // ADN 
                     );
                 /* old adn solution
@@ -1153,7 +1153,7 @@ vAPI.DOMFilterer = class {
                 let injected = result[key];
                 let selectors;
                 if (typeof injected === 'string') {
-                    selectors = injected.split(`\n{${vAPI.showAdsDebug ? vAPI.notHideStyle : vAPI.hideStyle}}`)[0]
+                    selectors = injected.split(`\n{${vAPI.showAdsDebug ? vAPI.notHideStyle : vAPI.hideStyle}}`)[0] // ADN
                 } else {
                     selectors = injected.join(",")
                 }

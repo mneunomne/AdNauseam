@@ -941,7 +941,7 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
     ) {
         //Adn
         out.injectedCSS = `${injected.join(',\n')}\n{display:none!important;}`;
-        if (µb.hiddenSettings.showAdsDebug) `${injected.join(',\n')}\n{/*display:none!important;*/}`;
+        if (µb.hiddenSettings.showAdsDebug) `${injected.join(',\n')}\n{/*display:none!important;*/}`; // ADN
         vAPI.tabs.insertCSS(request.tabId, {
             code: out.injectedCSS,
             cssOrigin: 'user',
