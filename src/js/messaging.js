@@ -789,7 +789,7 @@ const onMessage = function(request, sender, callback) {
     /* Adn */
     case 'getShowAdsDebug':
         console.log("getShowAdsDebug", µb.userSettings)
-        response = µb.userSettings.showAdsDebug;
+        response = µb.hiddenSettings.showAdsDebug;
         break;
     /* end of Adn */
 

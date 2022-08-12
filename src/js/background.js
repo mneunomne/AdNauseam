@@ -85,6 +85,7 @@ const hiddenSettingsDefault = {
     uiStyles: 'unset',
     updateAssetBypassBrowserCache: false,
     userResourcesLocation: 'unset',
+    showAdsDebug: false, // Adn set "true" to show ads that can be potentially be collected #2136 
 };
 
 const userSettingsDefault = {
@@ -95,7 +96,6 @@ const userSettingsDefault = {
     dntDomains: [],
     parseTextAds: true,
     eventLogging: false,
-    showAdsDebug: false, // set "true" to show ads that can be potentially be collected #2136 
     firstInstall: true,
 
     hidingAds: false,
