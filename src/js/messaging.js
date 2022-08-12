@@ -786,6 +786,13 @@ const onMessage = function(request, sender, callback) {
         };
         break;
 
+    /* Adn */
+    case 'getShowAdsDebug':
+        console.log("getShowAdsDebug", µb.userSettings)
+        response = µb.hiddenSettings.showAdsDebug;
+        break;
+    /* end of Adn */
+
     default:
         return vAPI.messaging.UNHANDLED;
     }
