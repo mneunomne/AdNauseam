@@ -494,6 +494,15 @@ vAPI.injectScriptlet = function(doc, text) {
 
 vAPI.hideStyle = 'display:none!important;';
 
+/* Adn */
+vAPI.notHideStyle = '/*display:none!important;*/'; 
+vAPI.showAdsDebug = false;
+vAPI.messaging.send('contentscript', {what:'getShowAdsDebug'}).then(response => {
+    vAPI.showAdsDebug = response
+    console.log("vAPI.showAdsDebug", vAPI.showAdsDebug)
+});
+/* end of Adn */
+
 vAPI.DOMFilterer = class {
     constructor() {
         this.commitTimer = new vAPI.SafeAnimationFrame(
@@ -739,7 +748,7 @@ vAPI.DOMFilterer = class {
         if ( collapseToken === undefined ) {
             collapseToken = vAPI.randomToken();
             vAPI.userStylesheet.add(
-                `[${collapseToken}]\n{display:none!important;}`,
+                `[${collapseToken}]\n{${vAPI.showAdsDebug ? vAPI.notHideStyle : vAPI.hideStyle}}`, // Adn
                 true
             );
         }
@@ -1123,13 +1132,13 @@ vAPI.DOMFilterer = class {
             if ( typeof css === 'string' && css.length !== 0 ) {
                 domFilterer.addCSS(css);
                 //ADN tmp fix: hiding - local iframe without src
-                /* old adn solution
                 const isSpecialLocalIframes = (location.href=="about:blank" || location.href=="") && (window.self !== window.top)
                 domFilterer.addCSSRule(
                     selectors,
-                    vAPI.hideStyle,
+                    vAPI.showAdsDebug ? vAPI.notHideStyle : vAPI.hideStyle,
                     { mustInject: isSpecialLocalIframes ? true : false } // ADN 
-                );
+                    );
+                /* old adn solution
                 */
                 mustCommit = true;
             }
@@ -1144,7 +1153,7 @@ vAPI.DOMFilterer = class {
                 let injected = result[key];
                 let selectors;
                 if (typeof injected === 'string') {
-                    selectors = injected.split("\n{display:none!important;}")[0]
+                    selectors = injected.split(`\n{${vAPI.showAdsDebug ? vAPI.notHideStyle : vAPI.hideStyle}}`)[0]
                 } else {
                     selectors = injected.join(",")
                 }
