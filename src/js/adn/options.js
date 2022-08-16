@@ -186,8 +186,16 @@
   const updateGroupState = function () {
 
     uDom('.hidingAds-child').prop('disabled', !uDom('#hidingAds').prop('checked'));
+    uDom('.hidingAds-child').parent().parent().parent().toggleClass('disabled', !uDom('#hidingAds').prop('checked'));
+
     uDom('.clickingAds-child').prop('disabled', !uDom('#clickingAds').prop('checked'));
+    uDom('.clickingAds-child').parent().parent().parent().toggleClass('disabled', !uDom('#clickingAds').prop('checked'));
+    
+    /*
+    blocking malware doesnt have any subgroup
     uDom('.blockingMalware-child').prop('disabled', !uDom('#blockingMalware').prop('checked'));
+    uDom('.blockingMalware-child').closest("li").toggleClass('disabled', !uDom('#hidingAds').prop('checked'));
+    */
   }
 
   /******************************************************************************/
