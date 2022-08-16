@@ -45,6 +45,7 @@ spiegel.de##div[id*="google_ads_iframe"]
 spiegel.de##div[class*="Anzeige"]
 
 www.nytimes.com##.e12j3pa50
+www.nytimes.com###top-wrapper:has(.ad)
 
 search.yahoo.com##.layoutMiddle
 search.yahoo.com##.kr5yi684e6
@@ -802,3 +803,7 @@ www.hktvmall.com##.topBannerGa
 
 # Block ad blocker detector
 ||cdn.jsdelivr.net/gh/vli-platform/adb-analytics@77bebb/v1.0.min.js$script,important
+
+# 2022-08-16 https://ww1.onepunch.online #2154
+ww1.onepunch.online###psdn-slot
+###psadbox
