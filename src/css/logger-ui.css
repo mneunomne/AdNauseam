@@ -45,6 +45,25 @@ textarea {
     font-size: 140%; /* ADN */
     }
 
+#colorKeyDialog #vwRenderer .logEntry { /* ADN */
+    display: inline-block !important;
+    position: relative !important;
+    width: calc(100% - 100px) !important;
+}
+
+#colorKeyDialog #vwRenderer span.colorKey { /* ADN */
+    border: 1px dotted var(--border-1);
+    background: black;
+    width: 100px;
+    display: inline-block;
+    text-align: center;
+    font-size: 12px;
+    height: 23px;
+    position: relative;
+    padding: 0.2em;
+    vertical-align: top;
+}
+
 #loggerColorKey img { /* ADN */
     width: 1em;
     height: 1em;
