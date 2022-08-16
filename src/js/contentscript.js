@@ -499,7 +499,6 @@ vAPI.notHideStyle = '/*display:none!important;*/';
 vAPI.showAdsDebug = false;
 vAPI.messaging.send('contentscript', {what:'getShowAdsDebug'}).then(response => {
     vAPI.showAdsDebug = response
-    console.log("vAPI.showAdsDebug", vAPI.showAdsDebug)
 });
 /* end of Adn */
 
