@@ -343,7 +343,7 @@ const processLoggerEntries = function(response) {
 };
 
 /******************************************************************************/
-const isDNTDomain = function(domain) {
+const isDNTDomain = function(domain) { // ADN
       for (var i = 0; i < dntDomains.length; i++) {
         if (domain == dntDomains[i])
           return true;
