@@ -1493,7 +1493,7 @@ const onMessage = function(request, sender, callback) {
     let response;
 
     switch ( request.what ) {
-    case 'dashboard;Config':
+    case 'dashboardConfig':
         response = {
             canUpdateShortcuts: µb.canUpdateShortcuts,
             noDashboard: µb.noDashboard,
