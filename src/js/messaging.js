@@ -788,7 +788,6 @@ const onMessage = function(request, sender, callback) {
 
     /* Adn */
     case 'getShowAdsDebug':
-        console.log("getShowAdsDebug", µb.userSettings)
         response = µb.hiddenSettings.showAdsDebug;
         break;
     /* end of Adn */
@@ -1477,6 +1476,13 @@ const onMessage = function(request, sender, callback) {
         return µb.saveUserFilters(request.content).then(result => {
             callback(result);
         });
+    
+    /* Adn */
+    case 'getCostPerClick':
+        console.log("getCostPerClick", µb.hiddenSettings.costPerClick)
+        callback(µb.hiddenSettings.costPerClick);
+        break;
+    /* end of Adn */
 
     default:
         break;

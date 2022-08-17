@@ -576,15 +576,18 @@ const rand = function (min, max) {
 const setCost = function (numVisited) {
 
   //console.log('setCost: '+numVisited);
-
-  const $west = uDom('#worth-estimate'), $cost = uDom('.cost');
-
-  if (numVisited > 0) {
-    $cost.removeClass('hidden');
-    $west.text('= $' + (numVisited * 1.58).toFixed(2));
-  } else {
-    $cost.addClass('hidden');
-  }
+  var constPerClick = 0
+  vAPI.messaging.send('dashboard', {what:'getCostPerClick'}).then(response => {
+    constPerClick = response
+    const $west = uDom('#worth-estimate'), $cost = uDom('.cost');
+  
+    if (numVisited > 0) {
+      $cost.removeClass('hidden');
+      $west.text('= $' + (numVisited * constPerClick).toFixed(2));
+    } else {
+      $cost.addClass('hidden');
+    }
+  });
 };
 
 const arrayRemove = function (arr, obj) {
