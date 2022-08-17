@@ -1481,7 +1481,6 @@ const onMessage = function(request, sender, callback) {
     case 'getCostPerClick':
         console.log("getCostPerClick", µb.hiddenSettings.costPerClick)
         callback(µb.hiddenSettings.costPerClick);
-
         break;
     /* end of Adn */
 
