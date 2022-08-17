@@ -1059,7 +1059,7 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
                 if ( pfilter.tasks === undefined ) {
                     const { action } = pfilter;
                     if ( action !== undefined && action[0] === ':style' ) {
-                        injectedCSS.push(`${pfilter.selector}\n{${action[1]}}`);
+                        if (!µb.hiddenSettings.showAdsDebug) injectedCSS.push(`${pfilter.selector}\n{${action[1]}}`); // Adn
                         proceduralSet.delete(json);
                         continue;
                     }
