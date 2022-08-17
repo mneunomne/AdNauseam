@@ -311,6 +311,8 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
             r = parseInt(value.slice(2), 2);
         } else if ( value.startsWith('0x') ) {
             r = parseInt(value.slice(2), 16);
+        } else if (name == 'costPerClick') { // ADN https://github.com/dhowe/AdNauseam/issues/2131
+            r = parseFloat(value)
         } else {
             r = parseInt(value, 10);
         }
