@@ -93,6 +93,7 @@ if [ $DO_EDGE = true ]
 then
   printf "\n*** Target -> Edge\n"
   ./tools/make-edge.sh
+  cat <<< $(jq 'del(.key)' $DES/adnauseam.edge/manifest.json) > $DES/adnauseam.edge/manifest.json
   web-ext build -s ${DES}/adnauseam.edge -a ${ARTS}
   mv ${ARTS}/adnauseam-${VERSION}.zip ${ARTS}/adnauseam-${VERSION}.edge.zip
 fi
