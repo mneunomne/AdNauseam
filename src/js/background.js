@@ -85,6 +85,8 @@ const hiddenSettingsDefault = {
     uiStyles: 'unset',
     updateAssetBypassBrowserCache: false,
     userResourcesLocation: 'unset',
+    showAdsDebug: false, // Adn set "true" to show ads that can be potentially be collected #2136 
+    costPerClick;;;: 1.03 // Adn https://github.com/dhowe/AdNauseam/issues/2131
 };
 
 const userSettingsDefault = {
@@ -95,7 +97,6 @@ const userSettingsDefault = {
     dntDomains: [],
     parseTextAds: true,
     eventLogging: false,
-    showAdsDebug: false,
     firstInstall: true,
 
     hidingAds: false,

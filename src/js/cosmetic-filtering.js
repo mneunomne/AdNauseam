@@ -941,7 +941,7 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
     ) {
         //Adn
         out.injectedCSS = `${injected.join(',\n')}\n{display:none!important;}`;
-        if (µb.userSettings.showAdsDebug) `${injected.join(',\n')}\n{/*display:none!important;*/}`;
+        if (µb.hiddenSettings.showAdsDebug) `${injected.join(',\n')}\n{/*display:none!important;*/}`; // ADN
         vAPI.tabs.insertCSS(request.tabId, {
             code: out.injectedCSS,
             cssOrigin: 'user',
@@ -1059,7 +1059,7 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
                 if ( pfilter.tasks === undefined ) {
                     const { action } = pfilter;
                     if ( action !== undefined && action[0] === ':style' ) {
-                        injectedCSS.push(`${pfilter.selector}\n{${action[1]}}`);
+                        if (!µb.hiddenSettings.showAdsDebug) injectedCSS.push(`${pfilter.selector}\n{${action[1]}}`); // Adn
                         proceduralSet.delete(json);
                         continue;
                     }
@@ -1121,7 +1121,7 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         }
 
         if ( injectedHideFilters.length !== 0 ) {
-            if (!µb.userSettings.showAdsDebug) { // Adn
+            if (!µb.hiddenSettings.showAdsDebug) { // Adn
                 injectedCSS.push(
                     `${injectedHideFilters.join(',\n')}\n{display:none!important;}`
                 );
@@ -1165,7 +1165,7 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         const networkFilters = [];
         cacheEntry.retrieve('net', networkFilters);
         if ( networkFilters.length !== 0 ) {
-            if (!µb.userSettings.showAdsDebug) { // Adn
+            if (!µb.hiddenSettings.showAdsDebug) { // Adn
                 details.code = networkFilters.join('\n') + '\n{display:none!important;}';
             } else {
                 details.code = networkFilters.join('\n') + '\n{/*display:none!important;*/}';
