@@ -86,7 +86,7 @@ const hiddenSettingsDefault = {
     updateAssetBypassBrowserCache: false,
     userResourcesLocation: 'unset',
     showAdsDebug: false, // Adn set "true" to show ads that can be potentially be collected #2136 
-    costPerClick;;;: 1.03 // Adn https://github.com/dhowe/AdNauseam/issues/2131
+    costPerClick: 1.03 // Adn https://github.com/dhowe/AdNauseam/issues/2131
 };
 
 const userSettingsDefault = {
