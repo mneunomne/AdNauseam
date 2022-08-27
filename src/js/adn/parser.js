@@ -386,11 +386,19 @@
       const googleDisplayAd = elem.querySelector('.GoogleActiveViewElement');
       if (!googleDisplayAd) return;
 
-      let title = elem.querySelector(".title a, [class*=title] a")
-      let body = elem.querySelector(".body a")
-      let site = title
-      let image = elem.querySelector(".imageClk .image")
-      let url = site.getAttribute("href")
+      let url, title, body, image
+
+      title = elem.querySelector(".title a, [class*=title] a")
+      body = elem.querySelector(".body a")
+      image = elem.querySelector(".imageClk .image")
+      
+      if (title !== null) {
+        url = title.getAttribute("href")
+      } else {
+        // invalid google ad
+        warnP("invalid google ad, no title found.")
+        return false
+      }
 
       if ( title !== null && body !== null && url !== null) {
         if (!image) {
@@ -398,7 +406,7 @@
           const ad = vAPI.adParser.createAd('GoogleActiveViewElement', url, {
             title: $text(title),
             text: $text(body),
-            site: $text(site)
+            title: $text(title)
           });
           
           if (ad) {
@@ -408,6 +416,7 @@
         }
         return true
       } else {
+        warnP("invalid google ad, element missing")
         // invalid google ad
         return false
       }
