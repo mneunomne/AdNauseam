@@ -8,6 +8,7 @@
 
 # Generic exceptions
 tweakers.net#@#*[class*="Advert"]
+willhaben.at#@#*[class*="Advert"]
 
 # Google map ads on Search
 google.*##.mnr-c.rl-qs-crs-t._Db > ._gt:has(._mB)
