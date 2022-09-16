@@ -323,7 +323,7 @@
     --sf-directive-ink: var(--ink-1);
     --sf-error-ink: #ff8981; /* h15 S:100 Luv:70 */
     --sf-error-surface: #ff898133; /* h15 S:100 Luv:70 @ 20% */
-    --sf-keyword-ink: #8c00e6; /* h:280 S:100 Luv:40 */
+    --sf-keyword-ink: #9b00ca; /* h:290 S:100 Luv:40 */
     --sf-notice-ink: var(--ink-4);
     --sf-readonly-ink: var(--ink-3);
     --sf-tag-ink: #006e2e /* h:135 S:100 Luv:40 */;
@@ -414,7 +414,7 @@
     --sf-def-ink: #a2a2ff; /* h:266 S:100 Luv:70 */
     --sf-error-ink: #ff8981; /* h15 S:100 Luv:70 */
     --sf-error-surface: #ff898166; /* h15 S:100 Luv:70 @ 40% */
-    --sf-keyword-ink: #d5bbff; /* h:280 S:100 Luv:80 */
+    --sf-keyword-ink: #d78dff; /* h:290 S:100 Luv:70 */
     --sf-tag-ink: #00c559 /* h:135 S:100 Luv:70 */;
     --sf-value-ink: #ff8d48 /* h:30 S:100 Luv:70 */;
     --sf-variable-ink: var(--ink-1);
@@ -427,6 +427,12 @@
     /* logger */
     --logger-modified-surface: #663efd60;
     --logger-redirected-surface: rgb(var(--yellow-5) / 40%);
+}
+
+:root.dark input,
+:root.dark select,
+:root.dark textarea {
+    color-scheme: dark;
 }
 
 /*
