@@ -831,7 +831,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
     const onFilterListsReady = function(lists) {
         this.availableFilterLists = lists;
 
-        if ( vAPI.net.canSuspend() ) {
+        if ( vAPI.Net.canSuspend() ) {
             vAPI.net.suspend();
         }
         redirectEngine.reset();

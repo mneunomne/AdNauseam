@@ -229,10 +229,20 @@ const onNetStrictBlockListReady = function(netStrictBlockListRaw, adminExtra) {
 
 const onUserSettingsReady = function(fetched) {
     // Terminate suspended state?
-    if ( fetched.suspendUntilListsAreLoaded === false ) {
+    const tnow = Date.now() - vAPI.T0;
+    if (
+        vAPI.Net.canSuspend() &&
+        fetched.suspendUntilListsAreLoaded === false
+    ) {
         vAPI.net.unsuspend({ all: true, discard: true });
-        ubolog(`Unsuspend network activity listener`);
-        µb.supportStats.unsuspendAfter = `${Date.now() - vAPI.T0} ms`;
+        ubolog(`Unsuspend network activity listener at ${tnow} ms`);
+        µb.supportStats.unsuspendAfter = `${tnow} ms`;
+    } else if (
+        vAPI.Net.canSuspend() === false &&
+        fetched.suspendUntilListsAreLoaded
+    ) {
+        vAPI.net.suspend();
+        ubolog(`Suspend network activity listener at ${tnow} ms`);
     }
 
     // `externalLists` will be deprecated in some future, it is kept around
