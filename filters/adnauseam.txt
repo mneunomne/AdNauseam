@@ -804,6 +804,7 @@ www.hktvmall.com##.topBannerGa
 
 # Block ad blocker detector
 ||cdn.jsdelivr.net/gh/vli-platform/adb-analytics@77bebb/v1.0.min.js$script,important
+||fundingchoicesmessages.google.com^$script,important
 
 # 2022-08-16 https://ww1.onepunch.online #2154
 ww1.onepunch.online###psdn-slot
