@@ -379,19 +379,6 @@
 		"contentURL": "https://someonewhocares.org/hosts/hosts",
 		"supportURL": "https://someonewhocares.org/hosts/"
 	},
-<<<<<<< HEAD
-	"mvps-0": {
-		"content": "filters",
-		"group": "multipurpose",
-		"updateAfter": 11,
-		"off": true,
-		"title": "MVPS HOSTS",
-		"hidden": true,
-		"contentURL": "http://winhelp2002.mvps.org/hosts.txt",
-		"supportURL": "http://winhelp2002.mvps.org/"
-	},
-=======
->>>>>>> upstream1.42.0
 	"plowe-0": {
 		"content": "filters",
 		"group": "multipurpose",
