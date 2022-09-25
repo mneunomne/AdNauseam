@@ -5,6 +5,7 @@
 ##*[class*="teads-"]g
 ###gwd-ad
 ##ins.adsbygoogle
+##.mv-ad-box
 
 # Generic exceptions
 tweakers.net#@#*[class*="Advert"]
