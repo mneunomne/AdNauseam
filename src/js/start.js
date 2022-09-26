@@ -533,23 +533,11 @@ io.addObserver(µb.assetObserver.bind(µb));
 // active tab.
 contextMenu.update();
 
-
 // ADN lists and first run (see #1826)
 adnauseam.onListsLoaded(µb.userSettings.firstInstall
   && µb.restoreBackupSettings.lastRestoreFile === "");
 µb.userSettings.firstInstall = false;
 µb.saveUserSettings();
-
-
-// Maybe install non-default popup document, or automatically select
-// default UI according to platform.
-if (
-    browser.browserAction instanceof Object &&
-    browser.browserAction.setPopup instanceof Function &&
-    µb.hiddenSettings.uiFlavor === 'classic'
-) {
-    browser.browserAction.setPopup({ popup: 'popup.html' });
-}
 
 // https://github.com/uBlockOrigin/uBlock-issues/issues/717
 //   Prevent the extension from being restarted mid-session.
