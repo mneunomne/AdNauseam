@@ -845,6 +845,33 @@ FilterContainer.prototype.getSession = function() {
 
 /******************************************************************************/
 
+FilterContainer.prototype.cssRuleFromProcedural = function(json) {
+    const pfilter = JSON.parse(json);
+    if ( pfilter.cssable !== true ) { return; }
+    const { tasks, action } = pfilter;
+    let mq;
+    if ( tasks !== undefined ) {
+        if ( tasks.length > 1 ) { return; }
+        if ( tasks[0][0] !== ':matches-media' ) { return; }
+        mq = tasks[0][1];
+    }
+    let style;
+    if ( Array.isArray(action) ) {
+        if ( action[0] !== ':style' ) { return; }
+        style = action[1];
+    }
+    if ( mq === undefined && style === undefined ) { return; }
+    if ( mq === undefined ) {
+        return `${pfilter.selector}\n{${style}}`;
+    }
+    if ( style === undefined ) {
+        return `@media ${mq} {\n${pfilter.selector}\n{display:none!important;}\n}`;
+    }
+    return `@media ${mq} {\n${pfilter.selector}\n{${style}}\n}`;
+};
+
+/******************************************************************************/
+
 FilterContainer.prototype.retrieveGenericSelectors = function(request) {
     if ( this.acceptedCount === 0 ) { return; }
     if ( !request.ids && !request.classes ) { return; }
@@ -979,6 +1006,8 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         domain: request.domain,
         exceptionFilters: [],
         exceptedFilters: [],
+        proceduralFilters: [],
+        convertedProceduralFilters: [],
         noDOMSurveying: this.needDOMSurveyor === false,
         fake:[] // ADN
     };
@@ -1056,19 +1085,13 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
         // we extract and inject them immediately.
         if ( proceduralSet.size !== 0 ) {
             for ( const json of proceduralSet ) {
-                const pfilter = JSON.parse(json);
-                if ( pfilter.tasks === undefined ) {
-                    const { action } = pfilter;
-                    if ( action !== undefined && action[0] === ':style' ) {
-                        if (!µb.hiddenSettings.showAdsDebug) injectedCSS.push(`${pfilter.selector}\n{${action[1]}}`); // Adn
-                        proceduralSet.delete(json);
-                        continue;
-                    }
-                }
+                const cssRule = this.cssRuleFromProcedural(json);
+                if ( cssRule === undefined ) { continue; }
+                if (!µb.hiddenSettings.showAdsDebug)injectedCSS.push(cssRule);
+                proceduralSet.delete(json);
+                out.convertedProceduralFilters.push(json);
             }
-            if ( proceduralSet.size !== 0 ) {
-                out.proceduralFilters = Array.from(proceduralSet);
-            }
+            out.proceduralFilters.push(...proceduralSet);
         }
 
         // Highly generic cosmetic filters: sent once along with specific ones.
