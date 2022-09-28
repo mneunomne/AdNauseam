@@ -352,7 +352,7 @@ const isDNTDomain = function(domain) { // ADN
 }
 
 const parseLogEntry = function(details) {
-    // Patch realm until changed all over codebase to make this unecessary
+    // Patch realm until changed all over codebase to make this unnecessary
     if ( details.realm === 'cosmetic' ) {
         details.realm = 'extended';
     }
@@ -508,7 +508,7 @@ const viewPort = (( ) => {
         vwContent.style.top = `${lastTopPix}px`;
     };
 
-    // Coallesce scroll events
+    // Coalesce scroll events
     const onScroll = function() {
         if ( scrollTimer !== undefined ) { return; }
         scrollTimer = setTimeout(
@@ -1411,7 +1411,7 @@ const reloadTab = function(ev) {
             return;
         }
 
-        // Hightlight corresponding element in target web page
+        // Highlight corresponding element in target web page
         if ( tcl.contains('picker') ) {
             ev.stopPropagation();
             messaging.send('loggerUI', {

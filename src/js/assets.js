@@ -348,8 +348,8 @@ assets.fetchFilterList = async function(mainlistURL) {
 
 **/
 
-let assetSourceRegistryPromise,
-    assetSourceRegistry = Object.create(null);
+let assetSourceRegistryPromise;
+let assetSourceRegistry = Object.create(null);
 
 const getAssetSourceRegistry = function() {
     if ( assetSourceRegistryPromise === undefined ) {
@@ -439,7 +439,7 @@ const saveAssetSourceRegistry = (( ) => {
     };
 })();
 
-const updateAssetSourceRegistry = function(json, silent) {
+const updateAssetSourceRegistry = function(json, silent = false) {
     let newDict;
     try {
         newDict = JSON.parse(json);

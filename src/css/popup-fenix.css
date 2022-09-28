@@ -191,6 +191,10 @@ body.needSave #revertRules {
     unicode-bidi: embed;
     visibility: hidden;
     }
+.toolRibbon .tool:hover {
+    color: var(--ink-1);
+        fill: var(--ink-1);
+    }
 .toolRibbon .tool.enabled {
     visibility: visible;
     }
@@ -641,7 +645,6 @@ body:not([data-more~="e"]) [data-more="e"] {
     }
 :root.portrait #main {
     max-width: unset;
-    min-width: unset;
     }
 :root.portrait #firewall {
     max-height: unset;

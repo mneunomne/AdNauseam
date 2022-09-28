@@ -97,7 +97,7 @@
   The domFilterer makes use of platform-dependent user stylesheets[1].
 
   [1] "user stylesheets" refer to local CSS rules which have priority over,
-       and can't be overriden by a web page's own CSS rules.
+       and can't be overridden by a web page's own CSS rules.
 
 */
 
@@ -687,11 +687,6 @@ vAPI.DOMFilterer = class {
 
     getAllExceptionSelectors() {
         return this.exceptions.join(',\n');
-    }
-
-    unwrapSelector(s) {
-        const match = /^:is\((.+)\):not\(html,body\)\/\*hg\*\/$/.exec(s);
-        return match !== null ? match[1] : s;
     }
 };
 

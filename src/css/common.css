@@ -620,7 +620,7 @@ body {
 code, .code {
     background-color: var(--button-surface);
     font-family: monospace;
-    font-size: smaller;
+    font-size: var(--monospace-size);
     padding: 2px 4px;
     }
 hr {
