@@ -50,14 +50,14 @@
       owner: 'dhowe',
       repo: 'AdNauseam'
     });
+    
+    if (result.status == 200) {
+      const version = result.data.filter(r => !r.prerelease)[0].name;
+      elements.forEach(el => {
+        el.textContent = version;
+      })
+    }
 
-    console.log("result", result)
-
-    const version = result.data[0].name;
-
-    elements.forEach(el => {
-      el.textContent = version;
-    })
     </script>
 
   <script type="text/javascript">
