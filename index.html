@@ -35,6 +35,31 @@
   <meta name="twitter:title" content="AdNauseam - Clicking Ads So You Don't Have To">
   <meta name="twitter:description" content="A browser extension that clicks on every blocked ad to fight advertising surveillance.">
   <meta name="twitter:image:src" content="http://adnauseam.io/img/adnauseam.png">
+
+  <script type="module">
+    import { Octokit } from "https://cdn.skypack.dev/@octokit/core";
+
+    var elements = document.querySelectorAll('.install-link')
+
+    // https://github.com/octokit/core.js#readme
+    const octokit = new Octokit({
+      auth: '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'
+    })
+
+    const result = await octokit.request('GET /repos/dhowe/AdNauseam/releases', {
+      owner: 'dhowe',
+      repo: 'AdNauseam'
+    }, function (data) {
+      console.log("data", data)
+    })
+
+    const version = result.data[0].name
+
+    elements.forEach(el => {
+      el.textContent = version
+    })
+    </script>
+
   <script type="text/javascript">
     var openInTab = function(url) {
       if (url.indexOf("twitter") > 0 && $('#twitter a').attr('href') == '#') {
@@ -79,11 +104,13 @@
         <div id="install" class="ani-right">
           <span>also available for:</span>
           <a id="installFirefox" href="https://addons.mozilla.org/en-US/firefox/addon/adnauseam/"
-              title="Install AdNauseam for Firefox" class="passive inst-moz" target="blank">Install AdNauseam 3.14</a>
+              title="Install AdNauseam for Firefox" class="passive inst-moz" target="blank">Install AdNauseam <span class="install-link">3.14.5</span></a>
           <a id="installChrome" href="https://github.com/dhowe/AdNauseam/wiki/Install-AdNauseam-on-Chromium-based-browsers" target="_blank"
-              title="Install AdNauseam for Chrome" class="inst-chr" target="blank">Install AdNauseam 3.14</a>
+              title="Install AdNauseam for Chrome" class="inst-chr" target="blank">Install AdNauseam <span class="install-link">3.14.5</span></a>
           <a id="installOpera" href="https://addons.opera.com/en/extensions/details/adnauseam-2/"
-              title="Install AdNauseam for Opera" class="passive inst-opr" target="blank">Install AdNauseam 3.14</a>
+              title="Install AdNauseam for Opera" class="passive inst-opr" target="blank">Install AdNauseam <span class="install-link">3.14.5</span></a>
+          <a id="installEdge" href="https://microsoftedge.microsoft.com/addons/detail/adnauseam/mlojlfildnehdpnlmpkeiiglhhkofhpb"
+              title="Install AdNauseam for Edge" class="passive inst-edg" target="blank">Install AdNauseam <span class="install-link">3.14.5</span></a>
         </div>
 
         <section>

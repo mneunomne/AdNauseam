@@ -1,5 +1,18 @@
 $(document).ready(function () {
 
+
+  var browserName = (function (agent) {
+    switch (true) {
+      case agent.indexOf("edge") > -1: return "Edge";
+      case agent.indexOf("edg/") > -1: return "Edge"; // Match also / to avoid matching for the older Edge
+      case agent.indexOf("opr") > -1 && !!window.opr: return "Opera";
+      case agent.indexOf("chrome") > -1 && !!window.chrome: return "Chrome";
+      case agent.indexOf("trident") > -1: return "ie";
+      case agent.indexOf("firefox") > -1: return "Firefox";
+      case agent.indexOf("safari") > -1: return "Safari";
+      default: return "other";
+    }
+  })(window.navigator.userAgent.toLowerCase());
   var original;
 
   var openInTab = function (url) {
@@ -20,13 +33,36 @@ $(document).ready(function () {
   $("#install a").addClass('passive');
 
   if (typeof bowser !== 'undefined') { // not for press page 
-    var sel = $("#install" + bowser.name);
+    console.log(browserName);
+    var sel = $("#install" + browserName);
     if (!sel.length) sel = $("#installChrome");
     sel.removeClass('passive');
 
-    if (bowser.name === 'Opera') {
+    if (browserName === 'Edge') {
       $("#installChrome").css('right', '0px');
+      $("#installOpera").css('right', '40px');
+      $("#installFirefox").css('right', '80px');
     }
+
+    else if (browserName === 'FireFox') {
+      $("#installChrome").css('right', '0px');
+      $("#installOpera").css('right', '40px');
+      $("#installEdge").css('right', '80px');
+    }
+
+    else if (browserName === 'Chrome') {
+      $("#installFirefox").css('right', '0px');
+      $("#installOpera").css('right', '40px');
+      $("#installEdge").css('right', '80px');
+    }
+
+    else if (browserName === 'Opera') {
+      $("#installFirefox").css('right', '0px');
+      $("#installChrome").css('right', '40px');
+      $("#installEdge").css('right', '80px');
+    }
+
+
   }
 
   var bannedDate = new Date("Jan 1, 2017 00:00:00").getTime();
