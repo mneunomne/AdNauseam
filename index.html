@@ -39,24 +39,24 @@
   <script type="module">
     import { Octokit } from "https://cdn.skypack.dev/@octokit/core";
 
-    var elements = document.querySelectorAll('.install-link')
+    var elements = document.querySelectorAll('.install-link');
 
     // https://github.com/octokit/core.js#readme
     const octokit = new Octokit({
-      auth: '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'
-    })
+      auth: ''
+    });
 
     const result = await octokit.request('GET /repos/dhowe/AdNauseam/releases', {
       owner: 'dhowe',
       repo: 'AdNauseam'
-    }, function (data) {
-      console.log("data", data)
-    })
+    });
 
-    const version = result.data[0].name
+    console.log("result", result)
+
+    const version = result.data[0].name;
 
     elements.forEach(el => {
-      el.textContent = version
+      el.textContent = version;
     })
     </script>
 

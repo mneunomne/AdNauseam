@@ -33,7 +33,6 @@ $(document).ready(function () {
   $("#install a").addClass('passive');
 
   if (typeof bowser !== 'undefined') { // not for press page 
-    console.log(browserName);
     var sel = $("#install" + browserName);
     if (!sel.length) sel = $("#installChrome");
     sel.removeClass('passive');
@@ -61,8 +60,6 @@ $(document).ready(function () {
       $("#installChrome").css('right', '40px');
       $("#installEdge").css('right', '80px');
     }
-
-
   }
 
   var bannedDate = new Date("Jan 1, 2017 00:00:00").getTime();
