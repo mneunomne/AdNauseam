@@ -121,7 +121,7 @@ const onMessage = function(request, sender, callback) {
         return;
 
     case 'listsFromCosmeticFilter':
-        staticFilteringReverseLookup.fromCosmeticFilter(
+        staticFilteringReverseLookup.fromExtendedFilter(
             request
         ).then(response => {
             callback(response);
@@ -700,7 +700,7 @@ const retrieveContentScriptParameters = async function(sender, request) {
         µb.canInjectScriptletsNow === false ||
         isNetworkURI(sender.frameURL) === false
     ) {
-        response.scriptlets = scriptletFilteringEngine.retrieve(request);
+        scriptletFilteringEngine.injectNow(request);
     }
 
     // https://github.com/NanoMeow/QuickReports/issues/6#issuecomment-414516623
