@@ -213,7 +213,7 @@ section p a:visited {
   display: block;
   position: absolute;
   top: -30px;
-  right: 5px;
+  right: -5px;
   background-size: 80px 80px;
 }
 
@@ -230,37 +230,38 @@ section p a:visited {
   right: 50px;
 }
 
-#install > a.passive:last-of-type{
-  right: 0;
-}
 
 #install > a.passive::after{
   content: "";
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   display: block;
   top: 0;
   right: 0;
-  background-size: 40px 40px;
+  background-size: 30px 30px;
 }
 
 #install > a.inst-moz::after{
-  background-image: url(../img/firefox-logo@2x.png);
+  background-image: url(../img/firefox-logo%402x.png);
 }
 
 #install > a.inst-chr::after{
-  background-image: url(../img/chrome-logo@2x.png);
+  background-image: url(../img/chrome-logo%402x.png);
 }
 
 #install > a.inst-opr::after{
-  background-image: url(../img/opera-logo@2x.png);
+  background-image: url(../img/opera-logo%402x.png);
+}
+
+#install > a.inst-edg::after{
+  background-image: url(../img/edgelogo.png);
 }
 
 #install > span{
   top: 76px;
   display: block;
   position: absolute;
-  right: 100px;
+  right: 130px;
 }
 #how-to-install {
   font-size: 0.8em;
@@ -694,13 +695,13 @@ header h2{
   font-size:24px;
   font-family: "bebas_neue";
   background-color:black;
-  padding:20px 15px;
+  padding:20px 15px;;
   height:230px;
 }
 #support b{
   color:#BD10E0;
   font-size:32px;
-  margin:5px 0;
+  margin:5px; 0;
   display: inline-block;
   line-height: 36px;
 }
