@@ -28,7 +28,7 @@ cp platform/chromium/*.html        $DES/
 [[ -e $DES/_locales/nb ]] && cp -R $DES/_locales/nb $DES/_locales/no
 
 echo "*** AdNauseam: Generating meta..."
-python tools/make-chromium-meta.py $DES/
+python3 tools/make-chromium-meta.py $DES/
 
 if [ "$1" = all ]; then
     echo "*** AdNauseam.chromium: Creating package..."
