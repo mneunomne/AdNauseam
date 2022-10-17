@@ -19,7 +19,7 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* globals CSSStyleSheet, document */
+/* globals document */
 
 'use strict';
 
@@ -1332,27 +1332,48 @@ Parser.prototype.SelectorCompiler = class {
             [ 'matches-css-after', ':matches-css-after' ],
             [ 'matches-css-before', ':matches-css-before' ],
         ]);
-        this.reSimpleSelector = /^[#.]?[A-Za-z_][\w-]*$/;
-        // https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet#browser_compatibility
-        //   Firefox does not support constructor for CSSStyleSheet
-        this.stylesheet = (( ) => {
-            if ( typeof document !== 'object' ) { return null; }
-            if ( document instanceof Object === false ) { return null; }
+
+        // Use a regex for most common CSS selectors known to be valid in any
+        // context.
+        const cssIdentifier = '[A-Za-z_][\\w-]*';
+        const cssClassOrId = `[.#]${cssIdentifier}`;
+        const cssAttribute = `\\[${cssIdentifier}[*^$]?="[^"\\]\\\\]+"\\]`;
+        const cssSimple =
+            '(?:' +
+            `${cssIdentifier}(?:${cssClassOrId})*(?:${cssAttribute})*` + '|' +
+            `${cssClassOrId}(?:${cssClassOrId})*(?:${cssAttribute})*` + '|' +
+            `${cssAttribute}(?:${cssAttribute})*` +
+            ')';
+        const cssCombinator = '(?:\\s+|\\s*[>+~]\\s*)';
+        this.reCommonSelector = new RegExp(
+            `^${cssSimple}(?:${cssCombinator}${cssSimple})*$`
+        );
+        // Resulting regex literal:
+        // ^(?:[A-Za-z_][\w-]*(?:[.#][A-Za-z_][\w-]*)*(?:\[[A-Za-z_][\w-]*[*^$]?="[^"\]\\]+"\])*|[.#][A-Za-z_][\w-]*(?:[.#][A-Za-z_][\w-]*)*(?:\[[A-Za-z_][\w-]*[*^$]?="[^"\]\\]+"\])*|\[[A-Za-z_][\w-]*[*^$]?="[^"\]\\]+"\](?:\[[A-Za-z_][\w-]*[*^$]?="[^"\]\\]+"\])*)(?:(?:\s+|\s*[>+~]\s*)(?:[A-Za-z_][\w-]*(?:[.#][A-Za-z_][\w-]*)*(?:\[[A-Za-z_][\w-]*[*^$]?="[^"\]\\]+"\])*|[.#][A-Za-z_][\w-]*(?:[.#][A-Za-z_][\w-]*)*(?:\[[A-Za-z_][\w-]*[*^$]?="[^"\]\\]+"\])*|\[[A-Za-z_][\w-]*[*^$]?="[^"\]\\]+"\](?:\[[A-Za-z_][\w-]*[*^$]?="[^"\]\\]+"\])*))*$
+
+        // We use an actual stylesheet to validate uncommon CSS selectors and
+        // CSS properties which can be used in a CSS declaration.
+        this.cssValidatorElement = null;
+        (( ) => {
+            if ( typeof document !== 'object' ) { return; }
+            if ( document === null ) { return; }
             try {
-                return new CSSStyleSheet();
+                const styleElement = document.createElement('style');
+                styleElement.appendChild(document.createTextNode(' '));
+                document.body.append(styleElement);
+                this.cssValidatorElement = styleElement;
             } catch(ex) {
             }
-            const style = document.createElement('style');
-            document.body.append(style);
-            const stylesheet = style.sheet;
-            style.remove();
-            return stylesheet;
         })();
+
+        // We use an HTML element to validate selectors which are
+        // querySelector-able.
         this.div = (( ) => {
             if ( typeof document !== 'object' ) { return null; }
             if ( document instanceof Object === false ) { return null; }
             return document.createElement('div');
         })();
+
         this.reProceduralOperator = new RegExp([
             '^(?:',
             Array.from(parser.proceduralOperatorTokens.keys()).join('|'),
@@ -1363,6 +1384,7 @@ Parser.prototype.SelectorCompiler = class {
         this.reDropScope = /^\s*:scope\s*(?=[+>~])/;
         this.reIsDanglingSelector = /[+>~\s]\s*$/;
         this.reIsCombinator = /^\s*[+>~]/;
+        this.reForgivingOps = /:has\(/;
         this.regexToRawValue = new Map();
         // https://github.com/gorhill/uBlock/issues/2793
         this.normalizedOperators = new Map([
@@ -1395,7 +1417,15 @@ Parser.prototype.SelectorCompiler = class {
         }
 
         // Can be used in a declarative CSS rule?
-        if ( asProcedural === false && this.sheetSelectable(raw) ) {
+        // https://github.com/uBlockOrigin/uBlock-issues/issues/2228
+        //   Some operators are forgiving, so we need to exclude them for now
+        //   as potentially declarative selectors until we validate that their
+        //   arguments are themselves valid plain CSS selector.
+        if (
+            asProcedural === false &&
+            this.reForgivingOps.test(raw) === false &&
+            this.sheetSelectable(raw)
+        ) {
             out.compiled = raw;
             return true;
         }
@@ -1423,7 +1453,7 @@ Parser.prototype.SelectorCompiler = class {
         }
 
         // Procedural selector?
-        const compiled = this.compileProceduralSelector(raw);
+        const compiled = this.compileProceduralSelector(raw, asProcedural);
         if ( compiled === undefined ) { return false; }
 
         out.compiled =
@@ -1466,27 +1496,31 @@ Parser.prototype.SelectorCompiler = class {
     //   selector is declarative or not.
     // https://github.com/uBlockOrigin/uBlock-issues/issues/1806#issuecomment-963278382
     //   Forbid multiple and unexpected CSS style declarations.
+    // https://github.com/uBlockOrigin/uBlock-issues/issues/2170#issuecomment-1207921464
+    //   Assigning text content to the `style` element resets the `disabled`
+    //   state of the sheet, so we need to explicitly disable it each time we
+    //   assign new text.
     sheetSelectable(s) {
-        if ( this.reSimpleSelector.test(s) ) { return true; }
-        if ( this.stylesheet === null ) { return true; }
+        if ( this.reCommonSelector.test(s) ) { return true; }
+        if ( this.cssValidatorElement === null ) { return true; }
+        let valid = false;
         try {
-            this.stylesheet.insertRule(`${s}{color:red}`);
-            if ( this.stylesheet.cssRules.length !== 1 ) { return false; }
-            const style = this.stylesheet.cssRules[0].style;
-            if ( style.length !== 1 ) { return false; }
-            if ( style.getPropertyValue('color') !== 'red' ) { return false; }
-            this.stylesheet.deleteRule(0);
+            this.cssValidatorElement.childNodes[0].nodeValue = `_z + ${s}{color:red;} _z{color:red;}`;
+            this.cssValidatorElement.sheet.disabled =  true;
+            const rules = this.cssValidatorElement.sheet.cssRules;
+            valid = rules.length === 2 &&
+                rules[0].style.cssText !== '' &&
+                rules[1].style.cssText !== '';
         } catch (ex) {
-            return false;
         }
-        return true;
+        return valid;
     }
 
     // https://github.com/uBlockOrigin/uBlock-issues/issues/1806
     //   Forbid instances of:
     //   - opening comment `/*`
     querySelectable(s) {
-        if ( this.reSimpleSelector.test(s) ) { return true; }
+        if ( this.reCommonSelector.test(s) ) { return true; }
         if ( this.div === null ) { return true; }
         try {
             this.div.querySelector(`${s},${s}:not(#foo)`);
@@ -1497,9 +1531,12 @@ Parser.prototype.SelectorCompiler = class {
         return true;
     }
 
-    compileProceduralSelector(raw) {
-        const compiled = this.compileProcedural(raw, true);
+    compileProceduralSelector(raw, asProcedural = false) {
+        const compiled = this.compileProcedural(raw, true, asProcedural);
         if ( compiled !== undefined ) {
+            if ( asProcedural ) {
+                this.optimizeCompiledProcedural(compiled);
+            }
             compiled.raw = this.decompileProcedural(compiled);
         }
         return compiled;
@@ -1561,6 +1598,18 @@ Parser.prototype.SelectorCompiler = class {
         return n;
     }
 
+    compileMediaQuery(s) {
+        if ( typeof self !== 'object' ) { return; }
+        if ( self === null ) { return; }
+        if ( typeof self.matchMedia !== 'function' ) { return; }
+        try {
+            const mql = self.matchMedia(s);
+            if ( mql instanceof self.MediaQueryList === false ) { return; }
+            if ( mql.media !== 'not all' ) { return s; }
+        } catch(ex) {
+        }
+    }
+
     // https://github.com/uBlockOrigin/uBlock-issues/issues/341#issuecomment-447603588
     //   Reject instances of :not() filters for which the argument is
     //   a valid CSS selector, otherwise we would be adversely changing the
@@ -1569,6 +1618,7 @@ Parser.prototype.SelectorCompiler = class {
         if ( this.querySelectable(s) === false ) {
             return this.compileProcedural(s);
         }
+        return s;
     }
 
     compileUpwardArgument(s) {
@@ -1600,17 +1650,16 @@ Parser.prototype.SelectorCompiler = class {
     //   - opening comment `/*`
     compileStyleProperties(s) {
         if ( /image-set\(|url\(|\/\s*\/|\\|\/\*/i.test(s) ) { return; }
-        if ( this.stylesheet === null ) { return s; }
+        if ( this.cssValidatorElement === null ) { return s; }
         let valid = false;
         try {
-            this.stylesheet.insertRule(`a{${s}}`);
-            const rules = this.stylesheet.cssRules;
-            valid = rules.length !== 0 && rules[0].style.cssText !== '';
+            this.cssValidatorElement.childNodes[0].nodeValue = `_z{${s}} _z{color:red;}`;
+            this.cssValidatorElement.sheet.disabled =  true;
+            const rules = this.cssValidatorElement.sheet.cssRules;
+            valid = rules.length >= 2 &&
+                rules[0].style.cssText !== '' &&
+                rules[1].style.cssText !== '';
         } catch(ex) {
-            return;
-        }
-        if ( this.stylesheet.cssRules.length !== 0 ) {
-            this.stylesheet.deleteRule(0);
         }
         if ( valid ) { return s; }
     }
@@ -1635,6 +1684,31 @@ Parser.prototype.SelectorCompiler = class {
         return s;
     }
 
+    optimizeCompiledProcedural(compiled) {
+        if ( typeof compiled === 'string' ) { return; }
+        if ( Array.isArray(compiled.tasks) === false ) { return; }
+        const tasks = [];
+        let selector = compiled.selector;
+        for ( const task of compiled.tasks ) {
+            switch ( task[0] ) {
+            case ':not':
+            case ':if-not':
+                this.optimizeCompiledProcedural(task[1]);
+                if ( tasks.length === 0 && typeof task[1] === 'string' ) {
+                    selector += `:not(${task[1]})`;
+                    break;
+                }
+                tasks.push(task);
+                break;
+            default:
+                tasks.push(task);
+                break;
+            }
+        }
+        compiled.selector = selector;
+        compiled.tasks = tasks.length !== 0 ? tasks : undefined;
+    }
+
     // https://github.com/gorhill/uBlock/issues/2793#issuecomment-333269387
     //   Normalize (somewhat) the stringified version of procedural
     //   cosmetic filters -- this increase the likelihood of detecting
@@ -1643,6 +1717,7 @@ Parser.prototype.SelectorCompiler = class {
     //   The normalized string version is what is reported in the logger,
     //   by design.
     decompileProcedural(compiled) {
+        if ( typeof compiled === 'string' ) { return compiled; }
         const tasks = compiled.tasks || [];
         const raw = [ compiled.selector ];
         for ( const task of tasks ) {
@@ -1679,11 +1754,16 @@ Parser.prototype.SelectorCompiler = class {
                 break;
             case ':not':
             case ':if-not':
+                if ( typeof(task[1]) === 'string' ) {
+                    raw.push(`:not(${task[1]})`);
+                    break;
+                }
                 raw.push(`:not(${this.decompileProcedural(task[1])})`);
                 break;
             case ':spath':
                 raw.push(task[1]);
                 break;
+            case ':matches-media':
             case ':min-text-length':
             case ':others':
             case ':upward':
@@ -1700,7 +1780,7 @@ Parser.prototype.SelectorCompiler = class {
         return raw.join('');
     }
 
-    compileProcedural(raw, root = false) {
+    compileProcedural(raw, root = false, asProcedural = false) {
         if ( raw === '' ) { return; }
 
         const tasks = [];
@@ -1744,20 +1824,28 @@ Parser.prototype.SelectorCompiler = class {
             // Unbalanced parenthesis? An unbalanced parenthesis is fine
             // as long as the last character is a closing parenthesis.
             if ( pcnt !== 0 && c !== 0x29 ) { return; }
+            // Extract and remember operator/argument details.
+            const opname = raw.slice(opNameBeg, opNameEnd);
+            const oparg = raw.slice(opNameEnd + 1, i - 1);
+            const operator = this.normalizedOperators.get(opname) || opname;
             // https://github.com/uBlockOrigin/uBlock-issues/issues/341#issuecomment-447603588
             //   Maybe that one operator is a valid CSS selector and if so,
             //   then consider it to be part of the prefix.
-            if ( this.querySelectable(raw.slice(opNameBeg, i)) ) { continue; }
-            // Extract and remember operator details.
-            let operator = raw.slice(opNameBeg, opNameEnd);
-            operator = this.normalizedOperators.get(operator) || operator;
+            // https://github.com/uBlockOrigin/uBlock-issues/issues/2228
+            //   Maybe an operator is a valid CSS selector, but if it is
+            //   "forgiving", we also need to validate that the argument itself
+            //   is also a valid CSS selector.
+            if (
+                asProcedural === false &&
+                this.querySelectable(raw.slice(opNameBeg, i)) &&
+                this.querySelectable(oparg)
+            ) {
+                continue;
+            }
             // Action operator can only be used as trailing operator in the
             // root task list.
             // Per-operator arguments validation
-            const args = this.compileArgument(
-                operator,
-                raw.slice(opNameEnd + 1, i - 1)
-            );
+            const args = this.compileArgument(operator, oparg);
             if ( args === undefined ) { return; }
             if ( opPrefixBeg === 0 ) {
                 prefix = raw.slice(0, opNameBeg);
@@ -1781,22 +1869,25 @@ Parser.prototype.SelectorCompiler = class {
             if ( i === n ) { break; }
         }
 
+        // When there is an explicit action, nothing should be left to parse.
+        if ( action !== undefined && opPrefixBeg < n ) { return; }
+
         // No task found: then we have a CSS selector.
-        // At least one task found: nothing should be left to parse.
+        // At least one task found: either nothing or a valid plain CSS selector
+        // should be left to parse
         if ( tasks.length === 0 ) {
             if ( action === undefined ) {
                 prefix = raw;
             }
             if ( root && this.sheetSelectable(prefix) ) {
                 if ( action === undefined ) {
-                    return { selector: prefix };
+                    return { selector: prefix, cssable: true };
                 } else if ( action[0] === ':style' ) {
-                    return { selector: prefix, action };
+                    return { selector: prefix, cssable: true, action };
                 }
             }
 
         } else if ( opPrefixBeg < n ) {
-            if ( action !== undefined ) { return; }
             const spath = this.compileSpathExpression(raw.slice(opPrefixBeg));
             if ( spath === undefined ) { return; }
             tasks.push([ ':spath', spath ]);
@@ -1838,6 +1929,19 @@ Parser.prototype.SelectorCompiler = class {
             out.action = action;
         }
 
+        // Flag to quickly find out whether the filter can be converted into
+        // a declarative CSS rule.
+        if (
+            root &&
+            (action === undefined || action[0] === ':style') &&
+            (
+                tasks.length === 0 ||
+                tasks.length === 1 && tasks[0][0] === ':matches-media'
+            )
+        ) {
+            out.cssable = this.sheetSelectable(prefix);
+        }
+
         return out;
     }
 
@@ -1857,6 +1961,8 @@ Parser.prototype.SelectorCompiler = class {
             return this.compileCSSDeclaration(args);
         case ':matches-css-before':
             return this.compileCSSDeclaration(args);
+        case ':matches-media':
+            return this.compileMediaQuery(args);
         case ':matches-path':
             return this.compileText(args);
         case ':min-text-length':
@@ -1897,7 +2003,8 @@ Parser.prototype.proceduralOperatorTokens = new Map([
     [ 'matches-css', 0b11 ],
     [ 'matches-css-after', 0b11 ],
     [ 'matches-css-before', 0b11 ],
-    [ 'matches-path', 0b01 ],
+    [ 'matches-media', 0b11 ],
+    [ 'matches-path', 0b11 ],
     [ 'min-text-length', 0b01 ],
     [ 'not', 0b01 ],
     [ 'nth-ancestor', 0b00 ],

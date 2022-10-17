@@ -56,6 +56,6 @@ rm $DES/lib/publicsuffixlist/wasm/*.wat
 awk -v s=$VERSION '{gsub(/"{version}"/, s)}1' $DES/manifest.json > /tmp/manifest.json && mv /tmp/manifest.json $DES/manifest.json #ADN
 
 echo "*** AdNauseam.opera: Generating meta..."
-python tools/make-opera-meta.py $DES/
+python3 tools/make-opera-meta.py $DES/
 
 echo "*** AdNauseam.opera: Package done."
