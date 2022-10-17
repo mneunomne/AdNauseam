@@ -1384,6 +1384,7 @@ Parser.prototype.SelectorCompiler = class {
         this.reDropScope = /^\s*:scope\s*(?=[+>~])/;
         this.reIsDanglingSelector = /[+>~\s]\s*$/;
         this.reIsCombinator = /^\s*[+>~]/;
+        this.reForgivingOps = /:has\(/;
         this.regexToRawValue = new Map();
         // https://github.com/gorhill/uBlock/issues/2793
         this.normalizedOperators = new Map([
@@ -1416,7 +1417,15 @@ Parser.prototype.SelectorCompiler = class {
         }
 
         // Can be used in a declarative CSS rule?
-        if ( asProcedural === false && this.sheetSelectable(raw) ) {
+        // https://github.com/uBlockOrigin/uBlock-issues/issues/2228
+        //   Some operators are forgiving, so we need to exclude them for now
+        //   as potentially declarative selectors until we validate that their
+        //   arguments are themselves valid plain CSS selector.
+        if (
+            asProcedural === false &&
+            this.reForgivingOps.test(raw) === false &&
+            this.sheetSelectable(raw)
+        ) {
             out.compiled = raw;
             return true;
         }
@@ -1444,7 +1453,7 @@ Parser.prototype.SelectorCompiler = class {
         }
 
         // Procedural selector?
-        const compiled = this.compileProceduralSelector(raw);
+        const compiled = this.compileProceduralSelector(raw, asProcedural);
         if ( compiled === undefined ) { return false; }
 
         out.compiled =
@@ -1522,9 +1531,12 @@ Parser.prototype.SelectorCompiler = class {
         return true;
     }
 
-    compileProceduralSelector(raw) {
-        const compiled = this.compileProcedural(raw, true);
+    compileProceduralSelector(raw, asProcedural = false) {
+        const compiled = this.compileProcedural(raw, true, asProcedural);
         if ( compiled !== undefined ) {
+            if ( asProcedural ) {
+                this.optimizeCompiledProcedural(compiled);
+            }
             compiled.raw = this.decompileProcedural(compiled);
         }
         return compiled;
@@ -1606,6 +1618,7 @@ Parser.prototype.SelectorCompiler = class {
         if ( this.querySelectable(s) === false ) {
             return this.compileProcedural(s);
         }
+        return s;
     }
 
     compileUpwardArgument(s) {
@@ -1671,6 +1684,31 @@ Parser.prototype.SelectorCompiler = class {
         return s;
     }
 
+    optimizeCompiledProcedural(compiled) {
+        if ( typeof compiled === 'string' ) { return; }
+        if ( Array.isArray(compiled.tasks) === false ) { return; }
+        const tasks = [];
+        let selector = compiled.selector;
+        for ( const task of compiled.tasks ) {
+            switch ( task[0] ) {
+            case ':not':
+            case ':if-not':
+                this.optimizeCompiledProcedural(task[1]);
+                if ( tasks.length === 0 && typeof task[1] === 'string' ) {
+                    selector += `:not(${task[1]})`;
+                    break;
+                }
+                tasks.push(task);
+                break;
+            default:
+                tasks.push(task);
+                break;
+            }
+        }
+        compiled.selector = selector;
+        compiled.tasks = tasks.length !== 0 ? tasks : undefined;
+    }
+
     // https://github.com/gorhill/uBlock/issues/2793#issuecomment-333269387
     //   Normalize (somewhat) the stringified version of procedural
     //   cosmetic filters -- this increase the likelihood of detecting
@@ -1679,6 +1717,7 @@ Parser.prototype.SelectorCompiler = class {
     //   The normalized string version is what is reported in the logger,
     //   by design.
     decompileProcedural(compiled) {
+        if ( typeof compiled === 'string' ) { return compiled; }
         const tasks = compiled.tasks || [];
         const raw = [ compiled.selector ];
         for ( const task of tasks ) {
@@ -1715,6 +1754,10 @@ Parser.prototype.SelectorCompiler = class {
                 break;
             case ':not':
             case ':if-not':
+                if ( typeof(task[1]) === 'string' ) {
+                    raw.push(`:not(${task[1]})`);
+                    break;
+                }
                 raw.push(`:not(${this.decompileProcedural(task[1])})`);
                 break;
             case ':spath':
@@ -1737,7 +1780,7 @@ Parser.prototype.SelectorCompiler = class {
         return raw.join('');
     }
 
-    compileProcedural(raw, root = false) {
+    compileProcedural(raw, root = false, asProcedural = false) {
         if ( raw === '' ) { return; }
 
         const tasks = [];
@@ -1781,20 +1824,28 @@ Parser.prototype.SelectorCompiler = class {
             // Unbalanced parenthesis? An unbalanced parenthesis is fine
             // as long as the last character is a closing parenthesis.
             if ( pcnt !== 0 && c !== 0x29 ) { return; }
+            // Extract and remember operator/argument details.
+            const opname = raw.slice(opNameBeg, opNameEnd);
+            const oparg = raw.slice(opNameEnd + 1, i - 1);
+            const operator = this.normalizedOperators.get(opname) || opname;
             // https://github.com/uBlockOrigin/uBlock-issues/issues/341#issuecomment-447603588
             //   Maybe that one operator is a valid CSS selector and if so,
             //   then consider it to be part of the prefix.
-            if ( this.querySelectable(raw.slice(opNameBeg, i)) ) { continue; }
-            // Extract and remember operator details.
-            let operator = raw.slice(opNameBeg, opNameEnd);
-            operator = this.normalizedOperators.get(operator) || operator;
+            // https://github.com/uBlockOrigin/uBlock-issues/issues/2228
+            //   Maybe an operator is a valid CSS selector, but if it is
+            //   "forgiving", we also need to validate that the argument itself
+            //   is also a valid CSS selector.
+            if (
+                asProcedural === false &&
+                this.querySelectable(raw.slice(opNameBeg, i)) &&
+                this.querySelectable(oparg)
+            ) {
+                continue;
+            }
             // Action operator can only be used as trailing operator in the
             // root task list.
             // Per-operator arguments validation
-            const args = this.compileArgument(
-                operator,
-                raw.slice(opNameEnd + 1, i - 1)
-            );
+            const args = this.compileArgument(operator, oparg);
             if ( args === undefined ) { return; }
             if ( opPrefixBeg === 0 ) {
                 prefix = raw.slice(0, opNameBeg);
