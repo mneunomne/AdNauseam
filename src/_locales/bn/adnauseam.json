@@ -164,7 +164,7 @@
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "শীর্ষস্থানীয় বিজ্ঞাপন নেটওয়ার্কসমূহ",
+    "message": "Top Ad Networks",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
@@ -187,6 +187,14 @@
     "message": "এই পৃষ্ঠায় কোনও বিজ্ঞাপন সংগ্রহ করা হয়নি (সাম্প্রতিক দেখানো হয়েছে)",
     "description": "shown in menu when only 'recent' Ads are shown"
   },
+  "adnThisPageStrictBlocked": {
+    "message": "{{domain}} is currently strict-blocked.",
+    "description": "shown in menu when the current page is strict-blocked"
+  },
+  "adnStrictBlockListDescription": {
+    "message": "The strict-block list serves to help the users to strict-block specific domains or pages more easily.",
+    "description": "Description on the strict-block list tab, which is found on the dashboard"
+  },
   "adnExportedAdsFilename": {
     "message": "AdNauseam_Export_{{datetime}}.json",
     "description": "English: AdNauseam file export"
@@ -201,6 +209,10 @@
   },
   "adnClearConfirm": {
     "message": "এই পদক্ষেপ স্থায়ীভাবে আপনার সমস্ত বিজ্ঞাপন সরিয়ে ফেলবে",
+    "description": "appears in ADN settings"
+  },
+  "adnPurgeConfirm": {
+    "message": "This action will permanently remove all ads with load image error. Make sure your internet is connected, otherwise all your ads will be deleted.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -249,7 +261,27 @@
   },
   "adnMenuResume": {
     "message": "পুনঃসূচনা",
-    "description": "appears in ADN popup menu"
+    "description": "appears in ADN popup menu three state button"
+  },
+  "adnMenuDisable": {
+    "message": "নিষ্ক্রিয় করুন",
+    "description": "Disabled Adnauseam -> appears in ADN popup menu three state button"
+  },
+  "adnMenuActive": {
+    "message": "সক্রিয় করুন",
+    "description": "Make Adnauseam Active -> appears in ADN popup menu three state button"
+  },
+  "adnMenuStrict": {
+    "message": "কঠোর",
+    "description": "Activate Strict-Block -> appears in ADN popup menu three state button"
+  },
+  "adnMenuDisableScopeDomain": {
+    "message": "on {{domain}}",
+    "description": "Disable AdNaueam Block On this Domain -> Popup option that appears inside ADN menu"
+  },
+  "adnMenuDisableScopePage": {
+    "message": "এই পেজে",
+    "description": "Disable AdNaueam Block On This Page -> Popup option that appears inside ADN menu"
   },
   "adnMenuSettings": {
     "message": "সেটিংস",
@@ -317,6 +349,10 @@
   },
   "adnVaultClear": {
     "message": "পরিষ্কার",
+    "description": "appears on vault page"
+  },
+  "adnPurgeDeadAds": {
+    "message": "Purge Dead Ads",
     "description": "appears on vault page"
   },
   "adnVaultFound": {
@@ -439,20 +475,28 @@
     "message": "সাদাতালিকা",
     "description": "appears as tab name in dashboard"
   },
+  "strictBlockListPageName": {
+    "message": "Strict-Block List",
+    "description": "appears as tab name in dashboard"
+  },
   "eventLoggingPrompt": {
     "message": "ডিবাগিং মোড সক্রিয় করুন",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
-    "message": "Disable warnings",
+    "message": "সতর্কতা অক্ষম করুন",
     "description": "English:Disable warnings"
+  },
+  "showAdsDebugPrompt": {
+    "message": "Show ads for ad-collection debugging",
+    "description": "English: Show ads for ad-collection debugging"
   },
   "removeAdsInPrivate": {
     "message": "ব্যক্তিগত মোডে সংগৃহীত বিজ্ঞাপনগুলি সরান",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "কঠোর ব্লকিং মোড সক্রিয় করুন",
-    "description": "English: Activate Strict Blocking Mode"
+    "message": "Activate Strict-Blocking Mode",
+    "description": "English: Activate Strict-Blocking Mode"
   }
 }
