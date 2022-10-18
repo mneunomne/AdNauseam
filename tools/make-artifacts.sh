@@ -7,9 +7,25 @@ DO_EDGE=true
 
 OPERA_CRX=true # ADN: problems packaging with Opera app (set false for zip)
 
-CHROME=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
-FIREFOX=/Applications/Firefox.app/Contents/MacOS/firefox-bin
-OPERA=/Applications/Opera.app/Contents/MacOS/Opera 
+# Different Operating Systems
+case "$(uname -sr)" in
+  Darwin*)
+    echo 'Mac OS X'
+    CHROME=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
+    FIREFOX=/Applications/Firefox.app/Contents/MacOS/firefox-bin
+    OPERA=/Applications/Opera.app/Contents/MacOS/Opera 
+    ;;
+  Linux*)
+    echo 'Linux'
+    # to-do 
+    # add here paths for linux
+    ;;
+  CYGWIN*|MINGW*|MINGW32*|MSYS*)
+    echo 'MS Windows'
+    # to-do 
+    # add here paths for windows
+    ;;
+esac
 
 # before running, check for dependencies, if not, exit with error
 hash web-ext 2>/dev/null || { echo >&2 "Webext is not installed. Please do npm install --global web-ext."; exit 1; }
