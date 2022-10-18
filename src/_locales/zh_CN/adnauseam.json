@@ -187,6 +187,14 @@
     "message": "没有在本页收集到广告 (显示最新)",
     "description": "shown in menu when only 'recent' Ads are shown"
   },
+  "adnThisPageStrictBlocked": {
+    "message": "{{domain}} is currently strict-blocked.",
+    "description": "shown in menu when the current page is strict-blocked"
+  },
+  "adnStrictBlockListDescription": {
+    "message": "The strict-block list serves to help the users to strict-block specific domains or pages more easily.",
+    "description": "Description on the strict-block list tab, which is found on the dashboard"
+  },
   "adnExportedAdsFilename": {
     "message": "AdNauseam-已导出的广告_{{datetime}}.json",
     "description": "English: AdNauseam file export"
@@ -201,6 +209,10 @@
   },
   "adnClearConfirm": {
     "message": "该操作会永久移除全部已保存的广告",
+    "description": "appears in ADN settings"
+  },
+  "adnPurgeConfirm": {
+    "message": "This action will permanently remove all ads with load image error. Make sure your internet is connected, otherwise all your ads will be deleted.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -249,7 +261,27 @@
   },
   "adnMenuResume": {
     "message": "恢复 Adnauseam",
-    "description": "appears in ADN popup menu"
+    "description": "appears in ADN popup menu three state button"
+  },
+  "adnMenuDisable": {
+    "message": "停用",
+    "description": "Disabled Adnauseam -> appears in ADN popup menu three state button"
+  },
+  "adnMenuActive": {
+    "message": "正在进行",
+    "description": "Make Adnauseam Active -> appears in ADN popup menu three state button"
+  },
+  "adnMenuStrict": {
+    "message": "严格的",
+    "description": "Activate Strict-Block -> appears in ADN popup menu three state button"
+  },
+  "adnMenuDisableScopeDomain": {
+    "message": "在 {{domain}}",
+    "description": "Disable AdNaueam Block On this Domain -> Popup option that appears inside ADN menu"
+  },
+  "adnMenuDisableScopePage": {
+    "message": "在本页面",
+    "description": "Disable AdNaueam Block On This Page -> Popup option that appears inside ADN menu"
   },
   "adnMenuSettings": {
     "message": "设置",
@@ -317,6 +349,10 @@
   },
   "adnVaultClear": {
     "message": "清空",
+    "description": "appears on vault page"
+  },
+  "adnPurgeDeadAds": {
+    "message": "Purge Dead Ads",
     "description": "appears on vault page"
   },
   "adnVaultFound": {
@@ -439,6 +475,10 @@
     "message": "白名单",
     "description": "appears as tab name in dashboard"
   },
+  "strictBlockListPageName": {
+    "message": "严格屏蔽",
+    "description": "appears as tab name in dashboard"
+  },
   "eventLoggingPrompt": {
     "message": "开启调试模式",
     "description": "prompt for toggle"
@@ -447,12 +487,16 @@
     "message": "disable-warnings",
     "description": "English:Disable warnings"
   },
+  "showAdsDebugPrompt": {
+    "message": "Show ads for ad-collection debugging",
+    "description": "English: Show ads for ad-collection debugging"
+  },
   "removeAdsInPrivate": {
     "message": "移除在无痕模式下收集的广告",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "启用严格屏蔽模式",
-    "description": "English: Activate Strict Blocking Mode"
+    "message": "Activate Strict-Blocking Mode",
+    "description": "English: Activate Strict-Blocking Mode"
   }
 }

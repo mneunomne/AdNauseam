@@ -152,7 +152,7 @@
     "description": "English: Menu->display when paused on page/site"
   },
   "adnNotHiding": {
-    "message": "AdNauseam blendet im Moment keine Werbungen aus",
+    "message": "AdNauseam versteckt derzeit keine Werbungen",
     "description": "English: Menu->display when not hiding Ads"
   },
   "adnVaultName": {
@@ -184,8 +184,16 @@
     "description": "appears in ADN vault/My Statistics"
   },
   "adnShowingRecentAds": {
-    "message": "Keine Werbungen auf dieser Seite",
+    "message": "Keine Werbung auf dieser Seite gesammelt (aktuelle anzeigen)",
     "description": "shown in menu when only 'recent' Ads are shown"
+  },
+  "adnThisPageStrictBlocked": {
+    "message": "{{domain}} ist derzeit strikt blockiert.",
+    "description": "shown in menu when the current page is strict-blocked"
+  },
+  "adnStrictBlockListDescription": {
+    "message": "Die strikte Blockliste hilft den Benutzern, bestimmte Domains oder Seiten einfacher zu blockieren.",
+    "description": "Description on the strict-block list tab, which is found on the dashboard"
   },
   "adnExportedAdsFilename": {
     "message": "AdNauseam_Export_{{datetime}}.json",
@@ -201,6 +209,10 @@
   },
   "adnClearConfirm": {
     "message": "Diese Aktion löscht ALLE ihre Werbungen dauerhaft",
+    "description": "appears in ADN settings"
+  },
+  "adnPurgeConfirm": {
+    "message": "Diese Aktion wird alle Anzeigen mit Ladebild-Fehler dauerhaft entfernen. Stellen Sie sicher, dass Ihr Internet verbunden ist, andernfalls werden alle Ihre Anzeigen gelöscht.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -249,7 +261,27 @@
   },
   "adnMenuResume": {
     "message": "Reaktivieren",
-    "description": "appears in ADN popup menu"
+    "description": "appears in ADN popup menu three state button"
+  },
+  "adnMenuDisable": {
+    "message": "Deaktivieren",
+    "description": "Disabled Adnauseam -> appears in ADN popup menu three state button"
+  },
+  "adnMenuActive": {
+    "message": "Aktiv",
+    "description": "Make Adnauseam Active -> appears in ADN popup menu three state button"
+  },
+  "adnMenuStrict": {
+    "message": "Strikt",
+    "description": "Activate Strict-Block -> appears in ADN popup menu three state button"
+  },
+  "adnMenuDisableScopeDomain": {
+    "message": "am {{domain}}",
+    "description": "Disable AdNaueam Block On this Domain -> Popup option that appears inside ADN menu"
+  },
+  "adnMenuDisableScopePage": {
+    "message": "auf dieser Seite",
+    "description": "Disable AdNaueam Block On This Page -> Popup option that appears inside ADN menu"
   },
   "adnMenuSettings": {
     "message": "Einstellungen",
@@ -317,6 +349,10 @@
   },
   "adnVaultClear": {
     "message": "Lösche",
+    "description": "appears on vault page"
+  },
+  "adnPurgeDeadAds": {
+    "message": "Purge Dead Ads",
     "description": "appears on vault page"
   },
   "adnVaultFound": {
@@ -439,13 +475,21 @@
     "message": "Weiße Liste",
     "description": "appears as tab name in dashboard"
   },
+  "strictBlockListPageName": {
+    "message": "Strict-Block Liste",
+    "description": "appears as tab name in dashboard"
+  },
   "eventLoggingPrompt": {
     "message": "Aktiviere Debugging Modus",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
-    "message": "Disable warnings",
+    "message": "Warnungen deaktivieren",
     "description": "English:Disable warnings"
+  },
+  "showAdsDebugPrompt": {
+    "message": "Anzeigen für das Debuggen der Werbesammlung anzeigen",
+    "description": "English: Show ads for ad-collection debugging"
   },
   "removeAdsInPrivate": {
     "message": "Werbung im privaten Fenster entfernen",
@@ -453,6 +497,6 @@
   },
   "settingsStrictBlockingMode": {
     "message": "Strict Blocking Modus aktivieren",
-    "description": "English: Activate Strict Blocking Mode"
+    "description": "English: Activate Strict-Blocking Mode"
   }
 }
