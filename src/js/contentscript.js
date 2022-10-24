@@ -682,6 +682,13 @@ vAPI.DOMFilterer = class {
                 );
             }
             for ( const json of this.convertedProceduralFilters ) {
+                /* start of Adn exception fetching */ 
+                var instance = this.proceduralFiltererInstance()
+                if (instance == null) {
+                    if (vAPI.prefs.logEvents) console.warn("[ADN] proceduralFiltererInstance null")
+                    break;
+                }
+                /* end of Adn exception fetching */
                 out.procedural.push(
                     this.proceduralFiltererInstance().createProceduralFilter(json)
                 );
@@ -1297,10 +1304,21 @@ const bootstrapPhaseAdn = function () {
         }
         // get all the selectors
         let allSelectors = vAPI.domFilterer.getAllSelectors()
-        if (allSelectors.declarative) {
+        if (allSelectors.declarative && allSelectors.declarative.length > 0) {
             let nodes = document.querySelectorAll(allSelectors.declarative);
             for ( const node of nodes ) {
                 vAPI.adCheck && vAPI.adCheck(node);
+            }
+        }
+
+        if (allSelectors.procedural && allSelectors.procedural.length > 0) {
+            for (var index in allSelectors.procedural) {
+                var filter = allSelectors.procedural[index]
+                if (filter.selector.length == 0) break; 
+                let nodes = document.querySelectorAll(filter.selector);
+                for ( const node of nodes ) {
+                    vAPI.adCheck && vAPI.adCheck(node);
+                }
             }
         }
         bootstrapPhaseAdnCounter++;

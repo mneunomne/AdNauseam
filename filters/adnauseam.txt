@@ -793,7 +793,7 @@ flylordsmag.com##.td-header-header.td-header-row.td-container-header
 # trying to better collect google ads #1906
 #@#.adsbygoogle
 #@#.ads_1
-*##ads_1:style(height: 1px !important)
+*###ads_1:style(height: 1px !important)
 *##.adsbygoogle:style(height: 1px !important)
 
 # Colleting Youtube Banner Ads #1353
