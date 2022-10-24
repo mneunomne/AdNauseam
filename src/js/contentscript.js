@@ -688,7 +688,7 @@ vAPI.DOMFilterer = class {
                     // console.warn("proceduralFiltererInstance error")
                     break;
                 }
-                /* start of Adn exception fetching */
+                /* end of Adn exception fetching */
                 out.procedural.push(
                     this.proceduralFiltererInstance().createProceduralFilter(json)
                 );
