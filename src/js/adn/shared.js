@@ -444,7 +444,7 @@ function reactivateSetting() {
 
   Promise.resolve(
     vAPI.messaging.send('dashboard', {
-      what: ';userSettings',
+      what: 'userSettings',
       name: this.prop,
       value: this.expected
     }),
