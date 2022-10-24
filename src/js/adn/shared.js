@@ -172,9 +172,19 @@ const PrivacyMode = new Notification({
 });
 PrivacyMode.func = openAdnPage.bind(PrivacyMode);
 
+const ShowAdsDebug = new Notification({
+  name: 'showAdsDebug',
+  text: 'adnNotificationShowAdsDebug',
+  prop: 'showAdsDebug',
+  button: undefined,
+  expected: false,
+  type: WARNING
+});
+// ShowAdsDebug.func = reactivateHiddenSetting.bind(ShowAdsDebug);
+
 /***************************************************************************/
 
-const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyList, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode];
+const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyList, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode, ShowAdsDebug];
 
 function Notification(m) {
 
@@ -434,12 +444,28 @@ function reactivateSetting() {
 
   Promise.resolve(
     vAPI.messaging.send('dashboard', {
-      what: 'userSettings',
+      what: ';userSettings',
       name: this.prop,
       value: this.expected
     }),
   ).then(() => {
     reloadOptions();
+    reloadPane();
+  });
+}
+
+function reactivateHiddenSetting() {
+
+  console.log('deactivateHiddenSetting', this.prop + "=>" + this.expected);
+
+  Promise.resolve(
+    vAPI.messaging.send('dashboard', {
+      what: 'hiddenSettings',
+      name: this.prop,
+      value: this.expected
+    }),
+  ).then(() => {
+    // reloadOptions();
     reloadPane();
   });
 }
