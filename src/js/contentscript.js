@@ -685,7 +685,7 @@ vAPI.DOMFilterer = class {
                 /* start of Adn exception fetching */ 
                 var instance = this.proceduralFiltererInstance()
                 if (instance == null) {
-                    if (vAPI.prefs.logEvents) console.warn("proceduralFiltererInstance error")
+                    if (vAPI.prefs.logEvents) console.warn("[ADN] proceduralFiltererInstance null")
                     break;
                 }
                 /* end of Adn exception fetching */
