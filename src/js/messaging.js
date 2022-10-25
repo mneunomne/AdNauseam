@@ -282,7 +282,7 @@ const onMessage = function(request, sender, callback) {
             response = { notifications: makeCloneable(adnauseam.getNotifications().notifications) }; // #1163
         }
         break;
-
+    
     case 'snfeDump':
         response = staticNetFilteringEngine.dump();
         break;

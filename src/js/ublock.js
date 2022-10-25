@@ -600,12 +600,18 @@ const matchBucket = function(url, hostname, bucket, start) {
 µb.changeHiddenSettings = function(hs) {
     const mustReloadResources =
         hs.userResourcesLocation !== this.hiddenSettings.userResourcesLocation;
+    const changedShowAdsDebug = hs.showAdsDebug !== this.hiddenSettings.showAdsDebug; // Adn
     this.hiddenSettings = hs;
     this.saveHiddenSettings();
     if ( mustReloadResources ) {
         redirectEngine.invalidateResourcesSelfie(io);
         this.loadRedirectResources();
     }
+    /* adn */
+    if (changedShowAdsDebug) {
+        adnauseam.verifySetting(ShowAdsDebug, hs.showAdsDebug);
+    }
+    /* end of adn */
     this.fireDOMEvent('hiddenSettingsChanged');
 };
 
