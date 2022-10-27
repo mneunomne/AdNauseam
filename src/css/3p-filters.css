@@ -7,6 +7,7 @@ body {
 }
 #actions {
     background-color: transparent; /*ADN*/
+    backdrop-filter: blur(2px); /*ADN*/
     padding: var(--default-gap-small) 0 var(--default-gap-xsmall) 0;
     position: sticky;
     top: 0;
@@ -169,10 +170,10 @@ body:not(.updating) .listEntry.checked.obsolete .obsolete {
 .dim {
     opacity: 0.6;
     }
-/* #buttonApply {
-    display: initial;
-    z-index: 10;
-    } */
+#buttonApply {
+    margin-top: 4px; /* Adn */
+    margin-bottom: 0px; /* Adn */
+}
 body[dir=rtl] #buttonApply {
     right: auto;
     left: 1em;
