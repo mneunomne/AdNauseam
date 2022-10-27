@@ -60,7 +60,6 @@
 
     const extractUrlSrc = function (attribute) {
       let src = attribute.match(urlRegex)
-      console.log("extractUrlSrc", src)
       return src && src[0] ;
     } 
 
