@@ -54,12 +54,12 @@
 
     const getSrcFromAttribute = function (attribute) {
       let src = attribute.match(/\((.*?)\)/);
-      if (src && src.length > 2) src = src[1].replace(/('|")/g, '');
+      if (src && src.length > 1) src = src[1].replace(/('|")/g, '');
+      return src
     }
 
     const extractUrlSrc = function (attribute) {
       let src = attribute.match(urlRegex)
-      console.log("extractUrlSrc", src)
       return src && src[0] ;
     } 
 
@@ -76,8 +76,9 @@
 
           // create Image element for ad size
           const img = document.createElement("img");
-          img.src = getSrcFromAttribute(attribute);
-
+          const src = getSrcFromAttribute(attribute);
+          img.src = src
+          
           return createImageAd(img, src, targetUrl);
         }
 
