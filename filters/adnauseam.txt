@@ -810,3 +810,7 @@ www.hktvmall.com##.topBannerGa
 # 2022-08-16 https://ww1.onepunch.online #2154
 ww1.onepunch.online###psdn-slot
 ###psadbox
+
+# newyorker.com
+newyorker.com##.teads-inread`
+newyorker.com##[class^=".AdWrapper"]
