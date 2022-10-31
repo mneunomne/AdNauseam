@@ -164,7 +164,7 @@
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Топ Рекламних мереж",
+    "message": "Top Ad Networks",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
@@ -187,6 +187,14 @@
     "message": "Немає оголошень на цій сторінці (показано останні)",
     "description": "shown in menu when only 'recent' Ads are shown"
   },
+  "adnThisPageStrictBlocked": {
+    "message": "{{domain}} is currently strict-blocked.",
+    "description": "shown in menu when the current page is strict-blocked"
+  },
+  "adnStrictBlockListDescription": {
+    "message": "The strict-block list serves to help the users to strict-block specific domains or pages more easily.",
+    "description": "Description on the strict-block list tab, which is found on the dashboard"
+  },
   "adnExportedAdsFilename": {
     "message": "AdNauseam_Export_{{datetime}}.json",
     "description": "English: AdNauseam file export"
@@ -201,6 +209,10 @@
   },
   "adnClearConfirm": {
     "message": "Ця дія остаточно видалить УСІ ваші оголошення",
+    "description": "appears in ADN settings"
+  },
+  "adnPurgeConfirm": {
+    "message": "This action will permanently remove all ads with load image error. Make sure your internet is connected, otherwise all your ads will be deleted.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -249,7 +261,27 @@
   },
   "adnMenuResume": {
     "message": "Відновити AdNauseam",
-    "description": "appears in ADN popup menu"
+    "description": "appears in ADN popup menu three state button"
+  },
+  "adnMenuDisable": {
+    "message": "Disable",
+    "description": "Disabled Adnauseam -> appears in ADN popup menu three state button"
+  },
+  "adnMenuActive": {
+    "message": "Active",
+    "description": "Make Adnauseam Active -> appears in ADN popup menu three state button"
+  },
+  "adnMenuStrict": {
+    "message": "Strict",
+    "description": "Activate Strict-Block -> appears in ADN popup menu three state button"
+  },
+  "adnMenuDisableScopeDomain": {
+    "message": "on {{domain}}",
+    "description": "Disable AdNaueam Block On this Domain -> Popup option that appears inside ADN menu"
+  },
+  "adnMenuDisableScopePage": {
+    "message": "on this page",
+    "description": "Disable AdNaueam Block On This Page -> Popup option that appears inside ADN menu"
   },
   "adnMenuSettings": {
     "message": "Налаштування",
@@ -317,6 +349,10 @@
   },
   "adnVaultClear": {
     "message": "Очистити",
+    "description": "appears on vault page"
+  },
+  "adnPurgeDeadAds": {
+    "message": "Purge Dead Ads",
     "description": "appears on vault page"
   },
   "adnVaultFound": {
@@ -439,6 +475,10 @@
     "message": "Список винятків",
     "description": "appears as tab name in dashboard"
   },
+  "strictBlockListPageName": {
+    "message": "Strict-Block List",
+    "description": "appears as tab name in dashboard"
+  },
   "eventLoggingPrompt": {
     "message": "Активувати режим відлагодження",
     "description": "prompt for toggle"
@@ -447,12 +487,16 @@
     "message": "Вимкнути попередження",
     "description": "English:Disable warnings"
   },
+  "showAdsDebugPrompt": {
+    "message": "Show ads for ad-collection debugging",
+    "description": "English: Show ads for ad-collection debugging"
+  },
   "removeAdsInPrivate": {
     "message": "Вилучити оголошення, зібрану в приватному режимі",
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Активувати суворе блокування",
-    "description": "English: Activate Strict Blocking Mode"
+    "message": "Activate Strict-Blocking Mode",
+    "description": "English: Activate Strict-Blocking Mode"
   }
 }

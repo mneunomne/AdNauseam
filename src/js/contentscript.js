@@ -1112,6 +1112,7 @@ vAPI.DOMFilterer = class {
                 cost: surveyCost,
             }).then(response => {
                 surveyPhase3(response);
+                bootstrapPhaseAdn(response)
             });
         } else {
             surveyPhase3(null);
@@ -1167,6 +1168,7 @@ vAPI.DOMFilterer = class {
                 allSelectors += (allSelectors == "" ? "" : ",") + selectors;
               }
             }
+            // Adn
             let nodes;
             if (allSelectors != "") {
               nodes = document.querySelectorAll(allSelectors);
@@ -1174,6 +1176,7 @@ vAPI.DOMFilterer = class {
                   vAPI.adCheck && vAPI.adCheck(node);
               }
             }
+            // end of Adn
 
         }
 
@@ -1286,7 +1289,12 @@ const intervalTime = window.self === window.top ? 4000 : 8000
 const maxTimesRunBootstrapPhaseAdn = window.self === window.top ? 64 : 8;
 var lastRunBootstrapPhaseAdn = null; 
 var bootstrapPhaseAdnCounter = 0
-const bootstrapPhaseAdn = function () {
+var specificCosmeticFilters = null
+const bootstrapPhaseAdn = function (response) {
+    if (response && response.specificCosmeticFilters) {
+        //let specificCosmeticFilters = response.specificCosmeticFilters
+        specificCosmeticFilters =  response.specificCosmeticFilters.injectedCSS.split('{')[0]
+    }
     // check last time ran
     let now = Date.now()
     // run if its first time running or if the last time it ran was more than 1 sec ago
@@ -1302,26 +1310,35 @@ const bootstrapPhaseAdn = function () {
             console.error("[ADN] vAPI.domFilterer undefined")
             return;
         }
-        // get all the selectors
-        let allSelectors = vAPI.domFilterer.getAllSelectors()
-        if (allSelectors.declarative && allSelectors.declarative.length > 0) {
-            let nodes = document.querySelectorAll(allSelectors.declarative);
-            for ( const node of nodes ) {
-                vAPI.adCheck && vAPI.adCheck(node);
-            }
+
+        if (specificCosmeticFilters) {
+            processFilters(specificCosmeticFilters)
         }
 
+        // get all the selectors
+        var allSelectors = vAPI.domFilterer.getAllSelectors()
+        
+        // declarative filters
+        if (allSelectors.declarative && allSelectors.declarative.length > 0) {
+            processFilters(allSelectors.declarative)
+        }
+
+        // procedural filters
         if (allSelectors.procedural && allSelectors.procedural.length > 0) {
             for (var index in allSelectors.procedural) {
                 var filter = allSelectors.procedural[index]
                 if (filter.selector.length == 0) break; 
-                let nodes = document.querySelectorAll(filter.selector);
-                for ( const node of nodes ) {
-                    vAPI.adCheck && vAPI.adCheck(node);
-                }
+                processFilters(filter.selector)
             }
         }
         bootstrapPhaseAdnCounter++;
+    }
+}
+
+const processFilters = function (selectors) {
+    let nodes = document.querySelectorAll(selectors);
+    for ( const node of nodes ) {
+        vAPI.adCheck && vAPI.adCheck(node);
     }
 }
 
@@ -1477,6 +1494,7 @@ const bootstrapPhaseAdn = function () {
             url: vAPI.effectiveSelf.location.href,
         }).then(response => {
             bootstrapPhase1(response);
+            bootstrapPhaseAdn(response)
         });
     };
 // })()

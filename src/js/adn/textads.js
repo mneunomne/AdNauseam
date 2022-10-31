@@ -259,7 +259,7 @@
 
         if (text.length && site.length && title.length) {
 
-          const ad = vAPI.adParser.createAd('Ads by google', $attr(title, 'href'), {
+          const ad = vAPI.adParser.createAd('google', $attr(title, 'href'), {
             title: $text(title),
             text: $text(text),
             site: $text(site)
@@ -276,6 +276,39 @@
 
       return ads;
     };
+
+    const yandexAdsText = function (div) {
+      var ads = []
+
+      if (div == null || div == undefined) return
+      
+      const titleElement = div.querySelector(".OrganicTitleContentSpan.organic__title")
+      const linkElement = div.querySelector(".OrganicTitle-Link")
+      const textElement = div.querySelector(".OrganicText.organic__text")
+      const siteElement = div.querySelector(".Link_theme_outer.Path-Item.link b")
+
+      if (titleElement && linkElement && textElement && siteElement) {
+        var link = linkElement.href
+        var site = $text(siteElement)
+        var title = $text(titleElement)
+        var text = $text(textElement)
+
+        const ad = vAPI.adParser.createAd('yandex', link, {
+          site: site,
+          title: title,
+          text: text
+        });
+
+        console.log("[TEXTAD]", ad);
+
+        ads.push(ad);
+      } else {
+
+        console.warn('[TEXTADS] yandexAdsTextHandler.fail: ', divs[i]); //title, site, text);
+      }
+
+      return ads
+    }
 
     var youtubeAds = function (div) {
 
@@ -409,6 +442,11 @@
       handler: youtubeAds,
       name: 'youtube ads',
       domain: /^.*youtube\.com/i
+    },{
+      selector: '.serp-item:has(.OrganicTextContentSpan span)',
+      handler: yandexAdsText,
+      name: 'yandex ads',
+      domain: /^.*yandex\.com/i
     }];
 
     const checkFilters = function (elem) {
