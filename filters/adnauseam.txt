@@ -6,6 +6,8 @@
 ###gwd-ad
 ##ins.adsbygoogle
 ##.mv-ad-box
+##iframe[src*="4dsbanner"]
+##img[src*="digiadsply"]
 
 # Generic exceptions
 tweakers.net#@#*[class*="Advert"]
@@ -817,3 +819,9 @@ newyorker.com##[class^=".AdWrapper"]
 
 ! 2022-10-17 https://www.aftonbladet.se
 www.aftonbladet.se##div:has( > [id^="adPlacement"])
+
+# 2022-11-02 https://5movies.cloud
+5movies.cloud##div[id*="FloatingBanner"]:has-text(Show Ad)
+
+# Fixing https://fmovies.to
+||cdn.sb4you1.com^$important
