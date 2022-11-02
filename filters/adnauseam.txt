@@ -811,5 +811,9 @@ www.hktvmall.com##.topBannerGa
 ww1.onepunch.online###psdn-slot
 ###psadbox
 
+# newyorker.com
+newyorker.com##.teads-inread`
+newyorker.com##[class^=".AdWrapper"]
+
 ! 2022-10-17 https://www.aftonbladet.se
 www.aftonbladet.se##div:has( > [id^="adPlacement"])
