@@ -521,10 +521,10 @@ function openSettings() {
 }
 
 function reloadOptions() {
-  browser.tabs.query({})
-    .then(tabs => 
-      tabs.filter(t => t.url.endsWith('options.html'))
-        .forEach(t => browser.tabs.reload(t.id)));
+  browser.tabs.query({}, (tabs) => {
+    tabs.filter(t => t.url.endsWith('options.html'))
+        .forEach(t => browser.tabs.reload(t.id))
+  })
 }
 
 function reloadPane() {
