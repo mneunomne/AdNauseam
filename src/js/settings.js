@@ -23,17 +23,7 @@
 
 'use strict';
 
-<<<<<<< HEAD
-/******************************************************************************/
-
-/* note: not used by AdNauseam */
-
-(function() {
-
-'use strict';
-=======
 import { i18n$ } from './i18n.js';
->>>>>>> upstream1.45.0
 
 /******************************************************************************/
 
@@ -71,11 +61,7 @@ const handleImportFilePicker = function() {
             userData = undefined;
         }
         if ( userData === undefined ) {
-<<<<<<< HEAD
-            window.alert(vAPI.i18n('aboutRestoreDataError').replace(/uBlock₀/g, 'AdNauseam'));
-=======
-            window.alert(i18n$('aboutRestoreDataError'));
->>>>>>> upstream1.45.0
+            window.alert(i18n$('aboutRestoreDataError').replace(/uBlock₀/g, 'AdNauseam'));
             return;
         }
         const time = new Date(userData.timeStamp);
@@ -196,11 +182,7 @@ const onLocalDataReceived = function(details) {
 /******************************************************************************/
 
 const resetUserData = function() {
-<<<<<<< HEAD
-    var msg = vAPI.i18n('adnAboutResetDataConfirm');
-=======
-    const msg = i18n$('aboutResetDataConfirm');
->>>>>>> upstream1.45.0
+    var msg = i18n$('adnAboutResetDataConfirm');
     const proceed = window.confirm(msg);
     if ( proceed !== true ) { return; }
     vAPI.messaging.send('dashboard', {

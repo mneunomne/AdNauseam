@@ -27,6 +27,7 @@ import µb from '../background.js';
 import staticFilteringReverseLookup from '../reverselookup.js';
 import staticNetFilteringEngine from '../static-net-filtering.js'
 import dnt from './dnt.js'
+import { i18n$ } from '../i18n.js';
 
 import {
   domainFromHostname,
@@ -1104,7 +1105,7 @@ const adnauseam = (function () {
     // either from the enabledBlockedLists, or if it matches "My Filter". \
     // OR added because of previous where "My Filters" didn't match the other language names this value can have
     // https://github.com/dhowe/AdNauseam/issues/1914
-    return enabledBlockLists.contains(test) || test === vAPI.i18n('1pPageName');
+    return enabledBlockLists.contains(test) || test === i18n$('1pPageName');
   };
 
   // check target domain against page-domain #337

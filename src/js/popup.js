@@ -24,6 +24,7 @@
 'use strict';
 
 import punycode from '../lib/punycode.js';
+import { i18n$ } from './i18n.js';
 
 /******************************************************************************/
 
@@ -71,8 +72,8 @@ const scopeToSrcHostnameMap = {
     '.': ''
 };
 const hostnameToSortableTokenMap = new Map();
-const statsStr = vAPI.i18n('popupBlockedStats');
-const domainsHitStr = vAPI.i18n('popupHitDomainCount');
+const statsStr = i18n$('popupBlockedStats');
+const domainsHitStr = i18n$('popupHitDomainCount');
 
 let popupData = {};
 let dfPaneBuilt = false;
@@ -613,7 +614,7 @@ const renderPopup = function() {
 const renderTooltips = function(selector) {
     for ( const entry of tooltipTargetSelectors ) {
         if ( selector !== undefined && entry[0] !== selector ) { continue; }
-        const text = vAPI.i18n(
+        const text = i18n$(
             entry[1].i18n +
             (uDom.nodeFromSelector(entry[1].state) === null ? '1' : '2')
         );

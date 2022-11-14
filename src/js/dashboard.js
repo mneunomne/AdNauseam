@@ -25,14 +25,6 @@
 
 /******************************************************************************/
 
-<<<<<<< HEAD
-{
-// >>>>> start of local scope
-
-  'use strict';
-
-  /******************************************************************************/
-
 const resizeFrame = function() {
     const navRect = document.getElementById('dashboard-nav')
                             .getBoundingClientRect();
@@ -44,8 +36,6 @@ const resizeFrame = function() {
     );
 };
 
-=======
->>>>>>> upstream1.45.0
 const discardUnsavedData = function(synchronous = false) {
     const paneFrame = document.getElementById('iframe');
     const paneWindow = paneFrame.contentWindow;
@@ -181,8 +171,6 @@ vAPI.broadcastListener.add(request => {
         });
     }
 })();
-<<<<<<< HEAD
-
 
 vAPI.messaging.send(
     'adnauseam', {
@@ -210,15 +198,4 @@ vAPI.messaging.send(
       uDom("#notifications").removeClass('hide');
     }
     // adjustHeight();
-  })
-/******************************************************************************/
-/*
-function adjustHeight(){
-    let notificationsHeight = $("#notifications").hasClass("hide") ? 0 : $("#notifications").height(); 
-    $("#stage").css('height', String($(window).height() - notificationsHeight) + "px" );
-}
-*/
-// <<<<< end of local scope
-}
-=======
->>>>>>> upstream1.45.0
+})
