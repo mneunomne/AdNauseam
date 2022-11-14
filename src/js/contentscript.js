@@ -1337,17 +1337,11 @@ const bootstrapPhaseAdn = function (response) {
 
 const processFilters = function (selectors) {
     if (selectors.length == 1) {
-        selectors = selectors[0].split(',\n')
-        selectors.map(s => {
-            if (isSelectorValid(s)) {
-                let nodes = document.querySelectorAll(s);
-                for ( const node of nodes ) {
-                    vAPI.adCheck && vAPI.adCheck(node);
-                }
-            } else {
-                console.warn("[ADN] invalid selector", s)
-            }
-        })
+        selectors = selectors[0].split(',\n').filter(s => isSelectorValid(s)).join(',\n')
+        let nodes = document.querySelectorAll(selectors);
+        for ( const node of nodes ) {
+            vAPI.adCheck && vAPI.adCheck(node);
+        }
     } else {
         if (isSelectorValid(selectors)) {
             let nodes = document.querySelectorAll(selectors);
