@@ -25,6 +25,7 @@
 
 /******************************************************************************/
 
+<<<<<<< HEAD
 {
 // >>>>> start of local scope
 
@@ -43,6 +44,8 @@ const resizeFrame = function() {
     );
 };
 
+=======
+>>>>>>> upstream1.45.0
 const discardUnsavedData = function(synchronous = false) {
     const paneFrame = document.getElementById('iframe');
     const paneWindow = paneFrame.contentWindow;
@@ -178,6 +181,7 @@ vAPI.broadcastListener.add(request => {
         });
     }
 })();
+<<<<<<< HEAD
 
 
 vAPI.messaging.send(
@@ -216,3 +220,5 @@ function adjustHeight(){
 */
 // <<<<< end of local scope
 }
+=======
+>>>>>>> upstream1.45.0

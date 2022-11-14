@@ -15,6 +15,8 @@ rm -r $SRC || true
 unzip -q ~/Downloads/adnauseam.zip -d $SRC
 
 
+# https://www.assertnotmagic.com/2018/06/20/bash-brackets-quick-reference/
+
 DES=./src/_locales
 
 cp $SRC/ar/adnauseam.json    $DES/ar/adnauseam.json
@@ -75,6 +77,7 @@ cp $SRC/zh-TW/adnauseam.json $DES/zh_TW/adnauseam.json
 # See https://issues.adblockplus.org/ticket/6666
 echo "*** AdNauseam: Instances of '\$':"
 grep -FR "$" $DES/ || true
+grep -FR "$" $DESMV3/ || true
 
 cp $SRC/ar/description.txt    $DES/ar/description.txt
 cp $SRC/bg/description.txt    $DES/bg/description.txt
