@@ -23,6 +23,8 @@
 
 'use strict';
 
+import { i18n$ } from '../i18n.js';
+
 /******************************* Polyfill ***********************************/
 
 if (!Array.prototype.hasOwnProperty('contains')) {
@@ -122,13 +124,13 @@ const BlockingDisabled = new Notification({
 });
 BlockingDisabled.func = reactivateSetting.bind(BlockingDisabled);
 
-const EasyList = new Notification({
+const EasyListNotification = new Notification({
   name: 'EasyListDisabled',
   text: 'adnNotificationActivateEasyList',
   listName: 'easylist',
   link: 'https://github.com/dhowe/AdNauseam/wiki/FAQ#what-is-the-easylist-filter-and-why-do-i-get-a-warning-when-it-is-disabled'
 });
-EasyList.func = reactivateList.bind(EasyList);
+EasyListNotification.func = reactivateList.bind(EasyListNotification);
 
 const AdNauseamTxt = new Notification({
   name: 'AdNauseamTxtDisabled',
@@ -184,7 +186,7 @@ const ShowAdsDebug = new Notification({
 
 /***************************************************************************/
 
-const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyList, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode, ShowAdsDebug];
+const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyListNotification, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode, ShowAdsDebug];
 
 function Notification(m) {
 
@@ -410,7 +412,6 @@ const appendNotifyDiv = function (notify, template) {
   const h = document.getElementById('notifications').offsetHeight;
   const newh = ad_list_height - h;
   uDom('#ad-list').css('height', newh + 'px');
-  // vAPI.i18n.render();
 }
 
 const modifyDNTNotifications = function () {
@@ -655,7 +656,7 @@ const type = function (obj) { // from Angus Croll
 
 const getExportFileName = function () {
 
-  return vAPI.i18n('adnExportedAdsFilename')
+  return i18n$('adnExportedAdsFilename')
     .replace('{{datetime}}', new Date().toLocaleString())
     .replace(/[:/,]+/g, '.').replace(/ +/g, '');
 };
@@ -822,11 +823,11 @@ const handleImportFilePicker = function () {
       userData = undefined;
     }
     if (userData === undefined) {
-      window.alert(vAPI.i18n('aboutRestoreDataError').replace(/uBlock₀/g, 'AdNauseam'));
+      window.alert(i18n$('aboutRestoreDataError').replace(/uBlock₀/g, 'AdNauseam'));
       return;
     }
     const time = new Date(userData.timeStamp);
-    const msg = vAPI.i18n('aboutRestoreDataConfirm')
+    const msg = i18n$('aboutRestoreDataConfirm')
       .replace('{{time}}', time.toLocaleString()).replace(/uBlock₀/g, 'AdNauseam');
     const proceed = window.confirm(msg);
     if (proceed) {
@@ -889,7 +890,7 @@ function handleImportAds(evt) {
 
       if (adData === undefined && data.userSettings && data.timeStamp) {
         toogleVaultLoading(false)
-        window.alert(vAPI.i18n('adnImportAlertFormat'));
+        window.alert(i18n$('adnImportAlertFormat'));
         return;
       }
 
@@ -912,7 +913,7 @@ function handleImportAds(evt) {
 const postImportAlert = function (msg) {
 
   const text = msg.count > -1 ? msg.count : (msg.error ? msg.error + ";" : "") + " 0";
-  window.alert(vAPI.i18n('adnImportAlert')
+  window.alert(i18n$('adnImportAlert')
     .replace('{{count}}', text));
 };
 
@@ -928,7 +929,7 @@ const startImportFilePicker = function () {
 
 const clearAds = function () {
 
-  const msg = vAPI.i18n('adnClearConfirm');
+  const msg = i18n$('adnClearConfirm');
   const proceed = window.confirm(msg); // changed from vAPI.confirm merge1.14.12
   if (proceed) {
     vAPI.messaging.send('adnauseam', { what: 'clearAds' });
@@ -936,7 +937,7 @@ const clearAds = function () {
 };
 
 const purgeDeadAds = function (deadAds) {
-  const msg = vAPI.i18n('adnPurgeConfirm');
+  const msg = i18n$('adnPurgeConfirm');
   const proceed = window.confirm(msg); // changed from vAPI.confirm merge1.14.12
   if (proceed) {
     vAPI.messaging.send('adnauseam', {
@@ -965,3 +966,52 @@ const decodeEntities = (function () {
   }
   return decodeHTMLEntities;
 })();
+
+/********************************** API *************************************/
+
+export {
+  decodeEntities,
+  purgeDeadAds,
+  handleImportAds,
+  startImportFilePicker,
+  clearAds,
+  makeCloneable,
+  renderNotifications,
+  hasDNTNotification,
+  removeNotification,
+  addNotification,
+  openPage,
+  isMobile,
+  b64toBlob,
+  toBase64Image,
+  rand,
+  setCost,
+  arrayRemove,
+  trimChar,
+  showVaultAlert,
+  type,
+  getExportFileName,
+  computeHash,
+  byField,
+  parseHostname,
+  parseDomain,
+  isValidDomain,
+  targetDomain,
+  exportToFile,
+  handleImportFilePicker,
+  // Notifications
+  DNTAllowed,
+  DNTHideNotClick,
+  DNTClickNotHide,
+  DNTNotify,
+  HidingDisabled,
+  ClickingDisabled,
+  BlockingDisabled,
+  EasyListNotification,
+  AdNauseamTxt,
+  AdBlockerEnabled,
+  FirefoxSetting,
+  OperaSetting,
+  PrivacyMode,
+  ShowAdsDebug,
+}

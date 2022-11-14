@@ -23,6 +23,8 @@
 
 'use strict';
 
+import * as utils from './adn/shared.js'
+
 /******************************************************************************/
 
 const resizeFrame = function() {
@@ -120,7 +122,7 @@ if ( self.location.hash.slice(1) === 'no-dashboard.html' ) {
 vAPI.broadcastListener.add(request => {
     switch (request.what) {
         case 'notifications':
-            renderNotifications(request.notifications, "dashboard");
+            utils.renderNotifications(request.notifications, "dashboard");
             resizeFrame();
             break;
         // ADN when "disable notifications" option is changed, hide or show notifications
@@ -181,7 +183,7 @@ vAPI.messaging.send(
               what: 'getNotifications'
           }).then(data => {
           if (data.notifications && data.notifications.length)
-              renderNotifications(data.notifications, 'dashboard');
+              utils.renderNotifications(data.notifications, 'dashboard');
               resizeFrame();
         })
 });

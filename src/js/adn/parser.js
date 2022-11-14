@@ -188,7 +188,7 @@
           // in case the ad is from an iframe
           if (target.hasAttribute('data-original-click-url')) {
 
-            const targetDomain = parseDomain(target.getAttribute("data-original-click-url"));
+            const targetDomain = utils.parseDomain(target.getAttribute("data-original-click-url"));
             const proto = window.location.protocol || 'http';
             targetUrl = normalizeUrl(proto, targetDomain, targetUrl);
           }
@@ -573,12 +573,12 @@
     const createAd = function (network, target, data) {
 
       /* const domain = (parent !== window) ?
-        parseDomain(document.referrer) : document.domain,
+        utils.parseDomain(document.referrer) : document.domain,
         proto = window.location.protocol || 'http'; */
 
-      // logP('createAd:', target, isValidDomain(parseDomain(target)));
+      // logP('createAd:', target, utils.isValidDomain(utils.parseDomain(target)));
 
-      if (target.indexOf('http') < 0) {// || !isValidDomain(parseDomain(target)) {
+      if (target.indexOf('http') < 0) {// || !utils.isValidDomain(utils.parseDomain(target)) {
 
         // per https://github.com/dhowe/AdNauseam/issues/1536#issuecomment-835827690
         target = window.location.origin + target;  // changed 5/10/21

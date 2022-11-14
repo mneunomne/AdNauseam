@@ -23,9 +23,8 @@
 
 'use strict';
 
-/******************************************************************************/
-
-(( ) => {
+import { i18n$ } from '../i18n.js';
+import * as utils from './shared.js'
 
 /******************************************************************************/
 
@@ -188,22 +187,11 @@ const handleImportFilePicker = function() {
 
 /******************************************************************************/
 
-const startImportFilePicker = function() {
-    const input = document.getElementById('importFilePicker');
-    // Reset to empty string, this will ensure an change event is properly
-    // triggered if the user pick a file, even if it is the same as the last
-    // one picked.
-    input.value = '';
-    input.click();
-};
-
-/******************************************************************************/
-
 const exportStrictBlockListToFile = function() {
     const val = getEditorText();
     if ( val === '' ) { return; }
     const filename =
-        vAPI.i18n('strictBlockListExportFilename')
+        i18n$('strictBlockListExportFilename')
             .replace('{{datetime}}', uBlockDashboard.dateNowToSensibleString())
             .replace(/ +/g, '_');
     vAPI.download({
@@ -252,7 +240,7 @@ self.hasUnsavedData = function() {
 
 /******************************************************************************/
 
-uDom('#importStrictBlockListFromFile').on('click', startImportFilePicker);
+uDom('#importStrictBlockListFromFile').on('click', utils.startImportFilePicker);
 uDom('#importFilePicker').on('change', handleImportFilePicker);
 uDom('#exportStrictBlockListToFile').on('click', exportStrictBlockListToFile);
 uDom('#strictBlockListApply').on('click', ( ) => { applyChanges(); });
@@ -261,5 +249,3 @@ uDom('#strictBlockListRevert').on('click', revertChanges);
 renderStrictBlockList();
 
 /******************************************************************************/
-
-})();

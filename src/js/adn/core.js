@@ -28,6 +28,8 @@ import staticFilteringReverseLookup from '../reverselookup.js';
 import staticNetFilteringEngine from '../static-net-filtering.js'
 import dnt from './dnt.js'
 import { i18n$ } from '../i18n.js';
+import * as utils from './shared.js'
+
 
 import {
   domainFromHostname,
@@ -50,6 +52,8 @@ import {
   logNetBlock,
   logNetEvent
 } from './log.js'
+
+console.log("[ADN] utils", utils)
 
 const adnauseam = (function () {
   'use strict';
@@ -356,7 +360,7 @@ const adnauseam = (function () {
     let ads = adlist();
 
     // @SALLY: if we sort here newer ads are visited first ?
-    //ads = ads.sort(byField('-foundTs'));
+    //ads = ads.sort(utils.byField('-foundTs'));
 
     for (let i = 0; i < ads.length; i++) {
       if (visitPending(ads[i])) return ads[i];
@@ -476,7 +480,7 @@ const adnauseam = (function () {
       if (title) ad.title = title;
 
       if (ad.title === 'Pending')
-        ad.title = parseDomain(xhr.requestUrl, true);
+        ad.title = utils.parseDomain(xhr.requestUrl, true);
 
       ad.resolvedTargetUrl = xhr.responseURL; // URL after redirects
       ad.visitedTs = millis(); // successful visit time
@@ -695,11 +699,11 @@ const adnauseam = (function () {
       }
     }
 
-    // ad.targetUrl = trimChar(ad.targetUrl, '/'); #751
+    // ad.targetUrl = utils.trimChar(ad.targetUrl, '/'); #751
 
     const dInfo = domainInfo(ad.resolvedTargetUrl || ad.targetUrl);
 
-    if (!isValidDomain(dInfo.domain)) {
+    if (!utils.isValidDomain(dInfo.domain)) {
 
       return warn("Invalid domain: " + url);
     }
@@ -745,10 +749,10 @@ const adnauseam = (function () {
     ad.targetDomain = ad.targetDomain || domainFromURI(ad.resolvedTargetUrl || ad.targetUrl);
     ad.targetHostname = ad.targetHostname || hostnameFromURI(ad.resolvedTargetUrl || ad.targetUrl);
 
-    return ad && type(ad) === 'object' &&
-      type(ad.pageUrl) === 'string' &&
-      type(ad.contentType) === 'string' &&
-      type(ad.contentData) === 'object';
+    return ad && utils.type(ad) === 'object' &&
+      utils.type(ad.pageUrl) === 'string' &&
+      utils.type(ad.contentType) === 'string' &&
+      utils.type(ad.contentData) === 'object';
   }
 
   const validate = function (ad) {
@@ -889,7 +893,7 @@ const adnauseam = (function () {
 
   const deleteAd = function (arg) {
 
-    const ad = type(arg) === 'object' ? arg : adById(arg), count = adCount();
+    const ad = utils.type(arg) === 'object' ? arg : adById(arg), count = adCount();
 
     if (!ad) {
       return warn("No Ad to delete", id, admap);
@@ -902,7 +906,7 @@ const adnauseam = (function () {
         // private ads, remove all private ads because it's impossible to select each private ad
         delete admap[pageHash];
       } else {
-        const hash = computeHash(ad);
+        const hash = utils.computeHash(ad);
 
         if (admap[pageHash][hash]) {
 
@@ -944,7 +948,7 @@ const adnauseam = (function () {
   };
 
   const validateImport = function (map, replaceAll) {
-    if (type(map) !== 'object')
+    if (utils.type(map) !== 'object')
       return false;
 
     let pass = 0;
@@ -953,7 +957,7 @@ const adnauseam = (function () {
 
     for (let i = 0; i < pages.length; i++) {
 
-      if (type(map[pages[i]]) !== 'object')
+      if (utils.type(map[pages[i]]) !== 'object')
         return false;
 
       computeNextId();
@@ -961,7 +965,7 @@ const adnauseam = (function () {
       for (let j = 0; j < hashes.length; j++) {
 
         const hash = hashes[j];
-        if (type(hash) !== 'string' || !(validMD5(hash) || hash.includes('::'))) {
+        if (utils.type(hash) !== 'string' || !(validMD5(hash) || hash.includes('::'))) {
 
           return warn('Bad hash in import: ', hash, ad); // tmp
         }
@@ -1006,7 +1010,7 @@ const adnauseam = (function () {
 
       const pagehash = YaMD5.hashStr(ad.pageUrl);
       if (!map[pagehash]) map[pagehash] = {};
-      map[pagehash][computeHash(ad)] = ad;
+      map[pagehash][utils.computeHash(ad)] = ad;
       return true;
     }
 
@@ -1014,10 +1018,10 @@ const adnauseam = (function () {
   }
 
   const validateLegacyImport = function (map) {
-    if (type(map) !== 'object') {
+    if (utils.type(map) !== 'object') {
 
-      return (type(map) === 'array') ? validateAdArray(map) :
-        warn('Import-fail: not object or array', type(map), map);
+      return (utils.type(map) === 'array') ? validateAdArray(map) :
+        warn('Import-fail: not object or array', utils.type(map), map);
     }
 
     let ad;
@@ -1035,9 +1039,9 @@ const adnauseam = (function () {
 
       ads = map[pages[i]];
 
-      if (type(ads) !== 'array') {
+      if (utils.type(ads) !== 'array') {
 
-        //warn('not array', type(ads), ads);
+        //warn('not array', utils.type(ads), ads);
         return false;
       }
 
@@ -1046,7 +1050,7 @@ const adnauseam = (function () {
       for (let j = 0; j < ads.length; j++) {
 
         ad = updateLegacyAd(ads[j]);
-        hash = computeHash(ad);
+        hash = utils.computeHash(ad);
 
         if (!validateFields(ad)) {
 
@@ -1350,7 +1354,7 @@ const adnauseam = (function () {
         a.href = this.src;
         files.push({
           name: filename,
-          data: toBase64Image(img)
+          data: utils.toBase64Image(img)
         });
       }
 
@@ -1388,7 +1392,7 @@ const adnauseam = (function () {
           type: "base64"
         }).then(function (content) {
 
-          const blob = b64toBlob(content, 'image'), blobUrl = URL.createObjectURL(blob);
+          const blob = utils.b64toBlob(content, 'image'), blobUrl = URL.createObjectURL(blob);
 
           //use vAPI.download, convert base64 to blob
           vAPI.download({
@@ -1449,14 +1453,14 @@ const adnauseam = (function () {
           if (ad.private == true) {
             // clear data & relocate to a new bin?
             removed.push(ad);
-            const newAdHash = computeHash(ad, true);
+            const newAdHash = utils.computeHash(ad, true);
             ad.contentData = {}
             ad.title = "";
             ad.pageTitle = "";
             ad.pageUrl = "";
             ad.resolvedTargetUrl = "";
             ad.requestId = "";
-            ad.adNetwork = ad.targetUrl && parseHostname(ad.targetUrl);
+            ad.adNetwork = ad.targetUrl && utils.parseHostname(ad.targetUrl);
             ad.targetUrl = "";
 
             const privatePageHash = YaMD5.hashStr("");
@@ -1702,7 +1706,7 @@ const adnauseam = (function () {
 
     if (!admap[pageHash]) admap[pageHash] = {};
 
-    adhash = computeHash(ad);
+    adhash = utils.computeHash(ad);
 
     if (admap[pageHash][adhash]) { // may be a duplicate
 
@@ -1894,16 +1898,16 @@ const adnauseam = (function () {
     vAPI.getAddonInfo(function (conflict) {
 
       if (conflict != false) {
-        modified = addNotification(notifications, AdBlockerEnabled);
+        modified = utils.addNotification(notifications, utils.AdBlockerEnabled);
       }
       else {
-        modified = removeNotification(notifications, AdBlockerEnabled);
+        modified = utils. removeNotification(notifications, utils.AdBlockerEnabled);
       }
 
       modified && sendNotifications(notifications);
     });
 
-    return notifications.indexOf(AdBlockerEnabled) > -1 ? [AdBlockerEnabled] : [];
+    return notifications.indexOf(utils.AdBlockerEnabled) > -1 ? [utils.AdBlockerEnabled] : [];
   };
 
   exports.verifyAdBlockersAndDNT = function (request) {
@@ -1914,7 +1918,7 @@ const adnauseam = (function () {
     verifyOperaSetting(request);
   };
 
-  const verifyOperaSetting = exports.verifyOperaSetting = function (request) {
+  const verifyOperaSetting = exports.verifyOperaSetting= function (request) {
 
     const isOpera = (!!window.opr && !!opr.addons)
       || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
@@ -1924,7 +1928,7 @@ const adnauseam = (function () {
       // only check for google, bing & duckduckgo
       // other search engines seem to be fine at the moment
       const searchEngineRegex = /^.*\.bing\.com|^(.*\.)?duckduckgo\.com|^(www\.)*google\.((com\.|co\.|it\.)?([a-z]{2})|com)$/i;
-      const domain = parseDomain(request.url);
+      const domain = utils.parseDomain(request.url);
       const isSearch = searchEngineRegex.test(domain);
 
       if (!isSearch) return;
@@ -1944,9 +1948,9 @@ const adnauseam = (function () {
 
         let modified = false;
         if (thisPageStore.counts.blocked.any == 0 && thisPageStore.contentLastModified == 0) {
-          modified = addNotification(notifications, OperaSetting);
+          modified = utils.addNotification(notifications, OperaSetting);
         } else {
-          modified = removeNotification(notifications, OperaSetting);
+          modified = utils. removeNotification(notifications, OperaSetting);
         }
         modified && sendNotifications(notifications);
       }
@@ -1962,9 +1966,9 @@ const adnauseam = (function () {
     trackingProtectionMode.then((got) => {
       let modified = false;
       if (got.value == "always") {
-        modified = addNotification(notifications, FirefoxSetting);
+        modified = utils.addNotification(notifications, utils.FirefoxSetting);
       } else {
-        modified = removeNotification(notifications, FirefoxSetting);
+        modified = utils. removeNotification(notifications, utils.FirefoxSetting);
       }
       modified && sendNotifications(notifications);
     });
@@ -1972,16 +1976,16 @@ const adnauseam = (function () {
 
   const verifySettings = exports.verifySettings = function () {
 
-    verifySetting(HidingDisabled, !µb.userSettings.hidingAds);
-    verifySetting(ClickingDisabled, !µb.userSettings.clickingAds);
-    verifySetting(BlockingDisabled, !µb.userSettings.blockingMalware);
-    verifySetting(ShowAdsDebug, µb.hiddenSettings.showAdsDebug);
+    verifySetting(utils.HidingDisabled, !µb.userSettings.hidingAds);
+    verifySetting(utils.ClickingDisabled, !µb.userSettings.clickingAds);
+    verifySetting(utils.BlockingDisabled, !µb.userSettings.blockingMalware);
+    verifySetting(utils.ShowAdsDebug, µb.hiddenSettings.showAdsDebug);
   };
 
   const verifyLists = exports.verifyLists = function () {
 
-    verifyList(EasyList, µb.selectedFilterLists);
-    verifyList(AdNauseamTxt, µb.selectedFilterLists);
+    verifyList(utils.EasyListNotification, µb.selectedFilterLists);
+    verifyList(utils.AdNauseamTxt, µb.selectedFilterLists);
   };
 
   const verifyList = exports.verifyList = function (note, lists) {
@@ -1998,10 +2002,10 @@ const adnauseam = (function () {
     }
 
     if (entry) {
-      modified = removeNotification(notifications, note);
+      modified = utils. removeNotification(notifications, note);
     }
     else {
-      modified = addNotification(notifications, note);
+      modified = utils.addNotification(notifications, note);
     }
 
     if (modified) sendNotifications(notifications);
@@ -2011,7 +2015,7 @@ const adnauseam = (function () {
 
     const prefs = µb.userSettings;
     const domain = domainFromHostname(hostnameFromURI(request.url));
-    const target = hasDNTNotification(notifications);
+    const target = utils.hasDNTNotification(notifications);
 
     //console.log("verifyDNT: " + domain, request.url, prefs.dntDomains);
 
@@ -2021,7 +2025,7 @@ const adnauseam = (function () {
       // if notifications contains any DNT notification, remove
       if (target) {
 
-        removeNotification(notifications, target);
+        utils. removeNotification(notifications, target);
         sendNotifications(notifications);
       }
 
@@ -2033,27 +2037,27 @@ const adnauseam = (function () {
     const disableClicking = (prefs.clickingAds && prefs.disableClickingForDNT);
     const disableHiding = (prefs.hidingAds && prefs.disableHidingForDNT);
 
-    let note = DNTNotify; // neither clicking nor hiding
+    let note = utils.DNTNotify; // neither clicking nor hiding
     if (
       (disableClicking && disableHiding) ||
       (!prefs.clickingAds && disableHiding) ||
       (!prefs.hidingAds && disableClicking)) {
-      note = DNTAllowed;
+      note = utils.DNTAllowed;
     }
     else if (disableClicking && prefs.hidingAds && !prefs.disableHidingForDNT) {
-      note = DNTHideNotClick;
+      note = utils.DNTHideNotClick;
     }
     else if (prefs.clickingAds && !prefs.disableClickingForDNT && disableHiding) {
-      note = DNTClickNotHide;
+      note = utils.DNTClickNotHide;
     }
 
     if (!notifications.contains(note)) {
 
-      addNotification(notifications, note);
+      utils.addNotification(notifications, note);
 
       if (target && target != note) {
 
-        removeNotification(notifications, target);
+        utils. removeNotification(notifications, target);
       }
 
       sendNotifications(notifications);
@@ -2067,11 +2071,11 @@ const adnauseam = (function () {
 
     if (state && !notifications.contains(note)) {
 
-      modified = addNotification(notifications, note);
+      modified = utils.addNotification(notifications, note);
     }
     else if (!state) {
 
-      modified = removeNotification(notifications, note);
+      modified = utils. removeNotification(notifications, note);
     }
 
     if (modified) {
@@ -2079,7 +2083,7 @@ const adnauseam = (function () {
       // ADN/TODO: need a new way to check this (broken in merge1.13.2) ************************
       /* check whether DNT list state needs updating (TODO:)
   
-      if (note === ClickingDisabled || note === HidingDisabled) {
+      if (note === utils.ClickingDisabled || note === utils.HidingDisabled) {
   
         //console.log('clicking: ', state, µb.userSettings.clickingAds || µb.userSettings.clickingAds);
         const off = !(µb.userSettings.clickingAds || µb.userSettings.hidingAds);
@@ -2190,7 +2194,7 @@ const adnauseam = (function () {
     // no good, try to parse as a single-ad
     if (!map) {
 
-      if (type(request.data) === 'object' && type(request.data.contentData) === 'object') {
+      if (utils.type(request.data) === 'object' && utils.type(request.data.contentData) === 'object') {
 
         if (createAdmapEntry(request.data, map = {})) {
           importedCount = 1;
@@ -2272,7 +2276,7 @@ const adnauseam = (function () {
   
     console.log('core.downloadAds', jsonData);
   
-    var filename = getExportFileName(),
+    var filename = utils.getExportFileName(),
       url = URL.createObjectURL(new Blob([ jsonData ], { type: "text/plain" }));
   
     chrome.downloads.download({
@@ -2307,7 +2311,7 @@ const adnauseam = (function () {
     // if we have no page ads, use the most recent (6)
     // avoid sending data for too many ads in messaging
     if (!json.data.length) {
-      json.data = allAds.sort(byField('-foundTs')).slice(0, 6);
+      json.data = allAds.sort(utils.byField('-foundTs')).slice(0, 6);
       json.recent = true;
     }
 
@@ -2341,7 +2345,7 @@ const adnauseam = (function () {
 
     if (typeof adnauseam[request.what] === 'function') {
 
-      request.url && (request.url = trimChar(request.url, '/')); // no trailing slash
+      request.url && (request.url = utils.trimChar(request.url, '/')); // no trailing slash
       callback(adnauseam[request.what](request, pageStore, tabId, frameId));
       adnauseam.markUserAction(); // assume user-initiated and thus no longer 'idle'
 

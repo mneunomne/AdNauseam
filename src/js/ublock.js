@@ -562,15 +562,15 @@ const matchBucket = function(url, hostname, bucket, start) {
         adnauseam.updateBadges();
         break;
     case 'hidingAds':
-        adnauseam.verifySetting(HidingDisabled, !us.hidingAds);
+        adnauseam.verifySetting(utils.HidingDisabled, !us.hidingAds);
         dnt.updateFilters();
         break;
     case 'clickingAds':
-        adnauseam.verifySetting(ClickingDisabled, !us.clickingAds);
+        adnauseam.verifySetting(utils.ClickingDisabled, !us.clickingAds);
         dnt.updateFilters();
         break;
     case 'blockingMalware':
-        adnauseam.verifySetting(BlockingDisabled, !us.blockingMalware);
+        adnauseam.verifySetting(utils.BlockingDisabled, !us.blockingMalware);
         break;
     case 'disableHidingForDNT':
       dnt.updateFilters();
@@ -609,7 +609,7 @@ const matchBucket = function(url, hostname, bucket, start) {
     }
     /* adn */
     if (changedShowAdsDebug) {
-        adnauseam.verifySetting(ShowAdsDebug, hs.showAdsDebug);
+        adnauseam.verifySetting(utils.ShowAdsDebug, hs.showAdsDebug);
     }
     /* end of adn */
     this.fireDOMEvent('hiddenSettingsChanged');

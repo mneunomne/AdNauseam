@@ -24,6 +24,7 @@
 'use strict';
 
 import { i18n$ } from './i18n.js';
+import * as utils from './adn/shared.js';
 
 /******************************************************************************/
 
@@ -79,17 +80,6 @@ const handleImportFilePicker = function() {
     const fr = new FileReader();
     fr.onload = fileReaderOnLoadHandler;
     fr.readAsText(file);
-};
-
-/******************************************************************************/
-
-const startImportFilePicker = function() { // ADN, stay inside settings.js
-    const input = document.getElementById('restoreFilePicker');
-    // Reset to empty string, this will ensure an change event is properly
-    // triggered if the user pick a file, even if it is the same as the last
-    // one picked.
-    input.value = '';
-    input.click();
 };
 
 /******************************************************************************/
@@ -278,8 +268,8 @@ const onUserSettingsReceived = function(details) {
              .on('change', onValueChanged);
     });
 
-    uDom('#export').on('click', ( ) => { exportToFile(); });
-    uDom('#import').on('click', startImportFilePicker);
+    uDom('#export').on('click', ( ) => { utils.exportToFile(); });
+    uDom('#import').on('click', utils.startImportFilePicker);
     uDom('#reset').on('click', resetUserData);
     uDom('#restoreFilePicker').on('change', handleImportFilePicker);
 

@@ -24,6 +24,7 @@
 'use strict';
 
 import { i18n$ } from './i18n.js';
+import * as utils from './adn/shared.js';
 
 /******************************************************************************/
 
@@ -199,17 +200,6 @@ const handleImportFilePicker = function() {
 
 /******************************************************************************/
 
-const startImportFilePicker = function() {
-    const input = document.getElementById('importFilePicker');
-    // Reset to empty string, this will ensure an change event is properly
-    // triggered if the user pick a file, even if it is the same as the last
-    // one picked.
-    input.value = '';
-    input.click();
-};
-
-/******************************************************************************/
-
 const exportWhitelistToFile = function() {
     const val = getEditorText();
     if ( val === '' ) { return; }
@@ -263,7 +253,7 @@ self.hasUnsavedData = function() {
 
 /******************************************************************************/
 
-uDom('#importWhitelistFromFile').on('click', startImportFilePicker);
+uDom('#importWhitelistFromFile').on('click', utils.startImportFilePicker);
 uDom('#importFilePicker').on('change', handleImportFilePicker);
 uDom('#exportWhitelistToFile').on('click', exportWhitelistToFile);
 uDom('#whitelistApply').on('click', ( ) => { applyChanges(); });

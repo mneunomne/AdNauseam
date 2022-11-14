@@ -30,6 +30,7 @@
 
 import webext from './webext.js';
 import { ubolog } from './console.js';
+import * as utils from './adn/shared.js';
 
 /******************************************************************************/
 
@@ -924,8 +925,7 @@ vAPI.messaging = {
 
     broadcast: function(message) {
         if (message.what === 'notifications') { // ADN
-
-          makeCloneable(message.notifications); // #1163
+            utils.makeCloneable(message.notifications); // #1163
         }
         const messageWrapper = { broadcast: true, msg: message };
         for ( const { port } of this.ports.values() ) {

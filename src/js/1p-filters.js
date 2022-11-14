@@ -26,6 +26,7 @@
 /******************************************************************************/
 
 import { i18n$ } from './i18n.js';
+import * as utils from './adn/shared.js';
 import './codemirror/ubo-static-filtering.js';
 
 /******************************************************************************/
@@ -221,17 +222,6 @@ const handleImportFilePicker = function() {
 
 /******************************************************************************/
 
-const startImportFilePicker = function() {
-    const input = document.getElementById('importFilePicker');
-    // Reset to empty string, this will ensure an change event is properly
-    // triggered if the user pick a file, even if it is the same as the last
-    // one picked.
-    input.value = '';
-    input.click();
-};
-
-/******************************************************************************/
-
 const exportUserFiltersToFile = function() {
     const val = getEditorText();
     if ( val === '' ) { return; }
@@ -290,7 +280,7 @@ self.hasUnsavedData = function() {
 /******************************************************************************/
 
 // Handle user interaction
-uDom('#importUserFiltersFromFile').on('click', startImportFilePicker);
+uDom('#importUserFiltersFromFile').on('click', utils.startImportFilePicker);
 uDom('#importFilePicker').on('change', handleImportFilePicker);
 uDom('#exportUserFiltersToFile').on('click', exportUserFiltersToFile);
 uDom('#userFiltersApply').on('click', ( ) => { applyChanges(); });

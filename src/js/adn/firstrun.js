@@ -21,6 +21,8 @@
 
 /* global vAPI, uDom */
 
+import * as utils from './shared.js' 
+
 /******************************************************************************/
 
 (function () {
@@ -87,13 +89,13 @@
 
     const dntInput = uDom('#dnt-exception');
 
-    if (!isMobile() && hideOrClick() && !dntRespectAppeared) { // runs once only
+    if (!utils.isMobile() && hideOrClick() && !dntRespectAppeared) { // runs once only
       changeDNTexceptions(true);
       dntInput.prop('checked', true);
       dntRespectAppeared = true;
     }
 
-    dntInput.parent().css('opacity', !isMobile() && hideOrClick() ? '1' : '0');
+    dntInput.parent().css('opacity', !utils.isMobile() && hideOrClick() ? '1' : '0');
   }
 
   function toggleFirstRunButton() {
@@ -180,12 +182,12 @@
 
     uDom('p[data-i18n="adnFirstRunHideAllAdsDescription"] span, p[data-i18n="adnFirstRunClickingAdsDescription"] span').on('click', function() {
 
-        openPage('/dashboard.html#3p-filters.html');
+      utils.openPage('/dashboard.html#3p-filters.html');
     });
 
     uDom('p[data-i18n="adnFirstRunBlockingMalwareDescription"] span').on('click',function (e) {
 
-       openPage('/dashboard.html#options.html');
+      utils.openPage('/dashboard.html#options.html');
     });
 
     uDom('#confirm-close').on('click', function (e) {

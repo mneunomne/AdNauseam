@@ -1336,10 +1336,29 @@ const bootstrapPhaseAdn = function (response) {
 }
 
 const processFilters = function (selectors) {
-    let nodes = document.querySelectorAll(selectors);
-    for ( const node of nodes ) {
-        vAPI.adCheck && vAPI.adCheck(node);
+    if (selectors.length == 1) {
+        selectors = selectors[0].split(',\n')
+        selectors.map(s => {
+            if (isSelectorValid(s)) {
+                let nodes = document.querySelectorAll(s);
+                for ( const node of nodes ) {
+                    vAPI.adCheck && vAPI.adCheck(node);
+                }
+            } else {
+                console.warn("[ADN] invalid selector", s)
+            }
+        })
+    } else {
+        if (isSelectorValid(selectors)) {
+            let nodes = document.querySelectorAll(selectors);
+            for ( const node of nodes ) {
+                vAPI.adCheck && vAPI.adCheck(node);
+            }
+        } else {
+            console.warn("[ADN] invalid selector", selectors)
+        }
     }
+    
 }
 
 // vAPI.bootstrap:
@@ -1500,6 +1519,13 @@ const processFilters = function (selectors) {
         });
     };
 // })()
+
+const queryCheck = (s) => document.createDocumentFragment().querySelector(s)
+
+const isSelectorValid = (selector) => {
+  try { queryCheck(selector) } catch { return false }
+  return true
+}
 
 // This starts bootstrap process.
 vAPI.bootstrap();

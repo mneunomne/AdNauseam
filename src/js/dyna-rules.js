@@ -26,7 +26,7 @@
 /******************************************************************************/
 
 import publicSuffixList from '../lib/publicsuffixlist/publicsuffixlist.js';
-
+import * as utils from './adn/shared.js';
 import { hostnameFromURI } from './uri-utils.js';
 import { i18n$ } from './i18n.js';
 
@@ -326,17 +326,6 @@ function handleImportFilePicker() {
     fr.onload = fileReaderOnLoadHandler;
     fr.readAsText(file);
 }
-
-/******************************************************************************/
-
-const startImportFilePicker = function() {
-    const input = document.getElementById('importFilePicker');
-    // Reset to empty string, this will ensure an change event is properly
-    // triggered if the user pick a file, even if it is the same as the last
-    // one picked.
-    input.value = '';
-    input.click();
-};
 
 /******************************************************************************/
 
@@ -659,7 +648,7 @@ vAPI.messaging.send('dashboard', {
 });
 
 // Handle user interaction
-uDom('#importButton').on('click', startImportFilePicker);
+uDom('#importButton').on('click', utils.startImportFilePicker);
 uDom('#importFilePicker').on('change', handleImportFilePicker);
 uDom('#exportButton').on('click', exportUserRulesToFile);
 uDom('#revertButton').on('click', revertAllHandler);
