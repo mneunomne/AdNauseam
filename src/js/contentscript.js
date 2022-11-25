@@ -1337,22 +1337,17 @@ const bootstrapPhaseAdn = function (response) {
 
 const processFilters = function (selectors) {
     if (selectors.length == 1) {
-        selectors = selectors[0].split(',\n').filter(s => isSelectorValid(s)).join(',\n')
-        let nodes = document.querySelectorAll(selectors);
+        selectors = selectors[0]
+    }
+    selectors = selectors.split(',\n').filter(s => isSelectorValid(s)).join(',\n')
+    if (isSelectorValid(selectors)) {
+        let nodes = document.querySelectorAll(selectors);   
         for ( const node of nodes ) {
             vAPI.adCheck && vAPI.adCheck(node);
         }
     } else {
-        if (isSelectorValid(selectors)) {
-            let nodes = document.querySelectorAll(selectors);
-            for ( const node of nodes ) {
-                vAPI.adCheck && vAPI.adCheck(node);
-            }
-        } else {
-            console.warn("[ADN] invalid selector", selectors)
-        }
+        console.warn("[ADN] invalid selector", selectors)
     }
-    
 }
 
 // vAPI.bootstrap:
@@ -1530,3 +1525,4 @@ vAPI.bootstrap();
 
 }
 // <<<<<<<< end of HUGE-IF-BLOCK
+;
