@@ -1442,7 +1442,6 @@ const processFilters = function (selectors) {
         vAPI.noGenericCosmeticFiltering = noGenericCosmeticFiltering;
 
         if ( noSpecificCosmeticFiltering && noGenericCosmeticFiltering || response.prefs.hidingDisabled) { // ADN
-
             vAPI.domFilterer = null;
             vAPI.domSurveyor = null;
         } else {
