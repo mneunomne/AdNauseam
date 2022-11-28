@@ -1291,7 +1291,7 @@ var lastRunBootstrapPhaseAdn = null;
 var bootstrapPhaseAdnCounter = 0
 var specificCosmeticFilters = null
 const bootstrapPhaseAdn = function (response) {
-    if (response && response.specificCosmeticFilters) {
+    if (response && response.specificCosmeticFilters && response.specificCosmeticFilters.injectedCSS) {
         //let specificCosmeticFilters = response.specificCosmeticFilters
         specificCosmeticFilters =  response.specificCosmeticFilters.injectedCSS.split('{')[0]
     }
