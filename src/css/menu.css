@@ -37,7 +37,7 @@ body.mobile {
   overflow-y: auto;
   width: 100%;
 }
-body.mobile .container {
+body.mobile .container { /* adn */
   width: 100%;
   max-width: 100%;
 }
