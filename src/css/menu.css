@@ -35,6 +35,11 @@ body {
 }
 body.mobile {
   overflow-y: auto;
+  width: 100%;
+}
+body.mobile .container {
+  width: 100%;
+  max-width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {

@@ -305,6 +305,10 @@ button.custom {
   height:36px;
   margin:0px;
 }
+/* adn */
+:root.mobile button.custom {
+  font-size:18px;
+}
 button.custom.disabled,
 button.custom[disabled],
 button.large.disabled {
