@@ -686,7 +686,7 @@ vAPI.DOMFilterer = class {
                 var instance = this.proceduralFiltererInstance()
                 if (instance == null) {
                     if (vAPI.prefs.logEvents) console.warn("[ADN] proceduralFiltererInstance null")
-                    break;
+                    continue;
                 }
                 /* end of Adn exception fetching */
                 out.procedural.push(
@@ -1305,15 +1305,17 @@ const bootstrapPhaseAdn = function (response) {
             return; 
         }
         lastRunBootstrapPhaseAdn = Date.now()
+        
+        if (specificCosmeticFilters) {
+            processFilters(specificCosmeticFilters)
+        }
+
         // avoid exception
         if (typeof vAPI.domFilterer == 'undefined' || vAPI.domFilterer == null) {
             console.error("[ADN] vAPI.domFilterer undefined")
             return;
         }
 
-        if (specificCosmeticFilters) {
-            processFilters(specificCosmeticFilters)
-        }
 
         // get all the selectors
         var allSelectors = vAPI.domFilterer.getAllSelectors()
@@ -1327,7 +1329,7 @@ const bootstrapPhaseAdn = function (response) {
         if (allSelectors.procedural && allSelectors.procedural.length > 0) {
             for (var index in allSelectors.procedural) {
                 var filter = allSelectors.procedural[index]
-                if (filter.selector.length == 0) break; 
+                if (filter.selector.length == 0) continue; 
                 processFilters(filter.selector)
             }
         }
