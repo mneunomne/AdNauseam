@@ -853,12 +853,6 @@ vAPI.messaging = {
     },
 
     onPortDisconnect: function(port) {
-        /* Adn */
-        if (port == null) {
-            ubolog("onPortDisconnect: port is null")
-            return;
-        }
-        /* end of Adn */
         this.ports.delete(port.name);
     },
 
