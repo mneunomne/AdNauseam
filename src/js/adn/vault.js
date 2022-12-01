@@ -1527,11 +1527,18 @@
     let offsetY = 0;
 
     container_div.addEventListener('mousedown', mouseDown, false);
+    container_div.addEventListener('touchstart', touchStart, false);
+    window.addEventListener('touchend', touchEnd, false);
     window.addEventListener('mouseup', mouseUp, false);
 
     function mouseUp()
     {
         window.removeEventListener('mousemove', divMove, true);
+    }
+
+    function touchEnd()
+    {
+        window.removeEventListener('touchmove', divMove, true);
     }
 
     function mouseDown(e){
@@ -1541,7 +1548,15 @@
       window.addEventListener('mousemove', divMove, true);
       offsetX = e.pageX;
       offsetY = e.pageY;
+    }
 
+    function touchStart(e){
+      // check if interface is in lightbox
+      if($container.hasClass('lightbox')) return
+      // add move event
+      window.addEventListener('touchmove', divMove, true);
+      offsetX = e.pageX;
+      offsetY = e.pageY;
     }
 
     function mouseOnAd(mouseX, mouseY){
@@ -1557,7 +1572,8 @@
     }
 
 
-    const divMove = function(e){
+    const divMove = function(evt){
+        var e = evt.targetTouches ? evt.targetTouches[0] : evt
         draggingVault = false;
         if(mouseOnAd(e.pageX, e.pageY)){
           draggingVault = true;

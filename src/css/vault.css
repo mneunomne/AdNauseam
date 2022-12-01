@@ -1128,3 +1128,40 @@ svg {
 	opacity: 1;
 	color: #ccc;
 }
+
+/* MOBILE */
+
+html.mobile #bottom-text {
+	bottom: 230px;
+}
+
+html.mobile .svg-container, html.mobile #logo {
+	bottom: 135px;
+}
+
+html.mobile .zoom {
+	top: 40px;
+	left: 45px;
+	transform: scale(2);
+	transform-origin: top;
+}
+
+html.mobile #ratio {
+	top: 134px;
+	left: 36px;
+	font-size: 22px;
+}
+
+html.mobile #myStatistics {
+	transform: scale(1.15);
+	transform-origin: left;
+	bottom: 55px;
+}
+
+html.mobile #stats {
+	bottom: 10px;
+}
+
+html.mobile .session-sum, html.mobile #actions {
+	font-size: 21px !important;
+}
