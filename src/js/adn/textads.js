@@ -166,12 +166,18 @@
       // element has no class, attribute, so it needs to be fetched like this 
       var text = ""
       var textDiv = null
-      if (div.childNodes[0].childNodes[1].className == "") {
-        textDiv = div.childNodes[0].childNodes[1]
+      if (div.childNodes[0]?.childNodes[1]?.className == "") {
+        textDiv = div?.childNodes[0]?.childNodes[1]
       } else {
-        textDiv = div.childNodes[0].childNodes[2]
+        textDiv = div?.childNodes[0]?.childNodes[2]
       }
-      var textElement = textDiv.childNodes[0].childNodes[0].childNodes[0]
+      var textElement = textDiv?.childNodes[0]?.childNodes[0]?.childNodes[0]
+
+      if (typeof textElement == 'undefined') {
+        console.warn('[ADN] textElement undefined', div)
+        return 
+      }
+
       text = textElement.innerText || textElement.wholeText
 
       var site = div.querySelector('[data-dtld]').getAttribute('data-dtld')
