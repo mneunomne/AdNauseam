@@ -265,6 +265,8 @@ body.updating .listEntry.checked.obsolete .updating {
 :root.mobile .li.listEntry {
     /* background-color: var(--bg-1); */
     overflow-x: auto;
+    height: 45px; /* adn */
+    overflow-y: hidden; /* adn */
     }
 :root.mobile .li.listEntry label > span:not([class]) {
     flex-grow: 1;
