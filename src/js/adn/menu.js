@@ -26,7 +26,7 @@
 
   let ads, page, settings, recent; // remove? only if we can find an updated ad already in the DOM
 
-  const ad_list_height = 360;
+  const ad_list_height = document.body.offsetHeight - 140;
 
   vAPI.broadcastListener.add(request => {
 
