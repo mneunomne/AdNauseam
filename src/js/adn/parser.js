@@ -258,13 +258,10 @@
       let ad = createAd(document.domain, targetUrl, { src: src, width: iw, height: ih });
 
       if (ad) {
-
-        if (vAPI.prefs.logEvents) console.log('[PARSED] IMG-AD', ad);
+        logP('[PARSED] IMG-AD' + ad);
         notifyAddon(ad);
         return true;
-
       } else {
-
         warnP("Fail: Unable to create Ad", document.domain, targetUrl, src);
       }
     }
@@ -411,7 +408,7 @@
           });
           
           if (ad) {
-            if (vAPI.prefs.logEvents) console.log("[PARSED] TEXT-AD", ad);
+            logP("[PARSED] TEXT-AD" + ad);
             vAPI.adParser.notifyAddon(ad);
           }
         }
@@ -523,7 +520,7 @@
 
           if (ad) {
 
-            if (vAPI.prefs.logEvents) console.log('[PARSED] Responsive Text Ad', ad);
+            if (vAPI.prefs && vAPI.prefs.logEvents) console.log('[PARSED] Responsive Text Ad', ad);
             notifyAddon(ad);
             return true;
 
