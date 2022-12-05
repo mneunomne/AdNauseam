@@ -205,9 +205,9 @@
 
     const ddgText = function (div) {
       let ad;
-      const title = $find(div, 'h2.result__title > a.result__a');
-      const text = $find(div, 'div.result__snippet > a');
-      const site = $find(div, 'a.result__url');
+      const title = $find(div, 'h2 > a[data-testid]');
+      const text = $find(div, 'div > div > a:not([data-testid])');
+      const site = $find(div, 'a[data-testid*=result-extras-url-link');
 
       if (text.length && site.length && title.length) {
 
@@ -425,7 +425,7 @@
       name: 'aol',
       domain: /^.*\.aol\.com(\.([a-z]{2}))?$/i
     }, {
-      selector: '.result__body',
+      selector: '.nrn-react-div',
       handler: ddgText,
       name: 'ddg',
       domain: /^(.*\.)?duckduckgo\.com/i

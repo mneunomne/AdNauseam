@@ -129,12 +129,17 @@
 
     const processImage = function (img) {
 
-      const src = img.src || img.getAttribute("src");
+      var src = img.src || img.getAttribute("src");
 
       // ignore this element which only server to generate div size. It is a transparent png image. Fixing https://github.com/dhowe/AdNauseam/issues/1843
       if (img.className === 'i-amphtml-intrinsic-sizer') {
         logP("Ignoring: transparent fake detection from AMP-IMG", img);
         return;
+      }
+
+      if (!src && img.dataset.src) { // try to get data-src which is the case for some images
+        let data_src = img.dataset.src
+        src = (data_src.indexOf("http://") == 0 || data_src.indexOf("https://") == 0) ? data_src : window.location.host + data_src
       }
 
       if (!src) { // no image src
