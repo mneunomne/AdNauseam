@@ -128,7 +128,7 @@
     };
 
     const askText = function (dom) {
-      const ads = [], divs = $find(dom, 'div[id^="e"][data-bg=true]');
+      const ads = [], divs = $find(dom, 'div[id^="e"][data-bg=true]:not(.wtaBubble)');
 
         for (let i = 0; i < divs.length; i++) {
           let title;
@@ -136,8 +136,8 @@
           let text;
           const idiv = divs[i];
 
-          title = $find(idiv, 'div:nth-child(1) a');
-          site = $find(idiv, 'div:nth-child(2) a');
+          title = $find(idiv, 'div:nth-child(2):not(.wtaBubble)');
+          site = $find(idiv, 'div:nth-child(1) a');
           text = $find(idiv, 'span:nth-child(3)');
 
           if (text.length && site.length && title.length) {
@@ -166,6 +166,11 @@
       // element has no class, attribute, so it needs to be fetched like this 
       var text = ""
       var textDiv = null
+
+      var textElements = [...div.querySelectorAll('div:not([class])')].filter(e => e.innerText.length > 15)
+      var textElement = text = textElements[textElements.length-1]
+      
+      /*
       if (div.childNodes[0]?.childNodes[1]?.className == "") {
         textDiv = div?.childNodes[0]?.childNodes[1]
       } else {
@@ -174,14 +179,15 @@
       var textElement = textDiv?.childNodes[0]?.childNodes[0]?.childNodes[0]
 
       if (typeof textElement == 'undefined') {
-        console.warn('[ADN] textElement undefined', div)
-        return 
+        console.warn('[ADN] textElement undefined', div.outerHTML)
+        textElement = div.querySelector('div[style*="webkit-line-clamp"] div')
       }
+      */
 
-      text = textElement.innerText || textElement.wholeText
+      text = textElement ? (textElement.innerText || textElement.wholeText) : ""
 
       var site = div.querySelector('[data-dtld]').getAttribute('data-dtld')
-      var href = div.querySelector('[data-pcu]').getAttribute('data-pcu') 
+      var href = div.querySelector('[data-rw]').getAttribute('href') 
 
       if (text.length && site.length && title.length) {
         ad = vAPI.adParser.createAd('google', href, {
@@ -199,9 +205,9 @@
 
     const ddgText = function (div) {
       let ad;
-      const title = $find(div, 'h2.result__title > a.result__a');
-      const text = $find(div, 'div.result__snippet > a');
-      const site = $find(div, 'a.result__url');
+      const title = $find(div, 'h2 > a[data-testid]');
+      const text = $find(div, 'div > div > a:not([data-testid])');
+      const site = $find(div, 'a[data-testid*=result-extras-url-link');
 
       if (text.length && site.length && title.length) {
 
@@ -419,7 +425,7 @@
       name: 'aol',
       domain: /^.*\.aol\.com(\.([a-z]{2}))?$/i
     }, {
-      selector: '.result__body',
+      selector: '.nrn-react-div',
       handler: ddgText,
       name: 'ddg',
       domain: /^(.*\.)?duckduckgo\.com/i
@@ -429,7 +435,7 @@
       name: 'yahoo',
       domain: /^.*\.yahoo\.com/i
     }, {
-      selector: 'li.b_ad',
+      selector: 'li.ad_scpa, li.adsMvC, li.adsMvE, li.ad_sc',
       handler: bingText,
       name: 'bing',
       domain: /^.*\.bing\.com/i
@@ -481,7 +487,6 @@
         }
         const ads = checkFilters(elem);
         if (ads) {
-
           for (let i = 0; i < ads.length; i++) {
             if (typeof ads[i] !== 'undefined') {
               if (vAPI.prefs.logEvents) console.log("[PARSED] TEXT-AD", ads[i]);
