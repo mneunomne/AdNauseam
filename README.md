@@ -61,7 +61,9 @@ If you're not sure where to start, look at the issues labeled [HELP US CODE](htt
 2. [How to build the extension for various browsers](https://github.com/dhowe/AdNauseam/wiki/Building-AdNauseam-from-source-(for-developers))
 
 <br>
+
 Or, support us with a monthly donation and [become a backer](https://opencollective.com/adnauseam#backer)!
+
 <br>
 
 [![open-collective](https://opencollective.com/adnauseam/contributors.svg?width=890)](https://github.com/dhowe/adnauseam/graphs/contributors)
