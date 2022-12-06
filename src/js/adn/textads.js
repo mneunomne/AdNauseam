@@ -128,7 +128,7 @@
     };
 
     const askText = function (dom) {
-      const ads = [], divs = $find(dom, 'div[id^="e"][data-bg=true]');
+      const ads = [], divs = $find(dom, 'div[id^="e"][data-bg=true]:not(.wtaBubble)');
 
         for (let i = 0; i < divs.length; i++) {
           let title;
@@ -136,8 +136,8 @@
           let text;
           const idiv = divs[i];
 
-          title = $find(idiv, 'div:nth-child(1) a');
-          site = $find(idiv, 'div:nth-child(2) a');
+          title = $find(idiv, 'div:nth-child(2):not(.wtaBubble)');
+          site = $find(idiv, 'div:nth-child(1) a');
           text = $find(idiv, 'span:nth-child(3)');
 
           if (text.length && site.length && title.length) {
