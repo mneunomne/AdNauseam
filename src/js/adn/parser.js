@@ -142,7 +142,7 @@
     const processImage = function (img) {
 
       if(img.hasAttribute('process-adn')) {
-        logP('Element already processed by parser')
+        logP('Image already processed by parser')
         return false;
       } else {
         img.setAttribute('process-adn', true)
@@ -293,7 +293,7 @@
     const processVideo = function (el) {
 
       if(el.hasAttribute('process-adn')) {
-        logP('Element already processed by parser')
+        logP('Video already processed by parser')
         return false;
       } else {
         el.setAttribute('process-adn', true)
