@@ -378,52 +378,52 @@
           ? elem.getAttribute('src') : elem);
 
       var tagName = elem.tagName
-      var found = false
 
-      if (tagName == 'IFRAME') {
-        elem.addEventListener('load', processIFrame, false);
-        return;
+      switch (tagName) {
+        case 'IFRAME':
+          elem.addEventListener('load', processIFrame, false);
+        break;
+        case 'AMP-IMG':
+        case 'IMG':
+          findImageAds([elem]);
+        break;
+
+        case 'VIDEO':
+          findVideoAds([elem]);
+        break;
+        case 'BODY':
+        case 'HTML':
+          // If element is body/html don't check children, it doens't make sense to check the whole document
+          findBgImage(elem);
+        break;
+        default:
+          logP('Checking children of', elem);
+          
+          var found = false
+          const imgs = elem.querySelectorAll('img, amp-img');
+          if (imgs.length) {
+            found = findImageAds(imgs);
+            if (found) return;
+          }
+
+          const videos = elem.querySelectorAll('video[poster]');
+          if (videos.length) {
+            found = findVideoAds(imgs);
+            if (found) return;
+          }
+          
+
+          logP('No img found, check other cases', elem);
+
+          // if no img found within the element
+          findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) || GoogleActiveViewElement(elem) || findYoutubeTextAd(elem)
+            || logP('No images in children of', elem);
+
+          // and finally check for text ads
+          vAPI.textAdParser.process(elem);
+
+        break;
       }
-
-      if (tagName == 'AMP-IMG' || tagName == 'IMG') {
-        findImageAds([elem]);
-        return;
-      }
-
-      if (tagName == 'VIDEO') {
-        found = findVideoAds([elem]);
-        return;
-      }
-
-      // If element is body/html don't check children, it doens't make sense to check the whole document
-      if (tagName == "BODY" || tagName == "HTML") {
-        found = findBgImage(elem);
-        return;
-      }
-
-      logP('Checking children of', elem);
-
-      const imgs = elem.querySelectorAll('img, amp-img');
-      if (imgs.length) {
-        found = findImageAds(imgs);
-        if (found) return;
-      }
-
-      const videos = elem.querySelectorAll('video[poster]');
-      if (videos.length) {
-        found = findVideoAds(imgs);
-        if (found) return;
-      }
-      
-
-      logP('No img found, check other cases', elem);
-
-      // if no img found within the element
-      findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) || GoogleActiveViewElement(elem) || findYoutubeTextAd(elem)
-        || logP('No images in children of', elem);
-
-      // and finally check for text ads
-      vAPI.textAdParser.process(elem);
       
     };
 
