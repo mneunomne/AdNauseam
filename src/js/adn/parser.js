@@ -141,6 +141,13 @@
 
     const processImage = function (img) {
 
+      if(img.hasAttribute('process-adn')) {
+        logP('Element already processed by parser')
+        return false;
+      } else {
+        img.setAttribute('process-adn', true)
+      }
+
       var src = img.src || img.getAttribute("src");
 
       // ignore this element which only server to generate div size. It is a transparent png image. Fixing https://github.com/dhowe/AdNauseam/issues/1843
@@ -284,6 +291,14 @@
     }
 
     const processVideo = function (el) {
+
+      if(el.hasAttribute('process-adn')) {
+        logP('Element already processed by parser')
+        return false;
+      } else {
+        el.setAttribute('process-adn', true)
+      }
+
       if (!el.hasAttribute('poster')) {
         logP('Fail: video element has no poster attribute, continue' + el);
         return;
@@ -373,9 +388,15 @@
 
     const process = function (elem) {
 
-      logP('Process(' + elem.tagName + ')',
-        elem.tagName === 'IFRAME' && elem.hasAttribute('src')
-          ? elem.getAttribute('src') : elem);
+      if(elem.hasAttribute('process-adn')) {
+        logP('Element already processed by parser')
+        return;
+      } else {
+        elem.setAttribute('process-adn', true)
+        logP('Process(' + elem.tagName + ')',
+          elem.tagName === 'IFRAME' && elem.hasAttribute('src')
+            ? elem.getAttribute('src') : elem);
+      }
 
       var tagName = elem.tagName
 
