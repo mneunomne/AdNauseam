@@ -189,6 +189,8 @@ columbiagreenemedia.com###sawyer_container
 
 www.pinterest.com##div[data-test-signup="true"]
 www.pinterest.com##div[data-test-giftwrap="true"]
+pinterest.com##.zI7.iyn.Hsu:has(:scope video[poster^="http"])
+
 
 # pandora
 pandora.com##*[id*="ad1"]

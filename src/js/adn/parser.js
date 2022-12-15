@@ -49,8 +49,26 @@
 
       if (hits < 1) {
         logP('No (loaded) image Ads found in', imgs);
+        return false
+      } else {
+        return true
       }
     };
+
+    const findVideoAds = function (elements) {
+      
+      let hits = 0;
+      for (let i = 0; i < elements.length; i++) {
+        if (processVideo(elements[i])) hits++;
+      }
+
+      if (hits < 1) {
+        logP('No (loaded) video Ads found in', elements);
+      } else {
+        return true
+      }
+    };
+    
 
     const getSrcFromAttribute = function (attribute) {
       let src = attribute.match(/\((.*?)\)/);
@@ -64,13 +82,9 @@
     } 
 
     const findBgImage = function (elem) {
-
       logP("findBgImage", elem)
-
       const attribute = elem.style.backgroundImage ? elem.style.backgroundImage : elem.style.background;
-
       if (typeof attribute !== 'undefined' && clickableParent(elem)) {
-
         const targetUrl = getTargetUrl(elem);
         if (attribute && targetUrl) {
 
@@ -81,9 +95,7 @@
           
           return createImageAd(img, src, targetUrl);
         }
-
       } else {
-
         // TODO: go though all children
       }
     };
@@ -219,12 +231,12 @@
     }
 
 
-    const createImageAd = function (img, src, targetUrl) {
-      let wFallback = parseInt(img.getAttribute("width") || -1)
-      let hFallback = parseInt(img.getAttribute("height") || -1)
+    const createImageAd = function (el, src, targetUrl) {
+      let wFallback = parseInt(el.getAttribute("width") || -1)
+      let hFallback = parseInt(el.getAttribute("height") || -1)
       
-      const iw = img.naturalWidth || wFallback;
-      const ih = img.naturalHeight || hFallback;
+      const iw = el.naturalWidth || wFallback || el.getAttribute("clientWidth");
+      const ih = el.naturalHeight || hFallback || el.getAttribute("clientHeight");
       const minDim = Math.min(iw, ih);
       const maxDim = Math.max(iw, ih);
 
@@ -269,6 +281,30 @@
       } else {
         warnP("Fail: Unable to create Ad", document.domain, targetUrl, src);
       }
+    }
+
+    const processVideo = function (el) {
+      if (!el.hasAttribute('poster')) {
+        logP('Fail: video element has no poster attribute, continue' + el);
+        return;
+      }
+
+      logP('Processing VIDEO element as IMG' + el);
+
+      let src = el.getAttribute('poster');
+
+      if (!src || src.length < 1 ) return;
+
+      if (src.indexOf('http') === 0) {
+        src = src[0] == '/' ? src : '/' + src
+        src = window.location.origin + src
+      }
+
+      let targetUrl = getTargetUrl(el);
+
+      if (!targetUrl) return;
+
+      return createImageAd(el, src, targetURL);
     }
 
     const parseDomain = function (url, useLast) { // dup. in shared
@@ -341,43 +377,54 @@
         elem.tagName === 'IFRAME' && elem.hasAttribute('src')
           ? elem.getAttribute('src') : elem);
 
-      //console.log("PARSER.process", vAPI.prefs.logEvents);
+      var tagName = elem.tagName
 
-      switch (elem.tagName) {
-
+      switch (tagName) {
         case 'IFRAME':
           elem.addEventListener('load', processIFrame, false);
-          break;
-        // support for amp-img tag 
+        break;
         case 'AMP-IMG':
         case 'IMG':
           findImageAds([elem]);
-          break;
+        break;
 
-        default: // other tag-types
+        case 'VIDEO':
+          findVideoAds([elem]);
+        break;
+        case 'BODY':
+        case 'HTML':
           // If element is body/html don't check children, it doens't make sense to check the whole document
-          if (elem.tagName == "BODY" || elem.tagName == "HTML") {
-            findBgImage(elem);
-            return;
-          }
-
+          findBgImage(elem);
+        break;
+        default:
           logP('Checking children of', elem);
-
+          
+          var found = false
           const imgs = elem.querySelectorAll('img, amp-img');
           if (imgs.length) {
-            findImageAds(imgs);
+            found = findImageAds(imgs);
+            if (found) return;
           }
-          else {
-            logP('No img found, check other cases', elem);
 
-            // if no img found within the element
-            findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) || GoogleActiveViewElement(elem) || findYoutubeTextAd(elem)
-              || logP('No images in children of', elem);
+          const videos = elem.querySelectorAll('video[poster]');
+          if (videos.length) {
+            found = findVideoAds(imgs);
+            if (found) return;
           }
+          
+
+          logP('No img found, check other cases', elem);
+
+          // if no img found within the element
+          findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) || GoogleActiveViewElement(elem) || findYoutubeTextAd(elem)
+            || logP('No images in children of', elem);
 
           // and finally check for text ads
           vAPI.textAdParser.process(elem);
+
+        break;
       }
+      
     };
 
     const GoogleActiveViewElement = function (elem) {
