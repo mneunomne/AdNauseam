@@ -296,8 +296,9 @@
       if (!src || src.length < 1 ) return;
 
       if (src.indexOf('http') === 0) {
-        src = src[0] == '/' ? src : '/' + src
-        src = window.location.origin + src
+        // src = src[0] == '/' ? src : '/' + src
+        // src = window.location.origin + src
+        return; // do not internal ads for videos 
       }
 
       let targetUrl = getTargetUrl(el);
