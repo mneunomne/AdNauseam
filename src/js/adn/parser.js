@@ -301,6 +301,12 @@
         return; // do not internal ads for videos 
       }
 
+      // do not collect video ads from same origin 
+      var url = new URL(src)
+      if (url.origin == window.location.origin) {
+        return;
+      }
+
       let targetUrl = getTargetUrl(el);
 
       if (!targetUrl) return;
