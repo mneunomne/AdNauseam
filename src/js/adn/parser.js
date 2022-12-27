@@ -303,7 +303,7 @@
 
       // do not collect video ads from same origin 
       var url = new URL(src)
-      if (url.origin == window.location.origin) {
+      if (url && url.origin == window.location.origin) {
         return;
       }
 
