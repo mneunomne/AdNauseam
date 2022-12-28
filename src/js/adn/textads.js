@@ -186,10 +186,10 @@
 
       text = textElement ? (textElement.innerText || textElement.wholeText) : ""
 
-      var site = div.querySelector('[data-dtld]').getAttribute('data-dtld')
-      var href = div.querySelector('[data-rw]').getAttribute('href') 
+      var site = div.querySelector('[data-dtld]')?.getAttribute('data-dtld')
+      var href = div.querySelector('[data-rw]')?.getAttribute('href') 
 
-      if (text.length && site.length && title.length) {
+      if (text?.length && site?.length && title?.length && href?.length) {
         ad = vAPI.adParser.createAd('google', href, {
           title: title,
           text: text,
