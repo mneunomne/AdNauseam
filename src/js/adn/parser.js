@@ -396,7 +396,7 @@
     const process = function (elem) {
 
       if(elem.hasAttribute('process-adn')) {
-        logP('Element already processed by parser')
+        logP(`Element (${elem.tagName}) already processed by parser.`)
         return;
       } else {
         elem.setAttribute('process-adn', true)
