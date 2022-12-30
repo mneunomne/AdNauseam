@@ -104,7 +104,7 @@ const onBeforeSendHeaders = function (details) {
 // ADN: remove outgoing cookies, reset user-agent, strip referer
 const beforeAdVisit = function (details, headers, prefs, ad, respectDNT) {
 
-    const referer = ad.pageUrl, refererIdx = -1, dbug = 0;
+    var referer = ad.pageUrl, refererIdx = -1, dbug = 0;
     let uirIdx = -1;
 
     ad.requestId = details.requestId; // needed?
