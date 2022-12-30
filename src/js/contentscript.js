@@ -1314,7 +1314,7 @@ const bootstrapPhaseAdn = function (response) {
 
         // avoid exception
         if (typeof vAPI.domFilterer == 'undefined' || vAPI.domFilterer == null) {
-            console.error("[ADN] vAPI.domFilterer undefined")
+            console.warn("[ADN] vAPI.domFilterer undefined")
             return;
         }
 
