@@ -962,6 +962,8 @@ vAPI.DOMFilterer = class {
                 if ( iframes.length !== 0 ) {
                     addIFrames(iframes);
                 }
+                // remove process-adn attri, allowing for parsing again #2236
+                node.removeAttribute('process-adn')
             }
             process();
         }
