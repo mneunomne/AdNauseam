@@ -126,7 +126,7 @@ const userSettingsDefault = {
     contextMenuEnabled: true,
     uiAccentCustom: false,
     uiAccentCustom0: '#aca0f7',
-    uiTheme: 'auto',
+    uiTheme: 'dark',
     externalLists: '',
     firewallPaneMinimized: true,
     hyperlinkAuditingDisabled: true,
