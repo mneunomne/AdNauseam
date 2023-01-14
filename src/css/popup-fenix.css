@@ -55,7 +55,7 @@ hr {
     }
 
 #sticky {
-    background-color: var(--surface-1);
+    background-color: inherit; /* adn */
     position: sticky;
     top: 0;
     z-index: 100;
