@@ -311,8 +311,15 @@
       if (!src || src.length < 1 ) return;
 
       if (src.indexOf('http') === 0) {
-        src = src[0] == '/' ? src : '/' + src
-        src = window.location.origin + src
+        // src = src[0] == '/' ? src : '/' + src
+        // src = window.location.origin + src
+        return; // do not internal ads for videos 
+      }
+
+      // do not collect video ads from same origin 
+      var url = new URL(src)
+      if (url && url.origin == window.location.origin) {
+        return;
       }
 
       let targetUrl = getTargetUrl(el);
@@ -389,7 +396,7 @@
     const process = function (elem) {
 
       if(elem.hasAttribute('process-adn')) {
-        logP('Element already processed by parser')
+        logP(`Element (${elem.tagName}) already processed by parser.`)
         return;
       } else {
         elem.setAttribute('process-adn', true)

@@ -962,6 +962,8 @@ vAPI.DOMFilterer = class {
                 if ( iframes.length !== 0 ) {
                     addIFrames(iframes);
                 }
+                // remove process-adn attri, allowing for parsing again #2236
+                node.removeAttribute('process-adn')
             }
             process();
         }
@@ -1298,7 +1300,7 @@ const bootstrapPhaseAdn = function (response) {
     // check last time ran
     let now = Date.now()
     // run if its first time running or if the last time it ran was more than 1 sec ago
-    if (lastRunBootstrapPhaseAdn === null || (lastRunBootstrapPhaseAdn && now - lastRunBootstrapPhaseAdn > intervalTime)) {
+    if (vAPI && lastRunBootstrapPhaseAdn === null || (lastRunBootstrapPhaseAdn && now - lastRunBootstrapPhaseAdn > intervalTime)) {
         // avoid it running too many times;
         if (bootstrapPhaseAdnCounter >= maxTimesRunBootstrapPhaseAdn) {
             bootstrapAdnTimer.clear();
@@ -1312,7 +1314,7 @@ const bootstrapPhaseAdn = function (response) {
 
         // avoid exception
         if (typeof vAPI.domFilterer == 'undefined' || vAPI.domFilterer == null) {
-            console.error("[ADN] vAPI.domFilterer undefined")
+            console.warn("[ADN] vAPI.domFilterer undefined")
             return;
         }
 
