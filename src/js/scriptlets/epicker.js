@@ -1288,11 +1288,10 @@ const pickerCSSStyle = [
     'position: fixed',
     'top: 0',
     'transform: none',
-    'visibility: visible',
+    'visibility: hidden',
     'width: 100%',
     'z-index: 2147483647',
-    // https://github.com/uBlockOrigin/uBlock-issues/issues/1408
-    'color-scheme: light',
+    'color-scheme: light dark',
     ''
 ];
 
