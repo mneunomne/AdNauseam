@@ -730,7 +730,7 @@ vAPI.setIcon = (( ) => {
             }
             const ctx = document.createElement('canvas')
                 .getContext('2d', { willReadFrequently: true });
-            const iconData = [ null, null, null, null, null, null, null];
+            const iconData = [ null, null, null, null, null, null, null]; // adn
             for ( const img of imgs ) {
                 if ( img.cached ) { continue; }
                 const w = img.r.naturalWidth, h = img.r.naturalHeight;

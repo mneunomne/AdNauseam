@@ -23,6 +23,8 @@
 
 'use strict';
 
+import { renderNotifications } from './notifications.js'
+
 /******************************************************************************/
 
 const resizeFrame = function() {

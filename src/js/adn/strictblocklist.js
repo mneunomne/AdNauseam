@@ -203,7 +203,7 @@ const exportStrictBlockListToFile = function() {
     const val = getEditorText();
     if ( val === '' ) { return; }
     const filename =
-        vAPI.i18n('strictBlockListExportFilename')
+        i18n$('strictBlockListExportFilename')
             .replace('{{datetime}}', uBlockDashboard.dateNowToSensibleString())
             .replace(/ +/g, '_');
     vAPI.download({

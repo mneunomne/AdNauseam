@@ -40,7 +40,6 @@ import {
 
 import { StaticFilteringParser } from '../static-filtering-parser.js';
 
-
 import {
   log,
   warn,
@@ -48,7 +47,28 @@ import {
   logNetAllow,
   logNetBlock,
   logNetEvent
-} from './log.js'
+} from './log.js';
+
+import { i18n$ } from '../i18n.js';
+
+import {
+  DNTAllowed,
+  DNTHideNotClick,
+  DNTClickNotHide,
+  DNTNotify,
+  addNotification,
+  removeNotification,
+  hasDNTNotification,
+  ShowAdsDebug,
+  OperaSetting,
+  FirefoxSetting,
+  AdBlockerEnabled,
+  AdNauseamTxt,
+  EasyList,
+  BlockingDisabled,
+  ClickingDisabled,
+  HidingDisabled
+} from './notifications.js';
 
 const adnauseam = (function () {
   'use strict';
@@ -1104,7 +1124,7 @@ const adnauseam = (function () {
     // either from the enabledBlockedLists, or if it matches "My Filter". \
     // OR added because of previous where "My Filters" didn't match the other language names this value can have
     // https://github.com/dhowe/AdNauseam/issues/1914
-    return enabledBlockLists.contains(test) || test === vAPI.i18n('1pPageName');
+    return enabledBlockLists.contains(test) || test === i18n$('1pPageName');
   };
 
   // check target domain against page-domain #337
@@ -2358,7 +2378,53 @@ const adnauseam = (function () {
 
 })();
 
-// const adnauseam = µb.adnauseam
+
+/******************************* Polyfill ***********************************/
+
+if (!Array.prototype.hasOwnProperty('contains')) {
+  Array.prototype.contains = function (a) {
+    let b = this.length;
+    while (b--) {
+      if (this[b] === a) {
+        return true;
+      }
+    }
+    return false;
+  };
+}
+
+if (!String.prototype.hasOwnProperty('startsWith')) {
+  String.prototype.startsWith = function (needle, pos) {
+    if (typeof pos !== 'number') {
+      pos = 0;
+    }
+    return this.lastIndexOf(needle, pos) === pos;
+  };
+}
+
+if (!String.prototype.hasOwnProperty('endsWith')) {
+  String.prototype.endsWith = function (needle, pos) {
+    if (typeof pos !== 'number') {
+      pos = this.length;
+    }
+    pos -= needle.length;
+    return this.indexOf(needle, pos) === pos;
+  };
+}
+
+if (!String.prototype.hasOwnProperty('includes')) {
+  String.prototype.includes = function (needle, pos) {
+    if (typeof pos !== 'number') {
+      pos = 0;
+    }
+    if (start + search.length > this.length)
+      return false;
+    return this.indexOf(needle, pos) > -1;
+  };
+}
+
+/*************************************************************************/
+
 export default adnauseam
 
 /*************************************************************************/

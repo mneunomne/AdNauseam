@@ -49,9 +49,9 @@
     }
 
     uDom('#localData > ul > li:nth-of-type(1)').text(
-      vAPI.i18n('storageUsed')
+      i18n$('storageUsed')
         .replace('{{value}}', v.toLocaleString(undefined, { maximumSignificantDigits: 3 }))
-        .replace('{{unit}}', unit && vAPI.i18n(unit) || '')
+        .replace('{{unit}}', unit && i18n$(unit) || '')
         .replace(/uBlock₀/g, 'AdNauseam')
     );
 
@@ -96,7 +96,7 @@
   /******************************************************************************/
 
   const resetUserData = function () {
-    const msg = vAPI.i18n('adnAboutResetDataConfirm'); // ADN
+    const msg = i18n$('adnAboutResetDataConfirm'); // ADN
     const proceed = window.confirm(msg); // ADN: changed from vAPI.confirm merge1.14.12
     if (proceed) {
       vAPI.messaging.send('dashboard', { what: 'resetUserData' });

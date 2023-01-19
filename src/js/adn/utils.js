@@ -19,416 +19,14 @@
     Home: https://github.com/dhowe/AdNauseam
 */
 
-// functions shared between addon and ui
+// util functions used in multiple; script files
 
-'use strict';
-
-/******************************* Polyfill ***********************************/
-
-if (!Array.prototype.hasOwnProperty('contains')) {
-  Array.prototype.contains = function (a) {
-    let b = this.length;
-    while (b--) {
-      if (this[b] === a) {
-        return true;
-      }
-    }
-    return false;
-  };
-}
-
-if (!String.prototype.hasOwnProperty('startsWith')) {
-  String.prototype.startsWith = function (needle, pos) {
-    if (typeof pos !== 'number') {
-      pos = 0;
-    }
-    return this.lastIndexOf(needle, pos) === pos;
-  };
-}
-
-if (!String.prototype.hasOwnProperty('endsWith')) {
-  String.prototype.endsWith = function (needle, pos) {
-    if (typeof pos !== 'number') {
-      pos = this.length;
-    }
-    pos -= needle.length;
-    return this.indexOf(needle, pos) === pos;
-  };
-}
-
-if (!String.prototype.hasOwnProperty('includes')) {
-  String.prototype.includes = function (needle, pos) {
-    if (typeof pos !== 'number') {
-      pos = 0;
-    }
-    if (start + search.length > this.length)
-      return false;
-    return this.indexOf(needle, pos) > -1;
-  };
-}
-
-
-/**************************** Notifications *********************************/
-
-const WARNING = 'warning', ERROR = 'error', INFO = 'info', SUCCESS = 'success', DNT = 'dnt', FAQ = 'https://github.com/dhowe/AdNauseam/wiki/FAQ', DNTFAQ = 'https://github.com/dhowe/AdNauseam/wiki/FAQ#what-is-the-effs-do-not-track-standard-and-how-it-is-supported-in-adnauseam';
-
-const DNTAllowed = new Notification({
-  isDNT: true,
-  name: 'DNTAllowed',
-  text: 'adnNotificationDNTAllowed',
-});
-
-const DNTHideNotClick = new Notification({
-  isDNT: true,
-  name: 'DNTHideNotClick',
-  text: 'adnNotificationDNTHidingNotClicking',
-});
-
-const DNTClickNotHide = new Notification({
-  isDNT: true,
-  name: 'DNTClickNotHide',
-  text: 'adnNotificationDNTClickingNotHiding',
-  type: WARNING
-});
-
-const DNTNotify = new Notification({
-  isDNT: true,
-  name: 'DNTNotify',
-  text: 'adnNotificationDNTJustSoYouKnow',
-});
-
-const HidingDisabled = new Notification({
-  name: 'HidingDisabled',
-  text: 'adnNotificationActivateHiding',
-  prop: 'hidingAds',
-  link: 'https://github.com/dhowe/AdNauseam/wiki/FAQ#how-does-adnauseam-hide-ads'
-});
-HidingDisabled.func = reactivateSetting.bind(HidingDisabled);
-
-const ClickingDisabled = new Notification({
-  name: 'ClickingDisabled',
-  text: 'adnNotificationActivateClicking',
-  prop: 'clickingAds',
-  link: 'https://github.com/dhowe/AdNauseam/wiki/FAQ#how-does-adnauseam-click-ads'
-});
-ClickingDisabled.func = reactivateSetting.bind(ClickingDisabled);
-
-const BlockingDisabled = new Notification({
-  name: 'BlockingDisabled',
-  text: 'adnNotificationActivateBlocking',
-  prop: 'blockingMalware',
-  link: 'https://github.com/dhowe/AdNauseam/wiki/FAQ#how-does-adnauseam-block-malicious-ads',
-  type: ERROR
-});
-BlockingDisabled.func = reactivateSetting.bind(BlockingDisabled);
-
-const EasyList = new Notification({
-  name: 'EasyListDisabled',
-  text: 'adnNotificationActivateEasyList',
-  listName: 'easylist',
-  link: 'https://github.com/dhowe/AdNauseam/wiki/FAQ#what-is-the-easylist-filter-and-why-do-i-get-a-warning-when-it-is-disabled'
-});
-EasyList.func = reactivateList.bind(EasyList);
-
-const AdNauseamTxt = new Notification({
-  name: 'AdNauseamTxtDisabled',
-  text: 'adnNotificationActivateAdNauseamList',
-  listName: 'adnauseam-filters',
-  link: 'https://github.com/dhowe/AdNauseam/wiki/FAQ#what-is-the-adnauseam-filter-list'
-});
-AdNauseamTxt.func = reactivateList.bind(AdNauseamTxt);
-
-const AdBlockerEnabled = new Notification({
-  name: 'AdBlockerEnabled',
-  text: 'adnNotificationDisableAdBlocker',
-  button: isFirefox() ? undefined : 'adnNotificationDisable',
-  link: 'https://github.com/dhowe/AdNauseam/wiki/FAQ#can-i-combine-adnauseam-with-another-blocker',
-  firstrun: true
-});
-AdBlockerEnabled.func = openExtPage.bind(AdBlockerEnabled);
-
-const FirefoxSetting = new Notification({
-  name: 'FirefoxSetting',
-  text: 'adnNotificationBrowserSetting',
-  button: undefined,
-  link: 'https://github.com/dhowe/AdNauseam/wiki/FAQ#why-adnauseam-does-not-work-with-certain-browser-settings',
-  firstrun: true
-});
-
-const OperaSetting = new Notification({
-  name: 'OperaSetting',
-  text: 'adnNotificationOperaSetting',
-  button: undefined,
-  link: 'https://github.com/dhowe/AdNauseam/wiki/FAQ#why-adnauseam-does-not-work-on-search-engines-in-opera',
-  firstrun: false
-});
-
-const PrivacyMode = new Notification({
-  name: 'privacyMode',
-  text: 'adnNotificationPrivacyMode',
-  button: undefined,
-  link: 'https://github.com/dhowe/AdNauseam/wiki/FAQ#does-adnauseam-respect-the-browsers-private-browsingincognito-modes',
-  firstrun: true
-});
-PrivacyMode.func = openAdnPage.bind(PrivacyMode);
-
-const ShowAdsDebug = new Notification({
-  name: 'showAdsDebug',
-  text: 'adnNotificationShowAdsDebug',
-  prop: 'showAdsDebug',
-  button: undefined,
-  expected: false,
-  type: WARNING
-});
-// ShowAdsDebug.func = reactivateHiddenSetting.bind(ShowAdsDebug);
-
-/***************************************************************************/
-
-const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyList, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode, ShowAdsDebug];
-
-function Notification(m) {
-
-  function opt(opts, name, def) {
-    return opts && opts.hasOwnProperty(name) ? opts[name] : def;
-  }
-
-  this.prop = opt(m, 'prop', '');
-  this.name = opt(m, 'name', '');
-  this.text = opt(m, 'text', '');
-
-  this.isDNT = opt(m, 'isDNT', '');
-
-  this.link = opt(m, 'link', this.isDNT ? DNTFAQ : FAQ);
-
-  this.listName = opt(m, 'listName', '');
-  this.expected = opt(m, 'expected', true);
-  this.firstrun = opt(m, 'firstrun', false);
-
-  this.type = opt(m, 'type', this.isDNT ? DNT : WARNING);
-  this.button = opt(m, 'button', this.isDNT ? 'adnMenuSettings' : 'adnNotificationReactivate');
-
-  // default function to be called on click
-  this.func = opt(m, 'func', (this.isDNT ? openSettings : reactivateSetting).bind(this));
-}
-
-const makeCloneable = function (notes) {
-
+export const makeCloneable = function (notes) {
   notes && notes.forEach(function (n) { delete n.func }); // remove func to allow clone
   // see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
 };
 
-const addNotification = function (notes, note) {
-
-  for (let i = 0; i < notes.length; i++) {
-    if (notes[i].name === note.name)
-      return false;
-  }
-  notes.push(note);
-  return true;
-};
-
-const removeNotification = function (notes, note) {
-
-  for (let i = 0; i < notes.length; i++) {
-    if (notes[i].name === note.name) {
-      notes.splice(i, 1);
-      return true;
-    }
-  }
-  return false;
-};
-
-const renderNotifications = function (visibleNotes, thePage) {
-  // disable warnings option #1910
-  vAPI.messaging.send(
-    'adnauseam', {
-      what: 'getWarningDisabled'
-    }
-  ).then(isDisabled => {
-    if (isDisabled) {
-      uDom("#notifications").addClass('hide');
-    } else {
-      uDom("#notifications").removeClass('hide');
-    }
-  })
-
-  const page = thePage || 'menu';
-  let notifications = Notifications;
-
-  if (page !== "menu") {
-    notifications = notifications.filter(function (n) {
-      return !n.isDNT
-    });
-  }
-
-  if (page === "firstrun") {
-    notifications = notifications.filter(function (n) {
-      return n.firstrun
-    });
-  }
-
-  const template = uDom('#notify-template');
-
-  if (!template.length) throw Error('no template');
-
-  for (let i = 0; i < notifications.length; i++) {
-
-    const notify = notifications[i];
-
-    const match = visibleNotes && visibleNotes.filter(function (n) {
-
-      // console.log(notify.name, n.name);
-      return notify.name === n.name;
-    });
-
-    const note = uDom('#' + notify.name), exists = note.length;
-
-    if (match && match.length) {
-
-      //console.log("MATCH: "+notify.name, match);
-      if (exists)
-        note.toggleClass('hide', false);
-      else
-        appendNotifyDiv(notify, template, uDom);
-
-      if (notify.isDNT)
-        modifyDNTNotifications()
-
-    } else {
-
-      exists && note.toggleClass('hide', true);
-    }
-  }
-};
-
-const hasNotification = function (notes, note) {
-
-  for (let i = 0; i < notes.length; i++) {
-    if (notes[i].name === note.name) {
-      return note;
-    }
-  }
-  return false;
-};
-
-const hasDNTNotification = function (notes) {
-
-  for (let i = 0; i < notes.length; i++) {
-    if (notes[i].isDNT)
-      return notes[i];
-  }
-
-  return false;
-};
-
-
-const appendNotifyDiv = function (notify, template) {
-
-  const node = template.clone(false);
-  const text_node =  node.descendants('#notify-text')
-
-  node.addClass(notify.type);
-  node.attr('id', notify.name);
-  const text = document.querySelectorAll('span[data-i18n=' + notify.text + ']');
-  text.length > 0 && text_node.text(text[0].innerHTML);
-
-  const button = document.querySelectorAll('span[data-i18n=' + notify.button + ']');
-  if (button && button[0]) {
-    node.descendants('#notify-button').text(button[0].innerHTML).removeClass('hidden');
-  }
-  else {
-    node.descendants('#notify-button').addClass('hidden');
-  }
-
-  node.descendants('#notify-link').attr('href', notify.link);
-
-  /*
-  * Slide text on hover, addressing texts not fitting in the menu
-  * https://github.com/dhowe/AdNauseam/issues/2026
-  */
-  
-  // timeout variables to be able to clearTimeout() later
-  notify.add_timeout = null
-  notify.remove_timeout = null
-
-  // these variables we catch after hover, since some are not yet rendered
-  var text_width = null
-  var width_diff = null
-  var button_width = null
-  
-  // constant values
-  const reading_width = 251
-  const remove_time = 2500
-  const add_time = 500
-  const ad_list_height = 360
-
-  // mouseover event to create slide animation
-  uDom(node.nodes[0]).on('mouseover', "#notify-text", function (e) {
-    // set width value of text
-    if ( text_width == null && width_diff == null) {
-      text_width = text_node.nodes[0].scrollWidth
-    }
-    // add indent timeout
-    if (notify.add_timeout == null) {
-      notify.add_timeout = setTimeout(function () {
-        // get button width to check what width need to slide
-        button_width = node.descendants('#notify-button').nodes[0].clientWidth
-        width_diff = (reading_width - button_width) - (text_width)
-        node.addClass("hover");
-        // only apply if needed
-        if (width_diff < 0) {
-          text_node.css('text-indent', `${width_diff}px`);
-        }
-        // clear add class timeout
-        clearTimeout(notify.add_timeout)
-        notify.add_timeout = null
-
-        // clear remove indent timeout if any
-        if (notify.remove_timeout !== null) {
-          clearTimeout(notify.remove_timeout)
-          notify.remove_timeout = null
-        }
-        // create a fresh "remove" timeout
-        notify.remove_timeout = setTimeout(function () {
-          node.removeClass("hover");
-          text_node.css('text-indent', `0px`);
-          clearTimeout(notify.remove_timeout)
-          notify.remove_timeout = null
-        }, remove_time)
-      }, add_time)
-    }
-  });
-  // end of text sliding code
-
-  // add click handler to reactivate button (a better way to do this??)
-  uDom(node.nodes[0]).on('click', "#notify-button", function (e) {
-
-    notify.func.apply(this); // calls reactivateSetting or reactivateList
-  });
-  uDom('#notifications').append(node);
-
-  const h = document.getElementById('notifications').offsetHeight;
-  const newh = ad_list_height - h;
-  uDom('#ad-list').css('height', newh + 'px');
-  // vAPI.i18n.render();
-}
-
-const modifyDNTNotifications = function () {
-
-  const text = document.querySelectorAll('div[id^="DNT"] #notify-text');
-  const link = uDom('div[id^="DNT"] #notify-link').nodes;
-  const newlink = uDom('span>#notify-link').nodes;
-
-  if (text.length > 0 && link.length > 0 && newlink.length === 0) {
-    const sections = text[0].innerText.includes(",") > 0 ?
-      text[0].innerText.split(',') :
-      text[0].innerText.split('，');
-    text[0].innerHTML = sections[0] + link[0].outerHTML + "," + sections[1];
-    uDom('div[id^="DNT"]>#notify-link').css('display', 'none');
-  }
-};
-
-function onSelectionDone() {
+export const onSelectionDone = function () {
   Promise.resolve(
     vAPI.messaging.send('dashboard', {
       what: 'reloadAllFilters'
@@ -438,7 +36,7 @@ function onSelectionDone() {
   });
 };
 
-function reactivateSetting() {
+export const reactivateSetting = function() {
 
   console.log('reactivateSetting', this.prop + "=>" + this.expected);
 
@@ -454,7 +52,7 @@ function reactivateSetting() {
   });
 }
 
-function reactivateHiddenSetting() {
+export const reactivateHiddenSetting = function() {
 
   console.log('deactivateHiddenSetting', this.prop + "=>" + this.expected);
 
@@ -470,7 +68,7 @@ function reactivateHiddenSetting() {
   });
 }
 
-function reactivateList() {
+export const reactivateList = function() {
   Promise.resolve(
     vAPI.messaging.send('dashboard', {
       what: 'reactivateList',
@@ -483,51 +81,36 @@ function reactivateList() {
   });
 }
 
-function openPage(url) {
-  vAPI.messaging.send(
-    'default', {
-    what: 'gotoURL',
-    details: {
-      url: url,
-      select: true,
-      index: -1
-    }
-  });
-}
-
-function isFirefox() { // hack for webextensions incompatibilities
-
+export const isFirefox = function() { // hack for webextensions incompatibilities
   return navigator && navigator.userAgent &&
     navigator.userAgent.includes('Firefox/');
 }
 
-function isMobile() {
-
+export const isMobile = function() {
   return typeof window.NativeWindow !== 'undefined';
 }
 
-function openExtPage() {
-
+export const openExtPage = function() {
   openPage(isFirefox() ? 'about:addons' : 'chrome://extensions/');
 }
 
-function openAdnPage() {
+export const openAdnPage = function() {
   openPage(isFirefox() ? 'about:addons' :
     'chrome://extensions/?id=pnjfhlmmeapfclcplcihceboadiigekg');
 }
 
-function openSettings() {
+export const openSettings = function() {
   openPage('/dashboard.html#options.html');
 }
 
-function reloadOptions() {
+export const reloadOptions = function() {
   browser.tabs.query({}, (tabs) => {
     tabs.filter(t => t.url.endsWith('options.html'))
         .forEach(t => browser.tabs.reload(t.id))
   })
 }
 
-function reloadPane() {
+export const reloadPane = function() {
   if (window && window.location) {
     const pane = window.location.href;
     if (pane.indexOf('dashboard.html') > -1) {
@@ -539,7 +122,7 @@ function reloadPane() {
 /****************************************************************************/
 
 // from: http://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
-const b64toBlob = function (b64Data, contentType, sliceSize) {
+export const b64toBlob = function (b64Data, contentType, sliceSize) {
 
   contentType = contentType || '';
   sliceSize = sliceSize || 512;
@@ -560,7 +143,7 @@ const b64toBlob = function (b64Data, contentType, sliceSize) {
   return new Blob(byteArrays, { type: contentType });
 };
 
-const toBase64Image = function (img) {
+export const toBase64Image = function (img) {
 
   const canvas = document.createElement("canvas");
   canvas.width = img.width;
@@ -586,8 +169,7 @@ const toBase64Image = function (img) {
   }
 };
 
-const rand = function (min, max) {
-
+export const rand = function (min, max) {
   if (arguments.length == 1) {
     max = min;
     min = 0;
@@ -595,13 +177,10 @@ const rand = function (min, max) {
     max = 1;
     min = 0;
   }
-
   return Math.floor(Math.random() * (max - min)) + min;
 };
 
-const setCost = function (numVisited) {
-
-  //console.log('setCost: '+numVisited);
+export const setCost = function (numVisited) {
   var constPerClick = 0
   vAPI.messaging.send('dashboard', {what:'getCostPerClick'}).then(response => {
     constPerClick = response
@@ -616,8 +195,7 @@ const setCost = function (numVisited) {
   });
 };
 
-const arrayRemove = function (arr, obj) {
-
+export const arrayRemove = function (arr, obj) {
   const i = arr.indexOf(obj);
   if (i != -1) {
     arr.splice(i, 1);
@@ -626,41 +204,33 @@ const arrayRemove = function (arr, obj) {
   return false;
 };
 
-const trimChar = function (s, chr) {
-
+export const trimChar = function (s, chr) {
   while (s.endsWith(chr)) {
     s = s.substring(0, s.length - chr.length);
   }
-
   return s;
 };
 
-const showVaultAlert = function (msg) {
-
+export const showVaultAlert = function (msg) {
   if (msg) {
-
     $("#alert-vault").removeClass('hide');
     $("#alert-vault p").text(msg);
-
   } else {
-
     $("#alert-vault").addClass('hide');
   }
 };
 
-const type = function (obj) { // from Angus Croll
-
+export const type = function (obj) { // from Angus Croll
   return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 };
 
-const getExportFileName = function () {
-
-  return vAPI.i18n('adnExportedAdsFilename')
+export const getExportFileName = function () {
+  return i18n$('adnExportedAdsFilename')
     .replace('{{datetime}}', new Date().toLocaleString())
     .replace(/[:/,]+/g, '.').replace(/ +/g, '');
 };
 
-const computeHash = function (ad, privateAd) {
+export const computeHash = function (ad, privateAd) {
   // DO NOT MODIFY
 
   if (!ad) return;
@@ -686,7 +256,7 @@ const computeHash = function (ad, privateAd) {
   return YaMD5.hashStr(hash);
 };
 
-const byField = function (prop) {
+export const byField = function (prop) {
 
   let sortOrder = 1;
 
@@ -701,14 +271,14 @@ const byField = function (prop) {
   };
 };
 
-const stringNotEmpty = function (s) {
+export const stringNotEmpty = function (s) {
 
   return typeof s === 'string' && s !== '';
 };
 
 /************************ URL utils *****************************/
 
-const parseHostname = function (url) {
+export const parseHostname = function (url) {
 
   return new URL(url).hostname;
 };
@@ -723,7 +293,7 @@ const parseDomain = function (url, useLast) { // dup in parser.js
     .hostname : undefined;
 };
 
-const isValidDomain = function (v) { // dup in parser.js
+export const isValidDomain = function (v) { // dup in parser.js
 
   // from: https://github.com/miguelmota/is-valid-domain/blob/master/is-valid-domain.js
   const re = /^(?!:\/\/)([a-zA-Z0-9-]+\.){0,5}[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z]{2,64}?$/gi;
@@ -734,7 +304,7 @@ const isValidDomain = function (v) { // dup in parser.js
  * Start with resolvedTargetUrl if available, else use targetUrl
  * Then extract the last domain from the (possibly complex) url
  */
-const targetDomain = function (ad) {
+export const targetDomain = function (ad) {
 
   const dom = parseDomain(ad.resolvedTargetUrl || ad.targetUrl, true);
 
@@ -745,7 +315,7 @@ const targetDomain = function (ad) {
 
 /*** functions used to export/import/clear ads in vault.js and options.js ***/
 
-const exportToFile = function (action) {
+export const exportToFile = function (action) {
 
   const outputData = function (jsonData, fileType) {
     let filename = getExportFileName();
@@ -793,7 +363,7 @@ const exportToFile = function (action) {
 };
 
 
-const handleImportFilePicker = function () {
+export const handleImportFilePicker = function () {
 
   const file = this.files[0];
   if (file === undefined || file.name === '') {
@@ -822,11 +392,11 @@ const handleImportFilePicker = function () {
       userData = undefined;
     }
     if (userData === undefined) {
-      window.alert(vAPI.i18n('aboutRestoreDataError').replace(/uBlock₀/g, 'AdNauseam'));
+      window.alert(i18n$('aboutRestoreDataError').replace(/uBlock₀/g, 'AdNauseam'));
       return;
     }
     const time = new Date(userData.timeStamp);
-    const msg = vAPI.i18n('aboutRestoreDataConfirm')
+    const msg = i18n$('aboutRestoreDataConfirm')
       .replace('{{time}}', time.toLocaleString()).replace(/uBlock₀/g, 'AdNauseam');
     const proceed = window.confirm(msg);
     if (proceed) {
@@ -846,7 +416,7 @@ const handleImportFilePicker = function () {
   fr.readAsText(file);
 };
 
-const adsOnLoadHandler = function (adData, file) {
+export const adsOnLoadHandler = function (adData, file) {
   vAPI.messaging.send('adnauseam', {
     what: 'importAds',
     data: adData,
@@ -858,7 +428,7 @@ const adsOnLoadHandler = function (adData, file) {
 }
 
 // loading while ads are being imported #1877
-function toogleVaultLoading(show) {
+export const toogleVaultLoading = function(show) {
   var $container = $("#container")
   if (show) {
     $container.css('opacity', '0');
@@ -870,7 +440,7 @@ function toogleVaultLoading(show) {
   }
 }
 
-function handleImportAds(evt) {
+export const handleImportAds = function(evt) {
 
   const files = evt.target.files;
 
@@ -889,7 +459,7 @@ function handleImportAds(evt) {
 
       if (adData === undefined && data.userSettings && data.timeStamp) {
         toogleVaultLoading(false)
-        window.alert(vAPI.i18n('adnImportAlertFormat'));
+        window.alert(i18n$('adnImportAlertFormat'));
         return;
       }
 
@@ -909,14 +479,14 @@ function handleImportAds(evt) {
   reader.readAsText(files[0]);
 }
 
-const postImportAlert = function (msg) {
+export const postImportAlert = function (msg) {
 
   const text = msg.count > -1 ? msg.count : (msg.error ? msg.error + ";" : "") + " 0";
-  window.alert(vAPI.i18n('adnImportAlert')
+  window.alert(i18n$('adnImportAlert')
     .replace('{{count}}', text));
 };
 
-const startImportFilePicker = function () {
+export const startImportFilePicker = function () {
 
   const input = document.getElementById('importFilePicker');
   // Reset to empty string, this will ensure an change event is properly
@@ -926,17 +496,17 @@ const startImportFilePicker = function () {
   input.click();
 };
 
-const clearAds = function () {
+export const clearAds = function () {
 
-  const msg = vAPI.i18n('adnClearConfirm');
+  const msg = i18n$('adnClearConfirm');
   const proceed = window.confirm(msg); // changed from vAPI.confirm merge1.14.12
   if (proceed) {
     vAPI.messaging.send('adnauseam', { what: 'clearAds' });
   }
 };
 
-const purgeDeadAds = function (deadAds) {
-  const msg = vAPI.i18n('adnPurgeConfirm');
+export const purgeDeadAds = function (deadAds) {
+  const msg = i18n$('adnPurgeConfirm');
   const proceed = window.confirm(msg); // changed from vAPI.confirm merge1.14.12
   if (proceed) {
     vAPI.messaging.send('adnauseam', {
@@ -946,9 +516,21 @@ const purgeDeadAds = function (deadAds) {
   }
 };
 
+export const openPage = function(url) {
+  vAPI.messaging.send(
+    'default', {
+    what: 'gotoURL',
+    details: {
+      url: url,
+      select: true,
+      index: -1
+    }
+  });
+}
+
 /********* decode html entities in ads titles in vault and menu *********/
 
-const decodeEntities = (function () {
+export const decodeEntities = (function () {
   //from here: http://stackoverflow.com/a/9609450
   // this prevents any overhead from creating the object each time
   const element = document.createElement('div');
