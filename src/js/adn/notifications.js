@@ -21,6 +21,8 @@
 
 // Adnauseam Notification functions
 
+import { reactivateSetting, isFirefox } from './adn-utils.js';
+
 /***************************************************************************/
 
 // local namespaces
@@ -65,7 +67,6 @@ const modifyDNTNotifications = function () {
     uDom('div[id^="DNT"]>#notify-link').css('display', 'none');
   }
 };
-
 
 const appendNotifyDiv = function (notify, template) {
 
@@ -157,13 +158,69 @@ const appendNotifyDiv = function (notify, template) {
   uDom('#ad-list').css('height', newh + 'px');
 }
 
+
+const openExtPage = function() {
+  openPage(isFirefox() ? 'about:addons' : 'chrome://extensions/');
+}
+
+const openAdnPage = function() {
+  openPage(isFirefox() ? 'about:addons' :
+    'chrome://extensions/?id=pnjfhlmmeapfclcplcihceboadiigekg');
+}
+
+const openSettings = function() {
+  openPage('/dashboard.html#options.html');
+}
+
+const reloadOptions = function() {
+  browser.tabs.query({}, (tabs) => {
+    tabs.filter(t => t.url.endsWith('options.html'))
+        .forEach(t => browser.tabs.reload(t.id))
+  })
+}
+
+const reloadPane = function() {
+  if (window && window.location) {
+    const pane = window.location.href;
+    if (pane.indexOf('dashboard.html') > -1) {
+      window.location.reload();
+    }
+  }
+}
+
+const reactivateSetting = function() {
+  console.log('[adn] reactivateSetting', this.prop + "=>" + this.expected);
+  Promise.resolve(
+    vAPI.messaging.send('dashboard', {
+      what: 'userSettings',
+      name: this.prop,
+      value: this.expected
+    }),
+  ).then(() => {
+    reloadOptions();
+    reloadPane();
+  });
+}
+
+const reactivateList = function() {
+  Promise.resolve(
+    vAPI.messaging.send('dashboard', {
+      what: 'reactivateList',
+      list: this.listName
+    }),
+  ).then(() => {
+    vAPI.messaging.send('adnauseam', { what: 'verifyLists' });
+    vAPI.messaging.send('dashboard', { what: 'reloadAllFilters' });
+    reloadPane();
+  });
+}
+
+
 /***************************************************************************/
 /* exports                                                                 */
 /***************************************************************************/
 
 /**************************** Notifications *********************************/
-
-export const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyList, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode, ShowAdsDebug];
 
 export const DNTAllowed = new Notification({
   isDNT: true,
@@ -273,9 +330,10 @@ export const ShowAdsDebug = new Notification({
   expected: false,
   type: WARNING
 });
-// ShowAdsDebug.func = reactivateHiddenSetting.bind(ShowAdsDebug);
 
-/**************************** utils *********************************/
+export const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyList, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode, ShowAdsDebug];
+
+/**************************** exports *********************************/
 
 export const hasDNTNotification = function (notes) {
   for (let i = 0; i < notes.length; i++) {

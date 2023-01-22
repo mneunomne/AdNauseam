@@ -65,9 +65,17 @@ import {
 
 import './benchmarks.js';
 
+/* adn imports */ 
+
 import adnauseam from './adn/core.js';
+
 import dnt from './adn/dnt.js'
+
 import { Notifications } from './adn/notifications.js';
+
+import { makeCloneable } from './adn/adn-utils.js';
+
+/* end of adn imports */
 
 /******************************************************************************/
 

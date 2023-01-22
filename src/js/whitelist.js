@@ -144,7 +144,7 @@ const renderWhitelist = async function() {
         what: 'getWhitelist',
     });
 
-    uDom.nodeFromId('effListInput').checked = details.dntEnabled; //ADN
+    uDom.nodeFromId('effListInput').checked = details.dntEnabled; // ADN
 
     const first = reBadHostname === undefined;
     if ( first ) {
@@ -271,5 +271,9 @@ uDom('#whitelistRevert').on('click', revertChanges);
 uDom('#buttonUpdateEff').on('click', buttonUpdateEff);
 
 renderWhitelist();
+
+/******************* exports for adn strict-block-list ************************/
+
+export { directiveFromLine, getEditorText, setEditorText, getCloudData, setCloudData, reComment }
 
 /******************************************************************************/

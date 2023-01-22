@@ -23,20 +23,7 @@
 
 'use strict';
 
-/******************************************************************************/
-
-(( ) => {
-
-/******************************************************************************/
-
-const reComment = /^\s*#\s*/;
-
-const directiveFromLine = function(line) {
-    const match = reComment.exec(line);
-    return match === null
-        ? line.trim()
-        : line.slice(match.index + match[0].length).trim();
-};
+import { directiveFromLine, getEditorText, setEditorText, getCloudData, setCloudData, reComment } from '../whitelist.js';
 
 /******************************************************************************/
 
@@ -104,17 +91,6 @@ const cmEditor = new CodeMirror(
 );
 
 uBlockDashboard.patchCodeMirrorEditor(cmEditor);
-
-/******************************************************************************/
-
-const getEditorText = function() {
-    let text = cmEditor.getValue().replace(/\s+$/, '');
-    return text === '' ? text : text + '\n';
-};
-
-const setEditorText = function(text) {
-    cmEditor.setValue(text.replace(/\s+$/, '') + '\n');
-};
 
 /******************************************************************************/
 
@@ -229,18 +205,6 @@ const revertChanges = function() {
 
 /******************************************************************************/
 
-const getCloudData = function() {
-    return getEditorText();
-};
-
-const setCloudData = function(data, append) {
-    if ( typeof data !== 'string' ) { return; }
-    if ( append ) {
-        data = uBlockDashboard.mergeNewLines(getEditorText().trim(), data);
-    }
-    setEditorText(data.trim());
-};
-
 self.cloud.onPush = getCloudData;
 self.cloud.onPull = setCloudData;
 
@@ -261,5 +225,3 @@ uDom('#strictBlockListRevert').on('click', revertChanges);
 renderStrictBlockList();
 
 /******************************************************************************/
-
-})();

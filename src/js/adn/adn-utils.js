@@ -21,65 +21,15 @@
 
 // util functions used in multiple; script files
 
+'use strict';
+
+
+/**************************** exports *********************************/
+
 export const makeCloneable = function (notes) {
   notes && notes.forEach(function (n) { delete n.func }); // remove func to allow clone
   // see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
 };
-
-export const onSelectionDone = function () {
-  Promise.resolve(
-    vAPI.messaging.send('dashboard', {
-      what: 'reloadAllFilters'
-    }),
-  ).then(() => {
-    reloadPane();
-  });
-};
-
-export const reactivateSetting = function() {
-
-  console.log('reactivateSetting', this.prop + "=>" + this.expected);
-
-  Promise.resolve(
-    vAPI.messaging.send('dashboard', {
-      what: 'userSettings',
-      name: this.prop,
-      value: this.expected
-    }),
-  ).then(() => {
-    reloadOptions();
-    reloadPane();
-  });
-}
-
-export const reactivateHiddenSetting = function() {
-
-  console.log('deactivateHiddenSetting', this.prop + "=>" + this.expected);
-
-  Promise.resolve(
-    vAPI.messaging.send('dashboard', {
-      what: 'hiddenSettings',
-      name: this.prop,
-      value: this.expected
-    }),
-  ).then(() => {
-    // reloadOptions();
-    reloadPane();
-  });
-}
-
-export const reactivateList = function() {
-  Promise.resolve(
-    vAPI.messaging.send('dashboard', {
-      what: 'reactivateList',
-      list: this.listName
-    }),
-  ).then(() => {
-    vAPI.messaging.send('adnauseam', { what: 'verifyLists' });
-    vAPI.messaging.send('dashboard', { what: 'reloadAllFilters' });
-    reloadPane();
-  });
-}
 
 export const isFirefox = function() { // hack for webextensions incompatibilities
   return navigator && navigator.userAgent &&
@@ -89,37 +39,6 @@ export const isFirefox = function() { // hack for webextensions incompatibilitie
 export const isMobile = function() {
   return typeof window.NativeWindow !== 'undefined';
 }
-
-export const openExtPage = function() {
-  openPage(isFirefox() ? 'about:addons' : 'chrome://extensions/');
-}
-
-export const openAdnPage = function() {
-  openPage(isFirefox() ? 'about:addons' :
-    'chrome://extensions/?id=pnjfhlmmeapfclcplcihceboadiigekg');
-}
-
-export const openSettings = function() {
-  openPage('/dashboard.html#options.html');
-}
-
-export const reloadOptions = function() {
-  browser.tabs.query({}, (tabs) => {
-    tabs.filter(t => t.url.endsWith('options.html'))
-        .forEach(t => browser.tabs.reload(t.id))
-  })
-}
-
-export const reloadPane = function() {
-  if (window && window.location) {
-    const pane = window.location.href;
-    if (pane.indexOf('dashboard.html') > -1) {
-      window.location.reload();
-    }
-  }
-}
-
-/****************************************************************************/
 
 // from: http://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
 export const b64toBlob = function (b64Data, contentType, sliceSize) {

@@ -25,6 +25,8 @@ import { i18n$ } from "../i18n";
 
 import { renderNotifications } from './notifications'
 
+import { byField, exportToFile } from './adn-utils.js';
+
 const States = ['pending', 'visited', 'failed', 'dnt-allowed', 'image-error'],
   Zooms = [400, 200, 150, 100, 75, 50, 25, 12.5, 7.5, 5],
   EnableContextMenu = 1,

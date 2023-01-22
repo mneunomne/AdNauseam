@@ -242,37 +242,10 @@ if ( isBackgroundProcess !== true ) {
                 }
                 textBefore += part;
             }
-            textBefore += part;
-        }
-        if ( textBefore !== '' ) {
-            safeTextToDOM(textBefore, fragment);
-        }
-        // fragment= fragment.replace(/uBlock₀/g, 'AdNauseam');
-        elem.appendChild(fragment);
-
-    }
-
-    for ( const elem of root.querySelectorAll('[data-i18n-title]') ) {
-        const text = vAPI.i18n(elem.getAttribute('data-i18n-title'));
-        if ( !text ) { continue; }
-        elem.setAttribute('title', expandHtmlEntities(text));
-    }
-
-    for ( const elem of root.querySelectorAll('[placeholder]') ) {
-        elem.setAttribute(
-            'placeholder',
-            vAPI.i18n(elem.getAttribute('placeholder'))
-        );
-    }
-
-    for ( const elem of root.querySelectorAll('[data-i18n-tip]') ) {
-        const text = vAPI.i18n(elem.getAttribute('data-i18n-tip'))
-                   .replace(/<br>/g, '\n')
-                   .replace(/\n{3,}/g, '\n\n')
-                   .replace(/uBlock₀/g, 'AdNauseam');
-        elem.setAttribute('data-tip', text);
-        if ( elem.getAttribute('aria-label') === 'data-tip' ) {
-            elem.setAttribute('aria-label', text);
+            if ( textBefore !== '' ) {
+                safeTextToDOM(textBefore, fragment);
+            }
+            elem.appendChild(fragment);
         }
 
         for ( const elem of root.querySelectorAll('[data-i18n-title]') ) {
@@ -291,7 +264,8 @@ if ( isBackgroundProcess !== true ) {
         for ( const elem of root.querySelectorAll('[data-i18n-tip]') ) {
             const text = i18n$(elem.getAttribute('data-i18n-tip'))
                        .replace(/<br>/g, '\n')
-                       .replace(/\n{3,}/g, '\n\n');
+                       .replace(/\n{3,}/g, '\n\n')
+                       .replace(/uBlock₀/g, 'AdNauseam'); // Adn
             elem.setAttribute('data-tip', text);
             if ( elem.getAttribute('aria-label') === 'data-tip' ) {
                 elem.setAttribute('aria-label', text);
