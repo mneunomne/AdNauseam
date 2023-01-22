@@ -1310,36 +1310,58 @@ const bootstrapPhaseAdn = function (response) {
         
         if (specificCosmeticFilters) {
             processFilters(specificCosmeticFilters)
-        }
-
-        // avoid exception
-        if (typeof vAPI.domFilterer == 'undefined' || vAPI.domFilterer == null) {
-            console.warn("[ADN] vAPI.domFilterer undefined")
-            return;
-        }
-
-
-        // get all the selectors
-        var allSelectors = vAPI.domFilterer.getAllSelectors()
-        
-        // declarative filters
-        if (allSelectors.declarative && allSelectors.declarative.length > 0) {
-            processFilters(allSelectors.declarative)
-        }
-
-        // procedural filters
-        if (allSelectors.procedural && allSelectors.procedural.length > 0) {
-            for (var index in allSelectors.procedural) {
-                var filter = allSelectors.procedural[index]
-                if (filter.selector.length == 0) continue; 
-                processFilters(filter.selector)
+        } else {
+            // avoid exception
+            if (typeof vAPI.domFilterer == 'undefined' || vAPI.domFilterer == null) {
+                console.warn("[ADN] vAPI.domFilterer undefined")
+                return;
+            }
+    
+    
+            // get all the selectors
+            var allSelectors = vAPI.domFilterer.getAllSelectors()
+            
+            // declarative filters
+            if (allSelectors.declarative && allSelectors.declarative.length > 0) {
+                processFilters(allSelectors.declarative)
+            }
+    
+            // procedural filters
+            if (allSelectors.procedural && allSelectors.procedural.length > 0) {
+                for (var index in allSelectors.procedural) {
+                    var filter = allSelectors.procedural[index]
+                    if (filter.selector.length == 0) continue; 
+                    processFilters(filter.selector)
+                }
             }
         }
+
         bootstrapPhaseAdnCounter++;
     }
 }
 
+const queryCheck = (s) => document.createDocumentFragment().querySelector(s)
+
+const isSelectorValid = (selector) => {
+    //console.warn("typeof selector", selector[0])
+    try { queryCheck(selector) } catch { 
+        // debug
+        selector[0].split(',').forEach(s => {
+            try { queryCheck(s) } catch {
+                console.warn("[ADN] bad selector: " + s);
+            }
+        })
+        return false
+    }
+    return true
+}
+
+
 const processFilters = function (selectors) {
+    if (!isSelectorValid(selectors)) {
+        //console.warn("[ADN] invalid selector: " + selectors);
+        return;
+    }
     let nodes = document.querySelectorAll(selectors);
     for ( const node of nodes ) {
         vAPI.adCheck && vAPI.adCheck(node);
@@ -1350,69 +1372,69 @@ const processFilters = function (selectors) {
 //   Bootstrapping allows all components of the content script
 //   to be launched if/when needed.
 
-    // create BootstraAdnTimer, to use the "SafeAnimationFrame" class when doing the delays
-    const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
+// create BootstraAdnTimer, to use the "SafeAnimationFrame" class when doing the delays
+const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
 
-    const bootstrapPhase2 = function() {
-        
-        /*
-        ADN catch ads with delay: https://github.com/dhowe/AdNauseam/issues/1838
-        This is a workaround to catch ads that apear with a certain delay but don't trigger the DomWatcher, such as dockduckgo 
-        */
-        if (vAPI.domFilterer) {
-            bootstrapPhaseAdn()
-            bootstrapAdnTimer.start(2000)
-        }
+const bootstrapPhase2 = function() {
+    
+    /*
+    ADN catch ads with delay: https://github.com/dhowe/AdNauseam/issues/1838
+    This is a workaround to catch ads that apear with a certain delay but don't trigger the DomWatcher, such as dockduckgo 
+    */
+    if (vAPI.domFilterer) {
+        bootstrapPhaseAdn()
+        bootstrapAdnTimer.start(2000)
+    }
 
-        // This can happen on Firefox. For instance:
-        // https://github.com/gorhill/uBlock/issues/1893
-        if ( window.location === null ) { return; }
-        if ( self.vAPI instanceof Object === false ) { return; }
+    // This can happen on Firefox. For instance:
+    // https://github.com/gorhill/uBlock/issues/1893
+    if ( window.location === null ) { return; }
+    if ( self.vAPI instanceof Object === false ) { return; }
 
+    vAPI.messaging.send('contentscript', {
+        what: 'shouldRenderNoscriptTags',
+    });
+
+    if ( vAPI.domWatcher instanceof Object ) {
+        vAPI.domWatcher.start();
+    }
+
+    // Element picker works only in top window for now.
+    if (
+        window !== window.top ||
+        vAPI.domFilterer instanceof Object === false
+    ) {
+        return;
+    }
+
+    // To be used by element picker/zapper.
+    vAPI.mouseClick = { x: -1, y: -1 };
+
+    const onMouseClick = function(ev) {
+        if ( ev.isTrusted === false ) { return; }
+        vAPI.mouseClick.x = ev.clientX;
+        vAPI.mouseClick.y = ev.clientY;
+
+        // https://github.com/chrisaljoudi/uBlock/issues/1143
+        //   Find a link under the mouse, to try to avoid confusing new tabs
+        //   as nuisance popups.
+        // https://github.com/uBlockOrigin/uBlock-issues/issues/777
+        //   Mind that href may not be a string.
+        const elem = ev.target.closest('a[href]');
+        if ( elem === null || typeof elem.href !== 'string' ) { return; }
         vAPI.messaging.send('contentscript', {
-            what: 'shouldRenderNoscriptTags',
-        });
-
-        if ( vAPI.domWatcher instanceof Object ) {
-            vAPI.domWatcher.start();
-        }
-
-        // Element picker works only in top window for now.
-        if (
-            window !== window.top ||
-            vAPI.domFilterer instanceof Object === false
-        ) {
-            return;
-        }
-
-        // To be used by element picker/zapper.
-        vAPI.mouseClick = { x: -1, y: -1 };
-
-        const onMouseClick = function(ev) {
-            if ( ev.isTrusted === false ) { return; }
-            vAPI.mouseClick.x = ev.clientX;
-            vAPI.mouseClick.y = ev.clientY;
-
-            // https://github.com/chrisaljoudi/uBlock/issues/1143
-            //   Find a link under the mouse, to try to avoid confusing new tabs
-            //   as nuisance popups.
-            // https://github.com/uBlockOrigin/uBlock-issues/issues/777
-            //   Mind that href may not be a string.
-            const elem = ev.target.closest('a[href]');
-            if ( elem === null || typeof elem.href !== 'string' ) { return; }
-            vAPI.messaging.send('contentscript', {
-                what: 'maybeGoodPopup',
-                url: elem.href || '',
-            });
-        };
-
-        document.addEventListener('mousedown', onMouseClick, true);
-
-        // https://github.com/gorhill/uMatrix/issues/144
-        vAPI.shutdown.add(function() {
-            document.removeEventListener('mousedown', onMouseClick, true);
+            what: 'maybeGoodPopup',
+            url: elem.href || '',
         });
     };
+
+    document.addEventListener('mousedown', onMouseClick, true);
+
+    // https://github.com/gorhill/uMatrix/issues/144
+    vAPI.shutdown.add(function() {
+        document.removeEventListener('mousedown', onMouseClick, true);
+    });
+};
 
 
 // https://github.com/uBlockOrigin/uBlock-issues/issues/403
@@ -1421,88 +1443,87 @@ const processFilters = function (selectors) {
 //   an object -- let's stay around, we may be given the opportunity
 //   to try bootstrapping again later.
 
-    const bootstrapPhase1 = function(response) {
-        if ( response instanceof Object === false ) { return; }
+const bootstrapPhase1 = function(response) {
+    if ( response instanceof Object === false ) { return; }
 
-        vAPI.bootstrap = undefined;
-        if (response && response.prefs) vAPI.prefs = response.prefs; // ADN
-        // cosmetic filtering engine aka 'cfe'
-        const cfeDetails = response && response.specificCosmeticFilters;
-        if ( !cfeDetails || !cfeDetails.ready ) {
-            vAPI.domWatcher = vAPI.domCollapser = vAPI.domFilterer =
-            vAPI.domSurveyor = vAPI.domIsLoaded = null;
-            return;
-        }
+    vAPI.bootstrap = undefined;
+    if (response && response.prefs) vAPI.prefs = response.prefs; // ADN
+    // cosmetic filtering engine aka 'cfe'
+    const cfeDetails = response && response.specificCosmeticFilters;
+    if ( !cfeDetails || !cfeDetails.ready ) {
+        vAPI.domWatcher = vAPI.domCollapser = vAPI.domFilterer =
+        vAPI.domSurveyor = vAPI.domIsLoaded = null;
+        return;
+    }
 
-        vAPI.domCollapser.start();
+    vAPI.domCollapser.start();
 
-        const {
-            noSpecificCosmeticFiltering,
-            noGenericCosmeticFiltering,
-            scriptlets,
-        } = response;
+    const {
+        noSpecificCosmeticFiltering,
+        noGenericCosmeticFiltering,
+        scriptlets,
+    } = response;
 
-        vAPI.noSpecificCosmeticFiltering = noSpecificCosmeticFiltering;
-        vAPI.noGenericCosmeticFiltering = noGenericCosmeticFiltering;
+    vAPI.noSpecificCosmeticFiltering = noSpecificCosmeticFiltering;
+    vAPI.noGenericCosmeticFiltering = noGenericCosmeticFiltering;
 
-        if ( noSpecificCosmeticFiltering && noGenericCosmeticFiltering || response.prefs.hidingDisabled) { // ADN
-            vAPI.domFilterer = null;
+    if ( noSpecificCosmeticFiltering && noGenericCosmeticFiltering || response.prefs.hidingDisabled) { // ADN
+        vAPI.domFilterer = null;
+        vAPI.domSurveyor = null;
+    } else {
+        const domFilterer = vAPI.domFilterer = new vAPI.DOMFilterer();
+        if ( noGenericCosmeticFiltering || cfeDetails.noDOMSurveying ) {
             vAPI.domSurveyor = null;
-        } else {
-            const domFilterer = vAPI.domFilterer = new vAPI.DOMFilterer();
-            if ( noGenericCosmeticFiltering || cfeDetails.noDOMSurveying ) {
-                vAPI.domSurveyor = null;
-            }
-            domFilterer.exceptions = cfeDetails.exceptionFilters;
-            domFilterer.addCSS(cfeDetails.injectedCSS);
-            domFilterer.addProceduralSelectors(cfeDetails.proceduralFilters);
-            domFilterer.exceptCSSRules(cfeDetails.exceptedFilters);
-            domFilterer.convertedProceduralFilters = cfeDetails.convertedProceduralFilters;
         }
+        domFilterer.exceptions = cfeDetails.exceptionFilters;
+        domFilterer.addCSS(cfeDetails.injectedCSS);
+        domFilterer.addProceduralSelectors(cfeDetails.proceduralFilters);
+        domFilterer.exceptCSSRules(cfeDetails.exceptedFilters);
+        domFilterer.convertedProceduralFilters = cfeDetails.convertedProceduralFilters;
+    }
 
-        vAPI.userStylesheet.apply();
+    vAPI.userStylesheet.apply();
 
-        // Library of resources is located at:
-        // https://github.com/gorhill/uBlock/blob/master/assets/ublock/resources.txt
-        if ( scriptlets && typeof self.uBO_scriptletsInjected !== 'boolean' ) {
-            self.uBO_scriptletsInjected = true;
-            vAPI.injectScriptlet(document, scriptlets);
-            vAPI.injectedScripts = scriptlets;
-        }
+    // Library of resources is located at:
+    // https://github.com/gorhill/uBlock/blob/master/assets/ublock/resources.txt
+    if ( scriptlets && typeof self.uBO_scriptletsInjected !== 'boolean' ) {
+        self.uBO_scriptletsInjected = true;
+        vAPI.injectScriptlet(document, scriptlets);
+        vAPI.injectedScripts = scriptlets;
+    }
 
-        if ( vAPI.domSurveyor instanceof Object ) {
-            vAPI.domSurveyor.start(cfeDetails);
-        }
+    if ( vAPI.domSurveyor instanceof Object ) {
+        vAPI.domSurveyor.start(cfeDetails);
+    }
 
-        // https://github.com/chrisaljoudi/uBlock/issues/587
-        // If no filters were found, maybe the script was injected before
-        // uBlock's process was fully initialized. When this happens, pages
-        // won't be cleaned right after browser launch.
-        if (
-            typeof document.readyState === 'string' &&
-            document.readyState !== 'loading'
-        ) {
-            bootstrapPhase2();
-        } else {
-            document.addEventListener(
-                'DOMContentLoaded',
-                bootstrapPhase2,
-                { once: true }
-            );
-        }
-    };
+    // https://github.com/chrisaljoudi/uBlock/issues/587
+    // If no filters were found, maybe the script was injected before
+    // uBlock's process was fully initialized. When this happens, pages
+    // won't be cleaned right after browser launch.
+    if (
+        typeof document.readyState === 'string' &&
+        document.readyState !== 'loading'
+    ) {
+        bootstrapPhase2();
+    } else {
+        document.addEventListener(
+            'DOMContentLoaded',
+            bootstrapPhase2,
+            { once: true }
+        );
+    }
+};
 
-    vAPI.bootstrap = function() {
-        vAPI.messaging.send('contentscript', {
-            what: 'retrieveContentScriptParameters',
-            url: vAPI.effectiveSelf.location.href,
-            needScriptlets: typeof self.uBO_scriptletsInjected !== 'boolean',
-        }).then(response => {
-            bootstrapPhase1(response);
-            bootstrapPhaseAdn(response)
-        });
-    };
-// })()
+vAPI.bootstrap = function() {
+    vAPI.messaging.send('contentscript', {
+        what: 'retrieveContentScriptParameters',
+        url: vAPI.effectiveSelf.location.href,
+        needScriptlets: typeof self.uBO_scriptletsInjected !== 'boolean',
+    }).then(response => {
+        bootstrapPhase1(response);
+        bootstrapPhaseAdn(response)
+    });
+};
 
 // This starts bootstrap process.
 vAPI.bootstrap();
