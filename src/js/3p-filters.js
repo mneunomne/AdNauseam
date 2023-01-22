@@ -484,18 +484,20 @@ const updateAssetStatus = function(details) {
 const availableLists = listDetails.available, currentLists = listDetails.current;
 let availableOff, currentOff;
 
-// This check existing entries
-for ( let location in availableLists ) {
-    if ( availableLists.hasOwnProperty(location) === false ) {
-        continue;
-    }
-    availableOff = availableLists[location].off === true;
-    currentOff = currentLists[location] === undefined || currentLists[location].off === true;
-    if ( availableOff !== currentOff ) {
-        return true;
+const checkExistingEntries = function() {
+    // This check existing entries
+    for ( let location in availableLists ) {
+        if ( availableLists.hasOwnProperty(location) === false ) {
+            continue;
+        }
+        availableOff = availableLists[location].off === true;
+        currentOff = currentLists[location] === undefined || currentLists[location].off === true;
+        if ( availableOff !== currentOff ) {
+            return true;
+        }
     }
 }
-
+checkExistingEntries();
 
 /**
     Compute a hash from all the settings affecting how filter lists are loaded
