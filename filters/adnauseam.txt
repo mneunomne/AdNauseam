@@ -2,7 +2,7 @@
 ##iframe[src*="mellowads"]
 ##iframe[id^=openwrap-ad-]
 ##*[class*="Advert"]
-##*[class*="teads-"]g
+##*[class*="teads-"]
 ###gwd-ad
 ##ins.adsbygoogle
 ##.mv-ad-box
