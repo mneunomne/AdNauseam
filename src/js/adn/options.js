@@ -23,7 +23,16 @@
 
 'use strict';
 
-import { isMobile, exportToFile } from './adn-utils.js';
+import { i18n$ } from '../i18n.js';
+
+import {
+  isMobile,
+  exportToFile,
+  toogleVaultLoading,
+  postImportAlert,
+  clearAds,
+  startImportFilePicker
+} from './adn-utils.js';
 
 /******************************************************************************/
 
@@ -169,9 +178,7 @@ const onDisableWarningChanged = function (ev) {
       value, value
     }
   )  
-
 }
-
 
 // Workaround for:
 // https://github.com/gorhill/uBlock/issues/1448
@@ -196,6 +203,73 @@ const updateGroupState = function () {
   uDom('.blockingMalware-child').prop('disabled', !uDom('#blockingMalware').prop('checked'));
   uDom('.blockingMalware-child').closest("li").toggleClass('disabled', !uDom('#hidingAds').prop('checked'));
   */
+}
+
+/******************************************************************************/
+
+
+const handleImportFilePicker = function () {
+
+  const file = this.files[0];
+  if (file === undefined || file.name === '') {
+    return;
+  }
+  // if ( file.type.indexOf('text') !== 0 ) {
+  //     return;
+  // }
+  const filename = file.name;
+
+  const fileReaderOnLoadHandler = function () {
+    let userData;
+    try {
+      userData = JSON.parse(this.result);
+      if (typeof userData !== 'object') {
+        throw 'Invalid';
+      }
+      if (typeof userData.userSettings !== 'object') {
+        //adnauseam admap
+        adsOnLoadHandler(userData);
+        return;
+      }
+
+    }
+    catch (e) {
+      userData = undefined;
+    }
+    if (userData === undefined) {
+      window.alert(i18n$('aboutRestoreDataError').replace(/uBlock₀/g, 'AdNauseam'));
+      return;
+    }
+    const time = new Date(userData.timeStamp);
+    const msg = i18n$('aboutRestoreDataConfirm')
+      .replace('{{time}}', time.toLocaleString()).replace(/uBlock₀/g, 'AdNauseam');
+    const proceed = window.confirm(msg);
+    if (proceed) {
+      vAPI.messaging.send(
+        'dashboard',
+        {
+          what: 'restoreUserData',
+          userData: userData,
+          file: filename
+        }
+      );
+    }
+  };
+
+  const fr = new FileReader();
+  fr.onload = fileReaderOnLoadHandler;
+  fr.readAsText(file);
+};
+
+const adsOnLoadHandler = function (adData, file) {
+  vAPI.messaging.send('adnauseam', {
+    what: 'importAds',
+    data: adData,
+    file: file
+  }).then(data => {
+    toogleVaultLoading(false)
+    postImportAlert(data);
+  })
 }
 
 /******************************************************************************/

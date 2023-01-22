@@ -25,7 +25,7 @@
 
 'use strict';
 
-import { isMobile } from './adn-utils.js';
+import { isMobile, openPage } from './adn-utils.js';
 
 /******************************************************************************/
 

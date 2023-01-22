@@ -23,6 +23,7 @@
 
 'use strict';
 
+import { i18n$ } from '../i18n.js';
 
 /**************************** exports *********************************/
 
@@ -143,12 +144,6 @@ export const type = function (obj) { // from Angus Croll
   return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 };
 
-export const getExportFileName = function () {
-  return i18n$('adnExportedAdsFilename')
-    .replace('{{datetime}}', new Date().toLocaleString())
-    .replace(/[:/,]+/g, '.').replace(/ +/g, '');
-};
-
 export const computeHash = function (ad, privateAd) {
   // DO NOT MODIFY
 
@@ -190,11 +185,6 @@ export const byField = function (prop) {
   };
 };
 
-export const stringNotEmpty = function (s) {
-
-  return typeof s === 'string' && s !== '';
-};
-
 /************************ URL utils *****************************/
 
 export const parseHostname = function (url) {
@@ -203,7 +193,7 @@ export const parseHostname = function (url) {
 };
 
 // TODO: replace with core::domainFromURI?
-const parseDomain = function (url, useLast) { // dup in parser.js
+export const parseDomain = function (url, useLast) { // dup in parser.js
 
   const domains = decodeURIComponent(url).match(/https?:\/\/[^?\/]+/g);
 
@@ -276,75 +266,8 @@ export const exportToFile = function (action) {
       }).then(data => {
         outputData(data);
       })
-
   }
-
 };
-
-
-export const handleImportFilePicker = function () {
-
-  const file = this.files[0];
-  if (file === undefined || file.name === '') {
-    return;
-  }
-  // if ( file.type.indexOf('text') !== 0 ) {
-  //     return;
-  // }
-  const filename = file.name;
-
-  const fileReaderOnLoadHandler = function () {
-    let userData;
-    try {
-      userData = JSON.parse(this.result);
-      if (typeof userData !== 'object') {
-        throw 'Invalid';
-      }
-      if (typeof userData.userSettings !== 'object') {
-        //adnauseam admap
-        adsOnLoadHandler(userData);
-        return;
-      }
-
-    }
-    catch (e) {
-      userData = undefined;
-    }
-    if (userData === undefined) {
-      window.alert(i18n$('aboutRestoreDataError').replace(/uBlock₀/g, 'AdNauseam'));
-      return;
-    }
-    const time = new Date(userData.timeStamp);
-    const msg = i18n$('aboutRestoreDataConfirm')
-      .replace('{{time}}', time.toLocaleString()).replace(/uBlock₀/g, 'AdNauseam');
-    const proceed = window.confirm(msg);
-    if (proceed) {
-      vAPI.messaging.send(
-        'dashboard',
-        {
-          what: 'restoreUserData',
-          userData: userData,
-          file: filename
-        }
-      );
-    }
-  };
-
-  const fr = new FileReader();
-  fr.onload = fileReaderOnLoadHandler;
-  fr.readAsText(file);
-};
-
-export const adsOnLoadHandler = function (adData, file) {
-  vAPI.messaging.send('adnauseam', {
-    what: 'importAds',
-    data: adData,
-    file: file
-  }).then(data => {
-    toogleVaultLoading(false)
-    postImportAlert(data);
-  })
-}
 
 // loading while ads are being imported #1877
 export const toogleVaultLoading = function(show) {
@@ -405,16 +328,6 @@ export const postImportAlert = function (msg) {
     .replace('{{count}}', text));
 };
 
-export const startImportFilePicker = function () {
-
-  const input = document.getElementById('importFilePicker');
-  // Reset to empty string, this will ensure an change event is properly
-  // triggered if the user pick a file, even if it is the same as the last
-  // one picked.
-  input.value = '';
-  input.click();
-};
-
 export const clearAds = function () {
 
   const msg = i18n$('adnClearConfirm');
@@ -446,6 +359,17 @@ export const openPage = function(url) {
     }
   });
 }
+
+/******************************************************************************/
+
+export const startImportFilePicker = function() {
+  const input = document.getElementById('importFilePicker');
+  // Reset to empty string, this will ensure an change event is properly
+  // triggered if the user pick a file, even if it is the same as the last
+  // one picked.
+  input.value = '';
+  input.click();
+};
 
 /********* decode html entities in ads titles in vault and menu *********/
 

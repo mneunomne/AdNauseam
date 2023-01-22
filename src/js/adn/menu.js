@@ -21,8 +21,9 @@
 
 /* global vAPI, uDom, $ */
 
-import { i18n$ } from '../i18n.js'
-import { renderNotifications } from './notifications.js'
+import { i18n$ } from '../i18n.js';
+import { renderNotifications } from './notifications.js';
+import { setCost, targetDomain, decodeEntities } from './adn-utils.js';
 
 (function () {
   'use strict';

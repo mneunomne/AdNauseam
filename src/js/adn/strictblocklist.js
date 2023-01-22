@@ -23,7 +23,9 @@
 
 'use strict';
 
-import { directiveFromLine, getEditorText, setEditorText, getCloudData, setCloudData, reComment } from '../whitelist.js';
+import { i18n$ } from '../i18n.js';
+
+import { directiveFromLine, getEditorText, setEditorText, getCloudData, setCloudData, reComment, startImportFilePicker } from '../whitelist.js';
 
 /******************************************************************************/
 
@@ -160,17 +162,6 @@ const handleImportFilePicker = function() {
         );
     };
     fr.readAsText(file);
-};
-
-/******************************************************************************/
-
-const startImportFilePicker = function() {
-    const input = document.getElementById('importFilePicker');
-    // Reset to empty string, this will ensure an change event is properly
-    // triggered if the user pick a file, even if it is the same as the last
-    // one picked.
-    input.value = '';
-    input.click();
 };
 
 /******************************************************************************/

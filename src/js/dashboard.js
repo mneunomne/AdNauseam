@@ -23,7 +23,7 @@
 
 'use strict';
 
-import { renderNotifications } from './notifications.js'
+import { renderNotifications } from './adn/notifications.js'
 
 /******************************************************************************/
 

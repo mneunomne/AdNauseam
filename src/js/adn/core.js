@@ -69,7 +69,16 @@ import {
   HidingDisabled
 } from './notifications.js';
 
-import { byField } from './adn-utils.js';
+import {
+  byField,
+  trimChar,
+  toBase64Image,
+  b64toBlob,
+  type,
+  computeHash,
+  parseHostname,
+  parseDomain,
+} from './adn-utils.js';
 
 const adnauseam = (function () {
   'use strict';
@@ -2170,16 +2179,6 @@ const adnauseam = (function () {
     log('[CLEAR] ' + pre + ' ads cleared', admap);
   };
 
-  const purgeDeadAds = exports.purgeDeadAds = function (request) {
-    let count = request.deadAds.length 
-    purgeDeadAdsAdmap(request.deadAds);
-    reloadExtPage('vault.html');
-    updateBadges();
-    storeAdData(true);
-    computeNextId();
-    log('[PURGE DEAD ADS] ' + count + ' ads purged', admap);
-  };
-
   exports.importAds = function (request) {
 
     // try to parse imported ads in current format
@@ -2280,26 +2279,6 @@ const adnauseam = (function () {
 
     return jsonData;
   };
-
-  /*var downloadAds = exports.downloadAds = function (request) {
-  
-    var count = adCount(),
-      jsonData = admapToJSON(request.sanitize);
-  
-    if (!production && request.includeImages) saveVaultImages();
-  
-    log('[EXPORT] ' + count + ' ads');
-  
-    console.log('core.downloadAds', jsonData);
-  
-    var filename = getExportFileName(),
-      url = URL.createObjectURL(new Blob([ jsonData ], { type: "text/plain" }));
-  
-    chrome.downloads.download({
-      url : url,
-      filename : filename
-    });
-  };*/
 
   exports.closeExtPage = function (request) {
 

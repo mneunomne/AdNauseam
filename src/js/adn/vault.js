@@ -23,9 +23,23 @@
 
 import { i18n$ } from "../i18n";
 
-import { renderNotifications } from './notifications'
+import { renderNotifications } from './notifications';
 
-import { byField, exportToFile } from './adn-utils.js';
+import {
+  byField,
+  exportToFile,
+  setCost,
+  arrayRemove,
+  rand,
+  showVaultAlert,
+  computeHash,
+  parseHostname,
+  targetDomain,
+  handleImportAds,
+  purgeDeadAds,
+  decodeEntities,
+  clearAds
+} from './adn-utils.js';
 
 const States = ['pending', 'visited', 'failed', 'dnt-allowed', 'image-error'],
   Zooms = [400, 200, 150, 100, 75, 50, 25, 12.5, 7.5, 5],
@@ -2252,10 +2266,19 @@ function createGid(ad) {
   return hash;
 }
 
-function adjustHeight(){
+const adjustHeight = function () {
   let notificationsHeight = $("#notifications").hasClass("hide") ? 0 : $("#notifications").height(); 
   $("#stage").css('height', String($(window).height() - notificationsHeight) + "px" );
 }
+
+const startImportFilePicker = function () {
+  const input = document.getElementById('importFilePicker');
+  // Reset to empty string, this will ensure an change event is properly
+  // triggered if the user pick a file, even if it is the same as the last
+  // one picked.
+  input.value = '';
+  input.click();
+};
 
 // @cqx931 use the existing $(document).keyup function
 

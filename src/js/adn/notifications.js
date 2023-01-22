@@ -21,7 +21,7 @@
 
 // Adnauseam Notification functions
 
-import { reactivateSetting, isFirefox } from './adn-utils.js';
+import { isFirefox, openPage } from './adn-utils.js';
 
 /***************************************************************************/
 
