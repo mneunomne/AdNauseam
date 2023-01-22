@@ -850,10 +850,3 @@ uDom('#lists').on('click', '.listEntry label *', ev => {
 renderFilterLists();
 
 /******************************************************************************/
-<<<<<<< HEAD
-
-// <<<<< end of local scope
-})();
-
-=======
->>>>>>> upstream1.45.0

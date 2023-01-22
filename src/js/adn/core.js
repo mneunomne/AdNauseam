@@ -34,7 +34,6 @@ import {
 } from '../uri-utils.js';
 
 import {
-  CompiledListReader,
   CompiledListWriter,
 } from '../static-filtering-io.js';
 
