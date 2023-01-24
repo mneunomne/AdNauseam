@@ -105,7 +105,7 @@ const userSettingsDefault = {
     disableClickingForDNT: false,
     clickProbability: 1.0,
     removeAdsInPrivate: true,
-    strictBlockingMode: false,
+    strictBlockingGlobal: false,
     disableWarnings: false,
 
     clickOnlyWhenIdleFor: 0,

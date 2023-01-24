@@ -302,6 +302,11 @@ const matchBucket = function(url, hostname, bucket, start) {
 /******************************************************************************/
 
 µb.getIsPageStrictBlocked = function(url) {
+    /* TO DO: implementation of global strict blokcing in the ui menu and so on
+    if (µb.userSettings.strictBlockingGlobal === true) {
+        return true;
+    }
+     */
     const hostname = hostnameFromURI(url);
     let key = hostname;
     for (;;) {

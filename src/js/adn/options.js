@@ -271,7 +271,7 @@
       e.preventDefault();
       window.open(location, '_self').close();
     });
-
+    
     updateGroupState();
   };
 

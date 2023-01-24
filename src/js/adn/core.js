@@ -1174,7 +1174,7 @@ const adnauseam = (function () {
   const isStrictBlock = function (result, context) {
 
     // see https://github.com/dhowe/AdNauseam/issues/1801#issuecomment-816271511
-    if (µb.userSettings.strictBlockingMode) {
+    if (µb.userSettings.strictBlockingGlobal) {
       logNetBlock('GlobalStrict', context.docDomain + ' :: ' + context.url);
       return true;
     }

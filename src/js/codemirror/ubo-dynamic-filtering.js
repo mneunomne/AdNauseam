@@ -55,7 +55,7 @@ CodeMirror.defineMode('ubo-dynamic-filtering', ( ) => {
         'block',
         'allow',
         'noop',
-        'strictBlock',
+        'strictBlock', // Adn
     ]);
     const hnValidator = new URL(self.location.href);
     const reBadHn = /[%]|^\.|\.$/;
