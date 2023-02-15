@@ -828,3 +828,6 @@ www.aftonbladet.se##div:has( > [id^="adPlacement"])
 
 # Fixing https://fmovies.to
 ||cdn.sb4you1.com^$important
+
+# Fixing bitsearch.to along with other cases using bharalhallahs ad provider #2265
+##div:not([class]):has(iframe):has(script[src^="//bharalhallahs"])
