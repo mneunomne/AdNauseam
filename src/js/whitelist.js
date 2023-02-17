@@ -274,6 +274,6 @@ renderWhitelist();
 
 /******************* exports for adn strict-block-list ************************/
 
-export { directiveFromLine, getEditorText, setEditorText, getCloudData, setCloudData, reComment }
+export { directiveFromLine, getEditorText, setEditorText, getCloudData, setCloudData, reComment, startImportFilePicker }
 
 /******************************************************************************/

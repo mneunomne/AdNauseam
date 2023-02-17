@@ -644,13 +644,15 @@ const renderTooltips = function(selector) {
         if ( selector !== undefined && key !== selector ) { continue; }
         const elem = uDom.nodeFromSelector(key);
         if ( elem.hasAttribute('title') === false ) { continue; }
-        const text = i18n$(
+        var text = i18n$( // adn : change variable type from const to var 
             details.i18n +
             (uDom.nodeFromSelector(details.state) === null ? '1' : '2')
         );
+        // start adn
         if (window.navigator.platform.toUpperCase().indexOf('MAC')>=0) {
             text = text.replace('Ctrl+click', '⌘+click')
         }
+        // end of adn
         elem.setAttribute('aria-label', text);
         elem.setAttribute('title', text);
     }
