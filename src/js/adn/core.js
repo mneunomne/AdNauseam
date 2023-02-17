@@ -78,6 +78,7 @@ import {
   computeHash,
   parseHostname,
   parseDomain,
+  isValidDomain
 } from './adn-utils.js';
 
 const adnauseam = (function () {
