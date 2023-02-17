@@ -25,13 +25,21 @@
 
 import { i18n$ } from '../i18n.js';
 
-import { directiveFromLine, getEditorText, setEditorText, getCloudData, setCloudData, reComment, startImportFilePicker } from '../whitelist.js';
+/******************************************************************************/
+
+const reComment = /^\s*#\s*/;
+
+const directiveFromLine = function(line) {
+    const match = reComment.exec(line);
+    return match === null
+        ? line.trim()
+        : line.slice(match.index + match[0].length).trim();
+};
 
 /******************************************************************************/
 
 CodeMirror.defineMode("ubo-whitelist-directives", function() {
     const reRegex = /^\/.+\/$/;
-
     return {
         token: function(stream) {
             const line = stream.string.trim();
@@ -93,6 +101,17 @@ const cmEditor = new CodeMirror(
 );
 
 uBlockDashboard.patchCodeMirrorEditor(cmEditor);
+
+/******************************************************************************/
+
+const getEditorText = function() {
+    let text = cmEditor.getValue().replace(/\s+$/, '');
+    return text === '' ? text : text + '\n';
+};
+
+const setEditorText = function(text) {
+    cmEditor.setValue(text.replace(/\s+$/, '') + '\n');
+};
 
 /******************************************************************************/
 
@@ -166,6 +185,17 @@ const handleImportFilePicker = function() {
 
 /******************************************************************************/
 
+const startImportFilePicker = function() {
+    const input = document.getElementById('importFilePicker');
+    // Reset to empty string, this will ensure an change event is properly
+    // triggered if the user pick a file, even if it is the same as the last
+    // one picked.
+    input.value = '';
+    input.click();
+};
+
+/******************************************************************************/
+
 const exportStrictBlockListToFile = function() {
     const val = getEditorText();
     if ( val === '' ) { return; }
@@ -193,6 +223,23 @@ const applyChanges = async function() {
 const revertChanges = function() {
     setEditorText(cachedStrictBlockList);
 };
+
+/******************************************************************************/
+
+const getCloudData = function() {
+    return getEditorText();
+};
+
+const setCloudData = function(data, append) {
+    if ( typeof data !== 'string' ) { return; }
+    if ( append ) {
+        data = uBlockDashboard.mergeNewLines(getEditorText().trim(), data);
+    }
+    setEditorText(data.trim());
+};
+
+self.cloud.onPush = getCloudData;
+self.cloud.onPull = setCloudData;
 
 /******************************************************************************/
 
