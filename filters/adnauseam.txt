@@ -309,12 +309,12 @@ bing.com#@#.b_ad:remove()
 # blocking rule for anti-adblocking solutions for text ads on search page
 ||www.bing.com/rb/5j/*$script,domain=www.bing.com
 
+# fix anti adblocker in https://www.craiyon.com/
+||www.googletagservices.com/activeview/js/current/rx_lidar.js$script,important
+
 computerworld.com###superadunit
-
 foxnews.com###sponsored-stories
-
 time.com##.ab-banner
-
 wsj.com##DIV[class*="nativo-placement"]
 wsj.com##IFRAME[id*="_mN_dy"]
 wsj.com##DIV[class*="sponsoredSections"]
@@ -828,3 +828,6 @@ www.aftonbladet.se##div:has( > [id^="adPlacement"])
 
 # Fixing https://fmovies.to
 ||cdn.sb4you1.com^$important
+
+# Fixing bitsearch.to along with other cases using bharalhallahs ad provider #2265
+##div:not([class]):has(iframe):has(script[src^="//bharalhallahs"])

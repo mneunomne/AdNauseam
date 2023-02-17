@@ -682,13 +682,6 @@ vAPI.DOMFilterer = class {
                 );
             }
             for ( const json of this.convertedProceduralFilters ) {
-                /* start of Adn exception fetching */ 
-                var instance = this.proceduralFiltererInstance()
-                if (instance == null) {
-                    if (vAPI.prefs.logEvents) console.warn("[ADN] proceduralFiltererInstance null")
-                    continue;
-                }
-                /* end of Adn exception fetching */
                 out.procedural.push(
                     this.proceduralFiltererInstance().createProceduralFilter(json)
                 );
@@ -1307,7 +1300,7 @@ const bootstrapPhaseAdn = function (response) {
             return; 
         }
         lastRunBootstrapPhaseAdn = Date.now()
-        
+        bootstrapPhaseAdnCounter++;
         if (specificCosmeticFilters) {
             processFilters(specificCosmeticFilters)
         } else {
@@ -1316,27 +1309,16 @@ const bootstrapPhaseAdn = function (response) {
                 console.warn("[ADN] vAPI.domFilterer undefined")
                 return;
             }
-    
-    
-            // get all the selectors
-            var allSelectors = vAPI.domFilterer.getAllSelectors()
+
+            // get declarative selectors
+            var allSelectors = vAPI.domFilterer.getAllSelectors(0b11)
+            // 0b11 avoid getting procedural selectors, they are now handled in the contentscript-extra.js
             
-            // declarative filters
+            // parse declarative filters
             if (allSelectors.declarative && allSelectors.declarative.length > 0) {
                 processFilters(allSelectors.declarative)
             }
-    
-            // procedural filters
-            if (allSelectors.procedural && allSelectors.procedural.length > 0) {
-                for (var index in allSelectors.procedural) {
-                    var filter = allSelectors.procedural[index]
-                    if (filter.selector.length == 0) continue; 
-                    processFilters(filter.selector)
-                }
-            }
         }
-
-        bootstrapPhaseAdnCounter++;
     }
 }
 

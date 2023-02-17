@@ -440,7 +440,7 @@
     "description": "English: Don't hide non-tracking Ads"
   },
   "disableClickingForDNTPrompt": {
-    "message": "Klicka på inte annonser utan spårning",
+    "message": "Klicka inte på annonser utan spårning",
     "description": "English: Don't click non-tracking Ads"
   },
   "extName": {
