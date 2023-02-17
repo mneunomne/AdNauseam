@@ -23,9 +23,7 @@
 
 'use strict';
 
-/******************************************************************************/
-
-(( ) => {
+import { i18n$ } from '../i18n.js';
 
 /******************************************************************************/
 
@@ -42,7 +40,6 @@ const directiveFromLine = function(line) {
 
 CodeMirror.defineMode("ubo-whitelist-directives", function() {
     const reRegex = /^\/.+\/$/;
-
     return {
         token: function(stream) {
             const line = stream.string.trim();
@@ -203,7 +200,7 @@ const exportStrictBlockListToFile = function() {
     const val = getEditorText();
     if ( val === '' ) { return; }
     const filename =
-        vAPI.i18n('strictBlockListExportFilename')
+        i18n$('strictBlockListExportFilename')
             .replace('{{datetime}}', uBlockDashboard.dateNowToSensibleString())
             .replace(/ +/g, '_');
     vAPI.download({
@@ -246,6 +243,11 @@ self.cloud.onPull = setCloudData;
 
 /******************************************************************************/
 
+self.cloud.onPush = getCloudData;
+self.cloud.onPull = setCloudData;
+
+/******************************************************************************/
+
 self.hasUnsavedData = function() {
     return getEditorText().trim() !== cachedStrictBlockList;
 };
@@ -261,5 +263,3 @@ uDom('#strictBlockListRevert').on('click', revertChanges);
 renderStrictBlockList();
 
 /******************************************************************************/
-
-})();

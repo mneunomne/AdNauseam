@@ -41,6 +41,13 @@ import {
     sessionURLFiltering,
 } from './filtering-engines.js';
 
+import {
+    ShowAdsDebug,
+    BlockingDisabled,
+    ClickingDisabled,
+    HidingDisabled
+} from './adn/notifications.js';
+
 /******************************************************************************/
 /******************************************************************************/
 
@@ -845,5 +852,18 @@ const matchBucket = function(url, hostname, bucket, start) {
 
     self.addEventListener('hiddenSettingsChanged', ( ) => { parse(); });
 }
+
+/******************************************************************************/
+
+µb.pageURLFromMaybeDocumentBlockedURL = function(pageURL) {
+    if ( pageURL.startsWith(vAPI.getURL('/document-blocked.html?')) ) {
+        try {
+            const url = new URL(pageURL);
+            return JSON.parse(url.searchParams.get('details')).url;
+        } catch(ex) {
+        }
+    }
+    return pageURL;
+};
 
 /******************************************************************************/

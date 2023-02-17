@@ -23,9 +23,7 @@
 
 'use strict';
 
-/******************************************************************************/
-
-(( ) => {
+import { i18n$ } from './i18n.js';
 
 /******************************************************************************/
 
@@ -146,7 +144,7 @@ const renderWhitelist = async function() {
         what: 'getWhitelist',
     });
 
-    uDom.nodeFromId('effListInput').checked = details.dntEnabled; //ADN
+    uDom.nodeFromId('effListInput').checked = details.dntEnabled; // ADN
 
     const first = reBadHostname === undefined;
     if ( first ) {
@@ -216,7 +214,7 @@ const exportWhitelistToFile = function() {
     const val = getEditorText();
     if ( val === '' ) { return; }
     const filename =
-        vAPI.i18n('whitelistExportFilename')
+        i18n$('whitelistExportFilename')
             .replace('{{datetime}}', uBlockDashboard.dateNowToSensibleString())
             .replace(/ +/g, '_');
     vAPI.download({
@@ -274,6 +272,8 @@ uDom('#buttonUpdateEff').on('click', buttonUpdateEff);
 
 renderWhitelist();
 
-/******************************************************************************/
+/******************* exports for adn strict-block-list ************************/
 
-})();
+export { directiveFromLine, getEditorText, setEditorText, getCloudData, setCloudData, reComment, startImportFilePicker }
+
+/******************************************************************************/
