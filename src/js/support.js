@@ -40,6 +40,7 @@ const uselessKeys = [
     'modifiedUserSettings.uiAccentCustom',
     'modifiedUserSettings.uiAccentCustom0',
     'modifiedUserSettings.uiTheme',
+    'modifiedUserSettings.dntDomains', // adn
 ];
 
 const sensitiveValues = [
@@ -48,6 +49,7 @@ const sensitiveValues = [
     'modifiedHiddenSettings.userResourcesLocation',
     'trustedset.added',
     'untrustedset.added', // adn
+    'modifiedUserSettings.admap', // adn
     'hostRuleset.added',
     'switchRuleset.added',
     'urlRuleset.added',
