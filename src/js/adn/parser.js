@@ -83,20 +83,27 @@
 
     const findBgImage = function (elem) {
       logP("findBgImage", elem)
-      const attribute = elem.style.backgroundImage ? elem.style.backgroundImage : elem.style.background;
-      if (typeof attribute !== 'undefined' && clickableParent(elem)) {
+      var attribute = elem.style.backgroundImage ? elem.style.backgroundImage : elem.style.background;
+      if (attribute && clickableParent(elem)) {
         const targetUrl = getTargetUrl(elem);
         if (attribute && targetUrl) {
-
           // create Image element for ad size
           const img = document.createElement("img");
           const src = getSrcFromAttribute(attribute);
           img.src = src
           
           return createImageAd(img, src, targetUrl);
+        } else {
+          var bgElements = elem.querySelector("[style*='background-image']")
+          attribute = bgElements.style.backgroundImage ? bgElements.style.backgroundImage : bgElements.style.background;
+          if (attribute && bgElements) {
+            const img = document.createElement("img");
+            const src = getSrcFromAttribute(attribute);
+            img.src = src
+            
+            return createImageAd(img, src, targetUrl);
+          }
         }
-      } else {
-        // TODO: go though all children
       }
     };
 
