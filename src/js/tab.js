@@ -1145,10 +1145,10 @@ vAPI.tabs = new vAPI.Tabs();
             parts |= 0b1000;
         }
 
-         vAPI.setIcon(tabId, { parts, state, badge, color });
+        vAPI.setIcon(tabId, { parts, state, badge, color });
          /* Adn start */
          isClick && vAPI.setTimeout(( ) => {
-             state = adnauseam.getIconState(state, pageDomain, isStrict);
+             state = adnauseam.getIconState(state, pageDomain, 0, isStrict);
              vAPI.setIcon(tabId, { parts, state, badge, color });
         }, 600);
         /* Adn ends */
