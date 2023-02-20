@@ -23,14 +23,9 @@
 
 'use strict';
 
+import { renderNotifications } from './adn/notifications.js'
+
 /******************************************************************************/
-
-{
-// >>>>> start of local scope
-
-  'use strict';
-
-  /******************************************************************************/
 
 const resizeFrame = function() {
     const navRect = document.getElementById('dashboard-nav')
@@ -179,7 +174,6 @@ vAPI.broadcastListener.add(request => {
     }
 })();
 
-
 vAPI.messaging.send(
     'adnauseam', {
         what: 'verifyAdBlockers'
@@ -214,5 +208,4 @@ function adjustHeight(){
     $("#stage").css('height', String($(window).height() - notificationsHeight) + "px" );
 }
 */
-// <<<<< end of local scope
-}
+

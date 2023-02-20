@@ -26,6 +26,7 @@
 /******************************************************************************/
 
 import { hostnameFromURI } from './uri-utils.js';
+import { i18n, i18n$ } from './i18n.js';
 
 /******************************************************************************/
 
@@ -892,7 +893,7 @@ const viewPort = (( ) => {
 /******************************************************************************/
 
 const updateCurrentTabTitle = (( ) => {
-    const i18nCurrentTab = vAPI.i18n('loggerCurrentTab');
+    const i18nCurrentTab = i18n$('loggerCurrentTab');
 
     return function() {
         const select = uDom.nodeFromId('pageSelector');
@@ -1614,13 +1615,12 @@ const reloadTab = function(ev) {
                    bestMatchFilter,"AdNauseam"
                ));
              } else {
-               vAPI.i18n.safeTemplateToDOM(
-                   'loggerStaticFilteringFinderSentence2',
-                   { filter: rawFilter },
-                   rows[1].children[1]
-               );
+                i18n.safeTemplateToDOM(
+                    'loggerStaticFilteringFinderSentence2',
+                    { filter: rawFilter },
+                    rows[1].children[1]
+                );
              }
-
             }
         };
 
@@ -1772,7 +1772,7 @@ const reloadTab = function(ev) {
     };
 
     const fillOriginSelect = function(select, hostname, domain) {
-        const template = vAPI.i18n('loggerStaticFilteringSentencePartOrigin');
+        const template = i18n$('loggerStaticFilteringSentencePartOrigin');
         let value = hostname;
         for (;;) {
             const option = document.createElement('option');
@@ -1792,7 +1792,7 @@ const reloadTab = function(ev) {
             return;
         }
 
-        const template = vAPI.i18n('loggerStaticFilteringSentence');
+        const template = i18n$('loggerStaticFilteringSentence');
         const rePlaceholder = /\{\{[^}]+?\}\}/g;
         const nodes = [];
         let pos = 0;
@@ -1814,11 +1814,11 @@ const reloadTab = function(ev) {
                 select.className = 'static action';
                 option = document.createElement('option');
                 option.setAttribute('value', '');
-                option.textContent = vAPI.i18n('loggerStaticFilteringSentencePartBlock');
+                option.textContent = i18n$('loggerStaticFilteringSentencePartBlock');
                 select.appendChild(option);
                 option = document.createElement('option');
                 option.setAttribute('value', '@@');
-                option.textContent = vAPI.i18n('loggerStaticFilteringSentencePartAllow');
+                option.textContent = i18n$('loggerStaticFilteringSentencePartAllow');
                 select.appendChild(option);
                 nodes.push(select);
                 break;
@@ -1829,11 +1829,11 @@ const reloadTab = function(ev) {
                 select.className = 'static type';
                 option = document.createElement('option');
                 option.setAttribute('value', filterType);
-                option.textContent = vAPI.i18n('loggerStaticFilteringSentencePartType').replace('{{type}}', filterType);
+                option.textContent = i18n$('loggerStaticFilteringSentencePartType').replace('{{type}}', filterType);
                 select.appendChild(option);
                 option = document.createElement('option');
                 option.setAttribute('value', '');
-                option.textContent = vAPI.i18n('loggerStaticFilteringSentencePartAnyType');
+                option.textContent = i18n$('loggerStaticFilteringSentencePartAnyType');
                 select.appendChild(option);
                 nodes.push(select);
                 break;
@@ -1857,7 +1857,7 @@ const reloadTab = function(ev) {
                 fillOriginSelect(select, targetFrameHostname, targetFrameDomain);
                 option = document.createElement('option');
                 option.setAttribute('value', '');
-                option.textContent = vAPI.i18n('loggerStaticFilteringSentencePartAnyOrigin');
+                option.textContent = i18n$('loggerStaticFilteringSentencePartAnyOrigin');
                 select.appendChild(option);
                 nodes.push(select);
                 break;
@@ -1867,11 +1867,11 @@ const reloadTab = function(ev) {
                 select.className = 'static importance';
                 option = document.createElement('option');
                 option.setAttribute('value', '');
-                option.textContent = vAPI.i18n('loggerStaticFilteringSentencePartNotImportant');
+                option.textContent = i18n$('loggerStaticFilteringSentencePartNotImportant');
                 select.appendChild(option);
                 option = document.createElement('option');
                 option.setAttribute('value', 'important');
-                option.textContent = vAPI.i18n('loggerStaticFilteringSentencePartImportant');
+                option.textContent = i18n$('loggerStaticFilteringSentencePartImportant');
                 select.appendChild(option);
                 nodes.push(select);
                 break;

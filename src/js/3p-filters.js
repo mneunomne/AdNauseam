@@ -25,13 +25,12 @@
 
 /******************************************************************************/
 
-(( ) => {
-// >>>>> start of local scope
+import { i18n, i18n$ } from './i18n.js';
 
 /******************************************************************************/
 
-const lastUpdateTemplateString = vAPI.i18n('3pLastUpdate');
-const obsoleteTemplateString = vAPI.i18n('3pExternalListObsolete');
+const lastUpdateTemplateString = i18n$('3pLastUpdate');
+const obsoleteTemplateString = i18n$('3pExternalListObsolete');
 const reValidExternalList = /^[a-z-]+:\/\/(?:\S+\/\S*|\/\S+)/m;
 
 let listDetails = {};
@@ -70,8 +69,8 @@ const renderNumber = function(value) {
 const renderFilterLists = function(soft) {
     const listGroupTemplate = uDom('#templates .groupEntry');
     const listEntryTemplate = uDom('#templates .listEntry');
-    const listStatsTemplate = vAPI.i18n('3pListsOfBlockedHostsPerListStats');
-    const renderElapsedTimeToString = vAPI.i18n.renderElapsedTimeToString;
+    const listStatsTemplate = i18n$('3pListsOfBlockedHostsPerListStats');
+    const renderElapsedTimeToString = i18n.renderElapsedTimeToString;
     const groupNames = new Map([ [ 'user', '' ] ]);
 
     // Assemble a pretty list name if possible
@@ -257,7 +256,7 @@ const renderFilterLists = function(soft) {
             liGroup = listGroupTemplate.clone().nodeAt(0);
 
             if ( groupName === undefined ) {
-                groupName = vAPI.i18n('3pGroup' + groupKey.charAt(0).toUpperCase() + groupKey.slice(1));
+                groupName = i18n$('3pGroup' + groupKey.charAt(0).toUpperCase() + groupKey.slice(1));
                 groupNames.set(groupKey, groupName);
             }
             if ( groupName !== '' ) {
@@ -399,7 +398,7 @@ const renderFilterLists = function(soft) {
         uDom.nodeFromId('autoUpdate').checked =
             listDetails.autoUpdate === true;
         uDom.nodeFromId('listsOfBlockedHostsPrompt').textContent =
-            vAPI.i18n('3pListsOfBlockedHostsPrompt')
+            i18n$('3pListsOfBlockedHostsPrompt')
                 .replace(
                     '{{netFilterCount}}',
                     renderNumber(details.netFilterCount)
@@ -472,7 +471,7 @@ const updateAssetStatus = function(details) {
             'title',
             lastUpdateTemplateString.replace(
                 '{{ago}}',
-                vAPI.i18n.renderElapsedTimeToString(Date.now())
+                i18n.renderElapsedTimeToString(Date.now())
             )
         );
     }
@@ -485,18 +484,20 @@ const updateAssetStatus = function(details) {
 const availableLists = listDetails.available, currentLists = listDetails.current;
 let availableOff, currentOff;
 
-// This check existing entries
-for ( let location in availableLists ) {
-    if ( availableLists.hasOwnProperty(location) === false ) {
-        continue;
-    }
-    availableOff = availableLists[location].off === true;
-    currentOff = currentLists[location] === undefined || currentLists[location].off === true;
-    if ( availableOff !== currentOff ) {
-        return true;
+const checkExistingEntries = function() {
+    // This check existing entries
+    for ( let location in availableLists ) {
+        if ( availableLists.hasOwnProperty(location) === false ) {
+            continue;
+        }
+        availableOff = availableLists[location].off === true;
+        currentOff = currentLists[location] === undefined || currentLists[location].off === true;
+        if ( availableOff !== currentOff ) {
+            return true;
+        }
     }
 }
-
+checkExistingEntries();
 
 /**
     Compute a hash from all the settings affecting how filter lists are loaded
@@ -851,7 +852,3 @@ uDom('#lists').on('click', '.listEntry label *', ev => {
 renderFilterLists();
 
 /******************************************************************************/
-
-// <<<<< end of local scope
-})();
-

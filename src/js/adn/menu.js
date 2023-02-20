@@ -21,6 +21,10 @@
 
 /* global vAPI, uDom, $ */
 
+import { i18n$ } from '../i18n.js';
+import { renderNotifications } from './notifications.js';
+import { setCost, targetDomain, decodeEntities } from './adn-utils.js';
+
 (function () {
   'use strict';
 
@@ -133,8 +137,8 @@
   const setCounts = function (ads, total, recent) {
     const numVisits = recent ? 0 : (visitedCount(ads) || 0);
     uDom('#vault-count').text(total || 0);
-    uDom('#visited').text(vAPI.i18n("adnMenuAdsClicked").replace("{{number}}", numVisits || 0));
-    uDom('#found').text(vAPI.i18n("adnMenuAdsDetected").replace("{{count}}", (ads && !recent) ? ads.length : 0));
+    uDom('#visited').text(i18n$("adnMenuAdsClicked").replace("{{number}}", numVisits || 0));
+    uDom('#found').text(i18n$("adnMenuAdsDetected").replace("{{count}}", (ads && !recent) ? ads.length : 0));
     setCost(numVisits);
     adjustStatCSS();
   }
@@ -187,7 +191,7 @@
       // update the visited count
       if (ad.pageUrl === page) { // global page here
         const numVisits = visitedCount(ads);
-        uDom('#visited').text(vAPI.i18n("adnMenuAdsClicked").replace("{{number}}", numVisits || 0));
+        uDom('#visited').text(i18n$("adnMenuAdsClicked").replace("{{number}}", numVisits || 0));
         setCost(numVisits);
         adjustStatCSS();
       }
@@ -244,7 +248,7 @@
     const cls = ad.visitedTs > 0 ? 'just-visited' : 'just-failed';
     // Update the status
     const txt = cls === 'just-visited' ? 'visited' : 'failed';
-    $ad.descendants('.adStatus').text(vAPI.i18n("adnAdClickingStatus" + txt));
+    $ad.descendants('.adStatus').text(i18n$("adnAdClickingStatus" + txt));
     $ad.removeClass('failed visited attempting').addClass(cls);
     // timed for animation
     setTimeout(function () {
@@ -308,7 +312,7 @@
 
   const appendAdStatus = function (ad, parent) {
     const $status = uDom(document.createElement('span'))
-      .addClass('adStatus').text(vAPI.i18n("adnAdClickingStatus" + adStatus(ad)));
+      .addClass('adStatus').text(i18n$("adnAdClickingStatus" + adStatus(ad)));
     $status.appendTo(parent);
   }
 
@@ -648,7 +652,7 @@
     uDom(".popup_arrow").removeClass("open")
     uDom(".inner-popup_wrapper").addClass("hidden")
     document.removeEventListener('click', onAnyClickAfterOpen)
-    var msg = vAPI.i18n('adnMenuDisableScopeDomain')
+    var msg = i18n$('adnMenuDisableScopeDomain')
     uDom("#on_domain-lbl span").text(msg)
   }
 
@@ -656,7 +660,7 @@
     uDom(".popup_arrow").addClass("open")
     uDom(".inner-popup_wrapper").removeClass("hidden");
     document.addEventListener('click', onAnyClickAfterOpen)
-    var msg = vAPI.i18n('adnMenuDisableScopeDomain').replace("{{domain}}", popupData.pageDomain)
+    var msg = i18n$('adnMenuDisableScopeDomain').replace("{{domain}}", popupData.pageDomain)
     uDom("#on_domain-lbl span").text(msg)
   }
 
