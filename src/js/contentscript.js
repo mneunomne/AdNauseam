@@ -1328,7 +1328,7 @@ const isSelectorValid = (selector) => {
     //console.warn("typeof selector", selector[0])
     try { queryCheck(selector) } catch { 
         // debug
-        selector[0].split(',').forEach(s => {
+        selector[0].split(',\n').forEach(s => {
             try { queryCheck(s) } catch {
                 console.warn("[ADN] bad selector: " + s);
             }
