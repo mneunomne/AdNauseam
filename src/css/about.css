@@ -2,7 +2,7 @@ body {
   margin-bottom: 6rem;
   padding: 0 0.5em;
   font-size: 20px;
-  font-family: bebas_neue,yanone_kaffeesatz,sans-serif;
+  font-family: bebas_neue,yanone_kaffeesatz,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
 }
 #aboutNameVer {
   color: #BD10E0;

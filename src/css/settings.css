@@ -68,7 +68,7 @@ div> p:last-child {
 #userSettings .subgroup> span {
   font-size: larger;
   font-weight: bold;
-  font-family: bebas_neue,yanone_kaffeesatz,sans-serif;
+  font-family: bebas_neue,yanone_kaffeesatz,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
 }
 #userSettings .subgroup .custom-check {
   padding: 5px 0 15px 44px;

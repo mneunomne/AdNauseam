@@ -38,7 +38,7 @@ html, body {
     display: inline-flex;
     padding: 0 0.5em;
     font-size: 20px;
-    font-family: bebas_neue,yanone_kaffeesatz,sans-serif;
+    font-family: bebas_neue,yanone_kaffeesatz,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
     display: block;
     width: 100px;
     float: left;
@@ -46,7 +46,7 @@ html, body {
     color: #fff;
 }
 .tabButton {
-    font-family: bebas_neue,yanone_kaffeesatz,sans-serif;
+    font-family: bebas_neue,yanone_kaffeesatz,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
     text-transform: uppercase;
     background-color: #222;
     border: 2px solid #444;
