@@ -745,7 +745,8 @@ footer > span  {
 
 .btn_radio_label {
   font-family: bebas_neue,sans-serif;
-  font-size: 20px;
+  font-size: 18px;
+  line-height: 20px;
   display: block;
   -webkit-user-select: none; /* Safari */        
   -moz-user-select: none; /* Firefox */
@@ -816,6 +817,7 @@ footer > span  {
 #state_btn-wrapper > .btn_radio_wrapper {
   text-align: center;
   display: inline-block;
+  overflow: hidden;
 }
 
 .btn_radio {
