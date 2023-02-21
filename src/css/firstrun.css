@@ -28,13 +28,14 @@ form {
 }
 form h1 {
   font-size: 30px;
-  font-family: bebas_neue,yanone_kaffeesatz,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-stretch: 47.5%;
+  font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   font-weight: 200;
   text-transform: uppercase;
   margin-bottom: 20px;
 }
 form h1 strong {
-  font-family: bebas_neue,yanone_kaffeesatz,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
   font-weight: 700;
   color: #fff;
 }
@@ -91,7 +92,9 @@ label[for="dnt-exception"] {
 }
 #app-version {
   color: #999;
-  font-family: bebas_neue,yanone_kaffeesatz,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-stretch: 47.5%;
+  font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   font-size: 12px;
 }
 

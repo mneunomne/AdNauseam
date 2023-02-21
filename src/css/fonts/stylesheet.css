@@ -152,3 +152,11 @@
     font-style: normal;
   }
   
+/* Roboto Flex */
+
+@font-face {
+    font-family: 'roboto_flex';
+    src: url('Roboto_Flex/RobotoFlex-VariableFont_GRAD\,XTRA\,YOPQ\,YTAS\,YTDE\,YTFI\,YTLC\,YTUC\,opsz\,slnt\,wdth\,wght.ttf');
+    font-weight: normal;
+    font-style: normal;
+  }

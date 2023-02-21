@@ -1,23 +1,29 @@
-Yanone Kaffeesatz Variable Font
-===============================
+Roboto Flex Variable Font
+=========================
 
-This download contains Yanone Kaffeesatz as both a variable font and static fonts.
+This download contains Roboto Flex as both a variable font and a static font.
 
-Yanone Kaffeesatz is a variable font with this axis:
+Roboto Flex is a variable font with these axes:
+  GRAD
+  XTRA
+  YOPQ
+  YTAS
+  YTDE
+  YTFI
+  YTLC
+  YTUC
+  opsz
+  slnt
+  wdth
   wght
 
 This means all the styles are contained in a single file:
-  YanoneKaffeesatz-VariableFont_wght.ttf
+  RobotoFlex-VariableFont_GRAD,XTRA,YOPQ,YTAS,YTDE,YTFI,YTLC,YTUC,opsz,slnt,wdth,wght.ttf
 
 If your app fully supports variable fonts, you can now pick intermediate styles
 that aren’t available as static fonts. Not all apps support variable fonts, and
-in those cases you can use the static font files for Yanone Kaffeesatz:
-  static/YanoneKaffeesatz-ExtraLight.ttf
-  static/YanoneKaffeesatz-Light.ttf
-  static/YanoneKaffeesatz-Regular.ttf
-  static/YanoneKaffeesatz-Medium.ttf
-  static/YanoneKaffeesatz-SemiBold.ttf
-  static/YanoneKaffeesatz-Bold.ttf
+in those cases you can use the static font file for Roboto Flex:
+  static/RobotoFlex/RobotoFlex-Regular.ttf
 
 Get started
 -----------

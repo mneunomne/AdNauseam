@@ -2,7 +2,9 @@ body {
   margin-bottom: 6rem;
   padding: 0 0.5em;
   font-size: 20px;
-  font-family: bebas_neue,yanone_kaffeesatz,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-stretch: 47.5%;
+  font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
 }
 #aboutNameVer {
   color: #BD10E0;
