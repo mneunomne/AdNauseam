@@ -3,7 +3,7 @@
 
 
 @font-face {
-    font-family: 'bebas_neue';
+    font-family: bebas_neue;
     src: url('bebasneue_bold-webfont.eot');
     src: url('bebasneue_bold-webfont.eot?#iefix') format('embedded-opentype'),
          url('bebasneue_bold-webfont.woff2') format('woff2'),
@@ -19,7 +19,7 @@
 
 
 @font-face {
-    font-family: 'bebas_neue';
+    font-family: bebas_neue;
     src: url('bebasneue_book-webfont.eot');
     src: url('bebasneue_book-webfont.eot?#iefix') format('embedded-opentype'),
          url('bebasneue_book-webfont.woff2') format('woff2'),
@@ -35,7 +35,7 @@
 
 
 @font-face {
-    font-family: 'bebas_neue';
+    font-family: bebas_neue;
     src: url('bebasneue_light-webfont.eot');
     src: url('bebasneue_light-webfont.eot?#iefix') format('embedded-opentype'),
          url('bebasneue_light-webfont.woff2') format('woff2'),
@@ -51,7 +51,7 @@
 
 
 @font-face {
-    font-family: 'bebas_neue';
+    font-family: bebas_neue;
     src: url('bebasneue_regular-webfont.eot');
     src: url('bebasneue_regular-webfont.eot?#iefix') format('embedded-opentype'),
          url('bebasneue_regular-webfont.woff2') format('woff2'),
@@ -67,7 +67,7 @@
 
 
 @font-face {
-    font-family: 'bebas_neue';
+    font-family: bebas_neue;
     src: url('bebasneue_thin-webfont.eot');
     src: url('bebasneue_thin-webfont.eot?#iefix') format('embedded-opentype'),
          url('bebasneue_thin-webfont.woff2') format('woff2'),

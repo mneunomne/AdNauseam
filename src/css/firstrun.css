@@ -28,13 +28,13 @@ form {
 }
 form h1 {
   font-size: 30px;
-  font-family: bebas_neue,'yanone_kaffeesatz',sans-serif;
+  font-family: bebas_neue,yanone_kaffeesatz,sans-serif;
   font-weight: 200;
   text-transform: uppercase;
   margin-bottom: 20px;
 }
 form h1 strong {
-  font-family: bebas_neue,'yanone_kaffeesatz',sans-serif;
+  font-family: bebas_neue,yanone_kaffeesatz,sans-serif;
   font-weight: 700;
   color: #fff;
 }
@@ -91,7 +91,7 @@ label[for="dnt-exception"] {
 }
 #app-version {
   color: #999;
-  font-family: bebas_neue,'yanone_kaffeesatz',sans-serif;
+  font-family: bebas_neue,yanone_kaffeesatz,sans-serif;
   font-size: 12px;
 }
 
