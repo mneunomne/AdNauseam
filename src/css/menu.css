@@ -187,7 +187,7 @@ a.hide {
 button {
   border: 2px solid #0076FF;
   border-radius: 5px;
-  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   font-stretch: 47.5%;
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   background: none;
@@ -254,7 +254,7 @@ button.danger:hover{
 header{
   background: #000;
   height: 100px;
-  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   font-stretch: 47.5%;
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   font-size: 18px;
@@ -484,7 +484,7 @@ span.adStatus:before {
   line-height: 85px;
   text-indent: 20px;
   font-size: 30px;
-  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   font-stretch: 47.5%;
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
 }
@@ -525,7 +525,7 @@ span.adStatus:before {
 
 .ad-item span.adStatus, .ad-item-text span.adStatus {
   font-size:14px;
-  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   font-stretch: 47.5%;
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   color:#666;
@@ -557,7 +557,7 @@ span.adStatus:before {
   font-size: 16px;
   line-height: 1em;
   padding: 10px;
-  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   font-stretch: 47.5%;
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   top: 40px;
@@ -645,7 +645,7 @@ span.adStatus:before {
 
 #settings {
   height: 450px;
-  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   font-stretch: 47.5%;
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   width: 100%;
@@ -668,7 +668,7 @@ span.adStatus:before {
   height: 100px;
   float: right;
   padding-top:30px;
-  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   font-stretch: 47.5%;
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   font-size: 40px;
@@ -758,7 +758,7 @@ footer > span  {
 }
 
 .btn_radio_label {
-  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   font-stretch: 47.5%;
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   text-transform: uppercase;
@@ -781,7 +781,7 @@ body.en .btn_radio_label {
   display: inline-block;
   border: 2px solid #0076FF;
   border-radius: 5px;
-  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   font-stretch: 47.5%;
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   background: none;
@@ -985,7 +985,7 @@ body.en .btn_radio_label {
 
 #paused-menu h2{
   position: absolute;
-  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   font-stretch: 47.5%;
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   font-size:19px;
@@ -1007,7 +1007,7 @@ body.en .btn_radio_label {
 select {
   border: 2px solid #0076FF;
   border-radius: 5px;
-  font-family: bebas_neue,roboto_flex,noto_sans_sc,noto_sans_tc,noto_sans_jp,sans-serif;
+  font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   font-stretch: 47.5%;
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   background: none;
