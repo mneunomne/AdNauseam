@@ -12,7 +12,7 @@ set -e
 
 SRC=~/Downloads/adnauseam
 rm -r $SRC || true > /dev/null
-unzip -q ~/Downloads/adnauseam \(translations\).zip -d $SRC
+unzip -q ~/Downloads/adnauseam.zip -d $SRC
 
 # https://www.assertnotmagic.com/2018/06/20/bash-brackets-quick-reference/
 

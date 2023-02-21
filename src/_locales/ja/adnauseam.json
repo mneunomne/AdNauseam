@@ -92,7 +92,7 @@
     "description": "English: Notifications -> The 'Content Blocking' settings in your browser may interfere with AdNauseam!"
   },
   "adnNotificationPrivacyMode": {
-    "message": "You have allowed adnauseam to have access to your online activities while private browsing.",
+    "message": "個人的な閲覧中にad吐き気をあなたのオンライン活動へのアクセスを許可した。",
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
@@ -100,16 +100,20 @@
     "description": "English: Notifications -> This page respects Do Not Track, Ads are allowed."
   },
   "adnNotificationDNTHidingNotClicking": {
-    "message": "This page respects <b>Do Not Track</b>, hiding not clicking.",
+    "message": "このページでは<b>Do Not Tack<b>を遵守しているため、広告は許可されます",
     "description": "English: Notifications -> This page respects Do Not Track, hiding not clicking."
   },
   "adnNotificationDNTClickingNotHiding": {
-    "message": "This page respects <b>Do Not Track</b>, clicking not hiding",
+    "message": "このページでは<b>Do Not Tack<b>を遵守しているため、広告は許可されます",
     "description": "English: Notifications -> This page respects Do Not Track, clicking not hiding."
   },
   "adnNotificationDNTJustSoYouKnow": {
-    "message": "This page respects <b>Do Not Track</b>, just so you know.",
+    "message": "このページでは<b>Do Not Tack<b>を遵守しているため、広告は許可されます",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
+  },
+  "adnNotificationShowAdsDebug": {
+    "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
+    "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
   },
   "adnTarget": {
     "message": "ターゲット",
@@ -128,15 +132,15 @@
     "description": "English: Not Yet Visited"
   },
   "adnFirstRunSwitchMeOn": {
-    "message": "Switch me on",
+    "message": "私をオンにする",
     "description": "English: Firstrun.html -> Switch me on"
   },
   "adnFirstRunThatsIt": {
-    "message": "That's it? ok…",
+    "message": "それだけですか？ OK…",
     "description": "English: Firstrun.html -> That's it? ok…"
   },
   "adnFirstRunBetterButStill": {
-    "message": "Better, but still…",
+    "message": "もっと良いけど、まだ…",
     "description": "English: Firstrun.html -> Better, but still…"
   },
   "adnFirstRunLetsGo": {
@@ -164,7 +168,7 @@
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Top Ad Networks",
+    "message": "トップネットワーク",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
@@ -184,15 +188,15 @@
     "description": "appears in ADN vault/My Statistics"
   },
   "adnShowingRecentAds": {
-    "message": "No Ads collected on this page (showing recent)",
+    "message": "このページでは広告は収集されません（最近表示）",
     "description": "shown in menu when only 'recent' Ads are shown"
   },
   "adnThisPageStrictBlocked": {
-    "message": "{{domain}} is currently strict-blocked.",
+    "message": "{{domain}} は現在 strict-blockedです。",
     "description": "shown in menu when the current page is strict-blocked"
   },
   "adnStrictBlockListDescription": {
-    "message": "The strict-block list serves to help the users to strict-block specific domains or pages more easily.",
+    "message": "strict-block リストは、ユーザが特定のドメインやページをより簡単に制限するのに役立ちます。",
     "description": "Description on the strict-block list tab, which is found on the dashboard"
   },
   "adnExportedAdsFilename": {
@@ -200,7 +204,7 @@
     "description": "English: AdNauseam file export"
   },
   "adnImportAlertFormat": {
-    "message": "The file doesn't contain any Ads, please choose another file.",
+    "message": "ファイルに広告が含まれていません。別のファイルを選択してください。",
     "description": "appears in ADN vault, after import"
   },
   "adnImportAlert": {
@@ -208,11 +212,11 @@
     "description": "appears in ADN vault, after import"
   },
   "adnClearConfirm": {
-    "message": "This action will permanently remove ALL of your Ads",
+    "message": "このアクションは広告のすべてを恒久的に削除します",
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "This action will permanently remove all ads with load image error. Make sure your internet is connected, otherwise all your ads will be deleted.",
+    "message": "このアクションは、読み込みイメージエラーのあるすべての広告を永久に削除します。インターネットが接続されていることを確認してください。そうしないと、すべての広告が削除されます。",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -228,19 +232,19 @@
     "description": "Menu & AdVault: Failed"
   },
   "adnAdClickingStatusSkippedDNT": {
-    "message": "SKIPPED: DNT Allowed",
+    "message": "スキップ: DNT Allowed",
     "description": "Menu & AdVault: SKIPPED: DNT Allowed"
   },
   "adnAdClickingStatusSkippedUser": {
-    "message": "SKIPPED: Clicked by user",
+    "message": "スキップ: ユーザーによってクリックされました",
     "description": "Menu & AdVault: SKIPPED: Clicked by User"
   },
   "adnAdClickingStatusSkippedFrequency": {
-    "message": "SKIPPED: Click Frequency",
+    "message": "スキップ済み: クリック頻度を表示する",
     "description": "Menu & AdVault: SKIPPED: Click Frequency"
   },
   "adnAdClickingStatusSkippedDisabled": {
-    "message": "SKIPPED: Clicking Disabled",
+    "message": "スキップ: 無効をクリックします。",
     "description": "Menu & AdVault: SKIPPED: Clicking disabled"
   },
   "adnMenuViewLog": {
@@ -264,23 +268,23 @@
     "description": "appears in ADN popup menu three state button"
   },
   "adnMenuDisable": {
-    "message": "Disable",
+    "message": "無効",
     "description": "Disabled Adnauseam -> appears in ADN popup menu three state button"
   },
   "adnMenuActive": {
-    "message": "Active",
+    "message": "有効",
     "description": "Make Adnauseam Active -> appears in ADN popup menu three state button"
   },
   "adnMenuStrict": {
-    "message": "Strict",
+    "message": "厳格",
     "description": "Activate Strict-Block -> appears in ADN popup menu three state button"
   },
   "adnMenuDisableScopeDomain": {
-    "message": "on {{domain}}",
+    "message": "{{domain}} に",
     "description": "Disable AdNaueam Block On this Domain -> Popup option that appears inside ADN menu"
   },
   "adnMenuDisableScopePage": {
-    "message": "on this page",
+    "message": "このページでは",
     "description": "Disable AdNaueam Block On This Page -> Popup option that appears inside ADN menu"
   },
   "adnMenuSettings": {
