@@ -755,6 +755,10 @@ footer > span  {
   user-select: none; /* Standard */
 }
 
+body.en .btn_radio_label {
+  font-size: 20px;
+}
+
 #state_btn-wrapper {
   left: 50%;
   transform: translateX(-50%);

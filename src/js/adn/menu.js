@@ -37,6 +37,9 @@ import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from '.
       // add class to document body
       document.body.classList.add('cyrilic');
     }
+    if (i18n$('adnMenuActive') === 'Active') {
+      document.body.classList.add('en');
+    }
   }, 10)
 
   vAPI.broadcastListener.add(request => {
