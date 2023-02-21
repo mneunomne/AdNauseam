@@ -68,7 +68,7 @@ div> p:last-child {
 #userSettings .subgroup> span {
   font-size: larger;
   font-weight: bold;
-  font-family: 'bebas_neue',sans-serif;
+  font-family: bebas_neue,'yanone_kaffeesatz',sans-serif;
 }
 #userSettings .subgroup .custom-check {
   padding: 5px 0 15px 44px;
@@ -200,7 +200,7 @@ input[type=range]:disabled::-moz-range-progress {
   background:#0076FF;
   margin:-10px -20px 20px -20px;
   font-size:22px;
-  font-family: 'bebas_neue';
+  font-family: 'bebas_neue', sans-serif;
   padding-top: 7px;
   height:36px;
   text-align: center;

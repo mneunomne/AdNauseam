@@ -16,7 +16,7 @@ h2 {
     color: #fff;
     text-transform: uppercase;
     line-height: 1em;
-    font-family: bebas_neue,sans-serif;
+    font-family: bebas_neue,'yanone_kaffeesatz',sans-serif;
 }
 h3 {
     font-size: 16px;

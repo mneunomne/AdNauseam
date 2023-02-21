@@ -23,7 +23,7 @@
 
 import { i18n$ } from '../i18n.js';
 import { renderNotifications } from './notifications.js';
-import { setCost, targetDomain, decodeEntities } from './adn-utils.js';
+import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from './adn-utils.js';
 
 (function () {
   'use strict';
@@ -33,6 +33,10 @@ import { setCost, targetDomain, decodeEntities } from './adn-utils.js';
   var ad_list_height
   setTimeout(() => {
     ad_list_height = document.body.offsetHeight - 140;
+    if (isCyrillic()) {
+      // add class to document body
+      document.body.classList.add('cyrilic');
+    }
   }, 10)
 
   vAPI.broadcastListener.add(request => {
@@ -744,12 +748,6 @@ import { setCost, targetDomain, decodeEntities } from './adn-utils.js';
     uDom('#notifications').on('click', setBackBlockHeight);
     uDom('body').on('mouseenter', '[data-tip]', onShowTooltip)
       .on('mouseleave', '[data-tip]', onHideTooltip);
-
-    // tmp Russian fix
-    if (uDom('#vault-button').text() === " Просмотр хранилища рекламы") {
-      uDom('#vault-button').css("font-size", "14px");
-      uDom('#stats').css("font-size", "16px");
-    }
 
     // Mobile device?
     // https://github.com/gorhill/uBlock/issues/3032

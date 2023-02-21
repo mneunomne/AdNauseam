@@ -360,6 +360,16 @@ export const openPage = function(url) {
   });
 }
 
+// check if current i18n language uses the latin alphabet
+export const isNonLatin = function() {
+  return /[^\u0000-\u00ff]/.test(i18n$('adnAboutPageName'));
+}
+
+// check if current i18n language is cyrilic (ru, uk, bg, sr, mk)
+export const isCyrillic = function() {
+  return /[а-яА-Я]/.test(i18n$('adnAboutPageName'));
+}
+
 /******************************************************************************/
 
 export const startImportFilePicker = function() {
