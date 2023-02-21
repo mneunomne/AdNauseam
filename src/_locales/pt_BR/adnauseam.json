@@ -111,6 +111,10 @@
     "message": "Esta página respeita o <b>Do Not Track</b>, só para sua informação.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
+  "adnNotificationShowAdsDebug": {
+    "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
+    "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
+  },
   "adnTarget": {
     "message": "ALVO",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
@@ -212,7 +216,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "This action will permanently remove all ads with load image error. Make sure your internet is connected, otherwise all your ads will be deleted.",
+    "message": "Esta ação irá remover permanentemente todos os anúncios com erro de carregamento da imagem. Certifique-se de que sua internet está conectada, caso contrário, todos os seus anúncios serão excluídos.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -352,7 +356,7 @@
     "description": "appears on vault page"
   },
   "adnPurgeDeadAds": {
-    "message": "Purge Dead Ads",
+    "message": "Eliminar Anúncios Inativos",
     "description": "appears on vault page"
   },
   "adnVaultFound": {
@@ -476,7 +480,7 @@
     "description": "appears as tab name in dashboard"
   },
   "strictBlockListPageName": {
-    "message": "Strict-Block List",
+    "message": "Lista de bloqueio estrita",
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
@@ -488,7 +492,7 @@
     "description": "English:Disable warnings"
   },
   "showAdsDebugPrompt": {
-    "message": "Show ads for ad-collection debugging",
+    "message": "Mostrar anúncios para depuração de coleção de anúncios",
     "description": "English: Show ads for ad-collection debugging"
   },
   "removeAdsInPrivate": {

@@ -111,6 +111,10 @@
     "message": "Tämä sivu kunnioittaa <b>Do Not Track</b> -ominaisuutta, ihan vain tiedoksi.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
+  "adnNotificationShowAdsDebug": {
+    "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
+    "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
+  },
   "adnTarget": {
     "message": "KOHDE",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
@@ -164,7 +168,7 @@
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Top Ad Networks",
+    "message": "Yleisimmät mainosverkostot",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
@@ -188,11 +192,11 @@
     "description": "shown in menu when only 'recent' Ads are shown"
   },
   "adnThisPageStrictBlocked": {
-    "message": "{{domain}} is currently strict-blocked.",
+    "message": "{{domain}} on tällä hetkellä tiukasti estetty.",
     "description": "shown in menu when the current page is strict-blocked"
   },
   "adnStrictBlockListDescription": {
-    "message": "The strict-block list serves to help the users to strict-block specific domains or pages more easily.",
+    "message": "Tiukka estolista auttaa käyttäjiä estämään tiettyjä verkkotunnuksia tai sivuja tiukasti helpommin.",
     "description": "Description on the strict-block list tab, which is found on the dashboard"
   },
   "adnExportedAdsFilename": {
@@ -212,7 +216,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "This action will permanently remove all ads with load image error. Make sure your internet is connected, otherwise all your ads will be deleted.",
+    "message": "Toiminto poistaa pysyvästi kaikki mainokset, joiden kuvalatauksissa on virheitä. Varmista, että Internet-yhteytesi toimii, koska muuten kaikki mainokset poistetaan.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -276,7 +280,7 @@
     "description": "Activate Strict-Block -> appears in ADN popup menu three state button"
   },
   "adnMenuDisableScopeDomain": {
-    "message": "on {{domain}}",
+    "message": "verkkotunnuksella {{domain}}",
     "description": "Disable AdNaueam Block On this Domain -> Popup option that appears inside ADN menu"
   },
   "adnMenuDisableScopePage": {
@@ -352,7 +356,7 @@
     "description": "appears on vault page"
   },
   "adnPurgeDeadAds": {
-    "message": "Purge Dead Ads",
+    "message": "Hävitä kuolleet mainokset",
     "description": "appears on vault page"
   },
   "adnVaultFound": {
@@ -476,7 +480,7 @@
     "description": "appears as tab name in dashboard"
   },
   "strictBlockListPageName": {
-    "message": "Strict-Block List",
+    "message": "Tiukka estolista",
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
@@ -484,11 +488,11 @@
     "description": "prompt for toggle"
   },
   "disableWarnings": {
-    "message": "Poista varoitukset käytöstä",
+    "message": "Älä näytä varoituksia",
     "description": "English:Disable warnings"
   },
   "showAdsDebugPrompt": {
-    "message": "Show ads for ad-collection debugging",
+    "message": "Näytä mainokset mainoskokoelman vianetsintää varten",
     "description": "English: Show ads for ad-collection debugging"
   },
   "removeAdsInPrivate": {
@@ -496,7 +500,7 @@
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Activate Strict-Blocking Mode",
+    "message": "Aktivoi tiukka estotila",
     "description": "English: Activate Strict-Blocking Mode"
   }
 }

@@ -111,6 +111,10 @@
     "message": "Ang pahinang ito ay nirerespeto ang <b>Do Not Track</b>, para sa iyong kaalaman.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
+  "adnNotificationShowAdsDebug": {
+    "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
+    "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
+  },
   "adnTarget": {
     "message": "TARGET",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
@@ -472,7 +476,7 @@
     "description": "English: update"
   },
   "whitelistPageName": {
-    "message": "Whitelists",
+    "message": "Trusted sites",
     "description": "appears as tab name in dashboard"
   },
   "strictBlockListPageName": {

@@ -111,6 +111,10 @@
     "message": "Esta página respeta <b>Do Not Track</b>, solo para que sepa.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
+  "adnNotificationShowAdsDebug": {
+    "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
+    "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
+  },
   "adnTarget": {
     "message": "Objetivo",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
