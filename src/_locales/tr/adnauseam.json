@@ -111,6 +111,10 @@
     "message": "Bu sayfa <b>Takip etmeme</b> ye uyuyor, bilginiz olsun.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
+  "adnNotificationShowAdsDebug": {
+    "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
+    "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
+  },
   "adnTarget": {
     "message": "HEDEF",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
@@ -268,7 +272,7 @@
     "description": "Disabled Adnauseam -> appears in ADN popup menu three state button"
   },
   "adnMenuActive": {
-    "message": "Active",
+    "message": "Aktif",
     "description": "Make Adnauseam Active -> appears in ADN popup menu three state button"
   },
   "adnMenuStrict": {

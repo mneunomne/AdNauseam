@@ -111,6 +111,10 @@
     "message": "Esta página respeita o <b>Do Not Track</b>, só para que saiba.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
+  "adnNotificationShowAdsDebug": {
+    "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
+    "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
+  },
   "adnTarget": {
     "message": "ALVO",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
@@ -212,7 +216,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "Esta ação irá remover permanentemente todos os anúncios com erro de carregamento da imagem. Certifique-se de que sua internet está conectada, caso contrário, todos os seus anúncios serão excluídos.",
+    "message": "Esta ação irá remover permanentemente todos os anúncios com erro de carregamento da imagem. Certifique-se que está conectado à Internet, caso contrário, todos os seus anúncios serão eliminados.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -352,7 +356,7 @@
     "description": "appears on vault page"
   },
   "adnPurgeDeadAds": {
-    "message": "Eliminar Anúncios com Erro",
+    "message": "Eliminar anúncios com erro",
     "description": "appears on vault page"
   },
   "adnVaultFound": {

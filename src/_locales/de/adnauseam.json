@@ -111,6 +111,10 @@
     "message": "Diese Seite respektiert <b>Do Not Track</b>, nur damit du weisst.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
+  "adnNotificationShowAdsDebug": {
+    "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
+    "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
+  },
   "adnTarget": {
     "message": "Ziel",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
@@ -352,7 +356,7 @@
     "description": "appears on vault page"
   },
   "adnPurgeDeadAds": {
-    "message": "Purge Dead Ads",
+    "message": "Beseitige vernichtete Werbungen",
     "description": "appears on vault page"
   },
   "adnVaultFound": {
@@ -476,7 +480,7 @@
     "description": "appears as tab name in dashboard"
   },
   "strictBlockListPageName": {
-    "message": "Strict-Block Liste",
+    "message": "Strikte Blockliste",
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
@@ -496,7 +500,7 @@
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Strict Blocking Modus aktivieren",
+    "message": "Strikte Blocking Modus aktivieren",
     "description": "English: Activate Strict-Blocking Mode"
   }
 }

@@ -111,6 +111,10 @@
     "message": "此页尊重 <b>Do Not Track</b>原则。",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
+  "adnNotificationShowAdsDebug": {
+    "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
+    "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
+  },
   "adnTarget": {
     "message": "目标",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
@@ -188,7 +192,7 @@
     "description": "shown in menu when only 'recent' Ads are shown"
   },
   "adnThisPageStrictBlocked": {
-    "message": "{{domain}} is currently strict-blocked.",
+    "message": "{{domain}} 目前被严格屏蔽。",
     "description": "shown in menu when the current page is strict-blocked"
   },
   "adnStrictBlockListDescription": {
@@ -496,7 +500,7 @@
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Activate Strict-Blocking Mode",
+    "message": "启用严格屏蔽模式",
     "description": "English: Activate Strict-Blocking Mode"
   }
 }
