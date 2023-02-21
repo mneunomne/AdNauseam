@@ -978,10 +978,10 @@ body.en .btn_radio_label {
 }
 
 #paused-on-page {
-    margin: 0 10px;
+  padding: 0 10px;
 }
 #paused-no-hiding {
-    margin: 0 -10px;
+  padding: 0 -10px;
 }
 
 select {
