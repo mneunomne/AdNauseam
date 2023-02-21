@@ -476,7 +476,7 @@
     "description":"English: update"
   },
   "whitelistPageName": {
-    "message": "Whitelists",
+    "message": "Trusted sites",
     "description": "appears as tab name in dashboard"
   },
   "strictBlockListPageName": {
