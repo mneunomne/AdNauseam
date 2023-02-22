@@ -831,3 +831,7 @@ www.aftonbladet.se##div:has( > [id^="adPlacement"])
 
 # Fixing bitsearch.to along with other cases using bharalhallahs ad provider #2265
 ##div:not([class]):has(iframe):has(script[src^="//bharalhallahs"])
+
+# metro.co.uk show "disable your adblocker"
+metro.co.uk##div:has(.container-2vnqP)
+metro.co.uk##body.mol-fe-ab-dialog:style(overflow-y: auto !important;)
