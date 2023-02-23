@@ -262,7 +262,7 @@ function doLayout(adsets, update) {
 
   createDivs(adsets, update);
   computeStats(adsets);
-  analyze(adsets);
+  analyze(gAds);
   enableLightbox();
   repack();
 }
@@ -303,7 +303,6 @@ function parseAd(ad, data) {
 }
 
 function analyze(adsets) {
-
   let data = {
     totalImg: 0,
     totalText: 0,
