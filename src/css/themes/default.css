@@ -267,7 +267,7 @@
     --cm-merge-chunk-border: rgb(var(--surface-0-rgb) / 40%);
     --cm-merge-chunk-surface: rgb(var(--surface-0-rgb) / 40%);
     --cm-negative: #e32f00; /* h:15 S:100 Luv:50 */
-    --cm-red: #e60000; /* h:0 S:100 Luv:50 ---- Adn StrictBlock */
+    --cm-red: #c400ff; /* h:0 S:100 Luv:50 ---- Adn StrictBlock */
     --cm-positive: #008a21; /* h:130 S:100 Luv:50 */
     --cm-selection-surface: rgb(var(--gray-80));
     --cm-selection-focused-surface: rgb(var(--primary-80));
