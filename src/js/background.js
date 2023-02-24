@@ -214,8 +214,7 @@ const µBlock = {  // jshint ignore:line
     netStrictBlockListDefault: [
         // 'youtube.com',
         'facebook.com',
-        'gmail.com',
-        'funnyordie.com'
+        'gmail.com'
     ],
     // end of Adn
     localSettings: {
