@@ -93,7 +93,7 @@ vAPI.broadcastListener.add(request => {
     lastAdDetectedTime = new Date();
     const brush =  document.getElementsByClassName('chart-bg')[0];
     const w = brush ? parseInt(brush.attributes.width.value) : null,
-      sliderPos = gSliderLeft ? parseFloat(/\((.*?),/g.exec(gSliderLeft)[1]) : null;
+    sliderPos = gSliderLeft ? parseFloat(/\((.*?),/g.exec(gSliderLeft)[1]) : null;
 
     // only when the slider covers 'now' or when there is no slider (empty vault or one ad)
     // console.log(w, sliderPos)
