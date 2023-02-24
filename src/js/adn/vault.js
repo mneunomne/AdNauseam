@@ -82,44 +82,43 @@ let lastAdDetectedTime, waitingAds = []; // stateful
 vAPI.broadcastListener.add(request => {
   //console.log("GOT BROADCAST", request);
   switch (request.what) {
+    case 'adAttempt':
+      setCurrent(request.ad);
+      break;
 
-  case 'adAttempt':
-    setCurrent(request.ad);
-    break;
+    case 'adDetected':
+      console.log('*** New-ad-detected ***', request.ad);
+      waitingAds.push(request.ad);
+      lastAdDetectedTime = new Date();
+      const brush = document.getElementsByClassName('chart-bg')[0];
+      const w = brush ? parseInt(brush.attributes.width.value) : null,
+        sliderPos = gSliderLeft ? parseFloat(/\((.*?),/g.exec(gSliderLeft)[1]) : null;
 
-  case 'adDetected':
-    console.log('*** New-ad-detected ***', request.ad);
-    waitingAds.push(request.ad);
-    lastAdDetectedTime = new Date();
-    const brush =  document.getElementsByClassName('chart-bg')[0];
-    const w = brush ? parseInt(brush.attributes.width.value) : null,
-    sliderPos = gSliderLeft ? parseFloat(/\((.*?),/g.exec(gSliderLeft)[1]) : null;
+      // only when the slider covers 'now' or when there is no slider (empty vault or one ad)
+      // console.log(w, sliderPos)
+      if (w - sliderPos <= 1 || sliderPos == 0) setTimeout(autoUpdateVault, 3000);
 
-    // only when the slider covers 'now' or when there is no slider (empty vault or one ad)
-    // console.log(w, sliderPos)
-    if ( w - sliderPos <= 1 || sliderPos == 0) setTimeout(autoUpdateVault, 3000);
+      //  updateVault() would normally be triggered by the 'adDetected' message (above),
+      //  which contains the new ads, and is sent ONLY if the the vault is open
+      break;
 
-    //  updateVault() would normally be triggered by the 'adDetected' message (above),
-    //  which contains the new ads, and is sent ONLY if the the vault is open
-    break;
+    case 'adVisited':
+      updateAd(request);
+      break;
 
-  case 'adVisited':
-    updateAd(request);
-    break;
-
-  case 'notifications':
-    renderNotifications(request.notifications, 'vault');
-    adjustHeight();
-    createSlider();
-    break;
-  case 'hideNotifications':
-    uDom('#notifications').addClass("hide");
-    adjustHeight();
-    break;
-  case 'showNotifications':
-    uDom('#notifications').removeClass("hide");
-    adjustHeight();
-    break;
+    case 'notifications':
+      renderNotifications(request.notifications, 'vault');
+      adjustHeight();
+      createSlider();
+      break;
+    case 'hideNotifications':
+      uDom('#notifications').addClass("hide");
+      adjustHeight();
+      break;
+    case 'showNotifications':
+      uDom('#notifications').removeClass("hide");
+      adjustHeight();
+      break;
   }
 });
 
@@ -147,24 +146,24 @@ const renderAds = function (json) {
   setCurrent(json.current);
 
   vAPI.messaging.send(
+    'adnauseam', {
+    what: 'verifyAdBlockers'
+  }).then(n => {
+    vAPI.messaging.send(
       'adnauseam', {
-          what: 'verifyAdBlockers'
-      }).then(n => {
-        vAPI.messaging.send(
-            'adnauseam', {
-                what: 'getNotifications'
-            }).then(data => {
-            if (data.notifications && data.notifications.length)
-                renderNotifications(data.notifications, 'vault');
-                adjustHeight();
-          })
-      })
+      what: 'getNotifications'
+    }).then(data => {
+      if (data.notifications && data.notifications.length)
+        renderNotifications(data.notifications, 'vault');
+      adjustHeight();
+    })
+  })
   // disable warnings #1910
   // Notifications need to be hidden right away for the correct height to be calculated
   vAPI.messaging.send(
     'adnauseam', {
-      what: 'getWarningDisabled'
-    }
+    what: 'getWarningDisabled'
+  }
   ).then(isDisabled => {
     if (isDisabled) {
       uDom("#notifications").addClass('hide');
@@ -175,22 +174,22 @@ const renderAds = function (json) {
   })
 };
 
-const autoUpdateVault = function(){
+const autoUpdateVault = function () {
 
   const gap = new Date() - lastAdDetectedTime;
-  if (waitingAds != [] && gap >= 3000){
+  if (waitingAds != [] && gap >= 3000) {
     updateVault(waitingAds, true);
     // console.log("autoupdate", gap)
-  } else{
+  } else {
     // console.log("skip-update", gap)
   }
 }
 
-const getHash = function(ad) {
+const getHash = function (ad) {
   return ad.hash ? ad.hash : computeHash(ad);
 }
 
-const updateVault = function (ads, newAdsOnly){
+const updateVault = function (ads, newAdsOnly) {
   if (vaultLoading) return;
   if (gAdSets == null) {
     gAds = ads;
@@ -202,18 +201,18 @@ const updateVault = function (ads, newAdsOnly){
   if (newAdsOnly) {
     gAds = gAds.concat(ads);
     for (let i = 0; i < ads.length; i++) {
-        let ad = ads[i];
-        const key = getHash(ad);
-        if (!key) continue;
+      let ad = ads[i];
+      const key = getHash(ad);
+      if (!key) continue;
 
-        for (let j = 0; j < gAdSets.length; j++) {
-          if (gAdSets[j].gid === key) {
-            gAdSets[j].children.append(ad);
-            ad = null
-          }
+      for (let j = 0; j < gAdSets.length; j++) {
+        if (gAdSets[j].gid === key) {
+          gAdSets[j].children.append(ad);
+          ad = null
         }
+      }
 
-        ad != null && gAdSets.push(new AdSet(ad));
+      ad != null && gAdSets.push(new AdSet(ad));
     }
     // clear waitingAds
     waitingAds = []
@@ -262,26 +261,26 @@ function doLayout(adsets, update) {
 
   createDivs(adsets, update);
   computeStats(adsets);
-  analyze(adsets);
+  analyze(gAds);
   enableLightbox();
   repack();
 }
 
 function parseAd(ad, data) {
-  if (ad.contentType == "img") data.totalImg ++;
-  else if (ad.contentType == "text") data.totalText ++;
+  if (ad.contentType == "img") data.totalImg++;
+  else if (ad.contentType == "text") data.totalText++;
   try {
     let network = ad.adNetwork ? ad.adNetwork : parseHostname(ad.targetUrl);
     // merge common ad system
-    if (network.indexOf("adssettings.google") > -1 ) {
+    if (network.indexOf("adssettings.google") > -1) {
       //ignore adsettings
       return data;
-    } else if(network.indexOf("doubleclick") > -1 || network.indexOf("google") > -1 || ad.pageUrl.indexOf("google.com/search") > -1 || network.indexOf("youtube") > -1){
+    } else if (network.indexOf("doubleclick") > -1 || network.indexOf("google") > -1 || ad.pageUrl.indexOf("google.com/search") > -1 || network.indexOf("youtube") > -1) {
       // Merge double click, google ads, google search
       network = "google ads";
-    } else if(network.indexOf("amazon") > -1){
+    } else if (network.indexOf("amazon") > -1) {
       network = "amazon ad system";
-    } else if(network.indexOf("facebook") > -1){
+    } else if (network.indexOf("facebook") > -1) {
       network = "facebook";
     } else {
       // no ad network detected
@@ -289,7 +288,7 @@ function parseAd(ad, data) {
     }
     addToDict(network, data.adNetworks);
   }
-  catch{
+  catch {
     // can't parse
   }
   try {
@@ -303,12 +302,11 @@ function parseAd(ad, data) {
 }
 
 function analyze(adsets) {
-
   let data = {
     totalImg: 0,
     totalText: 0,
-    sites:{},
-    adNetworks:{},
+    sites: {},
+    adNetworks: {},
   };
 
   for (let i = 0, j = adsets && adsets.length; i < j; i++) {
@@ -366,7 +364,7 @@ function displayStatistics(data) {
     const site = data.sites[i][0].replace(/^www\./g, '');
     const $link = $('<a/>', {
       href: "http://" + data.sites[i][0],
-      target:"_blank"
+      target: "_blank"
     }).appendTo($li);
     const $siteName = $('<span/>', {
       class: 'label',
@@ -410,21 +408,21 @@ function displayStatistics(data) {
 }
 
 function sortDict(dict) {
-  var items = Object.keys(dict).map(function(key) {
+  var items = Object.keys(dict).map(function (key) {
     return [key, dict[key]];
   });
 
   // Sort the array based on the second element
-  items.sort(function(first, second) {
+  items.sort(function (first, second) {
     return second[1] - first[1];
   });
 
   return items.slice(0, 3)
 }
 
-function addToDict(key, dict){
+function addToDict(key, dict) {
   if (key == undefined) return;
-  if (key in dict) dict[key] ++;
+  if (key in dict) dict[key]++;
   else dict[key] = 1
 }
 
@@ -467,7 +465,7 @@ function createDivs(adsets, update) {
     $div.hover(hoverOnDiv, hoverOffDiv);
   }
   // // Hide #container while appending new divs from 0
-  if(!update) $container.css('opacity','0');
+  if (!update) $container.css('opacity', '0');
 
   for (let i = 0; i < adsets.length; i++) {
 
@@ -504,7 +502,7 @@ function doUpdate(updated) {
   let $item;
 
   for (let i = 0, j = gAds && gAds.length; i < j; i++)
-    if(gAds[i].id === updated.id) gAds[i] = updated;
+    if (gAds[i].id === updated.id) gAds[i] = updated;
 
   if (groupInfo) {
 
@@ -576,7 +574,7 @@ function appendMetaTo($div, adset) {
 
     }).appendTo($li);
 
-    if(!ad.adNetwork) appendTargetTo($target, ad, adset); // tmp, remove adset
+    if (!ad.adNetwork) appendTargetTo($target, ad, adset); // tmp, remove adset
 
     const $detected = $('<div/>', {
       class: 'detected-on'
@@ -713,40 +711,40 @@ function appendDisplayTo($div, adset) {
     text: indexCounterText(adset)
 
   }).appendTo($ad).hide();
-  
+
   // add white background to transparent ads that are saved data strings 
   // https://github.com/dhowe/AdNauseam/issues/1978
   let img_src = adset.child(0).contentData.src;
   var isPNGdata = img_src.includes('data:image/png');
   var cl = isPNGdata ? "white-bg" : "";
-  
+
   const $img = $('<img/>', {
     src: img_src,
     class: cl
   }).appendTo($ad);
 
-  $img.on("error", function() {
-      setItemClass($div, 'image-error');
-      $img.css({ width: 80, height: 40 });
-      $img.attr('src', 'img/placeholder.svg');
-      $img.attr('alt', 'Unable to load image');
-      $img.off("error");
+  $img.on("error", function () {
+    setItemClass($div, 'image-error');
+    $img.css({ width: 80, height: 40 });
+    $img.attr('src', 'img/placeholder.svg');
+    $img.attr('alt', 'Unable to load image');
+    $img.off("error");
   });
   // max ad size, addressing https://github.com/dhowe/AdNauseam/issues/2050
   let max_size = 800;
   // fix for #291
-  $img.on('load', function() {
+  $img.on('load', function () {
     // cache the dimensions of the img-item AFTER load
     const $this = $(this);
     let w = $this.width()
     let h = $this.height()
     // adjust to max size
     if (w > max_size) {
-      let prop = max_size/w
+      let prop = max_size / w
       w = max_size;
       h = h * prop
     } else if (h > max_size) {
-      let prop = max_size/h
+      let prop = max_size / h
       h = max_size;
       w = w * prop
     }
@@ -929,7 +927,7 @@ function computeStats(adsets) {
   $('.total').text(i18n$("adnVaultFound").replace('{{total}}', numTotal()));
   $('#detected').text(numFound(adsets));
 
-  if(numTotal() != numFound(adsets))
+  if (numTotal() != numFound(adsets))
     $('.showing').show();
   else
     $('.showing').hide();
@@ -996,8 +994,10 @@ function formatDate(ts) {
   }
 
   const date = new Date(Math.abs(ts));
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                  hour: 'numeric', minute: 'numeric' };
+  const options = {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    hour: 'numeric', minute: 'numeric'
+  };
 
   const result = typeof Intl === "object" ? new Intl.DateTimeFormat(getLocale(), options).format(date) : date;
   return result;
@@ -1012,10 +1012,10 @@ function enableLightbox() {
       return
     }
 
-    if(!draggingVault){
+    if (!draggingVault) {
       e.stopPropagation();
       lightboxMode($(this));
-    }else{
+    } else {
       draggingVault = false;
     }
 
@@ -1040,11 +1040,11 @@ function enableLightbox() {
         // show custom contextmenu
         $(".custom-menu").finish().toggle(100).
 
-        // in correct position (according to mouse)
-        css({
-          top: (e.pageY - 25) + "px",
-          left: e.pageX + "px"
-        });
+          // in correct position (according to mouse)
+          css({
+            top: (e.pageY - 25) + "px",
+            left: e.pageX + "px"
+          });
       }
     });
   }
@@ -1120,13 +1120,13 @@ function centerZoom($ele) {
     // transition to center
 
     // reset zoom based on ads size
-    let stdHeight=window.innerHeight;
-    let stdWidth=window.innerWidth;
+    let stdHeight = window.innerHeight;
+    let stdWidth = window.innerWidth;
 
     let posX = element_div.offsetLeft + elWidth / 2
-    let posY = element_div.offsetTop + (elHeight + metaOffset ) / 2
+    let posY = element_div.offsetTop + (elHeight + metaOffset) / 2
 
-    let rescale = stdHeight/elHeight < stdWidth/elWidth ? stdHeight/elHeight : stdWidth/elWidth;
+    let rescale = stdHeight / elHeight < stdWidth / elWidth ? stdHeight / elHeight : stdWidth / elWidth;
     rescale = rescale > 1 ? 1 : rescale;
 
     //some space to leave
@@ -1137,7 +1137,7 @@ function centerZoom($ele) {
 
     storeViewState(rescale);
 
-    setScale(rescale*100,{marginLeft,marginTop})
+    setScale(rescale * 100, { marginLeft, marginTop })
 
 
 
@@ -1148,7 +1148,7 @@ function centerZoom($ele) {
       transitionTimeout = null
     }
 
-    transitionTimeout = setTimeout( () => {
+    transitionTimeout = setTimeout(() => {
       $container.removeClass("posTransition")
       transitionTimeout = null
     }, 1000)
@@ -1176,13 +1176,13 @@ function storeViewState(focusScale) {
       transitionTimeout = null
     }
 
-    transitionTimeout = setTimeout( () => {
+    transitionTimeout = setTimeout(() => {
       $container.removeClass("posTransition")
       transitionTimeout = null
     }, 1000)
 
     // restore zoom scale to userZoomScale
-    dynamicZoom(viewState.zoomScale - viewState.focusScale, {marginLeft: viewState.left, marginTop: viewState.top });
+    dynamicZoom(viewState.zoomScale - viewState.focusScale, { marginLeft: viewState.left, marginTop: viewState.top });
   }
 }
 
@@ -1193,12 +1193,12 @@ function logAdSetInfo() {
     console.log("Logging JSON for AdSet #" + selectedAdSet.gid);
 
     messager.send('adnauseam', {
-        what: 'logAdSet',
-        gid: selectedAdSet.gid,
-        ids: selectedAdSet.childIds()
-      }).then(data => {
-          location.href = "data:text/plain," +  encodeURI(data);
-      })
+      what: 'logAdSet',
+      gid: selectedAdSet.gid,
+      ids: selectedAdSet.childIds()
+    }).then(data => {
+      location.href = "data:text/plain," + encodeURI(data);
+    })
 
   }
 }
@@ -1242,7 +1242,7 @@ function lightboxMode($selected) {
 
   if ($selected && !$selected.hasClass('inspected')) {
 
-    if($container.hasClass("posTransition")) {
+    if ($container.hasClass("posTransition")) {
       return
     }
 
@@ -1425,8 +1425,8 @@ function setScale(scale, targetPos) {
     let distToCenterX = (center - ml)
     let distToCenterY = (center - mt)
 
-    let offsetLeft = distToCenterX *  ( 1 - zoomProp )
-    let offsetTop = distToCenterY * ( 1 - zoomProp )
+    let offsetLeft = distToCenterX * (1 - zoomProp)
+    let offsetTop = distToCenterY * (1 - zoomProp)
 
     marginLeft = ml + offsetLeft + "px";
     marginTop = mt + offsetTop + "px";
@@ -1508,9 +1508,9 @@ function addInterfaceHandlers(ads) {
   });
 
   $('#myStatistics .myStatistics-label').click(function (e) {
-      $('.myStatistics-panel').toggle(300);
-      $('#myStatistics').toggleClass("show");
-      $('#myStatistics').toggleClass("min");
+    $('.myStatistics-panel').toggle(300);
+    $('#myStatistics').toggleClass("show");
+    $('#myStatistics').toggleClass("min");
   });
 
   $('#logo').click(function (e) {
@@ -1526,7 +1526,7 @@ function addInterfaceHandlers(ads) {
       if ($(e.target).parents('.meta-item').length > 0) {
         return
       }
-      lightboxMode(false);
+    lightboxMode(false);
   });
 
   $(document).keyup(function (e) {
@@ -1534,8 +1534,8 @@ function addInterfaceHandlers(ads) {
     (e.keyCode === 27) && lightboxMode(false); // esc
     (e.keyCode === 73) && toggleInterface(); // 'i'
     (e.keyCode === 68) && logAdSetInfo(); // 'd'
-    (e.keyCode === 80 ) && repack(); // 'p'
-    (e.keyCode === 85 ) && updateVault(waitingAds, true); // 'u'
+    (e.keyCode === 80) && repack(); // 'p'
+    (e.keyCode === 85) && updateVault(waitingAds, true); // 'u'
     //console.log(e);
   });
 
@@ -1548,66 +1548,64 @@ function addInterfaceHandlers(ads) {
   window.addEventListener('touchend', touchEnd, false);
   window.addEventListener('mouseup', mouseUp, false);
 
-  function mouseUp()
-  {
-      window.removeEventListener('mousemove', divMove, true);
+  function mouseUp() {
+    window.removeEventListener('mousemove', divMove, true);
   }
 
-  function touchEnd()
-  {
-      window.removeEventListener('touchmove', divMove, true);
+  function touchEnd() {
+    window.removeEventListener('touchmove', divMove, true);
   }
 
-  function mouseDown(e){
+  function mouseDown(e) {
     // check if interface is in lightbox
-    if($container.hasClass('lightbox')) return
+    if ($container.hasClass('lightbox')) return
     // add move event
     window.addEventListener('mousemove', divMove, true);
     offsetX = e.pageX;
     offsetY = e.pageY;
   }
 
-  function touchStart(e){
+  function touchStart(e) {
     // check if interface is in lightbox
-    if($container.hasClass('lightbox')) return
+    if ($container.hasClass('lightbox')) return
     // add move event
     window.addEventListener('touchmove', divMove, true);
     offsetX = e.pageX;
     offsetY = e.pageY;
   }
 
-  function mouseOnAd(mouseX, mouseY){
+  function mouseOnAd(mouseX, mouseY) {
     const ads = $(".ad");
-    for(let i = 0; i < ads.length; i++){
+    for (let i = 0; i < ads.length; i++) {
       const itemTop = ads[i].getBoundingClientRect().top;
       const itemRight = ads[i].getBoundingClientRect().left + ads[i].getBoundingClientRect().width;
       const itemBottom = ads[i].getBoundingClientRect().top + ads[i].getBoundingClientRect().height;
       const itemLeft = ads[i].getBoundingClientRect().left;
-      if(mouseX > itemLeft && mouseX < itemRight && mouseY > itemTop && mouseY < itemBottom) return true;
+      if (mouseX > itemLeft && mouseX < itemRight && mouseY > itemTop && mouseY < itemBottom) return true;
     }
     return false;
   }
 
 
-  const divMove = function(evt){
-      var e = evt.targetTouches ? evt.targetTouches[0] : evt
-      draggingVault = false;
-      if(mouseOnAd(e.pageX, e.pageY)){
-        draggingVault = true;
-      }
+  const divMove = function (evt) {
+    var e = evt.targetTouches ? evt.targetTouches[0] : evt
+    draggingVault = false;
+    if (mouseOnAd(e.pageX, e.pageY)) {
+      draggingVault = true;
+    }
 
-      const x_change = e.pageX - offsetX;
-      const y_change = e.pageY - offsetY;
+    const x_change = e.pageX - offsetX;
+    const y_change = e.pageY - offsetY;
 
-      let ml = parseInt(container_div.style.getPropertyValue("margin-left"));
-      let mt = parseInt(container_div.style.getPropertyValue("margin-top"));
+    let ml = parseInt(container_div.style.getPropertyValue("margin-left"));
+    let mt = parseInt(container_div.style.getPropertyValue("margin-top"));
 
-      container_div.style.marginLeft = (ml+=x_change) + 'px';
-      container_div.style.marginTop = (mt+=y_change) + 'px';
-      // container_div.style.transformOrigin = Math.abs(ml+=x_change) + 'px ' + Math.abs(mt+=y_change) + 'px';
+    container_div.style.marginLeft = (ml += x_change) + 'px';
+    container_div.style.marginTop = (mt += y_change) + 'px';
+    // container_div.style.transformOrigin = Math.abs(ml+=x_change) + 'px ' + Math.abs(mt+=y_change) + 'px';
 
-      offsetX = e.pageX;
-      offsetY = e.pageY;
+    offsetX = e.pageX;
+    offsetY = e.pageY;
   }
 
   /////////// ZOOM-STAGE ///////////
@@ -1626,16 +1624,16 @@ function addInterfaceHandlers(ads) {
 
   $(window).resize(function () {
 
-      adjustHeight();
-      if ($container.hasClass('lightbox')) {
-          centerZoom($('.inspected'));
-          return;
-      }
+    adjustHeight();
+    if ($container.hasClass('lightbox')) {
+      centerZoom($('.inspected'));
+      return;
+    }
 
-      clearTimeout(resizeId); // only when done
-      resizeId = setTimeout(function () {
-        createSlider("resize");
-      }, 100);
+    clearTimeout(resizeId); // only when done
+    resizeId = setTimeout(function () {
+      createSlider("resize");
+    }, 100);
 
   });
 
@@ -1662,34 +1660,34 @@ function addInterfaceHandlers(ads) {
 
       switch ($(this).attr("data-action")) {
 
-      case "delete":
+        case "delete":
 
-        const ids = selectedAdSet.childIds(), $item = findItemDivByGid(selectedAdSet.gid);
+          const ids = selectedAdSet.childIds(), $item = findItemDivByGid(selectedAdSet.gid);
 
-        // remove the adset item from the DOM
-        $item.remove();
+          // remove the adset item from the DOM
+          $item.remove();
 
-        // remove each ad from the full-adset
-        gAds = gAds.filter(function (ad) {
-          for (let i = 0, len = ids.length; i < len; i++) {
-            if (ad.id === ids[i])
-              return false;
-          }
-          return true;
-        });
+          // remove each ad from the full-adset
+          gAds = gAds.filter(function (ad) {
+            for (let i = 0, len = ids.length; i < len; i++) {
+              if (ad.id === ids[i])
+                return false;
+            }
+            return true;
+          });
 
-        // remove the adSet
-        arrayRemove(gAdSets, selectedAdSet);
+          // remove the adSet
+          arrayRemove(gAdSets, selectedAdSet);
 
-        // tell the addon
-        messager.send('adnauseam', {
-          what: 'deleteAdSet',
-          ids: selectedAdSet.childIds()
-        });
+          // tell the addon
+          messager.send('adnauseam', {
+            what: 'deleteAdSet',
+            ids: selectedAdSet.childIds()
+          });
 
-        createSlider("delete");
+          createSlider("delete");
 
-        break;
+          break;
       }
 
       selectedAdSet = null;
@@ -1800,7 +1798,7 @@ function repack() {
 
     $('#loading-img').hide();
     // Show #container after repack
-    $container.css('opacity','1');
+    $container.css('opacity', '1');
     vaultLoading = false;
   });
 }
@@ -1814,7 +1812,7 @@ function createSlider(mode) {
 
   let lastBrush = null;
 
-  if (mode!= undefined && !d3.select('.brush').empty()) {
+  if (mode != undefined && !d3.select('.brush').empty()) {
     lastBrush = {};
     lastBrush.w = d3.transform(d3.select(".resize.w").attr("transform")).translate[0];
     lastBrush.e = d3.transform(d3.select(".resize.e").attr("transform")).translate[0];
@@ -1846,11 +1844,11 @@ function createSlider(mode) {
 
   // finding the first and last ad
   const minDate = d3.min(gAds, function (d) {
-            return d.foundTs;
-          }),
-        maxDate = d3.max(gAds, function (d) {
-          return d.foundTs;
-        });
+    return d.foundTs;
+  }),
+    maxDate = d3.max(gAds, function (d) {
+      return d.foundTs;
+    });
 
   // mapping the scales
   const xScale = d3.time.scale()
@@ -1927,8 +1925,8 @@ function createSlider(mode) {
 
   // Y scale
   const yScale = d3.scale.linear()
-      .domain([0, d3.max(histogram, function(d) { return d.length; })])
-      .range([-2, -46]);
+    .domain([0, d3.max(histogram, function (d) { return d.length; })])
+    .range([-2, -46]);
 
   bars.append("line")
     .attr("x1", function (d) {
@@ -1944,43 +1942,43 @@ function createSlider(mode) {
     .attr("style", "stroke-width:" + barw + "; stroke-dasharray: 1,0.5; stroke: #999");
 
   // setup the brush
-    const bExtent = [computeMinDateFor(gAds, minDate), maxDate],
-          brush = d3.svg.brush()
-          .x(xScale)
-          .extent(bExtent)
-          .on("brushend", brushend);
+  const bExtent = [computeMinDateFor(gAds, minDate), maxDate],
+    brush = d3.svg.brush()
+      .x(xScale)
+      .extent(bExtent)
+      .on("brushend", brushend);
 
-    const gBrush = svg.append("g")
-      .attr("class", "brush")
-      .call(brush);
+  const gBrush = svg.append("g")
+    .attr("class", "brush")
+    .call(brush);
 
-    // set the height of the brush to that of the chart
-    gBrush.selectAll(".brush .extent")
-      .attr("height", 49)
-      .attr("y", -50)
-      .attr("fill", "#0076FF")
-      .attr("fill-opacity", ".25");
+  // set the height of the brush to that of the chart
+  gBrush.selectAll(".brush .extent")
+    .attr("height", 49)
+    .attr("y", -50)
+    .attr("fill", "#0076FF")
+    .attr("fill-opacity", ".25");
 
-    // set the height of the brush to that of the chart
-    // gBrush.selectAll("rect")
-    //   .attr("y", -50);
+  // set the height of the brush to that of the chart
+  // gBrush.selectAll("rect")
+  //   .attr("y", -50);
 
-    // attach handle image
-    gBrush.selectAll(".resize").append("image")
-      .attr("xlink:href","../img/timeline-handle.svg")
-      .attr("width", 5)
-      .attr("height", 50)
-      .attr("y", -50)
-      .attr("x", -3);
+  // attach handle image
+  gBrush.selectAll(".resize").append("image")
+    .attr("xlink:href", "../img/timeline-handle.svg")
+    .attr("width", 5)
+    .attr("height", 50)
+    .attr("y", -50)
+    .attr("x", -3);
 
-    if (lastBrush && mode!= undefined) {
-      // map all values if resize
-      const r =  mode == "resize" ? d3.select('.chart-bg').attr("width") / lastBrush.width : 1;
-      d3.select(".extent").attr("width", lastBrush.extentWidth * r);
-      d3.select(".extent").attr("x", lastBrush.extentX * r);
-      d3.select(".resize.w").attr("transform", "translate(" + lastBrush.w * r +",0)");
-      d3.select(".resize.e").attr("transform", "translate(" + lastBrush.e * r +",0)");
-    }
+  if (lastBrush && mode != undefined) {
+    // map all values if resize
+    const r = mode == "resize" ? d3.select('.chart-bg').attr("width") / lastBrush.width : 1;
+    d3.select(".extent").attr("width", lastBrush.extentWidth * r);
+    d3.select(".extent").attr("x", lastBrush.extentX * r);
+    d3.select(".resize.w").attr("transform", "translate(" + lastBrush.w * r + ",0)");
+    d3.select(".resize.e").attr("transform", "translate(" + lastBrush.e * r + ",0)");
+  }
 
   // cases:
   // 1) [default]]reload vault: doLayout, update slider - runFilter()
@@ -2113,7 +2111,7 @@ function createSlider(mode) {
   }
 }
 
-function onPurgeDeadAds () {
+function onPurgeDeadAds() {
   let deadAds = getDeadAds()
   if (deadAds.length > 0) {
     purgeDeadAds(getDeadAds())
@@ -2121,7 +2119,7 @@ function onPurgeDeadAds () {
     console.log("no dead ads to purge")
   }
 }
-function getDeadAds () {
+function getDeadAds() {
   let adsGids = []
   document.querySelectorAll(".image-error").forEach(el => {
     adsGids.push(parseInt(el.getAttribute('data-gid')))
@@ -2267,8 +2265,8 @@ function createGid(ad) {
 }
 
 const adjustHeight = function () {
-  let notificationsHeight = $("#notifications").hasClass("hide") ? 0 : $("#notifications").height(); 
-  $("#stage").css('height', String($(window).height() - notificationsHeight) + "px" );
+  let notificationsHeight = $("#notifications").hasClass("hide") ? 0 : $("#notifications").height();
+  $("#stage").css('height', String($(window).height() - notificationsHeight) + "px");
 }
 
 const startImportFilePicker = function () {
@@ -2310,7 +2308,7 @@ AdSet.prototype.groupState = function () {
 messager.send('adnauseam', {
   what: 'adsForVault'
 }).then(details => {
-    renderAds(details);
+  renderAds(details);
 })
 
 $('#export').on('click', exportToFile);
