@@ -1135,6 +1135,7 @@ const backupUserData = async function() {
         hiddenSettings:
             µb.getModifiedSettings(µb.hiddenSettings, µb.hiddenSettingsDefault),
         whitelist: µb.arrayFromWhitelist(µb.netWhitelist),
+        strictBlockList: µb.arrayFromStrictBlockList(µb.netStrictBlockList),
         dynamicFilteringString: permanentFirewall.toString(),
         urlFilteringString: permanentURLFiltering.toString(),
         hostnameSwitchesString: permanentSwitches.toString(),
