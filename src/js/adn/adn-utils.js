@@ -144,6 +144,12 @@ export const type = function (obj) { // from Angus Croll
   return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 };
 
+const getExportFileName = function () {
+  return i18n$('adnExportedAdsFilename')
+    .replace('{{datetime}}', new Date().toLocaleString())
+    .replace(/[:/,]+/g, '.').replace(/ +/g, '');
+};
+
 export const computeHash = function (ad, privateAd) {
   // DO NOT MODIFY
 
@@ -315,10 +321,20 @@ export const handleImportAds = function(evt) {
     }
 
     adsOnLoadHandler(adData, files[0].name);
-
   }
 
   reader.readAsText(files[0]);
+}
+
+export const adsOnLoadHandler = function (adData, file) {
+  vAPI.messaging.send('adnauseam', {
+    what: 'importAds',
+    data: adData,
+    file: file
+  }).then(data => {
+    toogleVaultLoading(false)
+    postImportAlert(data);
+  })
 }
 
 export const postImportAlert = function (msg) {

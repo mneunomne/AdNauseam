@@ -31,7 +31,8 @@ import {
   toogleVaultLoading,
   postImportAlert,
   clearAds,
-  startImportFilePicker
+  startImportFilePicker,
+  adsOnLoadHandler
 } from './adn-utils.js';
 
 /******************************************************************************/
@@ -260,17 +261,6 @@ const handleImportFilePicker = function () {
   fr.onload = fileReaderOnLoadHandler;
   fr.readAsText(file);
 };
-
-const adsOnLoadHandler = function (adData, file) {
-  vAPI.messaging.send('adnauseam', {
-    what: 'importAds',
-    data: adData,
-    file: file
-  }).then(data => {
-    toogleVaultLoading(false)
-    postImportAlert(data);
-  })
-}
 
 /******************************************************************************/
 
