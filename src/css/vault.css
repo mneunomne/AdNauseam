@@ -426,7 +426,7 @@ div.tooltip {
 /* SETUP */
 
 #container {
-
+	user-select: none;
 	-ms-user-select: none;
 	-webkit-user-select: none;
 	-moz-user-select: none;
@@ -459,7 +459,7 @@ div.tooltip {
 
 .item.inspected {
 	z-index: 2000;
-
+	user-select: all;
 	-ms-user-select: all;
 	-webkit-user-select: all;
 	-moz-user-select: all;
@@ -511,7 +511,9 @@ div.bullets { display: none; } /* hide by default */
 	padding: 0;
 	margin: 0;
 	list-style: none;
+	column-width: 21px;
 	-moz-column-width: 21px;
+	column-gap: 0px;
 	-moz-column-gap: 0px;
 	display: inline-block;
 	height: inherit;
@@ -796,10 +798,6 @@ div.bullets { display: none; } /* hide by default */
 	display: none;
 }
 
-.item img {
-	/*opacity: 0.85;*/
-}
-
 .ad img {
 	width: 100%;
 	pointer-events: none;
@@ -808,15 +806,17 @@ div.bullets { display: none; } /* hide by default */
 .ad img.white-bg {
 	background: white;
 }
+
 /*
 .item, .item img {
 	//temporary fix for the big images bug
 	max-width: 600px !important;
-}*/
+}
 
 .item.pending img {
-	/*opacity: 0.8;*/
+	opacity: 0.8;
 }
+*/
 
 .item .ad::before,
 .item-text .item-text-div::before {
@@ -1082,9 +1082,6 @@ svg {
 
 .bars rect {
   fill: #777;
-}
-
-.selecting rect {
 }
 
 .selecting rect.selected {

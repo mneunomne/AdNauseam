@@ -113,16 +113,17 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     background-color: #BBB;
 }
 input[type=range] {
+  appearance: none;
   -webkit-appearance: none;
   -moz-apperance: none;
-   overflow: hidden;
-   border-radius: 5px;
-   background-color: transparent;
-   height: 10px;
-   width: 95%;
-   border-color: #0076FF;
-   padding:0;
-   margin:0;
+  overflow: hidden;
+  border-radius: 5px;
+  background-color: transparent;
+  height: 10px;
+  width: 95%;
+  border-color: #0076FF;
+  padding:0;
+  margin:0;
 }
 input[type=range]::-webkit-slider-thumb{
     -webkit-appearance: none;
@@ -187,13 +188,13 @@ input[type=range]:disabled::-moz-range-progress {
 }
 #export-dialog .close {
   float: right;
-    cursor:pointer;
-    color: white;
-    font-size: 30px;
-    font-weight: bold;
-    display: inline-block;
-    line-height: 0px;
-    padding: 11px 5px 11px 0;
+  cursor:pointer;
+  color: white;
+  font-size: 30px;
+  font-weight: bold;
+  display: inline-block;
+  line-height: 0px;
+  padding: 11px 5px 11px 0;
 }
 .close:before {
     content: "×";
