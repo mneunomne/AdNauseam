@@ -701,6 +701,7 @@ const adnauseam = (function () {
     // defer if we've recently written and !immediate
     if (immediate || (!immediate && now - lastStorageUpdate > updateStorageInterval)) {
       vAPI.storage.set({ admap: admap });
+      µb.changeUserSettings('admap', admap); 
       lastStorageUpdate = millis();
       //log("--Storage Ad Data--")
     }

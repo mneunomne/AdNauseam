@@ -82,7 +82,6 @@ let lastAdDetectedTime, waitingAds = []; // stateful
 vAPI.broadcastListener.add(request => {
   //console.log("GOT BROADCAST", request);
   switch (request.what) {
-
     case 'adAttempt':
       setCurrent(request.ad);
       break;
