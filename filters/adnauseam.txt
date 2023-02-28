@@ -835,3 +835,6 @@ www.aftonbladet.se##div:has( > [id^="adPlacement"])
 # metro.co.uk show "disable your adblocker"
 metro.co.uk##div:has(.container-2vnqP)
 metro.co.uk##body.mol-fe-ab-dialog:style(overflow-y: auto !important;)
+
+# unbreak factorioprints.com #2303
+||pagead2.googlesyndication.com/pagead/js/adsbygoogle.js$script,domain=factorioprints.com,important
