@@ -87,7 +87,11 @@ const hiddenSettingsDefault = {
     updateAssetBypassBrowserCache: false,
     userResourcesLocation: 'unset',
     showAdsDebug: false, // Adn set "true" to show ads that can be potentially be collected #2136 
-    costPerClick: 1.03 // Adn https://github.com/dhowe/AdNauseam/issues/2131
+    costPerClick: 1.03, // Adn https://github.com/dhowe/AdNauseam/issues/2131
+    internalLinkDomains: ['google.com', 'asiaxpat.com', 'nytimes.com',
+        'columbiagreenemedia.com', '163.com', 'sohu.com', 'zol.com.cn', 'baidu.com',
+        'yahoo.com', 'youtube.com', 'flashback.org'
+    ], // Adn
 };
 
 const userSettingsDefault = {

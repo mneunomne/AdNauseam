@@ -134,12 +134,6 @@ const adnauseam = (function () {
 
   const removableBlockLists = ['hphosts', 'mvps-0', 'plowe-0'];
 
-  // targets on these domains are never internal (may need to be regex)
-  const internalLinkDomains = ['google.com', 'asiaxpat.com', 'nytimes.com',
-    'columbiagreenemedia.com', '163.com', 'sohu.com', 'zol.com.cn', 'baidu.com',
-    'yahoo.com', 'youtube.com', 'flashback.org', 'bing.com'
-  ];
-
   // mark ad visits as failure if any of these are included in title
   const errorStrings = ['file not found', 'website is currently unavailable', 'not found on this server'];
 
@@ -1725,7 +1719,7 @@ const adnauseam = (function () {
 
     if (!validate(ad)) return warn(ad);
 
-    if (!internalLinkDomains.contains(ad.pageDomain) && internalTarget(ad)) {
+    if (!µb.hiddenSettings.internalLinkDomains.contains(ad.pageDomain) && internalTarget(ad)) {
       return warn('[INTERN] Ignoring Ad on ' + ad.pageDomain + ', target: ' + ad.targetUrl);
     }
 
