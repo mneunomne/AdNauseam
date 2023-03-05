@@ -1719,7 +1719,7 @@ const adnauseam = (function () {
 
     if (!validate(ad)) return warn(ad);
 
-    if (!µb.hiddenSettings.internalLinkDomains.contains(ad.pageDomain) && internalTarget(ad)) {
+    if (!µb.hiddenSettings.internalLinkDomains.includes(ad.pageDomain) && internalTarget(ad)) {
       return warn('[INTERN] Ignoring Ad on ' + ad.pageDomain + ', target: ' + ad.targetUrl);
     }
 
