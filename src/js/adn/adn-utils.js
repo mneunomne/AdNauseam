@@ -27,6 +27,12 @@ import { i18n$ } from '../i18n.js';
 
 /**************************** exports *********************************/
 
+// targets on these domains are never internal (may need to be regex)
+export const internalLinkDomainsDefault = ['google.com', 'asiaxpat.com', 'nytimes.com',
+'columbiagreenemedia.com', '163.com', 'sohu.com', 'zol.com.cn', 'baidu.com',
+'yahoo.com', 'facebook.com', 'youtube.com', 'flashback.org'
+];
+
 export const makeCloneable = function (notes) {
   notes && notes.forEach(function (n) { delete n.func }); // remove func to allow clone
   // see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm

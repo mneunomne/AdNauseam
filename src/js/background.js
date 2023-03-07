@@ -34,6 +34,8 @@ import {
     originFromURI,
 } from './uri-utils.js';
 
+import { internalLinkDomainsDefault } from './adn/adn-utils.js'; // adn 
+
 /******************************************************************************/
 
 // Not all platforms may have properly declared vAPI.webextFlavor.
@@ -87,7 +89,8 @@ const hiddenSettingsDefault = {
     updateAssetBypassBrowserCache: false,
     userResourcesLocation: 'unset',
     showAdsDebug: false, // Adn set "true" to show ads that can be potentially be collected #2136 
-    costPerClick: 1.03 // Adn https://github.com/dhowe/AdNauseam/issues/2131
+    costPerClick: 1.03, // Adn https://github.com/dhowe/AdNauseam/issues/2131
+    internalLinkDomains: internalLinkDomainsDefault.join(','), // Adn
 };
 
 const userSettingsDefault = {
