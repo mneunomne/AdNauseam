@@ -20,17 +20,26 @@
 */
 
 /* global vAPI, uDom, $ */
+'use strict';
 
 import { i18n$ } from '../i18n.js';
-import { renderNotifications } from './notifications.js';
+import { renderNotifications, ReloadTab, addNotification } from './notifications.js';
 import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from './adn-utils.js';
 
+
 (function () {
-  'use strict';
-
+  
   let ads, page, settings, recent; // remove? only if we can find an updated ad already in the DOM
+  var currentNotifications = [];
+  var ad_list_height;
+  var initialButtonState = 'active';
+  var updatedButtonState = '';
 
-  var ad_list_height
+  // on adnRefresh event, update initialButtonState to updatedButtonState
+  window.addEventListener('adnRefresh', function (e) {
+    initialButtonState = updatedButtonState;
+  });
+
   setTimeout(() => {
     ad_list_height = document.body.offsetHeight - 140;
     if (isCyrillic()) {
@@ -60,6 +69,7 @@ import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from '.
         updateAd(request.ad);
         break;
       case 'notifications':
+        currentNotifications = request.notifications
         renderNotifications(request.notifications);
         adjustBlockHeight();
         break;
@@ -121,22 +131,24 @@ import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from '.
         'adnauseam', {
         what: 'getNotifications'
       }).then((data) => {
+        currentNotifications = data.notifications
         renderNotifications(data.notifications)
         adjustBlockHeight(data.disableWarnings)
-
+        initialButtonState = getIsDisabled() ? 'disabled' : getIsStrictBlocked() ? 'strict' : 'active'; 
         // set button state
         if (getIsDisabled()) {
           // disabled 
           uDom('#disable').prop('checked', true);
-        } else if (getIsStrictBlocked()) {
-          // strict blocked
-          uDom('#strict').prop('checked', true);
-          toggleStrictAlert(page, true)
         } else {
-          // active
-          uDom('#active').prop('checked', true);
+          if (getIsStrictBlocked()) {
+            // strict blocked
+            uDom('#strict').prop('checked', true);
+            toggleStrictAlert(page, true)
+          } else {
+            // active
+            uDom('#active').prop('checked', true);
+          }
         }
-
       });
     });
   }
@@ -576,22 +588,50 @@ import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from '.
     tip.classList.add('show');
   };
 
+  const updateRefreshNotification = function (notifications) {
+    const notificationData = {
+      name: 'RefreshTab',
+      text: 'adnRefreshNotification',
+      prop: 'ReloadTab',
+      button: 'adnRefreshButton',
+    }
+    notifications.push(notificationData)
+    renderNotifications(notifications);
+    adjustBlockHeight();
+  }
+
+  const hideRefreshNotification = function () {
+    document.querySelector('#RefreshTab').classList.add('hide');
+    adjustBlockHeight();
+  }
 
   // on change state of toggle button
   const onChangeState = function (evt) {
+    updatedButtonState = this.value;
     switch (this.value) {
       case 'strict':
         onClickStrict();
+        if (initialButtonState === 'active') {
+          updateRefreshNotification(currentNotifications)
+        } else {
+          hideRefreshNotification()
+        }
+        break;
+      case 'active':
+        toggleStrictAlert(popupData.pageURL, false)
+        toggleEnabled(evt, true)
+        if (initialButtonState === 'strict') {
+          updateRefreshNotification(currentNotifications)
+        } else {
+          hideRefreshNotification()
+        }
         break;
       case 'disable':
         toggleStrictAlert(popupData.pageURL, false)
         toggleEnabled(evt, false)
         // open dropdown menu
         onClickDisableArrow()
-        break;
-      case 'active':
-        toggleStrictAlert(popupData.pageURL, false)
-        toggleEnabled(evt, true)
+        hideRefreshNotification()
         break;
       default:
         break;
@@ -704,26 +744,26 @@ import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from '.
   };
 
   /*******************************************************************
-  Adn on click strict block
-  ********************************************************************/
-
+   Adn on click strict block
+   ********************************************************************/
+  
   function onClickStrict() {
     if (!popupData || !popupData.pageURL || (popupData.pageHostname ===
       'behind-the-scene' && !popupData.advancedUserEnabled)) {
-      return;
-    }
-    // enable alert
-    toggleStrictAlert(popupData.pageURL, true)
-    uDom('#main').removeClass('disabled')
-    vAPI.messaging.send(
-      'adnauseam', {
-      what: 'toggleStrictBlockButton',
-      url: popupData.pageURL,
-      scope: '',
-      state: true,
-      tabId: popupData.tabId
-    });
-  }
+        return;
+      }
+      // enable alert
+      toggleStrictAlert(popupData.pageURL, true)
+      uDom('#main').removeClass('disabled')
+      vAPI.messaging.send(
+        'adnauseam', {
+          what: 'toggleStrictBlockButton',
+          url: popupData.pageURL,
+          scope: '',
+          state: true,
+          tabId: popupData.tabId
+        });
+      }
 
   /********************************************************************/
 
