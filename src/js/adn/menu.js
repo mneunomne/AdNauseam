@@ -28,7 +28,7 @@ import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from '.
 
 
 (function () {
-  
+
   let ads, page, settings, recent; // remove? only if we can find an updated ad already in the DOM
   var currentNotifications = [];
   var ad_list_height;
@@ -134,7 +134,7 @@ import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from '.
         currentNotifications = data.notifications
         renderNotifications(data.notifications)
         adjustBlockHeight(data.disableWarnings)
-        initialButtonState = getIsDisabled() ? 'disabled' : getIsStrictBlocked() ? 'strict' : 'active'; 
+        initialButtonState = getIsDisabled() ? 'disabled' : getIsStrictBlocked() ? 'strict' : 'active';
         // set button state
         if (getIsDisabled()) {
           // disabled 
@@ -432,13 +432,13 @@ import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from '.
       onPopupData(details);
     })
   };
-  
+
   // check if current page/domain is whitelisted
   const getIsDisabled = function () {
     return popupData.pageURL === '' || !popupData.netFilteringSwitch ||
-    (popupData.pageHostname === 'behind-the-scene' && !popupData.advancedUserEnabled);
+      (popupData.pageHostname === 'behind-the-scene' && !popupData.advancedUserEnabled);
   }
-  
+
   // check if current page/domain is on strictBlockList
   const getIsStrictBlocked = function () {
     return popupData.strictBlocked
@@ -746,24 +746,24 @@ import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from '.
   /*******************************************************************
    Adn on click strict block
    ********************************************************************/
-  
+
   function onClickStrict() {
     if (!popupData || !popupData.pageURL || (popupData.pageHostname ===
       'behind-the-scene' && !popupData.advancedUserEnabled)) {
-        return;
-      }
-      // enable alert
-      toggleStrictAlert(popupData.pageURL, true)
-      uDom('#main').removeClass('disabled')
-      vAPI.messaging.send(
-        'adnauseam', {
-          what: 'toggleStrictBlockButton',
-          url: popupData.pageURL,
-          scope: '',
-          state: true,
-          tabId: popupData.tabId
-        });
-      }
+      return;
+    }
+    // enable alert
+    toggleStrictAlert(popupData.pageURL, true)
+    uDom('#main').removeClass('disabled')
+    vAPI.messaging.send(
+      'adnauseam', {
+      what: 'toggleStrictBlockButton',
+      url: popupData.pageURL,
+      scope: '',
+      state: true,
+      tabId: popupData.tabId
+    });
+  }
 
   /********************************************************************/
 
