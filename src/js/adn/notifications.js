@@ -215,6 +215,19 @@ const reactivateList = function() {
   });
 }
 
+const reloadCurrentTab = function() {
+  browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    browser.tabs.reload(tabs[0].id);
+  });
+}
+
+const reloadNotificationAction = function() {
+  document.querySelector('#RefreshTab').classList.add('hide');
+  reloadCurrentTab();
+  // dispatch refresh event on current window for menu.js variable update
+  window.dispatchEvent(new Event('adnRefresh'));
+}
+
 
 /***************************************************************************/
 /* exports                                                                 */
@@ -331,7 +344,17 @@ export const ShowAdsDebug = new Notification({
   type: WARNING
 });
 
-export const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyList, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode, ShowAdsDebug];
+// https://github.com/dhowe/AdNauseam/issues/2263
+export const ReloadTab = new Notification({
+  name: 'RefreshTab',
+  text: 'adnRefreshNotification',
+  button: 'adnRefreshButton',
+  type: INFO
+});
+ReloadTab.func = reloadNotificationAction.bind(ReloadTab);
+
+
+export const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyList, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode, ShowAdsDebug, ReloadTab];
 
 /**************************** exports *********************************/
 
