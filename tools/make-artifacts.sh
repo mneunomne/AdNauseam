@@ -2,7 +2,7 @@
 
 DO_FIREFOX=true
 DO_CHROME=true
-DO_OPERA=true
+DO_OPERA=false
 DO_EDGE=true
 
 OPERA_CRX=false # ADN: problems packaging with Opera app (set false for zip)
