@@ -38,7 +38,7 @@ jobs:
           tag_name: ${{ steps.release_info.outputs.VERSION }}
           release_name: ${{ steps.release_info.outputs.VERSION }}
           prerelease: true
-      - same: Setup Chrome
+      - name: Setup Chrome
         uses: browser-actions/setup-chrome@v1
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
