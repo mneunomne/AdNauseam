@@ -35,6 +35,9 @@ jobs:
           tag_name: ${{ steps.release_info.outputs.VERSION }}
           release_name: ${{ steps.release_info.outputs.VERSION }}
           prerelease: true
+      - name: Install web-ext
+        run: |
+          npm install --global web-ext
       - name: Build MV2 packages
         run: |
           tools/make-artifacts.sh
