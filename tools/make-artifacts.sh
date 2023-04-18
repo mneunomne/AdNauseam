@@ -5,7 +5,7 @@ DO_CHROME=true
 DO_OPERA=true
 DO_EDGE=true
 
-OPERA_CRX=true # ADN: problems packaging with Opera app (set false for zip)
+OPERA_CRX=false # ADN: problems packaging with Opera app (set false for zip)
 
 # Different Operating Systems
 case "$(uname -sr)" in
