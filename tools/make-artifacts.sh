@@ -18,6 +18,9 @@ case "$(uname -sr)" in
   Linux*)
     echo 'Linux'
     # to-do 
+    CHROME=chrome
+    FIREFOX=firefox
+    OPERA=opera
     # add here paths for linux
     ;;
   CYGWIN*|MINGW*|MINGW32*|MSYS*)
