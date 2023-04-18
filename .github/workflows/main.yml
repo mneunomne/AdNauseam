@@ -16,7 +16,7 @@ jobs:
       contents: write # for creating release
     strategy:
       matrix:
-        node-version: [15.x, 18.x]
+        node-version: [18.x]
     name: Build packages
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
