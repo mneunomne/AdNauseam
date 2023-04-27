@@ -23,8 +23,6 @@
 
 'use strict';
 
-/******************************************************************************/
-
 import './codemirror/ubo-static-filtering.js';
 
 import { hostnameFromURI } from './uri-utils.js';
@@ -115,11 +113,10 @@ const filterFromTextarea = function() {
     const sfp = staticFilteringParser;
     sfp.analyze(filter);
     sfp.analyzeExtra();
-    if (
-        sfp.category !== sfp.CATStaticExtFilter &&
-        sfp.category !== sfp.CATStaticNetFilter ||
-        sfp.shouldDiscard()
-    ) {
+    if ( sfp.shouldDiscard() ) { return '!'; }
+    if ( sfp.category === sfp.CATStaticExtFilter ) {
+        if ( sfp.hasFlavor(sfp.BITFlavorExtCosmetic) === false ) { return '!'; }
+    } else if ( sfp.category !== sfp.CATStaticNetFilter ) {
         return '!';
     }
     return filter;

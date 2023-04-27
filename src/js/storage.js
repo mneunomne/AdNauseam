@@ -632,6 +632,36 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 
 /******************************************************************************/
 
+µb.hasInMemoryFilter = function(raw) {
+    return this.inMemoryFilters.includes(raw);
+};
+
+µb.addInMemoryFilter = async function(raw) {
+    if ( this.inMemoryFilters.includes(raw) ){ return true; }
+    this.inMemoryFilters.push(raw);
+    this.inMemoryFiltersCompiled = '';
+    await this.loadFilterLists();
+    return true;
+};
+
+µb.removeInMemoryFilter = async function(raw) {
+    const pos = this.inMemoryFilters.indexOf(raw);
+    if ( pos === -1 ) { return false; }
+    this.inMemoryFilters.splice(pos, 1);
+    this.inMemoryFiltersCompiled = '';
+    await this.loadFilterLists();
+    return false;
+};
+
+µb.clearInMemoryFilters = async function() {
+    if ( this.inMemoryFilters.length === 0 ) { return; }
+    this.inMemoryFilters = [];
+    this.inMemoryFiltersCompiled = '';
+    await this.loadFilterLists();
+};
+
+/******************************************************************************/
+
 µb.getAvailableLists = async function() {
     function adnListGroup(key) { // ADN tmp
         return (key === 'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resource-abuse.txt')
@@ -780,12 +810,12 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 
 /******************************************************************************/
 
-µb.loadFilterLists = (( ) => {
+{
     const loadedListKeys = [];
     let loadingPromise;
     let t0 = 0;
 
-    const onDone = function() {
+    const onDone = ( ) => {
         ubolog(`loadFilterLists() took ${Date.now()-t0} ms`);
 
         staticNetFilteringEngine.freeze();
@@ -793,30 +823,30 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         redirectEngine.freeze();
         vAPI.net.unsuspend();
 
-        vAPI.storage.set({ 'availableFilterLists': this.availableFilterLists });
+        vAPI.storage.set({ 'availableFilterLists': µb.availableFilterLists });
 
         vAPI.messaging.broadcast({
             what: 'staticFilteringDataChanged',
-            parseCosmeticFilters: this.userSettings.parseAllABPHideFilters,
-            ignoreGenericCosmeticFilters: this.userSettings.ignoreGenericCosmeticFilters,
+            parseCosmeticFilters: µb.userSettings.parseAllABPHideFilters,
+            ignoreGenericCosmeticFilters: µb.userSettings.ignoreGenericCosmeticFilters,
             listKeys: loadedListKeys
         });
 
-        this.selfieManager.destroy();
+        µb.selfieManager.destroy();
         lz4Codec.relinquish();
-        this.compiledFormatChanged = false;
+        µb.compiledFormatChanged = false;
 
         loadingPromise = undefined;
     };
 
-    const applyCompiledFilters = function(assetKey, compiled) {
+    const applyCompiledFilters = (assetKey, compiled) => {
         const snfe = staticNetFilteringEngine;
         const sxfe = staticExtFilteringEngine;
-        let acceptedCount = snfe.acceptedCount + sxfe.acceptedCount,
-            discardedCount = snfe.discardedCount + sxfe.discardedCount;
-        this.applyCompiledFilters(compiled, assetKey === this.userFiltersPath);
-        if ( this.availableFilterLists.hasOwnProperty(assetKey) ) {
-            const entry = this.availableFilterLists[assetKey];
+        let acceptedCount = snfe.acceptedCount + sxfe.acceptedCount;
+        let discardedCount = snfe.discardedCount + sxfe.discardedCount;
+        µb.applyCompiledFilters(compiled, assetKey === µb.userFiltersPath);
+        if ( µb.availableFilterLists.hasOwnProperty(assetKey) ) {
+            const entry = µb.availableFilterLists[assetKey];
             entry.entryCount = snfe.acceptedCount + sxfe.acceptedCount -
                 acceptedCount;
             entry.entryUsedCount = entry.entryCount -
@@ -831,8 +861,8 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         loadedListKeys.push(assetKey);
     };
 
-    const onFilterListsReady = function(lists) {
-        this.availableFilterLists = lists;
+    const onFilterListsReady = lists => {
+        µb.availableFilterLists = lists;
 
         if ( vAPI.Net.canSuspend() ) {
             vAPI.net.suspend();
@@ -840,7 +870,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         redirectEngine.reset();
         staticExtFilteringEngine.reset();
         staticNetFilteringEngine.reset();
-        this.selfieManager.destroy();
+        µb.selfieManager.destroy();
         staticFilteringReverseLookup.resetLists();
 
         adnauseam.removeBlockingLists(lists); // ADN
@@ -853,37 +883,44 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         for ( const assetKey in lists ) {
             if ( lists.hasOwnProperty(assetKey) === false ) { continue; }
             if ( lists[assetKey].off ) { continue; }
-
             toLoad.push(
-                this.getCompiledFilterList(assetKey).then(details => {
-                    applyCompiledFilters.call(
-                        this,
-                        details.assetKey,
-                        details.content
-                    );
+                µb.getCompiledFilterList(assetKey).then(details => {
+                    applyCompiledFilters(details.assetKey, details.content);
                 })
             );
+        }
+
+        if ( µb.inMemoryFilters.length !== 0 ) {
+            if ( µb.inMemoryFiltersCompiled === '' ) {
+                µb.inMemoryFiltersCompiled =
+                    µb.compileFilters(
+                        µb.inMemoryFilters.join('\n'),
+                        { assetKey: 'in-memory'}
+                    );
+            }
+            if ( µb.inMemoryFiltersCompiled !== '' ) {
+                toLoad.push(
+                    µb.applyCompiledFilters(µb.inMemoryFiltersCompiled, true)
+                );
+            }
         }
 
         return Promise.all(toLoad);
     };
 
-    return function() {
-        if ( loadingPromise instanceof Promise === false ) {
-            t0 = Date.now();
-            loadedListKeys.length = 0;
-            loadingPromise = Promise.all([
-                this.getAvailableLists().then(lists =>
-                    onFilterListsReady.call(this, lists)
-                ),
-                this.loadRedirectResources(),
-            ]).then(( ) => {
-                onDone.call(this);
-            });
-        }
+    µb.loadFilterLists = function() {
+        if ( loadingPromise instanceof Promise ) { return loadingPromise; }
+        t0 = Date.now();
+        loadedListKeys.length = 0;
+        loadingPromise = Promise.all([
+            this.getAvailableLists().then(lists => onFilterListsReady(lists)),
+            this.loadRedirectResources(),
+        ]).then(( ) => {
+            onDone();
+        });
         return loadingPromise;
     };
-})();
+}
 
 /******************************************************************************/
 
@@ -1223,15 +1260,13 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 // be generated if the user doesn't change his filter lists selection for
 // some set time.
 
-µb.selfieManager = (( ) => {
-    let createTimer;
-    let destroyTimer;
-
+{
     // As of 2018-05-31:
     //   JSON.stringify-ing ourselves results in a better baseline
     //   memory usage at selfie-load time. For some reasons.
 
     const create = async function() {
+        if ( µb.inMemoryFilters.length !== 0 ) { return; }
         await Promise.all([
             io.put(
                 'selfie/main',
@@ -1277,9 +1312,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
     };
 
     const load = async function() {
-        if ( µb.selfieIsInvalid ) {
-            return false;
-        }
+        if ( µb.selfieIsInvalid ) { return false; }
         try {
             const results = await Promise.all([
                 loadMain(),
@@ -1301,6 +1334,9 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         destroy();
         return false;
     };
+
+    let createTimer;
+    let destroyTimer;
 
     const destroy = function() {
         io.remove(/^selfie\//);
@@ -1327,8 +1363,8 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         µb.selfieIsInvalid = true;
     };
 
-    return { load, destroy: destroyAsync };
-})();
+    µb.selfieManager = { load, destroy: destroyAsync };
+}
 
 /******************************************************************************/
 
