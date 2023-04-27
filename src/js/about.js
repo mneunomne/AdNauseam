@@ -20,7 +20,8 @@ import { dom } from './dom.js';
         what: 'getAppData',
     });
 
-    dom.text('#aboutNameVer', appData.name + ' v' + appData.version);
+    dom.text('#aboutNameVer #uBlock', appData.name);
+    dom.text('#aboutNameVer #builtOnVersion', 'v' + appData.version);
 
     if ( appData.canBenchmark !== true ) { return; }
 
