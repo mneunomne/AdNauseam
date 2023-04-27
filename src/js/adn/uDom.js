@@ -130,7 +130,7 @@ DOMListFactory.setAccentColor = function(
         );
         text.push('');
         stylesheet = text.join('\n');
-        vAPI.messaging.send('uDom', { what: 'uiAccentStylesheet', stylesheet });
+        // vAPI.messaging.send('uDom', { what: 'uiAccentStylesheet', stylesheet }); // Adn
     }
     let w = self;
     for (;;) {
@@ -153,6 +153,7 @@ DOMListFactory.setAccentColor = function(
     }
 };
 
+/* no need for this anymore, currently implemented in dom.js
 {
     // https://github.com/uBlockOrigin/uBlock-issues/issues/1044
     //   Offer the possibility to bypass uBO's default styling
@@ -182,6 +183,7 @@ DOMListFactory.setAccentColor = function(
         rootcl.add('hidpi');
     }
 }
+*/
 
 /******************************************************************************/
 

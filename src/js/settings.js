@@ -139,11 +139,8 @@ const onLocalDataReceived = function(details) {
         i18n$('storageUsed')
             .replace('{{value}}', v.toLocaleString(undefined, { maximumSignificantDigits: 3 }))
             .replace('{{unit}}', unit && i18n$(unit) || '')
-<<<<<<< HEAD
-            .replace(/uBlock₀/g, 'AdNauseam');
-=======
-    );
->>>>>>> upstream1.46.0
+            .replace(/uBlock₀/g, 'AdNauseam')
+    )
 
     const timeOptions = {
         weekday: 'long',
