@@ -608,9 +608,9 @@ const buttonApplyHandler = async function() {
 
 const buttonUpdateAdNauseam = async function() {
     //only update adnauseam.txt
-     let adnauseamEntry = uDom(".listEntry[data-listkey='adnauseam-filters']");
-     adnauseamEntry.addClass('obsolete');
-     adnauseamEntry.removeClass('cached');
+     let adnauseamEntry = $qs(".listEntry[data-listkey='adnauseam-filters']");
+     dom.cl.add(adnauseamEntry, 'obsolete');
+     dom.cl.remove(adnauseamEntry, 'cached');
      setTimeout(function(){
         messaging.send('dashboard', { what: 'forceUpdateAdnauseam' });
      },200);

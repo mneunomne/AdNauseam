@@ -122,10 +122,10 @@ vAPI.broadcastListener.add(request => {
             break;
         // ADN when "disable notifications" option is changed, hide or show notifications
         case 'hideNotifications':
-            uDom('#notifications').addClass("hide");
+            dom.cl.add('#notifications', 'hide');
             break;
         case 'showNotifications':
-           uDom('#notifications').removeClass("hide");
+            dom.cl.remove('#notifications', 'hide');
             break;
     }
   });
@@ -186,9 +186,9 @@ vAPI.messaging.send(
     }
   ).then(isDisabled => {
     if (isDisabled) {
-      uDom("#notifications").addClass('hide');
+      dom.cl.add('#notifications', 'hide');
     } else {
-      uDom("#notifications").removeClass('hide');
+      dom.cl.remove('#notifications', 'hide');
     }
     // adjustHeight();
   })

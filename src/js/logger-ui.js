@@ -2807,7 +2807,7 @@ const keyColorPopup = (( ) => {
         viewPort.updateLayout();
     };
 
-    uDom.nodeFromId('loggerColorKey').addEventListener('click', toggleOn);
+    dom.on('#loggerColorKey', 'click', toggleOn);
 })();
 
 /******************************************************************************/

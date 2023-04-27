@@ -129,9 +129,9 @@ cmEditor.on('changes', whitelistChanged);
 /******************************************************************************/
 const buttonUpdateEff = function() {
      // Only update eff list
-     // var effEntry = uDom(".listEntry[data-listkey='eff']");
-     // effEntry.addClass('obsolete');
-     // effEntry.removeClass('cached');
+     // var effEntry = $qs(".listEntry[data-listkey='eff']");
+     // effEntry.cl.add('obsolete');
+     // effEntry.cl.remove('cached');
      setTimeout(function(){
         messaging.send('dashboard', { what: 'forceUpdateEff' });
      },200);
@@ -141,8 +141,7 @@ const renderWhitelist = async function() {
     const details = await messaging.send('dashboard', {
         what: 'getWhitelist',
     });
-
-    uDom.nodeFromId('effListInput').checked = details.dntEnabled; // ADN
+    qs$('#effListInput').checked = details.dntEnabled; // ADN
 
     const first = reBadHostname === undefined;
     if ( first ) {

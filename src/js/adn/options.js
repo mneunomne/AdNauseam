@@ -19,11 +19,12 @@
     Home: https://github.com/dhowe/AdNauseam
 */
 
-/* global vAPI, uDom */
+/* global vAPI */
 
 'use strict';
 
 import { i18n$ } from '../i18n.js';
+import uDom from './uDom.js';
 
 import {
   isMobile,

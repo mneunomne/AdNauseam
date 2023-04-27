@@ -19,13 +19,15 @@
     Home: https://github.com/dhowe/AdNauseam
 */
 
-/* global vAPI, uDom, $ */
+/* global vAPI, $ */
+
 'use strict';
 
 import { i18n$ } from '../i18n.js';
 import { renderNotifications, ReloadTab, addNotification } from './notifications.js';
 import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from './adn-utils.js';
-
+import { dom } from '../dom.js';
+import uDom from './uDom.js';
 
 (function () {
 
@@ -75,11 +77,11 @@ import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from '.
         break;
       // disable warnings option #1910
       case 'hideNotifications':
-        uDom('#notifications').addClass("hide");
+        dom.cl.add('#notifications', "hide");
         adjustBlockHeight();
         break;
       case 'showNotifications':
-        uDom('#notifications').removeClass("hide");
+        dom.cl.remove('#notifications', "hide");
         adjustBlockHeight();
         break;
     }
