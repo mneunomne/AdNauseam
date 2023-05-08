@@ -38,8 +38,7 @@
 		],
 		"cdnURLs": [
 			"https://cdn.jsdelivr.net/gh/dhowe/AdNauseam@master/filters/adnauseam.txt",
-			"https://cdn.statically.io/gh/dhowe/AdNauseam/master/filters/adnauseam.txt",
-			"https://combinatronics.io/dhowe/AdNauseam/master/filters/adnauseam.txt"
+			"https://cdn.statically.io/gh/dhowe/AdNauseam/master/filters/adnauseam.txt"
 		],
 		"supportURL": "https://github.com/dhowe/adnauseam/issues"
 	},
