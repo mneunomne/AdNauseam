@@ -22,7 +22,7 @@
 'use strict';
 
 import { i18n$ } from "../i18n.js";
-
+import uDom from './uDom.js';
 import { renderNotifications } from './notifications.js';
 
 import {
