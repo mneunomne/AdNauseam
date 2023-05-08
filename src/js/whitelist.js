@@ -19,11 +19,12 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global CodeMirror, uDom, uBlockDashboard */
+/* global CodeMirror, uBlockDashboard */
 
 'use strict';
 
 import { i18n$ } from './i18n.js';
+import { dom, qs$ } from './dom.js';
 
 /******************************************************************************/
 
@@ -90,16 +91,13 @@ const noopFunc = function(){};
 
 let cachedWhitelist = '';
 
-const cmEditor = new CodeMirror(
-    document.getElementById('whitelist'),
-    {
-        autofocus: true,
-        lineNumbers: true,
-        lineWrapping: true,
-        styleActiveLine: true,
-        theme:'pastel-on-dark'
-    }
-);
+const cmEditor = new CodeMirror(qs$('#whitelist'), {
+    autofocus: true,
+    lineNumbers: true,
+    lineWrapping: true,
+    styleActiveLine: true,
+    theme:'pastel-on-dark' // adn
+});
 
 uBlockDashboard.patchCodeMirrorEditor(cmEditor);
 
@@ -117,12 +115,12 @@ const setEditorText = function(text) {
 /******************************************************************************/
 
 const whitelistChanged = function() {
-    const whitelistElem = uDom.nodeFromId('whitelist');
-    const bad = whitelistElem.querySelector('.cm-error') !== null;
+    const whitelistElem = qs$('#whitelist');
+    const bad = qs$(whitelistElem, '.cm-error') !== null;
     const changedWhitelist = getEditorText().trim();
     const changed = changedWhitelist !== cachedWhitelist;
-    uDom.nodeFromId('whitelistApply').disabled = !changed || bad;
-    uDom.nodeFromId('whitelistRevert').disabled = !changed;
+    qs$('#whitelistApply').disabled = !changed || bad;
+    qs$('#whitelistRevert').disabled = !changed;
     CodeMirror.commands.save = changed && !bad ? applyChanges : noopFunc;
 };
 
@@ -131,9 +129,9 @@ cmEditor.on('changes', whitelistChanged);
 /******************************************************************************/
 const buttonUpdateEff = function() {
      // Only update eff list
-     // var effEntry = uDom(".listEntry[data-listkey='eff']");
-     // effEntry.addClass('obsolete');
-     // effEntry.removeClass('cached');
+     // var effEntry = $qs(".listEntry[data-listkey='eff']");
+     // effEntry.cl.add('obsolete');
+     // effEntry.cl.remove('cached');
      setTimeout(function(){
         messaging.send('dashboard', { what: 'forceUpdateEff' });
      },200);
@@ -143,8 +141,7 @@ const renderWhitelist = async function() {
     const details = await messaging.send('dashboard', {
         what: 'getWhitelist',
     });
-
-    uDom.nodeFromId('effListInput').checked = details.dntEnabled; // ADN
+    qs$('#effListInput').checked = details.dntEnabled; // ADN
 
     const first = reBadHostname === undefined;
     if ( first ) {
@@ -200,7 +197,7 @@ const handleImportFilePicker = function() {
 /******************************************************************************/
 
 const startImportFilePicker = function() {
-    const input = document.getElementById('importFilePicker');
+    const input = qs$('#importFilePicker');
     // Reset to empty string, this will ensure an change event is properly
     // triggered if the user pick a file, even if it is the same as the last
     // one picked.
@@ -263,12 +260,12 @@ self.hasUnsavedData = function() {
 
 /******************************************************************************/
 
-uDom('#importWhitelistFromFile').on('click', startImportFilePicker);
-uDom('#importFilePicker').on('change', handleImportFilePicker);
-uDom('#exportWhitelistToFile').on('click', exportWhitelistToFile);
-uDom('#whitelistApply').on('click', ( ) => { applyChanges(); });
-uDom('#whitelistRevert').on('click', revertChanges);
-uDom('#buttonUpdateEff').on('click', buttonUpdateEff);
+dom.on('#importWhitelistFromFile', 'click', startImportFilePicker);
+dom.on('#importFilePicker', 'change', handleImportFilePicker);
+dom.on('#exportWhitelistToFile', 'click', exportWhitelistToFile);
+dom.on('#whitelistApply', 'click', ( ) => { applyChanges(); });
+dom.on('#whitelistRevert', 'click', revertChanges);
+dom.on('#buttonUpdateEff', 'click', buttonUpdateEff);
 
 renderWhitelist();
 

@@ -24,6 +24,7 @@
 'use strict';
 
 import punycode from '../lib/punycode.js';
+import uDom from './adn/uDom.js';
 
 /******************************************************************************/
 

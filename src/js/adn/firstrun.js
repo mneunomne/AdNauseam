@@ -19,13 +19,14 @@
     Home: https://github.com/dhowe/AdNauseam
 */
 
-/* global vAPI, uDom */
+/* global vAPI */
 
 /******************************************************************************/
 
 'use strict';
 
 import { isMobile, openPage } from './adn-utils.js';
+import uDom from './uDom.js';
 
 /******************************************************************************/
 

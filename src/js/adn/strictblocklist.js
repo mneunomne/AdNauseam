@@ -19,11 +19,12 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global CodeMirror, uDom, uBlockDashboard */
+/* global CodeMirror, uBlockDashboard */
 
 'use strict';
 
 import { i18n$ } from '../i18n.js';
+import uDom from './uDom.js';
 
 /******************************************************************************/
 

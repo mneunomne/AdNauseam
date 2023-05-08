@@ -22,6 +22,7 @@
 // Adnauseam Notification functions
 
 import { isFirefox, openPage } from './adn-utils.js';
+import uDom from './uDom.js';
 
 /***************************************************************************/
 
