@@ -961,7 +961,7 @@ FilterContainer.prototype.retrieveSpecificSelectors = function(
     // Inject all declarative-based filters as a single stylesheet.
     if (
         !adnauseam.contentPrefs(request.hostname).hidingDisabled &&
-        injectedHideFilters.length !== 0
+        injectedCSS.length !== 0
     ) {
         out.injectedCSS = injectedCSS.join('\n\n');
         details.code = out.injectedCSS;
