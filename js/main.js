@@ -33,32 +33,37 @@ $(document).ready(function () {
   $("#install a").addClass('passive');
 
   if (typeof bowser !== 'undefined') { // not for press page 
+    console.log("browserName", browserName)
     var sel = $("#install" + browserName);
-    if (!sel.length) sel = $("#installChrome");
+    if (!sel.length) sel = $("#installFirefox"); // firefox is default
     sel.removeClass('passive');
 
-    if (browserName === 'Edge') {
-      $("#installChrome").css('right', '0px');
-      $("#installOpera").css('right', '40px');
-      $("#installFirefox").css('right', '80px');
-    }
-
-    else if (browserName === 'FireFox') {
-      $("#installChrome").css('right', '0px');
-      $("#installOpera").css('right', '40px');
-      $("#installEdge").css('right', '80px');
-    }
-
-    else if (browserName === 'Chrome') {
-      $("#installFirefox").css('right', '0px');
-      $("#installOpera").css('right', '40px');
-      $("#installEdge").css('right', '80px');
-    }
-
-    else if (browserName === 'Opera') {
-      $("#installFirefox").css('right', '0px');
-      $("#installChrome").css('right', '40px');
-      $("#installEdge").css('right', '80px');
+    switch (browserName) {
+      case 'Edge':
+        $("#installChrome").css('right', '0px');
+        $("#installOpera").css('right', '40px');
+        $("#installFirefox").css('right', '80px');
+        break;
+      case 'Firefox':
+        $("#installChrome").css('right', '0px');
+        $("#installOpera").css('right', '40px');
+        $("#installEdge").css('right', '80px');
+        break;
+      case 'Chrome':
+        $("#installFirefox").css('right', '0px');
+        $("#installOpera").css('right', '40px');
+        $("#installEdge").css('right', '80px');
+        break;
+      case 'Opera':
+        $("#installFirefox").css('right', '0px');
+        $("#installChrome").css('right', '40px');
+        $("#installEdge").css('right', '80px');
+        break;
+      default:
+        $("#installChrome").css('right', '0px');
+        $("#installOpera").css('right', '40px');
+        $("#installEdge").css('right', '80px');
+        break;
     }
   }
 
