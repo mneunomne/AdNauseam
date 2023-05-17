@@ -6,16 +6,18 @@ echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then  
   VERSION=$1
-  if [[ -z $(git status -s) ]]
-  then
-    echo "Merging to uBlock $VERSION"
-    git fetch --all --tags --prune
-    git checkout tags/$VERSION
-    git checkout -b upstream$VERSION
-    git checkout master
-    git checkout -b merge$VERSION
-    git merge upstream$VERSION
-  else
-    echo "There are uncommited changes, make sure you commit them before starting your merge"
-  fi
+  BRANCH=${2:-master}
+  echo "Merging to AdNauseam $VERSION on branch $BRANCH"
+ # if [[ -z $(git status -s) ]]
+ # then
+ #   echo "Merging to uBlock $VERSION"
+ #   git fetch --all --tags --prune
+ #   git checkout tags/$VERSION
+ #   git checkout -b upstream$VERSION
+  git checkout "$BRANCH"
+ #   git checkout -b merge$VERSION
+ #   git merge upstream$VERSION
+ # else
+ #   echo "There are uncommited changes, make sure you commit them before starting your merge"
+ # fi
 fi
