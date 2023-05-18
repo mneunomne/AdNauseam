@@ -26,12 +26,13 @@ cp $ASSETS_PROD/thirdparties/easy*.txt $DES/thirdparties/easylist/
 cp -R ./thirdparties/www.eff.org                                 $DES/thirdparties/ # ADN
 
 # mkdir $DES/ublock
-cp -R $UASSETS/filters/* $DES/ublock/
+cp $ASSETS_PROD/filters/* $DES/ublock/
 
 # Optional filter lists: do not include in package
-
 rm $DES/ublock/annoyances.txt
 rm $DES/ublock/lan-block.txt
 rm $DES/ublock/ubol-filters.txt
-cp -R ./filters/adnauseam.txt                                    $DES/ublock/ # ADN
+
+# ADN
+cp -R ./filters/adnauseam.txt                                    $DES/ublock/
 
