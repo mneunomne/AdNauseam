@@ -48,7 +48,7 @@ VERSION=`jq .version manifest.json | tr -d '"'`
 # CLEAN
 rm -rf ${ARTS}
 mkdir ${ARTS}
-rm -rf ${DES}/*
+rm -rf ${DES}/adnauseam.*
 
 
 if [[ $DO_EDGE = false && $DO_CHROME = false && $DO_OPERA = false && $DO_FIREFOX = false ]]; 
