@@ -21,7 +21,7 @@ import { dom } from './dom.js';
     });
 
     dom.text('#aboutNameVer #uBlock', appData.name);
-    dom.text('#aboutNameVer #builtOnVersion', 'v' + appData.version);
+    dom.text('#builtOnVersion', 'v' + appData.version);
 
     if ( appData.canBenchmark !== true ) { return; }
 
