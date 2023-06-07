@@ -785,7 +785,9 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
     
     if (!adnauseam.contentPrefs(request.hostname).hidingDisabled) { // ADN Don't inject user stylesheets if hiding is disabled
         out.injectedCSS = `${selectors.join(',\n')}\n{display:none!important;}`;
-        if (µb.hiddenSettings.showAdsDebug) `${injected.join(',\n')}\n{/*display:none!important;*/}`; // ADN showAdsDebug option
+        if (µb.hiddenSettings.showAdsDebug) {
+            out.injectedCSS = `${selectors.join(',\n')}\n{/*display:none!important;*/}`; // ADN showAdsDebug option
+        }
         vAPI.tabs.insertCSS(request.tabId, {
             code: out.injectedCSS,
             frameId: request.frameId,

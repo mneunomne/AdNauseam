@@ -521,7 +521,11 @@ vAPI.DOMFilterer = class {
 
     explodeCSS(css) {
         const out = [];
-        const cssHide = `{${vAPI.hideStyle}}`;
+        var cssHide = `{${vAPI.hideStyle}}`;
+        // ADN
+        if (vAPI.showAdsDebug) {
+            cssHide = `{${vAPI.notHideStyle}}`;
+        }
         const blocks = css.trim().split(/\n\n+/);
         for ( const block of blocks ) {
             if ( block.endsWith(cssHide) === false ) { continue; }
@@ -1154,7 +1158,11 @@ vAPI.DOMFilterer = class {
                 let injected = result[key];
                 let selectors;
                 if (typeof injected === 'string') {
-                    selectors = injected.split(`\n{${vAPI.hideStyle}}`)[0] // ADN
+                    if (vAPI.showAdsDebug) {
+                        selectors = injected.split(`\n{${vAPI.notHideStyle}}`)[0]
+                    } else {
+                        selectors = injected.split(`\n{${vAPI.hideStyle}}`)[0] // ADN
+                    }
                 } else {
                     selectors = injected.join(",")
                 }
