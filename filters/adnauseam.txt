@@ -503,6 +503,7 @@ www.washingtonpost.com##div.dn-hp-xs:has(wp-ad)
 
 # doodle
 doodle.com##div[id*=bottomAd]
+doodle.com##.AdsSlot
 
 # cointelegraph.com
 cointelegraph.com##.NMM:has(iframe[src="about:blank"])
