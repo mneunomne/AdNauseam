@@ -1139,11 +1139,6 @@ vAPI.DOMFilterer = class {
                 //ADN tmp fix: hiding - local iframe without src
                 /* old adn solution
                 const isSpecialLocalIframes = (location.href=="about:blank" || location.href=="") && (window.self !== window.top)
-                domFilterer.addCSSRule(
-                    selectors,
-                    vAPI.showAdsDebug ? vAPI.notHideStyle : vAPI.hideStyle, // ADN
-                    { mustInject: isSpecialLocalIframes ? true : false } // ADN 
-                    );
                 */
                 mustCommit = true;
             }
@@ -1430,8 +1425,6 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
         if ( response instanceof Object === false ) { return; }
         vAPI.bootstrap = undefined;
 
-        bootstrapPhaseAdn(response) // Adn
-
         if (response && response.prefs) vAPI.prefs = response.prefs; // ADN
 
         // cosmetic filtering engine aka 'cfe'
@@ -1483,6 +1476,8 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
             }
             vAPI.domSurveyor.start(cfeDetails);
         }
+
+        bootstrapPhaseAdn(response) // Adn
 
         const readyState = document.readyState;
         if ( readyState === 'interactive' || readyState === 'complete' ) {
