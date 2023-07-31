@@ -214,7 +214,8 @@ function reportSpecificFilterType() {
 }
 
 function reportSpecificFilterIssue(ev) {
-    const githubURL = new URL('https://github.com/uBlockOrigin/uAssets/issues/new?template=specific_report_from_ubo.yml');
+    const githubURL = new URL('https://github.com/dhowe/AdNauseam/issues/new'); // ADN
+    /* ADN - no need such specification on new issues
     const issueType = reportSpecificFilterType();
     let title = `${reportedPage.hostname}: ${issueType}`;
     if ( qs$('#isNSFW').checked ) {
@@ -227,6 +228,7 @@ function reportSpecificFilterIssue(ev) {
     );
     githubURL.searchParams.set('category', issueType);
     githubURL.searchParams.set('configuration', configToMarkdown(true));
+    */ // end of adn
     vAPI.messaging.send('default', {
         what: 'gotoURL',
         details: { url: githubURL.href, select: true, index: -1 },
@@ -270,7 +272,7 @@ uBlockDashboard.patchCodeMirrorEditor(cmEditor);
         });
 
         dom.on('[data-i18n="supportFindSpecificButton"]', 'click', ev => {
-            const url = new URL('https://github.com/uBlockOrigin/uAssets/issues');
+            const url = new URL('https://github.com/dhowe/AdNauseam/issues');
             url.searchParams.set('q', `is:issue sort:updated-desc "${reportedPage.hostname}" in:title`);
             vAPI.messaging.send('default', {
                 what: 'gotoURL',
