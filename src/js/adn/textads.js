@@ -435,7 +435,7 @@
       name: 'yahoo',
       domain: /^.*\.yahoo\.com/i
     }, {
-      selector: 'li.ad_scpa, li.adsMvC, li.adsMvE, li.ad_sc',
+      selector: 'div.sb_add, li.b_ad, li.ad_scpa, li.adsMvC, li.adsMvE, li.ad_sc',
       handler: bingText,
       name: 'bing',
       domain: /^.*\.bing\.com/i
