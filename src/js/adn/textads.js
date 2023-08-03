@@ -322,6 +322,39 @@
       return ads
     }
 
+    const startpageAdsText = function (div) {
+
+      var ads = []
+
+      if (div == null || div == undefined) return
+      
+      const titleElement = div.querySelector(".div.si40")
+      const linkElement = div.querySelector(".a.si28")
+      const textElement = div.querySelector(".span.si29 ")
+      const siteElement = div.querySelector(".a.si28")
+
+      if (titleElement && linkElement && textElement && siteElement) {
+        var link = linkElement.href
+        var site = $text(siteElement)
+        var title = $text(titleElement)
+        var text = $text(textElement)
+
+        const ad = vAPI.adParser.createAd('startpage', link, {
+          site: site,
+          title: title,
+          text: text
+        });
+
+        console.log("[TEXTAD]", ad);
+
+        ads.push(ad);
+      } else {
+
+        console.warn('[TEXTADS] startpageAdsTextHandler.fail: ', divs[i]); //title, site, text);
+      }
+      return ads
+    }
+
     var youtubeAds = function (div) {
 
       var ad, target, src,
@@ -459,6 +492,11 @@
       handler: yandexAdsText,
       name: 'yandex ads',
       domain: /^.*yandex\.com/i
+    },{
+      selector: 'div.clicktrackedAd_js',
+      handler: startpageAdsText,
+      name: 'startpage ads',
+      domain: /^.*startpage\.com/i
     }];
 
     const checkFilters = function (elem) {
