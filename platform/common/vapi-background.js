@@ -1036,9 +1036,6 @@ vAPI.messaging = {
             return this;
         }
         proxy(response) {
-            if ( this.port === null ) { 
-                console.log("[adn] ports null!!!")
-            }
             // https://github.com/chrisaljoudi/uBlock/issues/383
             try {
                 this.port.postMessage({
