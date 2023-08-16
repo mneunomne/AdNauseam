@@ -214,10 +214,14 @@ const µBlock = {  // jshint ignore:line
     // Strict Block List
     netStrictBlockList: new Map(),
     netStrictBlockListModifyTime: 0,
+    /*
+    * default strict blocked websites 
+    * cases where there isnt a way to collect ads
+    */
     netStrictBlockListDefault: [
-        // 'youtube.com',
         'facebook.com',
-        'gmail.com'
+        'gmail.com',
+        'instagram.com',
     ],
     // end of Adn
     localSettings: {
