@@ -1380,15 +1380,11 @@ vAPI.onLoadAllCompleted = function(tabId, frameId) { //ADN
     };
 
     if (tabId)  {
-// console.log('tabId: ');
-
         browser.tabs.get(tabId, function(tab) {
           if (tab) startInTab(tab, frameId); }
         ); // ADN
     }
     else {
-// console.log('no-tab: ');
-
         browser.tabs.query({ url: '<all_urls>' }, bindToTabs);
     }
 };
