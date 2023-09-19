@@ -1352,7 +1352,7 @@ vAPI.onLoadAllCompleted = function(tabId, frameId) { //ADN
     var startInTab = function(tab, frameId) { // ADN
         var µb = µBlock;
         µb.tabContextManager.commit(tab.id, tab.url);
-        µb.bindTabToPageStore(tab.id);
+        µb.bindTabToPageStore(tab.id, 'tabCommitted', tab); // ADN trying to fix https://github.com/dhowe/AdNauseam/issues/2378
         // https://github.com/chrisaljoudi/uBlock/issues/129
         if ( /^https?:\/\//.test(tab.url) ) { // added in ub/1.10.0
           scriptStart(tab.id, frameId); //why scriptStart itself only take in one parameter?
@@ -1380,15 +1380,11 @@ vAPI.onLoadAllCompleted = function(tabId, frameId) { //ADN
     };
 
     if (tabId)  {
-// console.log('tabId: ');
-
         browser.tabs.get(tabId, function(tab) {
           if (tab) startInTab(tab, frameId); }
         ); // ADN
     }
     else {
-// console.log('no-tab: ');
-
         browser.tabs.query({ url: '<all_urls>' }, bindToTabs);
     }
 };
