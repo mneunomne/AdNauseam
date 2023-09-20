@@ -33,14 +33,24 @@ function setTheme(theme, propagate = false) {
         }
     }
     let w = self;
-    for (;;) {
+    for (;;) { // ADN, implementing colorBlind theme
         const rootcl = w.document.documentElement.classList;
         if ( theme === 'dark' ) {
             rootcl.add('dark');
             rootcl.remove('light');
-        } else /* if ( theme === 'light' ) */ {
+            rootcl.remove('colorBlind');
+        } else if ( theme === 'light' ) { // adn
             rootcl.add('light');
             rootcl.remove('dark');
+            rootcl.remove('colorBlind');
+        } else if ( theme === 'colorBlind' ) {
+            rootcl.remove('dark');
+            rootcl.remove('light');
+            rootcl.add('colorBlind');
+        } else { // default mode is dark
+            rootcl.add('dark');   
+            rootcl.remove('colorBlind');
+            rootcl.remove('light');
         }
         if ( propagate === false ) { break; }
         if ( w === w.parent ) { break; }

@@ -211,8 +211,13 @@ const changeUserSettings = function(name, value) {
         value,
     });
 
+    console.log("changeUserSettings", name, value)
+
     // Maybe reflect some changes immediately
     switch ( name ) {
+    case 'colorBlindFriendly':
+        console.log("colorBlindFriendly", value)
+        setTheme(value, true);
     case 'uiTheme':
         setTheme(value, true);
         break;

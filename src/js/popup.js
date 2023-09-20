@@ -591,6 +591,8 @@ const renderPopup = function() {
 
     uDom.nodeFromId('panes').classList.toggle('dfEnabled', dfPaneVisible === true);
 
+    console.log("popupData", popupData)
+
     document.documentElement.classList.toggle(
         'colorBlind',
         popupData.colorBlindFriendly === true

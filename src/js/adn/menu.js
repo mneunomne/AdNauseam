@@ -36,6 +36,7 @@ import uDom from './uDom.js';
   var ad_list_height;
   var initialButtonState = 'active';
   var updatedButtonState = '';
+  var colorBlindMode = false
 
   // on adnRefresh event, update initialButtonState to updatedButtonState
   window.addEventListener('adnRefresh', function (e) {
@@ -93,6 +94,8 @@ import uDom from './uDom.js';
     page = json && json.pageUrl;
     settings = json && json.prefs;
     recent = json && json.recent
+
+    console.log("[ADN] renderPage settings", settings)
 
     if (page) {
       // disable pause & resume buttons for options, vault, about/chrome
@@ -416,6 +419,7 @@ import uDom from './uDom.js';
 
   const getPopupData = function (tabId) {
     const onPopupData = function (response) {
+      console.log("response", response)
       cachePopupData(response);
       vAPI.messaging.send(
         'adnauseam', {
@@ -461,6 +465,13 @@ import uDom from './uDom.js';
     popupData = {};
     scopeToSrcHostnameMap['.'] = '';
     hostnameToSortableTokenMap = {};
+    
+    // implement colorBlind style
+    colorBlindMode = data.colorBlindFriendly || false;
+    document.documentElement.classList.toggle(
+      'colorBlind',
+      data.colorBlindFriendly === true
+    );
 
     if (typeof data !== 'object') {
       return popupData;
