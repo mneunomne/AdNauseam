@@ -803,7 +803,7 @@ flylordsmag.com##.td-header-header.td-header-row.td-container-header
 *###ads_1:style(height: 1px !important)
 *##.adsbygoogle:style(height: 1px !important)
 
-# Colleting Youtube Banner Ads #1353
+# Collecting Youtube Banner Ads #1353
 youtube.com#@#.sparkles-light-cta
 youtube.com#@#ytd-promoted-sparkles-web-renderer
 youtube.com##ytd-promoted-sparkles-web-renderer #sparkles-container:style(height: 0px !important; opacity: 0 !important;) 
@@ -843,3 +843,8 @@ metro.co.uk##body.mol-fe-ab-dialog:style(overflow-y: auto !important;)
 
 # 1337x.to - fixing popups that can't be collected
 ||youradexchange.com^$important
+
+# youtube-ads-audible https://github.com/dhowe/AdNauseam/issues/2385
+youtube.com,youtubekids.com,youtube-nocookie.com##+js(trusted-replace-fetch-response, /\"adPlacements.*?\"\}\}\}\]\,/, , player?key=)
+youtube.com,youtubekids.com,youtube-nocookie.com##+js(trusted-replace-fetch-response, /\"adSlots.*?\}\]\}\}\]\,/, , player?key=)
+youtube.com,youtubekids.com,youtube-nocookie.com##+js(trusted-replace-fetch-response, /\"playerAds.*?\}\}\]\,/, , player?key=)
