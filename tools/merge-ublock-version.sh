@@ -14,7 +14,7 @@ then
     git fetch --all --tags --prune
     git checkout tags/$VERSION
     git checkout -b upstream$VERSION
-  git checkout "$BRANCH"
+    git checkout "$BRANCH"
     git checkout -b merge$VERSION
     git merge upstream$VERSION
   else
