@@ -608,7 +608,7 @@ const buttonApplyHandler = async function() {
 
 const buttonUpdateAdNauseam = async function() {
     //only update adnauseam.txt
-     let adnauseamEntry = $qs(".listEntry[data-listkey='adnauseam-filters']");
+     let adnauseamEntry = document.querySelector(".listEntry[data-listkey='adnauseam-filters']");
      dom.cl.add(adnauseamEntry, 'obsolete');
      dom.cl.remove(adnauseamEntry, 'cached');
      setTimeout(function(){
