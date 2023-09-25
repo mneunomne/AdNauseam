@@ -96,6 +96,61 @@ vAPI.storage = webext.storage.local;
 /******************************************************************************/
 /******************************************************************************/
 
+vAPI.alarms = {
+    create(callback) {
+        this.uniqueIdGenerator += 1;
+        const name = this.uniqueIdGenerator.toString(36);
+        const client = new this.Client(name, callback);
+        this.clientMap.set(name, client);
+        return client;
+    },
+    Client: class {
+        constructor(name, callback) {
+            this.name = name;
+            this.callback = callback;
+        }
+        on(delay) {
+            const delayInMinutes = this.normalizeDelay(delay);
+            browser.alarms.get(this.name, alarm => {
+                if ( alarm ) { return; }
+                return browser.alarms.create(this.name, { delayInMinutes });
+            });
+        }
+        offon(delay) {
+            const delayInMinutes = this.normalizeDelay(delay);
+            return browser.alarms.create(this.name, { delayInMinutes });
+        }
+        off() {
+            return browser.alarms.clear(this.name);
+        }
+        normalizeDelay(delay) {
+            let delayInMinutes = 0;
+            if ( typeof delay === 'number' ) {
+                delayInMinutes = delay;
+            } else if ( typeof delay === 'object' ) {
+                if ( delay.sec !== undefined ) {
+                    delayInMinutes = delay.sec / 60;
+                } else if ( delay.ms !== undefined ) {
+                    delayInMinutes = delay.ms / 60000;
+                }
+            }
+            return Math.max(delayInMinutes, 1);
+        }
+    },
+    onAlarm(alarm) {
+        const client = this.clientMap.get(alarm.name);
+        if ( client === undefined ) { return; }
+        client.callback(alarm);
+    },
+    clientMap: new Map(),
+    uniqueIdGenerator: 1000000,
+};
+
+browser.alarms.onAlarm.addListener(alarm => vAPI.alarms.onAlarm(alarm));
+
+/******************************************************************************/
+/******************************************************************************/
+
 // https://github.com/gorhill/uMatrix/issues/234
 // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/privacy/network
 
@@ -212,6 +267,12 @@ vAPI.Tabs = class {
             this.onCreatedNavigationTargetHandler(details);
         });
         browser.webNavigation.onCommitted.addListener(details => {
+            const { frameId, tabId } = details;
+            if ( frameId === 0 && tabId > 0 && details.transitionType === 'reload' ) {
+                if ( vAPI.net && vAPI.net.hasUnprocessedRequest(tabId) ) {
+                    vAPI.net.removeUnprocessedRequest(tabId);
+                }
+            }
             this.onCommittedHandler(details);
         });
         browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -228,6 +289,9 @@ vAPI.Tabs = class {
             });
         }
         browser.tabs.onRemoved.addListener((tabId, details) => {
+            if ( vAPI.net && vAPI.net.hasUnprocessedRequest(tabId) ) {
+                vAPI.net.removeUnprocessedRequest(tabId);
+            }
             this.onRemovedHandler(tabId, details);
         });
      }
@@ -671,17 +735,43 @@ if ( webext.browserAction instanceof Object ) {
 
 {
     const browserAction = vAPI.browserAction;
-    const  titleTemplate =
-        browser.runtime.getManifest().browser_action.default_title +
-        ' ({badge})';
+    const titleTemplate = `${browser.runtime.getManifest().browser_action.default_title} ({badge})`;
     const icons = [
-        { path: { '16': 'img/adn_off_16.png', '32': 'img/adn_off_32.png' } },
-        { path: { '16': 'img/adn_on_16.png', '32': 'img/adn_on_32.png' } },
-        { path: { '16': 'img/adn_active_16.png', '32': 'img/adn_active_32.png' } },
-        { path: { '16': 'img/adn_dnt_on_16.png', '32': 'img/adn_dnt_on_32.png' } },
-        { path: { '16': 'img/adn_dnt_active_16.png', '32': 'img/adn_dnt_active_32.png' } },
-        { path: { '16': 'img/adn_strict_on_16.png', '32': 'img/adn_strict_on_32.png' } },
-        { path: { '16': 'img/adn_strict_active_16.png', '32': 'img/adn_strict_active_32.png' } },
+        { path: {
+            '16': 'img/adn_off_16.png',
+            '32': 'img/adn_off_32.png',
+            '64': 'img/adn_off_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_on_16.png',
+            '32': 'img/adn_on_32.png',
+            '64': 'img/adn_on_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_active_16.png',
+            '32': 'img/adn_active_32.png',
+            '64': 'img/adn_active_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_dnt_on_16.png',
+            '32': 'img/adn_dnt_on_32.png',
+            '64': 'img/adn_dnt_on_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_dnt_active_16.png',
+            '32': 'img/adn_dnt_active_32.png',
+            '64': 'img/adn_dnt_active_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_strict_on_16.png',
+            '32': 'img/adn_strict_on_32.png',
+            '64': 'img/adn_strict_on_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_strict_active_16.png',
+            '32': 'img/adn_strict_active_32.png',
+            '64': 'img/adn_strict_active_32.png', // ADN: to-do - add 64px icon
+        } },
     ];
 
     (( ) => {
@@ -708,9 +798,8 @@ if ( webext.browserAction instanceof Object ) {
 
         const imgs = [];
         for ( let i = 0; i < icons.length; i++ ) {
-            const path = icons[i].path;
-            for ( const key in path ) {
-                if ( path.hasOwnProperty(key) === false ) { continue; }
+            for ( const key of Object.keys(icons[i].path) ) {
+                if ( parseInt(key, 10) >= 64 ) { continue; }
                 imgs.push({ i: i, p: key, cached: false });
             }
         }
@@ -780,8 +869,9 @@ if ( webext.browserAction instanceof Object ) {
         const tab = await vAPI.tabs.get(tabId);
         if ( tab === null ) { return; }
 
+        const hasUnprocessedRequest = vAPI.net && vAPI.net.hasUnprocessedRequest(tabId);
         const { parts, state } = details;
-        const { badge, color } = vAPI.net && vAPI.net.hasUnprocessedRequest(tabId)
+        const { badge, color } = hasUnprocessedRequest
                 ? { badge: '!', color: '#FC0' }
                 : details;
 
@@ -806,13 +896,10 @@ if ( webext.browserAction instanceof Object ) {
         // - the platform does not support browserAction.setIcon(); OR
         // - the rendering of the badge is disabled
         if ( browserAction.setTitle !== undefined ) {
-            browserAction.setTitle({
-                tabId: tabId,
-                // title: titleTemplate.replace(
-                //     '{badge}',
-                //     iconStatus.indexOf('on') > -1 || iconStatus.indexOf('dnt') > -1  ? (badge !== '' ? badge : '0') : 'off'
-                // )
-            });
+            const title = titleTemplate.replace('{badge}',
+                state === 1 ? (badge !== '' ? badge : '0') : 'off'
+            );
+            browserAction.setTitle({ tabId: tab.id, title });
         }
 
         if ( vAPI.contextMenu instanceof Object ) {
@@ -826,11 +913,12 @@ if ( webext.browserAction instanceof Object ) {
             path: {
                 '16': `img/icon-16.png`, //'16': `img/icon_16${flavor}.png`, // Adn
                 '32': `img/icon-32.png`, //'32': `img/icon_32${flavor}.png`, // Adn
+                '64': `img/icon-64.png`,
             }
         });
         browserAction.setBadgeText({ text });
         browserAction.setBadgeBackgroundColor({
-            color: text === '!' ? '#FFCC00' : '#666'
+            color: text === '!' ? '#FC0' : '#666'
         });
     };
 }
@@ -1195,7 +1283,7 @@ vAPI.Net = class {
         this.deferredSuspendableListener = undefined;
         this.listenerMap = new WeakMap();
         this.suspendDepth = 0;
-        this.unprocessedTabs = new Set();
+        this.unprocessedTabs = new Map();
 
         browser.webRequest.onBeforeRequest.addListener(
             details => {
@@ -1256,15 +1344,23 @@ vAPI.Net = class {
         this.onUnprocessedRequest(details);
     }
     setSuspendableListener(listener) {
+        for ( const [ tabId, requests ] of this.unprocessedTabs ) {
+            let i = requests.length;
+            while ( i-- ) {
+                const r = listener(requests[i]);
+                if ( r === undefined || r.cancel !== true ) {
+                    requests.splice(i, 1);
+                }
+            }
+            if ( requests.length !== 0 ) { continue; }
+            this.unprocessedTabs.delete(tabId);
+        }
         if ( this.unprocessedTabs.size !== 0 ) {
             this.deferredSuspendableListener = listener;
             listener = details => {
                 const { tabId, type  } = details;
                 if ( type === 'main_frame' && this.unprocessedTabs.has(tabId) ) {
-                    this.unprocessedTabs.delete(tabId);
-                    if ( this.unprocessedTabs.size === 0 ) {
-                        this.suspendableListener = this.deferredSuspendableListener;
-                        this.deferredSuspendableListener = undefined;
+                    if ( this.removeUnprocessedRequest(tabId) ) {
                         return this.suspendableListener(details);
                     }
                 }
@@ -1288,16 +1384,40 @@ vAPI.Net = class {
         this.listenerMap.set(clientListener, actualListener);
         return actualListener;
     }
+    handlerBehaviorChanged() {
+        browser.webRequest.handlerBehaviorChanged();
+    }
     onUnprocessedRequest(details) {
-        if ( details.tabId === -1 ) { return; }
+        const { tabId } = details;
+        if ( tabId === -1 ) { return; }
         if ( this.unprocessedTabs.size === 0 ) {
             vAPI.setDefaultIcon('-loading', '!');
         }
-        this.unprocessedTabs.add(details.tabId);
+        let requests = this.unprocessedTabs.get(tabId);
+        if ( requests === undefined ) {
+            this.unprocessedTabs.set(tabId, (requests = []));
+        }
+        requests.push(Object.assign({}, details));
     }
     hasUnprocessedRequest(tabId) {
-        return this.unprocessedTabs.size !== 0 &&
-               this.unprocessedTabs.has(tabId);
+        if ( this.unprocessedTabs.size === 0 ) { return false; }
+        if ( tabId === undefined ) { return true; }
+        return this.unprocessedTabs.has(tabId);
+    }
+    removeUnprocessedRequest(tabId) {
+        if ( this.deferredSuspendableListener === undefined ) {
+            this.unprocessedTabs.clear();
+            return true;
+        }
+        if ( tabId !== undefined ) {
+            this.unprocessedTabs.delete(tabId);
+        } else {
+            this.unprocessedTabs.clear();
+        }
+        if ( this.unprocessedTabs.size !== 0 ) { return false; }
+        this.suspendableListener = this.deferredSuspendableListener;
+        this.deferredSuspendableListener = undefined;
+        return true;
     }
     suspendOneRequest() {
     }

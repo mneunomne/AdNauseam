@@ -50,9 +50,9 @@ const hiddenSettingsDefault = {
     allowGenericProceduralFilters: false,
     assetFetchTimeout: 30,
     autoCommentFilterTemplate: '{{date}} {{origin}}',
-    autoUpdateAssetFetchPeriod: 10,
-    autoUpdateDelayAfterLaunch: 5,
-    autoUpdatePeriod: 4,
+    autoUpdateAssetFetchPeriod: 60,
+    autoUpdateDelayAfterLaunch: 105,
+    autoUpdatePeriod: 2,
     benchmarkDatasetURL: 'unset',
     blockingProfiles: '11111/#F00 11010/#C0F 11001/#00F 00001',
     cacheStorageAPI: 'unset',
@@ -67,6 +67,7 @@ const hiddenSettingsDefault = {
     cnameReplayFullURL: false,
     cnameUncloakProxied: false,
     consoleLogLevel: 'unset',
+    debugAssetsJson: false,
     debugScriptlets: false,
     debugScriptletInjector: false,
     disableWebAssembly: false,
@@ -83,6 +84,7 @@ const hiddenSettingsDefault = {
     requestJournalProcessPeriod: 1000,
     selfieAfter: 2,
     strictBlockingBypassDuration: 120,
+    toolbarWarningTimeout: 60,
     uiPopupConfig: 'unset',
     uiStyles: 'unset',
     updateAssetBypassBrowserCache: false,
@@ -228,7 +230,6 @@ const µBlock = {  // jshint ignore:line
         allowedRequestCount: 0,
     },
     localSettingsLastModified: 0,
-    localSettingsLastSaved: 0,
 
     // Read-only
     systemSettings: {

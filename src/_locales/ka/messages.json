@@ -275,13 +275,13 @@
     "message": "ვერსია",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑: გამოკვეთა რიგებისა, გარეშე მხარის სკრიპტებით",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "სკრიპტი",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑: გამოკვეთა რიგებისა, გარეშე მხარის სკრიპტებით",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "ჩარჩო",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "შექმნა",
@@ -1262,6 +1262,14 @@
   "clickToLoad": {
     "message": "დაწკაპეთ ჩასატვირთად",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "შეცდომა: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "სათანადოდ ვერ გაიფილტრა ბრაუზერის ჩართვისას.\nახლიდან გახსენით გვერდი უკეთ გასაფილტრად.",
+    "description": "Tooltip for the toolbar icon. Use newline character(s) where appropriate to prevent tooltip from being too long horizontally"
   },
   "dummy": {
     "message": "This entry must be the last one",
