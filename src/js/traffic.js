@@ -1408,21 +1408,6 @@ const webRequest = {
                 µb.updateToolbarIcon(tab.id, 0b0110);
             });
             vAPI.net.unsuspend({ all: true });
-            // Mitigation: force-reload active tabs for environments not
-            // supporting suspended network request listeners.
-            if (
-                vAPI.Net.canSuspend() !== true &&
-                µb.hiddenSettings.suspendTabsUntilReady === 'unset'
-            ) {
-                const tabs = await vAPI.tabs.query({
-                    active: true,
-                    url: [ 'https://*/*', 'http://*/*' ],
-                    windowType: 'normal',
-                });
-                for ( const tab of tabs ) {
-                    vAPI.tabs.reload(tab.id);
-                }
-            }
         };
     })(),
 
