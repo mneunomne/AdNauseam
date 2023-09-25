@@ -28,8 +28,8 @@ import logger from './logger.js';
 import µb from './background.js';
 import adnauseam from './adn/core.js'
 import dnt from './adn/dnt.js'
-import { StaticFilteringParser } from './static-filtering-parser.js';
 import { i18n$ } from './i18n.js';
+import * as sfp from './static-filtering-parser.js';
 
 /******************************************************************************/
 
@@ -275,7 +275,7 @@ assets.fetchFilterList = async function(mainlistURL) {
             }
             if ( result instanceof Object === false ) { continue; }
             const content = result.content;
-            const slices = StaticFilteringParser.utils.preparser.splitter(
+            const slices = sfp.utils.preparser.splitter(
                 content,
                 vAPI.webextFlavor.env
             );

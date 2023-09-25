@@ -1,3 +1,5 @@
+
+
 uBO Lite (uBOL) to eksperymentalny, *niewymagający uprawnień* bloker treści oparty na MV3.
 
 Domyślny zestaw reguł odpowiada domyślnemu zestawowi filtrów uBlock Origin:
@@ -6,7 +8,6 @@ Domyślny zestaw reguł odpowiada domyślnemu zestawowi filtrów uBlock Origin:
 – EasyList
 – EasyPrivacy
 – lista serwerów śledzących i reklam Petera Lowe'a
-– serwery śledzące ukrywające rzeczywistą nazwę domeny (CNAME) AdGuard
 
 Możesz dodać więcej zestawów reguł, odwiedzając stronę opcji – kliknij ikonę _Trybika_ w wyskakującym panelu.
 

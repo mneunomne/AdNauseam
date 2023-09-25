@@ -287,6 +287,7 @@
     --sf-tag-ink: #006e2e /* h:135 S:100 Luv:40 */;
     --sf-value-ink: var(--orange-60); /* Adn */
     --sf-variable-ink: var(--violet-40); /* Adn */
+    --sf-unicode-ink: var(--ink-1);
     --sf-warning-ink: #e49d00; /* h:50 S:100 Luv:70 */
     --sf-warning-surface: #e49d0033; /* h:50 S:100 Luv:70 @ 20% */
 

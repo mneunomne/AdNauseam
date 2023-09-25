@@ -1,3 +1,5 @@
+
+
 O uBO Lite (uBOL) é um bloqueador de conteúdo baseado em MV3 experimental *sem permissão*.
 
 O conjunto de regras padrão corresponde ao conjunto de filtros padrão do uBlock Origin:
@@ -6,7 +8,6 @@ O conjunto de regras padrão corresponde ao conjunto de filtros padrão do uBloc
 - EasyList
 - EasyPrivacy
 - Peter Lowe’s Ad and tracking server list
-- AdGuard CNAME-Cloaked Trackers
 
 Pode adicionar mais conjuntos de regras visitando a página de opções -- clique no ícone _Cogs_ no painel pop-up.
 

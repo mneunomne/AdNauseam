@@ -1,3 +1,6 @@
+
+
+
 uBO Lite (uBOL) er en eksperimentell *tillatelses-begrenset* MV3-basert innholdsblokkerer.
 
 Standardregelsettet tilsvarer standardfiltersettet til uBlock Origin:
@@ -6,7 +9,6 @@ Standardregelsettet tilsvarer standardfiltersettet til uBlock Origin:
 - EasyList
 - EasyPrivacy
 - Peter Lowe’s Ad and tracking server list
-- AdGuard CNAME-Cloaked Trackers
 
 Du kan legge til flere regelsett ved å gå til innstillingssiden -- klikk _Tannhjul_-ikonet i oppsprettspanelet.
 

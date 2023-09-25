@@ -232,9 +232,6 @@ window.addEventListener('webextFlavor', function () {
         vAPI.webextFlavor.soup.has('firefox');
 }, { once: true });
 
-// https://github.com/uBlockOrigin/uBlock-issues/issues/1553
-const supportsFloc = document.interestCohort instanceof Function;
-
 /******************************************************************************/
 
 const patchLocalRedirectURL = url => url.charCodeAt(0) === 0x2F /* '/' */
@@ -813,9 +810,6 @@ const onHeadersReceived = function (details) {
     if (injectCSP(fctxt, pageStore, responseHeaders) === true) {
         modifiedHeaders = true;
     }
-    if (supportsFloc && foilFloc(fctxt, responseHeaders)) {
-        modifiedHeaders = true;
-    }
 
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1376932
     //   Prevent document from being cached by the browser if we modified it,
@@ -1258,24 +1252,6 @@ const injectCSP = function (fctxt, pageStore, responseHeaders) {
         value: cspSubsets.join(', ')
     });
 
-    return true;
-};
-
-/******************************************************************************/
-
-// https://github.com/uBlockOrigin/uBlock-issues/issues/1553
-// https://github.com/WICG/floc#opting-out-of-computation
-
-const foilFloc = function (fctxt, responseHeaders) {
-    const hn = fctxt.getHostname();
-    if (scriptletFilteringEngine.hasScriptlet(hn, 1, 'no-floc') === false) {
-        return false;
-    }
-    responseHeaders.push({
-        name: 'Permissions-Policy',
-        value: 'interest-cohort=()'
-    }
-    );
     return true;
 };
 
