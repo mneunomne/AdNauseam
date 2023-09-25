@@ -769,7 +769,7 @@ class FilterImportant {
     }
 
     static dnrFromCompiled(args, rule) {
-        rule.priority = (rule.priority || 0) + 10;
+        rule.priority = (rule.priority || 1) + 10;
     }
 
     static keyFromArgs() {
@@ -1693,6 +1693,7 @@ class FilterDomainHitSet {
             ? 0b01
             : 0b10;
         filterData[idata+5] = -1;
+        filterRefs[filterData[idata+6]].$last = '';
     }
 
     static create(fid = -1) {
@@ -3816,6 +3817,8 @@ class FilterCompiler {
             parsedBlock.modifyType = undefined;
             parsedBlock.optionUnitBits &= ~this.REDIRECT_BIT;
             parsedBlock.compileToFilter(writer);
+            // Do not generate block rule when compiling to DNR ruleset
+            if ( parser.options.toDNR ) { return true; }
         }
 
         this.compileToFilter(writer);
@@ -4415,7 +4418,7 @@ FilterContainer.prototype.dnrFromCompiled = function(op, context, ...args) {
             }
             break;
         case 'redirect-rule': {
-            let priority = rule.priority || 0;
+            let priority = rule.priority || 1;
             let token = rule.__modifierValue;
             if ( token !== '' ) {
                 const match = /:(\d+)$/.exec(token);

@@ -564,10 +564,12 @@ const assetCacheRead = async function(assetKey, updateReadTime = false) {
         cacheStorage.get(internalKey),
     ]);
 
-    µb.supportStats.maxAssetCacheWait = Math.max(
-        Date.now() - t0,
-        parseInt(µb.supportStats.maxAssetCacheWait, 10)
-    ) + ' ms';
+    if ( µb.readyToFilter !== true ) {
+        µb.supportStats.maxAssetCacheWait = Math.max(
+            Date.now() - t0,
+            parseInt(µb.supportStats.maxAssetCacheWait, 10) || 0
+        ) + ' ms';
+    }
 
     if (
         bin instanceof Object === false ||

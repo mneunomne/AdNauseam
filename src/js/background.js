@@ -65,7 +65,6 @@ const hiddenSettingsDefault = {
     cnameIgnoreRootDocument: true,
     cnameMaxTTL: 120,
     cnameReplayFullURL: false,
-    cnameUncloak: true,
     cnameUncloakProxied: false,
     consoleLogLevel: 'unset',
     debugScriptlets: false,
@@ -284,8 +283,8 @@ const µBlock = {  // jshint ignore:line
     readyToFilter: false,
 
     supportStats: {
-        allReadyAfter: '',
-        maxAssetCacheWait: '0 ms',
+        allReadyAfter: '?',
+        maxAssetCacheWait: '?',
     },
 
     pageStores: new Map(),
@@ -401,7 +400,9 @@ const µBlock = {  // jshint ignore:line
             this.setDocOrigin(origin).setTabOrigin(origin);
             return this;
         }
-        const origin = originFromURI(this.url);
+        const origin = (this.itype & this.FRAME_ANY) !== 0
+            ? originFromURI(this.url)
+            : this.tabOrigin;
         this.setDocOrigin(origin).setTabOrigin(origin);
         return this;
     }
