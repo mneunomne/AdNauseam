@@ -616,15 +616,6 @@ a:hover {
 }
 .cmn-toggle + label {
   display: block;
-  position: relative;
-  cursor: pointer;
-  outline: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-.row {
     position: relative;
 }
 .question {

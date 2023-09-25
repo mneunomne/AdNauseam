@@ -471,7 +471,7 @@ vAPI.injectScriptlet = function(doc, text) {
     if ( !doc ) { return; }
     let script, url;
     try {
-        const blob = new self.Blob([ text ], { type: 'text/javascript' });
+        const blob = new self.Blob([ text ], { type: 'text/javascript; charset=utf-8' });
         url = self.URL.createObjectURL(blob);
         script = doc.createElement('script');
         script.async = false;
@@ -1080,7 +1080,6 @@ vAPI.DOMFilterer = class {
             });
         promise.then(response => {
             processSurveyResults(response);
-            // bootstrapPhaseAdn() ? // Adn
         });
     };
 
@@ -1355,24 +1354,14 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
         // https://github.com/gorhill/uBlock/issues/1893
         if ( window.location === null ) { return; }
         if ( self.vAPI instanceof Object === false ) { return; }
-    
-        /*
-        ADN catch ads with delay: https://github.com/dhowe/AdNauseam/issues/1838
-        This is a workaround to catch ads that apear with a certain delay but don't trigger the DomWatcher, such as dockduckgo 
-        */
-        if (vAPI.domFilterer) {
-            bootstrapPhaseAdn()
-            bootstrapAdnTimer.start(2000)
-        }
-
-        // This can happen on Firefox. For instance:
-        // https://github.com/gorhill/uBlock/issues/1893
-        if ( window.location === null ) { return; }
-        if ( self.vAPI instanceof Object === false ) { return; }
 
         vAPI.messaging.send('contentscript', {
             what: 'shouldRenderNoscriptTags',
         });
+
+        if ( vAPI.domFilterer instanceof Object ) {
+            vAPI.domFilterer.commitNow();
+        }
 
         if ( vAPI.domWatcher instanceof Object ) {
             vAPI.domWatcher.start();
@@ -1451,7 +1440,7 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
             vAPI.domSurveyor = null;
         } else {
             const domFilterer = vAPI.domFilterer = new vAPI.DOMFilterer();
-            if ( noGenericCosmeticFiltering || cfeDetails.noDOMSurveying ) {
+            if ( noGenericCosmeticFiltering || cfeDetails.disableSurveyor ) {
                 vAPI.domSurveyor = null;
             } 
             domFilterer.exceptions = cfeDetails.exceptionFilters;

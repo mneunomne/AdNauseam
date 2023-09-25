@@ -94,6 +94,7 @@ cp $SRC/zh-TW/adnauseam.json $DES/zh_TW/adnauseam.json
 #   mkdir -p "$DESMV3/$deslang/" && cp "$SRC/$srclang/uBO-Lite/messages.json" "$DESMV3/$deslang/"
 #   # descriptions
 #   #cp "$SRC/$srclang/description.txt" "./dist/description/description-${deslang}.txt"
+#   cp "$SRC/$srclang/uBO-Lite/webstore.txt" "./platform/mv3/description/webstore.$deslang.txt"
 # done
 
 # Output files with possible misuse of `$`, as this can lead to severe
