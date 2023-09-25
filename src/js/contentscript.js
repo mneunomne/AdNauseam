@@ -1350,6 +1350,15 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
 
 {
     const onDomReady = ( ) => {
+        /*
+        ADN catch ads with delay: https://github.com/dhowe/AdNauseam/issues/1838
+        This is a workaround to catch ads that apear with a certain delay but don't trigger the DomWatcher, such as dockduckgo 
+        */
+        if (vAPI.domFilterer) {
+            bootstrapPhaseAdn()
+            bootstrapAdnTimer.start(2000)
+        }
+        
         // This can happen on Firefox. For instance:
         // https://github.com/gorhill/uBlock/issues/1893
         if ( window.location === null ) { return; }

@@ -21,6 +21,7 @@ body[dir="rtl"] ul {
 }
 
 #userSettings {
+  position: relative;
   padding-left: 0;
   margin: 50px;
   margin-top: 20px;
