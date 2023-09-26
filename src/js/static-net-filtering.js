@@ -3587,6 +3587,7 @@ class FilterCompiler {
                 if ( this.processModifierOption(id, 'noopmp4-1s') === false ) {
                     return this.FILTER_INVALID;
                 }
+                this.processTypeOption(sfp.NODE_TYPE_NET_OPTION_NAME_MEDIA, false);
                 this.optionUnitBits |= this.REDIRECT_BIT;
                 break;
             }
@@ -3813,12 +3814,13 @@ class FilterCompiler {
         //   block filter.
         if ( this.modifyType === MODIFIER_TYPE_REDIRECT ) {
             this.modifyType = MODIFIER_TYPE_REDIRECTRULE;
-            const parsedBlock = this.clone();
-            parsedBlock.modifyType = undefined;
-            parsedBlock.optionUnitBits &= ~this.REDIRECT_BIT;
-            parsedBlock.compileToFilter(writer);
             // Do not generate block rule when compiling to DNR ruleset
-            if ( parser.options.toDNR ) { return true; }
+            if ( parser.options.toDNR !== true ) {
+                const parsedBlock = this.clone();
+                parsedBlock.modifyType = undefined;
+                parsedBlock.optionUnitBits &= ~this.REDIRECT_BIT;
+                parsedBlock.compileToFilter(writer);
+            }
         }
 
         this.compileToFilter(writer);

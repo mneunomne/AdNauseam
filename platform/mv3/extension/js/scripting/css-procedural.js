@@ -192,7 +192,9 @@ class PSelectorMatchesMediaTask extends PSelectorTask {
 class PSelectorMatchesPathTask extends PSelectorTask {
     constructor(task) {
         super();
-        this.needle = regexFromString(task[1]);
+        this.needle = regexFromString(
+            task[1].replace(/\P{ASCII}/gu, s => encodeURIComponent(s))
+        );
     }
     transpose(node, output) {
         if ( this.needle.test(self.location.pathname + self.location.search) ) {
@@ -657,6 +659,7 @@ class ProceduralFilterer {
 /******************************************************************************/
 
 const proceduralImports = self.proceduralImports || [];
+delete self.proceduralImports;
 
 const lookupSelectors = (hn, out) => {
     for ( const { argsList, hostnamesMap } of proceduralImports ) {

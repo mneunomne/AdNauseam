@@ -534,7 +534,7 @@ gfp_video_ads/
 ||functionalclam.com^$third-party
 
 # pinterest
-||pinterest.*##div:nth-of-type(2) > div:nth-of-type(2) > div
+pinterest.*##div:nth-of-type(2) > div:nth-of-type(2) > div
 
 # Blocking rules below here
 ||images.sohu.com/bill/s2015/jscript/lib/sjs/matrix/ad/form/bigView.js^$important
@@ -819,7 +819,7 @@ ww1.onepunch.online###psdn-slot
 ###psadbox
 
 # newyorker.com
-newyorker.com##.teads-inread`
+newyorker.com##.teads-inread
 newyorker.com##[class^=".AdWrapper"]
 
 ! 2022-10-17 https://www.aftonbladet.se

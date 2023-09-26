@@ -632,22 +632,22 @@ const onBeforeBehindTheSceneRequest = function (fctxt) {
 //   request.
 
 {
+    const pageStores = new Set();
     let hostname = '';
-    let pageStores = new Set();
     let pageStoresToken = 0;
-    let gcTimer;
 
     const reset = function () {
         hostname = '';
-        pageStores = new Set();
+        pageStores.clear();
         pageStoresToken = 0;
     };
 
-    const gc = () => {
-        gcTimer = undefined;
-        if (pageStoresToken !== µb.pageStoresToken) { return reset(); }
-        gcTimer = vAPI.setTimeout(gc, 30011);
+    const gc = ( ) => {
+        if ( pageStoresToken !== µb.pageStoresToken ) { return reset(); }
+        gcTimer.on(30011);
     };
+
+    const gcTimer = vAPI.defer.create(gc);
 
     onBeforeBehindTheSceneRequest.journalAddRequest = (fctxt, result) => {
         const docHostname = fctxt.getDocHostname();
@@ -656,16 +656,13 @@ const onBeforeBehindTheSceneRequest = function (fctxt) {
             pageStoresToken !== µb.pageStoresToken
         ) {
             hostname = docHostname;
-            pageStores = new Set();
-            for (const pageStore of µb.pageStores.values()) {
-                if (pageStore.tabHostname !== docHostname) { continue; }
+            pageStores.clear();
+            for ( const pageStore of µb.pageStores.values() ) {
+                if ( pageStore.tabHostname !== docHostname ) { continue; }
                 pageStores.add(pageStore);
             }
             pageStoresToken = µb.pageStoresToken;
-            if (gcTimer !== undefined) {
-                clearTimeout(gcTimer);
-            }
-            gcTimer = vAPI.setTimeout(gc, 30011);
+            gcTimer.offon(30011);
         }
         for (const pageStore of pageStores) {
             pageStore.journalAddRequest(fctxt, result);
@@ -1236,7 +1233,7 @@ const injectCSP = function (fctxt, pageStore, responseHeaders) {
 
     if (cspSubsets.length === 0) { return; }
 
-    µb.updateToolbarIcon(fctxt.tabId);
+    µb.updateToolbarIcon(fctxt.tabId, 0b0010);
 
     // Use comma to merge CSP directives.
     // Ref.: https://www.w3.org/TR/CSP2/#implementation-considerations
@@ -1307,7 +1304,9 @@ const headerValueFromName = function (headerName, headers) {
 
 const strictBlockBypasser = {
     hostnameToDeadlineMap: new Map(),
-    cleanupTimer: undefined,
+    cleanupTimer: vAPI.defer.create(( ) => {
+        strictBlockBypasser.cleanup();
+    }),
 
     cleanup: function () {
         for (const [hostname, deadline] of this.hostnameToDeadlineMap) {
@@ -1317,35 +1316,23 @@ const strictBlockBypasser = {
         }
     },
 
-    bypass: function (hostname) {
-        if (typeof hostname !== 'string' || hostname === '') { return; }
-        this.hostnameToDeadlineMap.set(
-            hostname,
-            Date.now() + µb.hiddenSettings.strictBlockingBypassDuration * 1000
-        );
+    revokeTime: function() {
+        return Date.now() + µb.hiddenSettings.strictBlockingBypassDuration * 1000;
     },
 
-    isBypassed: function (hostname) {
-        if (this.hostnameToDeadlineMap.size === 0) { return false; }
-        let bypassDuration =
-            µb.hiddenSettings.strictBlockingBypassDuration * 1000;
-        if (this.cleanupTimer === undefined) {
-            this.cleanupTimer = vAPI.setTimeout(
-                () => {
-                    this.cleanupTimer = undefined;
-                    this.cleanup();
-                },
-                bypassDuration + 10000
-            );
-        }
-        for (; ;) {
+    bypass: function(hostname) {
+        if ( typeof hostname !== 'string' || hostname === '' ) { return; }
+        this.hostnameToDeadlineMap.set(hostname, this.revokeTime());
+    },
+
+    isBypassed: function(hostname) {
+        if ( this.hostnameToDeadlineMap.size === 0 ) { return false; }
+        this.cleanupTimer.on({ sec: µb.hiddenSettings.strictBlockingBypassDuration + 10 });
+        for (;;) {
             const deadline = this.hostnameToDeadlineMap.get(hostname);
-            if (deadline !== undefined) {
-                if (deadline > Date.now()) {
-                    this.hostnameToDeadlineMap.set(
-                        hostname,
-                        Date.now() + bypassDuration
-                    );
+            if ( deadline !== undefined ) {
+                if ( deadline > Date.now() ) {
+                    this.hostnameToDeadlineMap.set(hostname, this.revokeTime());
                     return true;
                 }
                 this.hostnameToDeadlineMap.delete(hostname);
@@ -1373,7 +1360,7 @@ const webRequest = {
             vAPI.net.suspend();
         }
 
-        return async ( ) => {
+        return ( ) => {
             vAPI.net.setSuspendableListener(onBeforeRequest);
             vAPI.net.addListener(
                 'onHeadersReceived',
@@ -1412,22 +1399,15 @@ const webRequest = {
                     urls: [ 'http://*/*', 'https://*/*' ]
                 }
             );
+            vAPI.defer.once({ sec: µb.hiddenSettings.toolbarWarningTimeout }).then(( ) => {
+                if ( vAPI.net.hasUnprocessedRequest() === false ) { return; }
+                vAPI.net.removeUnprocessedRequest();
+                return vAPI.tabs.getCurrent();
+            }).then(tab => {
+                if ( tab instanceof Object === false ) { return; }
+                µb.updateToolbarIcon(tab.id, 0b0110);
+            });
             vAPI.net.unsuspend({ all: true });
-            // Mitigation: force-reload active tabs for environments not
-            // supporting suspended network request listeners.
-            if (
-                vAPI.Net.canSuspend() !== true &&
-                µb.hiddenSettings.suspendTabsUntilReady === 'unset'
-            ) {
-                const tabs = await vAPI.tabs.query({
-                    active: true,
-                    url: [ 'https://*/*', 'http://*/*' ],
-                    windowType: 'normal',
-                });
-                for ( const tab of tabs ) {
-                    vAPI.tabs.reload(tab.id);
-                }
-            }
         };
     })(),
 

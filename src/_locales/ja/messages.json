@@ -275,13 +275,13 @@
     "message": "バージョン",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑: サードパーティスクリプトを含む行を強調表示します",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "スクリプト",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑: サードパーティフレームを含む行を強調表示します",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "フレーム",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "作成",
@@ -1262,6 +1262,14 @@
   "clickToLoad": {
     "message": "クリックして読み込む",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "エラー: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "ブラウザー起動時に正しくフィルターできませんでした。\nページを再読み込みしてください。",
+    "description": "Tooltip for the toolbar icon. Use newline character(s) where appropriate to prevent tooltip from being too long horizontally"
   },
   "dummy": {
     "message": "This entry must be the last one",

@@ -75,20 +75,16 @@ assets.fetch = function(url, options = {}) {
     return new Promise((resolve, reject) => {
     // Start of executor
 
-    const timeoutAfter = µb.hiddenSettings.assetFetchTimeout * 1000 || 30000;
+    const timeoutAfter = µb.hiddenSettings.assetFetchTimeout || 30;
     const xhr = new XMLHttpRequest();
     let contentLoaded = 0;
-    let timeoutTimer;
 
     const cleanup = function() {
         xhr.removeEventListener('load', onLoadEvent);
         xhr.removeEventListener('error', onErrorEvent);
         xhr.removeEventListener('abort', onErrorEvent);
         xhr.removeEventListener('progress', onProgressEvent);
-        if ( timeoutTimer !== undefined ) {
-            clearTimeout(timeoutTimer);
-            timeoutTimer = undefined;
-        }
+        timeoutTimer.off();
     };
 
     const fail = function(details, msg) {
@@ -136,11 +132,10 @@ assets.fetch = function(url, options = {}) {
     const onProgressEvent = function(ev) {
         if ( ev.loaded === contentLoaded ) { return; }
         contentLoaded = ev.loaded;
-        if ( timeoutTimer !== undefined ) {
-            clearTimeout(timeoutTimer);
-        }
-        timeoutTimer = vAPI.setTimeout(onTimeout, timeoutAfter);
+        timeoutTimer.offon({ sec: timeoutAfter });
     };
+
+    const timeoutTimer = vAPI.defer.create(onTimeout);
 
     // Be ready for thrown exceptions:
     // I am pretty sure it used to work, but now using a URL such as
@@ -153,7 +148,7 @@ assets.fetch = function(url, options = {}) {
         xhr.addEventListener('progress', onProgressEvent);
         xhr.responseType = options.responseType || 'text';
         xhr.send();
-        timeoutTimer = vAPI.setTimeout(onTimeout, timeoutAfter);
+        timeoutTimer.on({ sec: timeoutAfter });
     } catch (e) {
         onErrorEvent.call(xhr);
     }
@@ -208,6 +203,7 @@ assets.fetchText = async function(url) {
         const text = details.content.trim();
         if ( text.startsWith('<') && text.endsWith('>') ) {
             details.content = '';
+            details.error = 'assets.fetchText(): Not a text file';
         }
 
         // Important: Non empty text resource must always end with a newline
@@ -385,22 +381,21 @@ const getAssetSourceRegistry = function() {
     return assetSourceRegistryPromise;
 };
 
-const registerAssetSource = function(assetKey, dict) {
-    const entry = assetSourceRegistry[assetKey] || {};
-    for ( const prop in dict ) {
-        if ( dict.hasOwnProperty(prop) === false ) { continue; }
-        if ( dict[prop] === undefined ) {
-            delete entry[prop];
+const registerAssetSource = function(assetKey, newDict) {
+    const currentDict = assetSourceRegistry[assetKey] || {};
+    for ( const [ k, v ] of Object.entries(newDict) ) {
+        if ( v === undefined || v === null ) {
+            delete currentDict[k];
         } else {
-            entry[prop] = dict[prop];
+            currentDict[k] = newDict[k];
         }
     }
-    let contentURL = dict.contentURL;
+    let contentURL = newDict.contentURL;
     if ( contentURL !== undefined ) {
         if ( typeof contentURL === 'string' ) {
-            contentURL = entry.contentURL = [ contentURL ];
+            contentURL = currentDict.contentURL = [ contentURL ];
         } else if ( Array.isArray(contentURL) === false ) {
-            contentURL = entry.contentURL = [];
+            contentURL = currentDict.contentURL = [];
         }
         let remoteURLCount = 0;
         for ( let i = 0; i < contentURL.length; i++ ) {
@@ -408,18 +403,18 @@ const registerAssetSource = function(assetKey, dict) {
                 remoteURLCount += 1;
             }
         }
-        entry.hasLocalURL = remoteURLCount !== contentURL.length;
-        entry.hasRemoteURL = remoteURLCount !== 0;
-    } else if ( entry.contentURL === undefined ) {
-        entry.contentURL = [];
+        currentDict.hasLocalURL = remoteURLCount !== contentURL.length;
+        currentDict.hasRemoteURL = remoteURLCount !== 0;
+    } else if ( currentDict.contentURL === undefined ) {
+        currentDict.contentURL = [];
     }
-    if ( typeof entry.updateAfter !== 'number' ) {
-        entry.updateAfter = 5;
+    if ( typeof currentDict.updateAfter !== 'number' ) {
+        currentDict.updateAfter = 5;
     }
-    if ( entry.submitter ) {
-        entry.submitTime = Date.now(); // To detect stale entries
+    if ( currentDict.submitter ) {
+        currentDict.submitTime = Date.now(); // To detect stale entries
     }
-    assetSourceRegistry[assetKey] = entry;
+    assetSourceRegistry[assetKey] = currentDict;
 };
 
 const unregisterAssetSource = function(assetKey) {
@@ -428,17 +423,14 @@ const unregisterAssetSource = function(assetKey) {
 };
 
 const saveAssetSourceRegistry = (( ) => {
-    let timer;
-    const save = function() {
-        timer = undefined;
+    const save = ( ) => {
+        timer.off();
         cacheStorage.set({ assetSourceRegistry });
     };
+    const timer = vAPI.defer.create(save);
     return function(lazily) {
-        if ( timer !== undefined ) {
-            clearTimeout(timer);
-        }
         if ( lazily ) {
-            timer = vAPI.setTimeout(save, 500);
+            timer.offon(500);
         } else {
             save();
         }
@@ -449,11 +441,17 @@ const updateAssetSourceRegistry = function(json, silent = false) {
     let newDict;
     try {
         newDict = JSON.parse(json);
+        newDict['assets.json'].defaultListset =
+            Array.from(Object.entries(newDict))
+                .filter(a => a[1].content === 'filters' && a[1].off === undefined)
+                .map(a => a[0]);
     } catch (ex) {
     }
     if ( newDict instanceof Object === false ) { return; }
 
     const oldDict = assetSourceRegistry;
+
+    fireNotification('assets.json-updated', { newDict, oldDict });
 
     // Remove obsolete entries (only those which were built-in).
     for ( const assetKey in oldDict ) {
@@ -533,15 +531,14 @@ const getAssetCacheRegistry = function() {
 };
 
 const saveAssetCacheRegistry = (( ) => {
-    let timer;
     const save = function() {
-        timer = undefined;
+        timer.off();
         cacheStorage.set({ assetCacheRegistry });
     };
+    const timer = vAPI.defer.create(save);
     return function(lazily) {
-        if ( timer !== undefined ) { clearTimeout(timer); }
         if ( lazily ) {
-            timer = vAPI.setTimeout(save, 30000);
+            timer.offon({ sec: 30 });
         } else {
             save();
         }
@@ -787,6 +784,7 @@ assets.get = async function(assetKey, options = {}) {
         contentURLs.push(...assetDetails.cdnURLs);
     }
 
+    let error = 'ENOTFOUND';
     for ( const contentURL of contentURLs ) {
         if ( reIsExternalPath.test(contentURL) && assetDetails.hasLocalURL ) {
             continue;
@@ -794,6 +792,9 @@ assets.get = async function(assetKey, options = {}) {
         const details = assetDetails.content === 'filters'
             ? await assets.fetchFilterList(contentURL)
             : await assets.fetchText(contentURL);
+        if ( details.error !== undefined ) {
+            error = details.error;
+        }
         if ( details.content === '' ) { continue; }
         if ( reIsExternalPath.test(contentURL) && options.dontCache !== true ) {
             assetCacheWrite(assetKey, {
@@ -801,10 +802,16 @@ assets.get = async function(assetKey, options = {}) {
                 url: contentURL,
                 silent: options.silent === true,
             });
+            registerAssetSource(assetKey, { error: undefined });
         }
         return reportBack(details.content, contentURL);
     }
-    return reportBack('', '', 'ENOTFOUND');
+    if ( assetRegistry[assetKey] !== undefined ) {
+        registerAssetSource(assetKey, {
+            error: { time: Date.now(), error }
+        });
+    }
+    return reportBack('', '', error);
 };
 
 /******************************************************************************/
@@ -955,7 +962,6 @@ const updaterUpdated = [];
 const updaterFetched = new Set();
 
 let updaterStatus;
-let updaterTimer;
 let updaterAssetDelay = updaterAssetDelayDefault;
 let updaterAuto = false;
 
@@ -1015,7 +1021,16 @@ const updateNext = async function() {
     // In auto-update context, be gentle on remote servers.
     remoteServerFriendly = updaterAuto;
 
-    const result = await getRemote(toUpdate[0]);
+    let result;
+    if (
+        toUpdate[0] !== 'assets.json' ||
+        µb.hiddenSettings.debugAssetsJson !== true
+    ) {
+        result = await getRemote(toUpdate[0]);
+    } else {
+        result = await assets.fetchText('/assets/assets.json');
+        result.assetKey = 'assets.json';
+    }
 
     remoteServerFriendly = false;
 
@@ -1028,8 +1043,10 @@ const updateNext = async function() {
         fireNotification('asset-update-failed', { assetKey: result.assetKey });
     }
 
-    vAPI.setTimeout(updateNext, updaterAssetDelay);
+    updaterTimer.on(updaterAssetDelay);
 };
+
+const updaterTimer = vAPI.defer.create(updateNext);
 
 const updateDone = function() {
     const assetKeys = updaterUpdated.slice(0);
@@ -1049,8 +1066,7 @@ assets.updateStart = function(details) {
     updaterAuto = details.auto === true;
     if ( updaterStatus !== undefined ) {
         if ( newUpdateDelay < oldUpdateDelay ) {
-            clearTimeout(updaterTimer);
-            updaterTimer = vAPI.setTimeout(updateNext, updaterAssetDelay);
+            updaterTimer.offon(updaterAssetDelay);
         }
         return;
     }
@@ -1058,10 +1074,7 @@ assets.updateStart = function(details) {
 };
 
 assets.updateStop = function() {
-    if ( updaterTimer ) {
-        clearTimeout(updaterTimer);
-        updaterTimer = undefined;
-    }
+    updaterTimer.off();
     if ( updaterStatus !== undefined ) {
         updateDone();
     }

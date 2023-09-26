@@ -287,6 +287,8 @@ const nodeFromURL = function(parent, url, re, type) {
             case 'css':
             case 'doc':
             case 'frame':
+            case 'object':
+            case 'other':
             case 'script':
             case 'xhr':
                 href = `code-viewer.html?url=${encodeURIComponent(href)}`;
@@ -582,8 +584,6 @@ const viewPort = (( ) => {
     let wholeHeight = 0;
     let lastTopPix = 0;
     let lastTopRow = 0;
-    let scrollTimer;
-    let resizeTimer;
 
     const ViewEntry = function() {
         this.div = document.createElement('div');
@@ -617,19 +617,10 @@ const viewPort = (( ) => {
     };
 
     // Coalesce scroll events
-    const onScroll = function() {
-        if ( scrollTimer !== undefined ) { return; }
-        scrollTimer = setTimeout(
-            ( ) => {
-                scrollTimer = requestAnimationFrame(( ) => {
-                    scrollTimer = undefined;
-                    onScrollChanged();
-                });
-            },
-            1000/32
-        );
+    const scrollTimer = vAPI.defer.create(onScrollChanged);
+    const onScroll = ( ) => {
+        scrollTimer.onvsync(1000/32);
     };
-
     dom.on(vwScroller, 'scroll', onScroll, { passive: true });
 
     const onLayoutChanged = function() {
@@ -736,19 +727,10 @@ const viewPort = (( ) => {
         updateContent(0);
     };
 
+    const resizeTimer = vAPI.defer.create(onLayoutChanged);
     const updateLayout = function() {
-        if ( resizeTimer !== undefined ) { return; }
-        resizeTimer = setTimeout(
-            ( ) => {
-                resizeTimer = requestAnimationFrame(( ) => {
-                    resizeTimer = undefined;
-                    onLayoutChanged();
-                });
-            },
-            1000/8
-        );
+        resizeTimer.onvsync(1000/8);
     };
-
     dom.on(window, 'resize', updateLayout, { passive: true });
 
     updateLayout();
@@ -1151,10 +1133,13 @@ const onLogBufferRead = function(response) {
 /******************************************************************************/
 
 const readLogBuffer = (( ) => {
-    let timer;
+    let reading = false;
 
     const readLogBufferNow = async function() {
         if ( logger.ownerId === undefined ) { return; }
+        if ( reading ) { return; }
+
+        reading = true;
 
         const msg = {
             what: 'readAll',
@@ -1182,20 +1167,20 @@ const readLogBuffer = (( ) => {
 
         const response = await vAPI.messaging.send('loggerUI', msg);
 
-        timer = undefined;
         onLogBufferRead(response);
-        readLogBufferLater();
+
+        reading = false;
+
+        timer.on(1200);
     };
 
-    const readLogBufferLater = function() {
-        if ( timer !== undefined ) { return; }
-        if ( logger.ownerId === undefined ) { return; }
-        timer = vAPI.setTimeout(readLogBufferNow, 1200);
-    };
+    const timer = vAPI.defer.create(readLogBufferNow);
 
     readLogBufferNow();
 
-    return readLogBufferLater;
+    return ( ) => {
+        timer.on(1200);
+    };
 })();
 
 /******************************************************************************/
@@ -2243,17 +2228,13 @@ const rowFilterer = (( ) => {
     };
 
     const onFilterChangedAsync = (( ) => {
-        let timer;
         const commit = ( ) => {
-            timer = undefined;
             parseInput();
             filterAll();
         };
+        const timer = vAPI.defer.create(commit);
         return ( ) => {
-            if ( timer !== undefined ) {
-                clearTimeout(timer);
-            }
-            timer = vAPI.setTimeout(commit, 750);
+            timer.offon(750);
         };
     })();
 
@@ -2330,7 +2311,7 @@ const rowJanitor = (( ) => {
 
     let rowIndex = 0;
 
-    const discard = function(timeRemaining) {
+    const discard = function(deadline) {
         const opts = loggerSettings.discard;
         const maxLoadCount = typeof opts.maxLoadCount === 'number'
             ? opts.maxLoadCount
@@ -2341,7 +2322,6 @@ const rowJanitor = (( ) => {
         const obsolete = typeof opts.maxAge === 'number'
             ? Date.now() - opts.maxAge * 60000
             : 0;
-        const deadline = Date.now() + Math.ceil(timeRemaining);
 
         let i = rowIndex;
         // TODO: below should not happen -- remove when confirmed.
@@ -2362,7 +2342,7 @@ const rowJanitor = (( ) => {
 
         while ( i < loggerEntries.length ) {
 
-            if ( i % 64 === 0 && Date.now() >= deadline ) { break; }
+            if ( i % 64 === 0 && deadline.timeRemaining() === 0 ) { break; }
 
             const entry = loggerEntries[i];
             const tabId = entry.tabId || 0;
@@ -2431,17 +2411,14 @@ const rowJanitor = (( ) => {
         rowFilterer.filterAll();
     };
 
-    const discardAsync = function() {
-        setTimeout(
-            ( ) => {
-                self.requestIdleCallback(deadline => {
-                    discard(deadline.timeRemaining());
-                    discardAsync();
-                });
-            },
-            1889
-        );
+    const discardAsync = function(deadline) {
+        if ( deadline ) {
+            discard(deadline);
+        }
+        janitorTimer.onidle(1889);
     };
+
+    const janitorTimer = vAPI.defer.create(discardAsync);
 
     // Clear voided entries from the logger's visible content.
     //
@@ -3093,15 +3070,14 @@ dom.on(window, 'hashchange', pageSelectorFromURLHash);
 // to the window geometry pontentially not settling fast enough.
 if ( self.location.search.includes('popup=1') ) {
     dom.on(window, 'load', ( ) => {
-        setTimeout(
-            ( ) => {
-                popupLoggerBox = {
-                    x: self.screenX,
-                    y: self.screenY,
-                    w: self.outerWidth,
-                    h: self.outerHeight,
-                };
-        }, 2000);
+        vAPI.defer.once(2000).then(( ) => {
+            popupLoggerBox = {
+                x: self.screenX,
+                y: self.screenY,
+                w: self.outerWidth,
+                h: self.outerHeight,
+            };
+        });
     }, { once: true });
 }
 

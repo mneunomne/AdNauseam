@@ -545,9 +545,10 @@ const popupDataFromTabId = function(tabId, tabTitle) {
         popupPanelDisabledSections: µbhs.popupPanelDisabledSections,
         popupPanelLockedSections: µbhs.popupPanelLockedSections,
         popupPanelHeightMode: µbhs.popupPanelHeightMode,
-        tabId: tabId,
-        tabTitle: tabTitle,
-        tooltipsDisabled: µbus.tooltipsDisabled
+        tabId,
+        tabTitle,
+        tooltipsDisabled: µbus.tooltipsDisabled,
+        hasUnprocessedRequest: vAPI.net && vAPI.net.hasUnprocessedRequest(tabId),
     };
 
     if ( µbhs.uiPopupConfig !== 'unset' ) {
@@ -659,6 +660,36 @@ const onMessage = function(request, sender, callback) {
         });
         return;
 
+    // https://github.com/gorhill/uBlock/commit/6efd8eb#commitcomment-107523558
+    //   Important: for whatever reason, not using `document_start` causes the
+    //   Promise returned by `tabs.executeScript()` to resolve only when the
+    //   associated tab is closed.
+    case 'launchReporter': {
+        const pageStore = µb.pageStoreFromTabId(request.tabId);
+        if ( pageStore === null ) { break; }
+        if ( vAPI.net.hasUnprocessedRequest(request.tabId) ) {
+            request.popupPanel.hasUnprocessedRequest = true;
+        }
+        vAPI.tabs.executeScript(request.tabId, {
+            allFrames: true,
+            file: '/js/scriptlets/cosmetic-report.js',
+            matchAboutBlank: true,
+            runAt: 'document_start',
+        }).then(results => {
+            const filters = results.reduce((a, v) => {
+                if ( Array.isArray(v) ) { a.push(...v); }
+                return a;
+            }, []);
+            if ( filters.length !== 0 ) {
+                request.popupPanel.cosmetic = filters;
+            }
+            const supportURL = new URL(vAPI.getURL('support.html'));
+            supportURL.searchParams.set('pageURL', request.pageURL);
+            supportURL.searchParams.set('popupPanel', JSON.stringify(request.popupPanel));
+            µb.openNewTab({ url: supportURL.href, select: true, index: -1 });
+        });
+        return;
+    }
     default:
         break;
     }
@@ -667,22 +698,15 @@ const onMessage = function(request, sender, callback) {
     let response;
 
     switch ( request.what ) {
+    case 'dismissUnprocessedRequest':
+        vAPI.net.removeUnprocessedRequest(request.tabId);
+        µb.updateToolbarIcon(request.tabId, 0b110);
+        break;
+
     case 'hasPopupContentChanged': {
         const pageStore = µb.pageStoreFromTabId(request.tabId);
         const lastModified = pageStore ? pageStore.contentLastModified : 0;
         response = lastModified !== request.contentLastModified;
-        break;
-    }
-    case 'launchReporter': {
-        const pageStore = µb.pageStoreFromTabId(request.tabId);
-        if ( pageStore === null ) { break; }
-        if ( vAPI.net.hasUnprocessedRequest(request.tabId) ) {
-            request.popupPanel.hasUnprocessedRequest = true;
-        }
-        const supportURL = new URL(vAPI.getURL('support.html'));
-        supportURL.searchParams.set('pageURL', request.pageURL);
-        supportURL.searchParams.set('popupPanel', JSON.stringify(request.popupPanel));
-        µb.openNewTab({ url: supportURL.href, select: true, index: -1 });
         break;
     }
     case 'revertFirewallRules':
