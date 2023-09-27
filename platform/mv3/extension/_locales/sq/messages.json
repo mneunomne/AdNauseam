@@ -51,9 +51,9 @@
     "message": "Politika e privatësisë",
     "description": "Link to privacy policy on GitHub (English)"
   },
-  "popupPowerSwitchInfo": {
-    "message": "Ç/Aktivizoni uBO Lite te ky uebsajti",
-    "description": "Tooltip for the main power button in the popup panel"
+  "popupFilteringModeLabel": {
+    "message": "mënyra e filtrimit",
+    "description": "Label in the popup panel for the current filtering mode"
   },
   "popupTipDashboard": {
     "message": "Hapni panelin e kontrollit",
@@ -236,7 +236,7 @@
     "description": "The header text for the default filtering mode section"
   },
   "defaultFilteringModeDescription": {
-    "message": "Mënyra standarde e filtrimit mund të ndryshohet në çdo kohë, në varësi të kërkesave që kanë uebsajte të caktuara. Secila mënyrë ka avantazhet dhe disavantazhet e veta.",
+    "message": "Mënyra standarde e filtrimit mund të ndryshohet në çdo kohë sipas kërkesave që kanë uebsajte të caktuara. Secila mënyrë ka avantazhet dhe disavantazhet e veta.",
     "description": "This describes the default filtering mode setting"
   },
   "filteringMode0Name": {

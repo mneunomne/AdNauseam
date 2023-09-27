@@ -11,7 +11,7 @@ ul {
 }
 .synopsis {
     font-size: 90%;
-    color: var(--ink-0);
+    color: white; /* adn */
     font-size: var(--font-size-smaller);
     opacity: var(--medium-em);
     }

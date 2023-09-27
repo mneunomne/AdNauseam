@@ -814,7 +814,11 @@ const viewPort = (( ) => {
             }
         }
         span = div.children[COLUMN_FILTER];
-        if ( renderFilterToSpan(span, cells[COLUMN_FILTER]) === false ) {
+        if ( renderFilterToSpan(span, cells[COLUMN_FILTER]) ) {
+            if ( /^\+js\(.*\)$/.test(span.children[1].textContent) ) {
+                divcl.add('scriptlet');
+            }
+        } else {
             span.textContent = cells[COLUMN_FILTER];
         }
 
@@ -1684,7 +1688,7 @@ dom.on(document, 'keydown', ev => {
                 const span = dom.clone(template);
                 let a = qs$(span, 'a:nth-of-type(1)');
                 a.href += encodeURIComponent(list.assetKey);
-                a.textContent = list.title;
+                a.append(i18n.patchUnicodeFlags(list.title));
                 a = qs$(span, 'a:nth-of-type(2)');
                 if ( list.supportURL ) {
                     dom.attr(a, 'href', list.supportURL);

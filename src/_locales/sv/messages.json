@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Inbyggd",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Annonser",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Integritet",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "Domäner med skadlig kod (malware)",
-    "description": "English: Malware domains"
+    "message": "Skydd mot skadlig programvara, säkerhet",
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Störande",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Mångsidiga",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Regioner, språk",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Anpassad",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Importera…",
@@ -896,7 +896,7 @@
     "description": "Header of 'Documentation' section in Support pane"
   },
   "supportS1P1": {
-    "message": "Läs dokumentationen på <code>uBlock/wiki</code> för att lära dig allt om uBlock Origin's funktioner.",
+    "message": "Läs dokumentationen på <code>uBlock/wiki</code> för att lära dig allt om uBlock Origins funktioner.",
     "description": "First paragraph of 'Documentation' section in Support pane"
   },
   "supportS2H": {
@@ -904,7 +904,7 @@
     "description": "Header of 'Questions and support' section in Support pane"
   },
   "supportS2P1": {
-    "message": "Svar på frågor och andra typer av hjälp finns på subreddit <code>/r/uBlockOrigin</code>.",
+    "message": "Svar på frågor och andra typer av hjälp finns på subredditen <code>/r/uBlockOrigin</code>.",
     "description": "First paragraph of 'Questions and support' section in Support pane"
   },
   "supportS3H": {
@@ -949,6 +949,14 @@
   },
   "supportS6P1S1": {
     "message": "För att undvika att belasta volontärer med dubbletter av rapporter, kontrollera att problemet inte redan har rapporterats.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S1": {
+    "message": "Filterlistor uppdateras dagligen. Se till att ditt problem inte redan har åtgärdats i de senaste filterlistorna.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Kontrollera att problemet kvarstår efter att du har laddat om den krånglande webbsidan.",
     "description": "A paragraph in the filter issue reporter section"
   },
   "supportS6URL": {
@@ -1036,7 +1044,7 @@
     "description": "Shown in the About pane"
   },
   "aboutCDNsInfo": {
-    "message": "Ett slumpmässigt valt CDN kommer att användas när en filterlista behöver uppdateras",
+    "message": "Ett slumpmässigt valt CDN kommer att användas när en filterlista behöver uppdateras.",
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
@@ -1268,8 +1276,8 @@
     "description": "Summary of number of errors as reported by the linter "
   },
   "unprocessedRequestTooltip": {
-    "message": "Det gick inte att filtrera ordentligt vid webbläsarstart.\nLadda om sidan för att säkerställa korrekt filtrering.\n",
-    "description": "Tooltip for the toolbar icon. Use newline character(s) where appropriate to prevent tooltip from being too long horizontally"
+    "message": "Det gick inte att filtrera ordentligt vid webbläsarstart. Ladda om sidan för att säkerställa korrekt filtrering.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "This entry must be the last one",

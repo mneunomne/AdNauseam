@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Shaandhooyinka isqurxintu waxay u adeegaan inay ku qariyaan walxaha ku jira bogga shabakadda kuwaas oo loo arko inay dhib ku yihiin aragga, oo aanay xannibi karin matoorada shaandhaynta ku salaysan codsiga shabakadda.",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Iska daa filtarrada guud ee qurxinta",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Shaandhooyinka isqurxinta guud waa filtarrada qurxinta kuwaas oo loogu talagalay in lagu dabaqo dhammaan shabakadaha internetka. Awood u yeelashada doorashadan waxay meesha ka saaraysaa xusuusta iyo dusha sare ee CPU ee lagu daray boggaga internetka taasoo ka dhalatay maaraynta filtarrada isqurxinta guud. ",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "Malware domains",
-    "description": "English: Malware domains"
+    "message": "Malware protection, security",
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Waxaa lagu talinayaa in lagu suurtageliyo doorashadan aaladaha awoodda yar.",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Liisaska martida la xannibay",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Codso isbeddelada",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Lagu dhex dhisay",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Xayeysiisyada",
@@ -951,6 +951,14 @@
     "message": "To avoid burdening volunteers with duplicate reports, please verify that the issue has not already been reported.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Filter lists are updated daily. Be sure your issue has not already been addressed in the most recent filter lists.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Verify that the issue still exists after reloading the problematic webpage.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Address of the web page:",
     "description": "Label for the URL of the page"
@@ -1268,8 +1276,8 @@
     "description": "Summary of number of errors as reported by the linter "
   },
   "unprocessedRequestTooltip": {
-    "message": "Could not filter properly at browser launch.\nReload the page to ensure proper filtering.",
-    "description": "Tooltip for the toolbar icon. Use newline character(s) where appropriate to prevent tooltip from being too long horizontally"
+    "message": "Could not filter properly at browser launch. Reload the page to ensure proper filtering.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "This entry must be the last one",

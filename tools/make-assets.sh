@@ -11,6 +11,15 @@ echo "*** Packaging assets in $DES... "
 rm -rf $DES
 cp -R ./assets $DES/
 
+VERSION=$(cat ./dist/version)
+if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "*** Removing $DES/assets.dev.json"
+    rm $DES/assets.dev.json
+else
+    echo "*** Removing $DES/assets.json"
+    rm $DES/assets.json
+fi
+
 mkdir $DES/thirdparties
 
 ASSETS_MAIN=dist/build/uAssets/main
@@ -21,7 +30,8 @@ cp -R $ASSETS_MAIN/thirdparties/publicsuffix.org $DES/thirdparties/
 cp -R $ASSETS_MAIN/thirdparties/urlhaus-filter   $DES/thirdparties/
 
 mkdir -p $DES/thirdparties/easylist
-cp $ASSETS_PROD/thirdparties/easy*.txt $DES/thirdparties/easylist/
+cp $ASSETS_PROD/thirdparties/easylist.txt $DES/thirdparties/easylist/
+cp $ASSETS_PROD/thirdparties/easyprivacy.txt $DES/thirdparties/easylist/
 
 cp -R ./thirdparties/www.eff.org                                 $DES/thirdparties/ # ADN
 

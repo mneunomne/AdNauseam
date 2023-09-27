@@ -673,6 +673,11 @@ const dnrAddRuleError = (rule, msg) => {
     rule._error.push(msg);
 };
 
+const dnrAddRuleWarning = (rule, msg) => {
+    rule._warning = rule._warning || [];
+    rule._warning.push(msg);
+};
+
 /*******************************************************************************
 
     Filter classes
@@ -1500,7 +1505,7 @@ const compileDomainOpt = (ctors, iterable, prepend, units) => {
         if ( len <= beg ) {  continue; }
         if ( s.charCodeAt(beg) === 0x2F /* / */ ) {
             if ( beg === 0 ) { regexHits.push(s); continue; }
-            regexMisses.push(s); continue;
+            regexMisses.push(s.slice(1)); continue;
         }
         if ( s.endsWith('.*') === false ) {
             if ( beg === 0 ) { hostnameHits.push(s); continue; }
@@ -4385,8 +4390,9 @@ FilterContainer.prototype.dnrFromCompiled = function(op, context, ...args) {
                 hn => hn.endsWith('.*') === false
             );
             if ( domains.length === 0 ) {
-                dnrAddRuleError(rule, `Could not salvage rule with only entity-based domain= option: ${rule.condition.initiatorDomains.join('|')}`);
+                dnrAddRuleError(rule, `Can't salvage rule with only entity-based domain= option: ${rule.condition.initiatorDomains.join('|')}`);
             } else {
+                dnrAddRuleWarning(rule, `Salvaged rule by ignoring ${rule.condition.initiatorDomains.length - domains.length} entity-based domain= option: ${rule.condition.initiatorDomains.join('|')}`);
                 rule.condition.initiatorDomains = domains;
             }
         }

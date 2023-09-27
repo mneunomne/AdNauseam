@@ -464,40 +464,40 @@
     "description": "English: Lists of blocked hosts"
   },
   "3pApplyChanges": {
-    "message": "Käytä muutoksia",
+    "message": "Vahvista muutokset",
     "description": "English: Apply changes"
   },
   "3pGroupDefault": {
     "message": "Laajennukseen sisältyvät",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Mainokset",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Tietosuoja",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "Haittaohjelmia jakelevat verkkotunnukset",
-    "description": "English: Malware domains"
+    "message": "Haittaohjelmasuojaus, tietoturva",
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Ärsykkeet",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Yleishyödylliset",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Alueet, kielet",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Muut listat",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Tuo…",
@@ -544,7 +544,7 @@
     "description": "English: my-ublock-static-filters_{{datetime}}.txt"
   },
   "1pApplyChanges": {
-    "message": "Käytä muutoksia",
+    "message": "Vahvista muutokset",
     "description": "English: Apply changes"
   },
   "rulesPermanentHeader": {
@@ -628,7 +628,7 @@
     "description": "The default filename to use for import/export purpose"
   },
   "whitelistApply": {
-    "message": "Käytä muutoksia",
+    "message": "Vahvista muutokset",
     "description": "English: Apply changes"
   },
   "logRequestsHeaderType": {
@@ -951,6 +951,14 @@
     "message": "Välttääksesi vapaaehtoisten kuormittamisen ylimääräisillä ilmoituksilla, tarkista ensin onko ongelmasta jo ilmoitettu.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Suodatinlistoja päivitetään päivittäin. Varmista, ettei ongelmaasi ole jo korjattu listojen uusissa versioissa.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Vahvista ongelman edelleen esiintyvän kyseisellä verkkosivulla.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Verkkosivun osoite:",
     "description": "Label for the URL of the page"
@@ -1036,7 +1044,7 @@
     "description": "Shown in the About pane"
   },
   "aboutCDNsInfo": {
-    "message": "Suodatinlistat päivitetään käyttäen satunnaista sisällönjakeluverkkoa",
+    "message": "Suodatinlistat päivitetään satunnaisesti valitusta sisällönjakeluverkosta (CDN).",
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
@@ -1192,7 +1200,7 @@
     "description": "for generic 'Submit' buttons"
   },
   "genericApplyChanges": {
-    "message": "Käytä muutoksia",
+    "message": "Vahvista muutokset",
     "description": "for generic 'Apply changes' buttons"
   },
   "genericRevert": {
@@ -1268,8 +1276,8 @@
     "description": "Summary of number of errors as reported by the linter "
   },
   "unprocessedRequestTooltip": {
-    "message": "Suodatus ei onnistunut selaimen käynnistyessä kunnolla.\nLataa sivu uudelleen varmistaaksesi kunnollisen suodatuksen.",
-    "description": "Tooltip for the toolbar icon. Use newline character(s) where appropriate to prevent tooltip from being too long horizontally"
+    "message": "Suodatus ei onnistunut kunnolla selaimen käynnistyessä. Päivitä sivu varmistaaksesi kunnollisen suodatuksen.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "Tämän on oltava viimeinen merkintä",

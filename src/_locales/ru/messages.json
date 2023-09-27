@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Встроенные",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Реклама",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Приватность",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "Вредоносные домены",
-    "description": "English: Malware domains"
+    "message": "Защита от вредоносных сайтов, безопасность",
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Раздражающие элементы",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Многоцелевые",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Регионы, языки",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Пользовательские",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Импортировать...",
@@ -951,6 +951,14 @@
     "message": "Чтобы не обременять волонтеров дублированными отчетами, пожалуйста, убедитесь, что о данной проблеме еще не сообщали",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Списки фильтров обновляются ежедневно. Убедитесь, что ваша проблема не была решена в свежих списках фильтров.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Удостоверьтесь, что проблема воспроизводится даже после обновления проблемной страницы.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Адрес веб-страницы:",
     "description": "Label for the URL of the page"
@@ -1269,7 +1277,7 @@
   },
   "unprocessedRequestTooltip": {
     "message": "Не удалось выполнить фильтрацию при запуске браузера.\nПерезагрузите страницу, чтобы обеспечить фильтрацию.",
-    "description": "Tooltip for the toolbar icon. Use newline character(s) where appropriate to prevent tooltip from being too long horizontally"
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "Эта запись должна быть последней",
