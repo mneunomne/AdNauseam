@@ -28,11 +28,14 @@
 import {
     browser,
     dnr,
+    localRead, localWrite,
+    sessionRead, sessionWrite,
 } from './ext.js';
 
 import {
     hostnamesFromMatches,
     isDescendantHostnameOfIter,
+    toBroaderHostname,
 } from './utils.js';
 
 import {
@@ -54,6 +57,17 @@ const pruneDescendantHostnamesFromSet = (hostname, hnSet) => {
 
 /******************************************************************************/
 
+const pruneHostnameFromSet = (hostname, hnSet) => {
+    let hn = hostname;
+    for (;;) {
+        hnSet.delete(hn);
+        hn = toBroaderHostname(hn);
+        if ( hn === '*' ) { break; }
+    }
+};
+
+/******************************************************************************/
+
 const eqSets = (setBefore, setAfter) => {
     for ( const hn of setAfter ) {
         if ( setBefore.has(hn) === false ) { return false; }
@@ -66,39 +80,64 @@ const eqSets = (setBefore, setAfter) => {
 
 /******************************************************************************/
 
-// 0:      no blocking => TRUSTED_DIRECTIVE_BASE_RULE_ID / requestDomains
-// 1:          network => BLOCKING_MODES_RULE_ID / excludedInitiatorDomains
-// 2: specific content => BLOCKING_MODES_RULE_ID / excludedRequestDomains
-// 3:  generic content => BLOCKING_MODES_RULE_ID / initiatorDomains
+// 0:      no blocking
+// 1:          network
+// 2: specific content
+// 3:  generic content
 
-let filteringModeDetailsPromise;
-
-function getActualFilteringModeDetails() {
-    if ( filteringModeDetailsPromise !== undefined ) {
-        return filteringModeDetailsPromise;
+async function getActualFilteringModeDetails() {
+    if ( getActualFilteringModeDetails.cache ) {
+        return getActualFilteringModeDetails.cache;
     }
-    filteringModeDetailsPromise = Promise.all([
-        getDynamicRules(),
-        getAllTrustedSiteDirectives(),
-    ]).then(results => {
-        const [ dynamicRuleMap, trustedSiteDirectives ] = results;
-        const details = {
-            none: new Set(trustedSiteDirectives),
-        };
-        const rule = dynamicRuleMap.get(BLOCKING_MODES_RULE_ID);
-        if ( rule ) {
-            details.network = new Set(rule.condition.excludedInitiatorDomains);
-            details.extendedSpecific = new Set(rule.condition.excludedRequestDomains);
-            details.extendedGeneric = new Set(rule.condition.initiatorDomains);
-        } else {
-            details.network = new Set([ 'all-urls' ]);
-            details.extendedSpecific = new Set();
-            details.extendedGeneric = new Set();
+    let details = await sessionRead('filteringModeDetails');
+    if ( details === undefined ) {
+        details = await localRead('filteringModeDetails');
+        if ( details === undefined ) {
+            details = await getActualFilteringModeDetails.convertLegacyStorage();
+            if ( details === undefined ) {
+                details = {
+                    network: [ 'all-urls' ],
+                };
+            }
         }
-        return details;
-    });
-    return filteringModeDetailsPromise;
+        if ( details ) {
+            sessionWrite('filteringModeDetails', details);
+        }
+    }
+    const out = {
+        none: new Set(details.none),
+        network: new Set(details.network),
+        extendedSpecific: new Set(details.extendedSpecific),
+        extendedGeneric: new Set(details.extendedGeneric),
+    };
+    getActualFilteringModeDetails.cache = out;
+    return out;
 }
+
+// TODO: To remove after next stable release is widespread (2023-06-04)
+getActualFilteringModeDetails.convertLegacyStorage = async function() {
+    const dynamicRuleMap = await getDynamicRules();
+    const trustedSiteDirectives = (( ) => {
+        const rule = dynamicRuleMap.get(TRUSTED_DIRECTIVE_BASE_RULE_ID);
+        return rule ? rule.condition.requestDomains : [];
+    })();
+    const rule = dynamicRuleMap.get(BLOCKING_MODES_RULE_ID);
+    if ( rule === undefined ) { return; }
+    dnr.updateDynamicRules({
+        removeRuleIds: [
+            BLOCKING_MODES_RULE_ID,
+        ],
+    });
+    const details = {
+        none: trustedSiteDirectives || [],
+        network: rule.condition.excludedInitiatorDomains || [],
+        extendedSpecific: rule.condition.excludedRequestDomains || [],
+        extendedGeneric: rule.condition.initiatorDomains || [],
+    };
+    sessionWrite('filteringModeDetails', details);
+    localWrite('filteringModeDetails', details);
+    return details;
+};
 
 /******************************************************************************/
 
@@ -115,93 +154,81 @@ async function getFilteringModeDetails() {
 /******************************************************************************/
 
 async function setFilteringModeDetails(afterDetails) {
-    const [ dynamicRuleMap, actualDetails ] = await Promise.all([
-        getDynamicRules(),
-        getActualFilteringModeDetails(),
-    ]);
-    const addRules = [];
-    const removeRuleIds = [];
+    const actualDetails = await getActualFilteringModeDetails();
     if ( eqSets(actualDetails.none, afterDetails.none) === false ) {
-        actualDetails.none = afterDetails.none;
+        const dynamicRuleMap = await getDynamicRules();
+        const removeRuleIds = [];
         if ( dynamicRuleMap.has(TRUSTED_DIRECTIVE_BASE_RULE_ID) ) {
             removeRuleIds.push(TRUSTED_DIRECTIVE_BASE_RULE_ID);
             dynamicRuleMap.delete(TRUSTED_DIRECTIVE_BASE_RULE_ID);
         }
-        const rule = {
-            id: TRUSTED_DIRECTIVE_BASE_RULE_ID,
-            action: { type: 'allowAllRequests' },
-            condition: {
-                requestDomains: [],
-                resourceTypes: [ 'main_frame' ],
-            },
-            priority: 100,
-        };
-        if ( actualDetails.none.size ) {
-            rule.condition.requestDomains = Array.from(actualDetails.none);
+        const addRules = [];
+        if ( afterDetails.none.size !== 0 ) {
+            const rule = {
+                id: TRUSTED_DIRECTIVE_BASE_RULE_ID,
+                action: { type: 'allowAllRequests' },
+                condition: {
+                    resourceTypes: [ 'main_frame' ],
+                },
+                priority: 100,
+            };
+            if (
+                afterDetails.none.size !== 1 ||
+                afterDetails.none.has('all-urls') === false
+            ) {
+                rule.condition.requestDomains = Array.from(afterDetails.none);
+            }
             addRules.push(rule);
             dynamicRuleMap.set(TRUSTED_DIRECTIVE_BASE_RULE_ID, rule);
         }
-    }
-    if (
-        eqSets(actualDetails.network, afterDetails.network) === false ||
-        eqSets(actualDetails.extendedSpecific, afterDetails.extendedSpecific) === false ||
-        eqSets(actualDetails.extendedGeneric, afterDetails.extendedGeneric) === false
-    ) {
-        actualDetails.network = afterDetails.network;
-        actualDetails.extendedSpecific = afterDetails.extendedSpecific;
-        actualDetails.extendedGeneric = afterDetails.extendedGeneric;
-        if ( dynamicRuleMap.has(BLOCKING_MODES_RULE_ID) ) {
-            removeRuleIds.push(BLOCKING_MODES_RULE_ID);
-            dynamicRuleMap.delete(BLOCKING_MODES_RULE_ID);
-        }
-        const rule = {
-            id: BLOCKING_MODES_RULE_ID,
-            action: { type: 'allow' },
-            condition: {
-                resourceTypes: [ 'main_frame' ],
-                urlFilter: '||ubol-blocking-modes.invalid^',
-            },
-        };
-        if ( actualDetails.network.size ) {
-            rule.condition.excludedInitiatorDomains =
-                Array.from(actualDetails.network);
-        }
-        if ( actualDetails.extendedSpecific.size ) {
-            rule.condition.excludedRequestDomains =
-                Array.from(actualDetails.extendedSpecific);
-        }
-        if ( actualDetails.extendedGeneric.size ) {
-            rule.condition.initiatorDomains =
-                Array.from(actualDetails.extendedGeneric);
-        }
-        if (
-            actualDetails.network.size ||
-            actualDetails.extendedSpecific.size ||
-            actualDetails.extendedGeneric.size
-        )  {
-            addRules.push(rule);
-            dynamicRuleMap.set(BLOCKING_MODES_RULE_ID, rule);
+        if ( addRules.length !== 0 || removeRuleIds.length !== 0 ) {
+            const updateOptions = {};
+            if ( addRules.length ) {
+                updateOptions.addRules = addRules;
+            }
+            if ( removeRuleIds.length ) {
+                updateOptions.removeRuleIds = removeRuleIds;
+            }
+            await dnr.updateDynamicRules(updateOptions);
         }
     }
-    if ( addRules.length === 0 && removeRuleIds.length === 0 ) { return; }
-    const updateOptions = {};
-    if ( addRules.length ) {
-        updateOptions.addRules = addRules;
-    }
-    if ( removeRuleIds.length ) {
-        updateOptions.removeRuleIds = removeRuleIds;
-    }
-    return dnr.updateDynamicRules(updateOptions);
+    const data = {
+        none: Array.from(afterDetails.none),
+        network: Array.from(afterDetails.network),
+        extendedSpecific: Array.from(afterDetails.extendedSpecific),
+        extendedGeneric: Array.from(afterDetails.extendedGeneric),
+    };
+    sessionWrite('filteringModeDetails', data);
+    localWrite('filteringModeDetails', data);
+    getActualFilteringModeDetails.cache = undefined;
 }
 
 /******************************************************************************/
 
 async function getFilteringMode(hostname) {
     const filteringModes = await getFilteringModeDetails();
-    if ( filteringModes.none.has(hostname) ) { return 0; }
-    if ( filteringModes.network.has(hostname) ) { return 1; }
-    if ( filteringModes.extendedSpecific.has(hostname) ) { return 2; }
-    if ( filteringModes.extendedGeneric.has(hostname) ) { return 3; }
+    const {
+        none,
+        network,
+        extendedSpecific,
+        extendedGeneric,
+    } = filteringModes;
+    if ( none.has(hostname) ) { return 0; }
+    if ( none.has('all-urls')  === false ) {
+        if ( isDescendantHostnameOfIter(hostname, none) ) { return 0; }
+    }
+    if ( network.has(hostname) ) { return 1; }
+    if ( network.has('all-urls')  === false ) {
+        if ( isDescendantHostnameOfIter(hostname, network) ) { return 1; }
+    }
+    if ( extendedSpecific.has(hostname) ) { return 2; }
+    if ( extendedSpecific.has('all-urls')  === false ) {
+        if ( isDescendantHostnameOfIter(hostname, extendedSpecific) ) { return 2; }
+    }
+    if ( extendedGeneric.has(hostname) ) { return 3; }
+    if ( extendedGeneric.has('all-urls')  === false ) {
+        if ( isDescendantHostnameOfIter(hostname, extendedGeneric) ) { return 3; }
+    }
     return getDefaultFilteringMode();
 }
 
@@ -229,16 +256,16 @@ async function setFilteringMode(hostname, afterLevel) {
     } = filteringModes;
     switch ( beforeLevel ) {
     case 0:
-        none.delete(hostname);
+        pruneHostnameFromSet(hostname, none);
         break;
     case 1:
-        network.delete(hostname);
+        pruneHostnameFromSet(hostname, network);
         break;
     case 2:
-        extendedSpecific.delete(hostname);
+        pruneHostnameFromSet(hostname, extendedSpecific);
         break;
     case 3:
-        extendedGeneric.delete(hostname);
+        pruneHostnameFromSet(hostname, extendedGeneric);
         break;
     }
     if ( afterLevel !== defaultLevel ) {
@@ -359,21 +386,11 @@ async function syncWithBrowserPermissions() {
 
 /******************************************************************************/
 
-async function getAllTrustedSiteDirectives() {
-    const dynamicRuleMap = await getDynamicRules();
-    const rule = dynamicRuleMap.get(TRUSTED_DIRECTIVE_BASE_RULE_ID);
-    if ( rule === undefined ) { return []; }
-    return rule.condition.requestDomains;
-}
-
-/******************************************************************************/
-
 export {
     getFilteringMode,
     setFilteringMode,
     getDefaultFilteringMode,
     setDefaultFilteringMode,
     getFilteringModeDetails,
-    getAllTrustedSiteDirectives,
     syncWithBrowserPermissions,
 };

@@ -679,9 +679,9 @@ vAPI.DOMFilterer = class {
             const proceduralFilterer = this.proceduralFiltererInstance();
             if ( proceduralFilterer !== null ) {
                 for ( const json of this.convertedProceduralFilters ) {
-                    out.procedural.push(
-                        proceduralFilterer.createProceduralFilter(json)
-                    );
+                    const pfilter = proceduralFilterer.createProceduralFilter(json);
+                    pfilter.converted = true;
+                    out.procedural.push(pfilter);
                 }
             }
         }
@@ -1440,7 +1440,7 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
         const {
             noSpecificCosmeticFiltering,
             noGenericCosmeticFiltering,
-            scriptlets,
+            scriptletDetails,
         } = response;
 
         vAPI.noSpecificCosmeticFiltering = noSpecificCosmeticFiltering;
@@ -1464,10 +1464,12 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
 
         // Library of resources is located at:
         // https://github.com/gorhill/uBlock/blob/master/assets/ublock/resources.txt
-        if ( scriptlets && typeof self.uBO_scriptletsInjected !== 'boolean' ) {
-            self.uBO_scriptletsInjected = true;
-            vAPI.injectScriptlet(document, scriptlets);
-            vAPI.injectedScripts = scriptlets;
+        if ( scriptletDetails && typeof self.uBO_scriptletsInjected !== 'string' ) {
+            self.uBO_scriptletsInjected = scriptletDetails.filters;
+            if ( scriptletDetails.mainWorld ) {
+                vAPI.injectScriptlet(document, scriptletDetails.mainWorld);
+                vAPI.injectedScripts = scriptletDetails.mainWorld;
+            }
         }
 
         if ( vAPI.domSurveyor ) {
@@ -1490,7 +1492,7 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
         vAPI.messaging.send('contentscript', {
             what: 'retrieveContentScriptParameters',
             url: vAPI.effectiveSelf.location.href,
-            needScriptlets: typeof self.uBO_scriptletsInjected !== 'boolean',
+            needScriptlets: typeof self.uBO_scriptletsInjected !== 'string',
         }).then(response => {
             onResponseReady(response);
         });

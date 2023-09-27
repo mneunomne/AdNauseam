@@ -127,8 +127,8 @@
  * */
 :root {
     --font-size: 14px;
-    --font-size-smaller: 13px;
-    --font-size-xsmall: 11px;
+    --font-size-smaller: calc(var(--font-size) - 1px);
+    --font-size-xsmall: calc(var(--font-size) - 3px);
     --font-size-larger: 15px;
     --font-family: Inter, sans-serif;
     --monospace-size: 12px;
@@ -298,11 +298,13 @@
     --df-strictBlock-ink: var(--cm-red);
 
     /* logger */
-    --logger-blocked-surface: #c0000059;
-    --logger-modified-surface: #5b00c06b;
-    --logger-allowed-surface: #00a0004a;
-    --logger-blocked-em-surface: #c0000036;
+    --logger-blocked-surface: #c0000059; /* Adn */
+    --logger-modified-surface: #5b00c06b; /* Adn */
+    --logger-allowed-surface: #00a0004a; /* Adn */
+    --logger-blocked-em-surface: #c0000036; /* Adn */
     --logger-modified-em-surface: #0000c028;
+    --logger-redirected-surface: rgb(var(--yellow-5) / 50%);
+    --logger-scriptlet-surface: rgb(var(--yellow-30) / 50%);
 }
 
 /**
@@ -388,6 +390,7 @@
     /* logger */
     --logger-modified-surface: #663efd60;
     --logger-redirected-surface: rgb(var(--yellow-5) / 40%);
+    --logger-scriptlet-surface: rgb(var(--yellow-30) / 40%);
 }
 
 :root.dark input,
@@ -431,6 +434,7 @@
     --checkbox-ink: var(--ink-3);
     --checkbox-checked-ink: var(--accent-surface-1);
     --checkbox-disabled-filter: opacity(50%);
+    --checkbox-margin-end: calc(var(--font-size) * 0.75);
 
     --notice-ink: var(--accent-ink-1);
     --notice-surface: var(--accent-surface-1);

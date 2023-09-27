@@ -366,11 +366,11 @@ const getAssetSourceRegistry = function() {
                 return assetSourceRegistry;
             }
             return assets.fetchText(
-                µb.assetsBootstrapLocation || 'assets/assets.json'
+                µb.assetsBootstrapLocation || µb.assetsJsonPath
             ).then(details => {
                 return details.content !== ''
                     ? details
-                    : assets.fetchText('assets/assets.json');
+                    : assets.fetchText(µb.assetsJsonPath);
             }).then(details => {
                 updateAssetSourceRegistry(details.content, true);
                 return assetSourceRegistry;
@@ -409,7 +409,7 @@ const registerAssetSource = function(assetKey, newDict) {
         currentDict.contentURL = [];
     }
     if ( typeof currentDict.updateAfter !== 'number' ) {
-        currentDict.updateAfter = 5;
+        currentDict.updateAfter = 7;
     }
     if ( currentDict.submitter ) {
         currentDict.submitTime = Date.now(); // To detect stale entries
@@ -821,7 +821,7 @@ const getRemote = async function(assetKey) {
     const assetDetails = assetRegistry[assetKey] || {};
 
     const reportBack = function(content, err) {
-        const details = { assetKey: assetKey, content: content };
+        const details = { assetKey, content };
         if ( err ) {
             details.error = assetDetails.lastError = err;
         } else {
@@ -857,8 +857,18 @@ const getRemote = async function(assetKey) {
         }
     }
 
-    for ( const contentURL of contentURLs ) {
+    for ( let contentURL of contentURLs ) {
         if ( reIsExternalPath.test(contentURL) === false ) { continue; }
+
+        // This will force uBO to fetch the proper version according to whether
+        // the dev build is being used. This can be removed when execution of
+        // this code path is widespread for dev build revisions of uBO.
+        if ( assetKey === 'assets.json' ) {
+            contentURL = contentURL.replace(
+                /\/assets\/assets\.json$/,
+                µb.assetsJsonPath
+            );
+        }
 
         const result = assetDetails.content === 'filters'
             ? await assets.fetchFilterList(contentURL)
@@ -956,6 +966,29 @@ assets.rmrf = function() {
 
 /******************************************************************************/
 
+assets.getUpdateAges = async function(conditions = {}) {
+    const assetDict = await assets.metadata();
+    const now = Date.now();
+    const out = [];
+    for ( const [ assetKey, asset ] of Object.entries(assetDict) ) {
+        if ( asset.hasRemoteURL !== true ) { continue; }
+        const tokens = conditions[asset.content];
+        if ( Array.isArray(tokens) === false ) { continue; }
+        if ( tokens.includes('*') === false ) {
+            if ( tokens.includes(assetKey) === false ) { continue; }
+        }
+        const age = now  - (asset.writeTime || 0);
+        out.push({
+            assetKey,
+            age,
+            ageNormalized: age / (asset.updateAfter * 86400000),
+        });
+    }
+    return out;
+};
+
+/******************************************************************************/
+
 // Asset updater area.
 const updaterAssetDelayDefault = 120000;
 const updaterUpdated = [];
@@ -1028,7 +1061,7 @@ const updateNext = async function() {
     ) {
         result = await getRemote(toUpdate[0]);
     } else {
-        result = await assets.fetchText('/assets/assets.json');
+        result = await assets.fetchText(µb.assetsJsonPath);
         result.assetKey = 'assets.json';
     }
 

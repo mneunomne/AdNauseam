@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Iebūvētie",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Reklāmas",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Konfidencialitāte",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
     "message": "Ļaundabīgo programmu domēni",
-    "description": "English: Malware domains"
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Traucējoši elementi",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Daudzfunkcionālie",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Reģionālie, valodas",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Lietotāja",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Importēt…",
@@ -951,6 +951,14 @@
     "message": "Lai izvairītos no brīvprātīgo noslogošanas ar ziņojumiem, kas atkārtojas, lūgums pārbaudīt, vai par šādu nepilnību jau ir ziņots.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Aizturēšanas saraksti tiek atjaunināti ik dienu. Jāpārliecinās, vai nepilnība jau nav novērsta visjaunākajos aizturēšanas sarakstos.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Jāpārliecinās, vai nepilnība joprojām pastāv pēc tīmekļa vietnes ar sarežģījumiem pārlādēšanas.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Tīmekļa lapas adrese:",
     "description": "Label for the URL of the page"
@@ -1269,7 +1277,7 @@
   },
   "unprocessedRequestTooltip": {
     "message": "Nevarēja pienācīgi aizturēt pārlūka palaišanas laikā.\nJāpārlādē lapa, lai nodrošinātu pienācīgu aizturēšanu.",
-    "description": "Tooltip for the toolbar icon. Use newline character(s) where appropriate to prevent tooltip from being too long horizontally"
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "Šim ierakstam ir jābūt pēdējam",

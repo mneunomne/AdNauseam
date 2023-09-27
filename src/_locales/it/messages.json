@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Integrati",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Pubblicità",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Privacy",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
     "message": "Domini con Malware",
-    "description": "English: Malware domains"
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Elementi fastidiosi",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Multiuso",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Regioni, lingue",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Personalizzate",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Importa...",
@@ -951,6 +951,14 @@
     "message": "Per evitare di appesantire i volontari con segnalazioni doppie, verifica che il problema non sia già stato segnalato.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Gli elenchi dei filtri vengono aggiornati quotidianamente. Assicurati che il tuo problema non sia già stato risolto negli elenchi di filtri più recenti.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Verifica che il problema sussista ancora dopo aver ricaricato la pagina web problematica.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Indirizzo della pagina web:",
     "description": "Label for the URL of the page"
@@ -1269,7 +1277,7 @@
   },
   "unprocessedRequestTooltip": {
     "message": "Non è stato possibile filtrare correttamente all'avvio del browser.\nRicaricare la pagina per garantire un filtraggio corretto",
-    "description": "Tooltip for the toolbar icon. Use newline character(s) where appropriate to prevent tooltip from being too long horizontally"
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "This entry must be the last one",

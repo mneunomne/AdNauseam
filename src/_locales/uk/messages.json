@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Вбудовані",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Реклама",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Конфіденційність",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
     "message": "Домени шкідливих програм",
-    "description": "English: Malware domains"
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Надокучливості",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Універсальні",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Регіони, мови",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Користувацькі",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Імпорт...",
@@ -951,6 +951,14 @@
     "message": "Щоб не обтяжувати волонтерів повторюваними звітами, переконайтеся, що про проблему ще не повідомлялося.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Списки фільтрів оновлюються щоденно. Переконайтесь, що ваша проблема все ще не виправлена в найсвіжішому списку фільтрів",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Переконайтесь, що проблема все ще присутня після перезавантаження проблемної сторінки",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Адреса вебсторінки:",
     "description": "Label for the URL of the page"
@@ -1269,7 +1277,7 @@
   },
   "unprocessedRequestTooltip": {
     "message": "Неможливо правильно фільтрувати під час запуску браузера.\nПерезапустіть сторінку для гарантії правильного фільтрування",
-    "description": "Tooltip for the toolbar icon. Use newline character(s) where appropriate to prevent tooltip from being too long horizontally"
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "Цей запис має бути останнім",

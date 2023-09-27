@@ -91,62 +91,38 @@ vAPI.app = {
 /******************************************************************************/
 /******************************************************************************/
 
-vAPI.storage = webext.storage.local;
-
-/******************************************************************************/
-/******************************************************************************/
-
-vAPI.alarms = {
-    create(callback) {
-        this.uniqueIdGenerator += 1;
-        const name = this.uniqueIdGenerator.toString(36);
-        const client = new this.Client(name, callback);
-        this.clientMap.set(name, client);
-        return client;
+vAPI.storage = {
+    get(...args) {
+        return webext.storage.local.get(...args).catch(reason => {
+            console.log(reason);
+        });
     },
-    Client: class {
-        constructor(name, callback) {
-            this.name = name;
-            this.callback = callback;
-        }
-        on(delay) {
-            const delayInMinutes = this.normalizeDelay(delay);
-            browser.alarms.get(this.name, alarm => {
-                if ( alarm ) { return; }
-                return browser.alarms.create(this.name, { delayInMinutes });
-            });
-        }
-        offon(delay) {
-            const delayInMinutes = this.normalizeDelay(delay);
-            return browser.alarms.create(this.name, { delayInMinutes });
-        }
-        off() {
-            return browser.alarms.clear(this.name);
-        }
-        normalizeDelay(delay) {
-            let delayInMinutes = 0;
-            if ( typeof delay === 'number' ) {
-                delayInMinutes = delay;
-            } else if ( typeof delay === 'object' ) {
-                if ( delay.sec !== undefined ) {
-                    delayInMinutes = delay.sec / 60;
-                } else if ( delay.ms !== undefined ) {
-                    delayInMinutes = delay.ms / 60000;
-                }
-            }
-            return Math.max(delayInMinutes, 1);
-        }
+    set(...args) {
+        return webext.storage.local.set(...args).catch(reason => {
+            console.log(reason);
+        });
     },
-    onAlarm(alarm) {
-        const client = this.clientMap.get(alarm.name);
-        if ( client === undefined ) { return; }
-        client.callback(alarm);
+    remove(...args) {
+        return webext.storage.local.remove(...args).catch(reason => {
+            console.log(reason);
+        });
     },
-    clientMap: new Map(),
-    uniqueIdGenerator: 1000000,
+    clear(...args) {
+        return webext.storage.local.clear(...args).catch(reason => {
+            console.log(reason);
+        });
+    },
+    QUOTA_BYTES: browser.storage.local.QUOTA_BYTES,
 };
 
-browser.alarms.onAlarm.addListener(alarm => vAPI.alarms.onAlarm(alarm));
+// Not all platforms support getBytesInUse
+if ( webext.storage.local.getBytesInUse instanceof Function ) {
+    vAPI.storage.getBytesInUse = function(...args) {
+        return webext.storage.local.getBytesInUse(...args).catch(reason => {
+            console.log(reason);
+        });
+    };
+}
 
 /******************************************************************************/
 /******************************************************************************/
@@ -1447,7 +1423,7 @@ vAPI.Net = class {
 // To be defined by platform-specific code.
 
 vAPI.scriptletsInjector = (( ) => {
-    self.uBO_scriptletsInjected = true;
+    self.uBO_scriptletsInjected = '';
 }).toString();
 
 /******************************************************************************/
@@ -1754,7 +1730,7 @@ vAPI.cloud = (( ) => {
         try {
             bin = await webext.storage.sync.get(keys);
         } catch (reason) {
-            return reason;
+            return String(reason);
         }
         let chunkCount = 0;
         for ( let i = 0; i < maxChunkCountPerItem; i += 16 ) {

@@ -639,6 +639,54 @@ const getElementCount = async function(tabId, what) {
     return total;
 };
 
+const launchReporter = async function(request) {
+    const pageStore = µb.pageStoreFromTabId(request.tabId);
+    if ( pageStore === null ) { return; }
+    if ( pageStore.hasUnprocessedRequest ) {
+        request.popupPanel.hasUnprocessedRequest = true;
+    }
+
+    const entries = await io.getUpdateAges({
+        filters: µb.selectedFilterLists.slice()
+    });
+    let shoudUpdateLists = false;
+    for ( const entry of entries ) {
+        if ( entry.age < (2 * 60 * 60 * 1000) ) { continue; }
+        io.purge(entry.assetKey);
+        shoudUpdateLists = true;
+    }
+
+    // https://github.com/gorhill/uBlock/commit/6efd8eb#commitcomment-107523558
+    //   Important: for whatever reason, not using `document_start` causes the
+    //   Promise returned by `tabs.executeScript()` to resolve only when the
+    //   associated tab is closed.
+    const cosmeticSurveyResults = await vAPI.tabs.executeScript(request.tabId, {
+        allFrames: true,
+        file: '/js/scriptlets/cosmetic-report.js',
+        matchAboutBlank: true,
+        runAt: 'document_start',
+    });
+
+    const filters = cosmeticSurveyResults.reduce((a, v) => {
+        if ( Array.isArray(v) ) { a.push(...v); }
+        return a;
+    }, []);
+    // Remove duplicate, truncate too long filters.
+    if ( filters.length !== 0 ) {
+        request.popupPanel.extended = Array.from(
+            new Set(filters.map(s => s.length <= 64 ? s : `${s.slice(0, 64)}…`))
+        );
+    }
+
+    const supportURL = new URL(vAPI.getURL('support.html'));
+    supportURL.searchParams.set('pageURL', request.pageURL);
+    supportURL.searchParams.set('popupPanel', JSON.stringify(request.popupPanel));
+    if ( shoudUpdateLists ) {
+        supportURL.searchParams.set('shouldUpdate', 1);
+    }
+    return supportURL.href;
+};
+
 const onMessage = function(request, sender, callback) {
     // Async
     switch ( request.what ) {
@@ -660,36 +708,6 @@ const onMessage = function(request, sender, callback) {
         });
         return;
 
-    // https://github.com/gorhill/uBlock/commit/6efd8eb#commitcomment-107523558
-    //   Important: for whatever reason, not using `document_start` causes the
-    //   Promise returned by `tabs.executeScript()` to resolve only when the
-    //   associated tab is closed.
-    case 'launchReporter': {
-        const pageStore = µb.pageStoreFromTabId(request.tabId);
-        if ( pageStore === null ) { break; }
-        if ( vAPI.net.hasUnprocessedRequest(request.tabId) ) {
-            request.popupPanel.hasUnprocessedRequest = true;
-        }
-        vAPI.tabs.executeScript(request.tabId, {
-            allFrames: true,
-            file: '/js/scriptlets/cosmetic-report.js',
-            matchAboutBlank: true,
-            runAt: 'document_start',
-        }).then(results => {
-            const filters = results.reduce((a, v) => {
-                if ( Array.isArray(v) ) { a.push(...v); }
-                return a;
-            }, []);
-            if ( filters.length !== 0 ) {
-                request.popupPanel.cosmetic = filters;
-            }
-            const supportURL = new URL(vAPI.getURL('support.html'));
-            supportURL.searchParams.set('pageURL', request.pageURL);
-            supportURL.searchParams.set('popupPanel', JSON.stringify(request.popupPanel));
-            µb.openNewTab({ url: supportURL.href, select: true, index: -1 });
-        });
-        return;
-    }
     default:
         break;
     }
@@ -709,6 +727,15 @@ const onMessage = function(request, sender, callback) {
         response = lastModified !== request.contentLastModified;
         break;
     }
+
+    case 'launchReporter': {
+        launchReporter(request).then(url => {
+            if ( typeof url !== 'string' ) { return; }
+            µb.openNewTab({ url, select: true, index: -1 });
+        });
+        break;
+    }
+
     case 'revertFirewallRules':
         // TODO: use Set() to message around sets of hostnames
         sessionFirewall.copyRules(
@@ -858,8 +885,20 @@ const retrieveContentScriptParameters = async function(sender, request) {
     // https://github.com/uBlockOrigin/uBlock-issues/issues/688#issuecomment-748179731
     //   For non-network URIs, scriptlet injection is deferred to here. The
     //   effective URL is available here in `request.url`.
-    if ( request.needScriptlets ) {
-        response.scriptlets = scriptletFilteringEngine.injectNow(request);
+    if ( logger.enabled || request.needScriptlets ) {
+        const scriptletDetails = scriptletFilteringEngine.injectNow(request);
+        if ( scriptletDetails !== undefined ) {
+            if ( logger.enabled ) {
+                scriptletFilteringEngine.logFilters(
+                    tabId,
+                    request.url,
+                    scriptletDetails.filters
+                );
+            }
+            if ( request.needScriptlets ) {
+                response.scriptletDetails = scriptletDetails;
+            }
+        }
     }
 
     // https://github.com/NanoMeow/QuickReports/issues/6#issuecomment-414516623
@@ -1468,6 +1507,22 @@ const getSupportData = async function() {
         filterset.push(line);
     }
 
+    const now = Date.now();
+
+    const formatDelayFromNow = time => {
+        if ( (time || 0) === 0 ) { return '?'; }
+        const delayInSec = (now - time) / 1000;
+        const days = (delayInSec / 86400) | 0;
+        const hours = (delayInSec % 86400) / 3600 | 0;
+        const minutes = (delayInSec % 3600) / 60 | 0;
+        const parts = [];
+        if ( days > 0 ) { parts.push(`${days}d`); }
+        if ( hours > 0 ) { parts.push(`${hours}h`); }
+        if ( minutes > 0 ) { parts.push(`${minutes}m`); }
+        if ( parts.length === 0 ) { parts.push('now'); }
+        return parts.join('.');
+    };
+
     const lists = µb.availableFilterLists;
     let defaultListset = {};
     let addedListset = {};
@@ -1485,16 +1540,7 @@ const getSupportData = async function() {
             if ( typeof list.writeTime !== 'number' || list.writeTime === 0 ) {
                 listDetails.push('never');
             } else {
-                const delta = (Date.now() - list.writeTime) / 1000 | 0;
-                const days = (delta / 86400) | 0;
-                const hours = (delta % 86400) / 3600 | 0;
-                const minutes = (delta % 3600) / 60 | 0;
-                const parts = [];
-                if ( days > 0 ) { parts.push(`${days}d`); }
-                if ( hours > 0 ) { parts.push(`${hours}h`); }
-                if ( minutes > 0 ) { parts.push(`${minutes}m`); }
-                if ( parts.length === 0 ) { parts.push('now'); }
-                listDetails.push(parts.join('.'));
+                listDetails.push(formatDelayFromNow(list.writeTime));
             }
         }
         if ( list.isDefault || listKey === µb.userFiltersPath ) {
@@ -1512,17 +1558,21 @@ const getSupportData = async function() {
     }
     if ( Object.keys(addedListset).length === 0 ) {
         addedListset = undefined;
-    } else if ( Object.keys(addedListset).length > 20 ) {
+    } else {
         const added = Object.keys(addedListset);
-        const truncated = added.slice(20);
+        const truncated = added.slice(12);
         for ( const key of truncated ) {
             delete addedListset[key];
         }
-        addedListset[`[${truncated.length} lists not shown]`] = '[too many]';
+        if ( truncated.length !== 0 ) {
+            addedListset[`[${truncated.length} lists not shown]`] = '[too many]';
+        }
     }
     if ( Object.keys(removedListset).length === 0 ) {
         removedListset = undefined;
     }
+
+    const { versionUpdateTime = 0 } = await vAPI.storage.get('versionUpdateTime');
 
     let browserFamily = (( ) => {
         if ( vAPI.webextFlavor.soup.has('firefox') ) { return 'Firefox'; }
@@ -1534,7 +1584,9 @@ const getSupportData = async function() {
     }
 
     return {
-        [`${vAPI.app.name}`]: `${vAPI.app.version}`,
+        [`${vAPI.app.name} ${vAPI.app.version}`]: {
+            since: formatDelayFromNow(versionUpdateTime),
+        },
         [`${browserFamily}`]: `${vAPI.webextFlavor.major}`,
         'filterset (summary)': {
             network: staticNetFilteringEngine.getFilterCount(),
@@ -1570,8 +1622,8 @@ const getSupportData = async function() {
             sessionURLFiltering.toArray(),
             []
         ),
-        modifiedUserSettings,
-        modifiedHiddenSettings,
+        'userSettings': modifiedUserSettings,
+        'hiddenSettings': modifiedHiddenSettings,
         supportStats: µb.supportStats,
     };
 };
@@ -1665,9 +1717,11 @@ const onMessage = function(request, sender, callback) {
         }
         break;
 
-    case 'purgeCache':
-        io.purge(request.assetKey);
-        io.remove('compiled/' + request.assetKey);
+    case 'purgeCaches':
+        for ( const assetKey of request.assetKeys ) {
+            io.purge(assetKey);
+            io.remove(`compiled/${assetKey}`);
+        }
         break;
 
     case 'readHiddenSettings':

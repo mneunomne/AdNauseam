@@ -356,7 +356,7 @@
     "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
-    "message": "Çaktivizoj kërkesat paraprake (për të mos pasur lidhje me kërkesat e bllokuara)",
+    "message": "Çaktivizoj kërkesat paraprake (për të shmangur lidhjet me kërkesat e bllokuara)",
     "description": "English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt": {
@@ -372,7 +372,7 @@
     "description": ""
   },
   "settingPerSiteSwitchGroupSynopsis": {
-    "message": "Këto vlera mund të ndryshohen për çdo uebsajt",
+    "message": "Këto vlera mund të ndryshohen sipas uebsajtit",
     "description": ""
   },
   "settingsNoCosmeticFilteringPrompt": {
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Lokale",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Reklamat",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Privatësia",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "Domenet e dëmshme",
-    "description": "English: Malware domains"
+    "message": "Domenet e rrezikshme, siguria",
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Elementet e bezdisshme",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Për qëllime të ndryshme",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Sipas rajonit, gjuhës",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Personale",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Importoj…",
@@ -712,7 +712,7 @@
     "description": "A keyword in the built-in row filtering expression"
   },
   "loggerRowFiltererBuiltinAllowed": {
-    "message": "e autorizuar",
+    "message": "e lejuar",
     "description": "A keyword in the built-in row filtering expression"
   },
   "loggerRowFiltererBuiltinModified": {
@@ -788,7 +788,7 @@
     "description": "Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartAllow": {
-    "message": "Autorizoj",
+    "message": "Lejoj",
     "description": "Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartType": {
@@ -916,7 +916,7 @@
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
   "supportS3P2": {
-    "message": "<b>Kujdes:</b> uBlock Origin nuk duhet përdorur njëkohësisht me aplikacionet e ngjashme bllokuese, pasi filtrat mund të shfaqin probleme.",
+    "message": "<b>Kujdes:</b> uBlock Origin nuk duhet përdorur njëkohësisht me aplikacione të ngjashme bllokuese, pasi mund të keni probleme me filtrat.",
     "description": "Second paragraph of 'Filter issues' section in Support pane"
   },
   "supportS3P3": {
@@ -936,7 +936,7 @@
     "description": "Header of 'Troubleshooting Information' section in Support pane"
   },
   "supportS5P1": {
-    "message": "Informacioni teknik i mëposhtëm u shërben personave të cilët përpiqen t'ju ndihmojnë për zgjidhjen e një problemi që mund të keni.",
+    "message": "Informacioni teknik i mëposhtëm u shërben personave të cilët përpiqen të zgjidhin problemin që keni.",
     "description": "First paragraph of 'Troubleshooting Information' section in Support pane"
   },
   "supportS5P2": {
@@ -949,6 +949,14 @@
   },
   "supportS6P1S1": {
     "message": "Verifikoni a është raportuar më parë problemi që të mos i lodhni vullnetarët e tjerë me të njëjtat gjëra.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S1": {
+    "message": "Listat e filtrave përditësohen rregullisht. Sigurohuni që problemi qëndron edhe me listat e reja.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Verifikoni a qëndron problemi nëse e freskoni sërish faqen në fjalë.",
     "description": "A paragraph in the filter issue reporter section"
   },
   "supportS6URL": {
@@ -1036,7 +1044,7 @@
     "description": "Shown in the About pane"
   },
   "aboutCDNsInfo": {
-    "message": "Përditësimi i listave do të kryhet nëpërmjet një CDN-je rastësore",
+    "message": "Përditësimi i listave do të kryhet nëpërmjet një CDN-je rastësore.",
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
@@ -1212,7 +1220,7 @@
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuTemporarilyAllowLargeMediaElements": {
-    "message": "Autorizoj përkohësisht elementet e mëdha multimediale",
+    "message": "Lejoj përkohësisht elementet e mëdha multimediale",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
   "contextMenuViewSource": {
@@ -1268,8 +1276,8 @@
     "description": "Summary of number of errors as reported by the linter "
   },
   "unprocessedRequestTooltip": {
-    "message": "Filtrimi është i paplotë pas hapjes së shfletuesit.\nFreskoni faqen për ta filtruar siç duhet.",
-    "description": "Tooltip for the toolbar icon. Use newline character(s) where appropriate to prevent tooltip from being too long horizontally"
+    "message": "Kur hapet shfletuesi nuk bëhet filtrimi i duhur. Freskoni faqen për ta filtruar mirë.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "This entry must be the last one",

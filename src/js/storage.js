@@ -382,6 +382,14 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 
 /******************************************************************************/
 
+µb.isTrustedList = function(assetKey) {
+    if ( assetKey.startsWith('ublock-') ) { return true; }
+    if ( assetKey === this.userFiltersPath ) { return true; }
+    return false;
+};
+
+/******************************************************************************/
+
 µb.loadSelectedFilterLists = async function() {
     const bin = await vAPI.storage.get('selectedFilterLists');
     if ( bin instanceof Object && Array.isArray(bin.selectedFilterLists) ) {
@@ -574,7 +582,8 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
     await this.saveUserFilters(details.content.trim() + '\n' + filters);
 
     const compiledFilters = this.compileFilters(filters, {
-        assetKey: this.userFiltersPath
+        assetKey: this.userFiltersPath,
+        isTrusted: true,
     });
     const snfe = staticNetFilteringEngine;
     const cfe = cosmeticFilteringEngine;
@@ -699,7 +708,9 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
     // Load previously saved available lists -- these contains data
     // computed at run-time, we will reuse this data if possible
     const [ bin, registeredAssets, badlists ] = await Promise.all([
-        vAPI.storage.get('availableFilterLists'),
+        Object.keys(this.availableFilterLists).length !== 0
+            ? { availableFilterLists: this.availableFilterLists }
+            : vAPI.storage.get('availableFilterLists'),
         io.metadata(),
         this.badLists.size === 0 ? io.get('ublock-badlists') : false,
     ]);
@@ -911,10 +922,10 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         if ( µb.inMemoryFilters.length !== 0 ) {
             if ( µb.inMemoryFiltersCompiled === '' ) {
                 µb.inMemoryFiltersCompiled =
-                    µb.compileFilters(
-                        µb.inMemoryFilters.join('\n'),
-                        { assetKey: 'in-memory'}
-                    );
+                    µb.compileFilters(µb.inMemoryFilters.join('\n'), {
+                        assetKey: 'in-memory',
+                        isTrusted: true,
+                    });
             }
             if ( µb.inMemoryFiltersCompiled !== '' ) {
                 toLoad.push(
@@ -979,8 +990,10 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         return { assetKey, content: '' };
     }
 
-    const compiledContent =
-        this.compileFilters(rawDetails.content, { assetKey });
+    const compiledContent = this.compileFilters(rawDetails.content, {
+        assetKey,
+        isTrusted: this.isTrustedList(assetKey),
+    });
     io.put(compiledPath, compiledContent);
 
     return { assetKey, content: compiledContent };
@@ -1046,6 +1059,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
     // client compilers.
     if ( details.assetKey ) {
         writer.properties.set('name', details.assetKey);
+        writer.properties.set('isTrusted', details.isTrusted === true);
     }
     const assetName = details.assetKey ? details.assetKey : '?';
     const expertMode =
@@ -1282,6 +1296,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 
     const create = async function() {
         if ( µb.inMemoryFilters.length !== 0 ) { return; }
+        if ( Object.keys(µb.availableFilterLists).length === 0 ) { return; }
         await Promise.all([
             io.put(
                 'selfie/main',
@@ -1316,12 +1331,10 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
             selfie = JSON.parse(details.content);
         } catch(ex) {
         }
-        if (
-            selfie instanceof Object === false ||
-            selfie.magic !== µb.systemSettings.selfieMagic
-        ) {
-            return false;
-        }
+        if ( selfie instanceof Object === false ) { return false; }
+        if ( selfie.magic !== µb.systemSettings.selfieMagic ) { return false; }
+        if ( selfie.availableFilterLists instanceof Object === false ) { return false; }
+        if ( Object.keys(selfie.availableFilterLists).length === 0 ) { return false; }
         µb.availableFilterLists = selfie.availableFilterLists;
         return true;
     };
@@ -1355,10 +1368,10 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
             io.remove(/^selfie\//);
             µb.selfieIsInvalid = true;
         }
-        createAlarm.offon(µb.hiddenSettings.selfieAfter);
+        createTimer.offon({ min: µb.hiddenSettings.selfieAfter });
     };
 
-    const createAlarm = vAPI.alarms.create(create);
+    const createTimer = vAPI.defer.create(create);
 
     µb.selfieManager = { load, destroy };
 }
@@ -1558,18 +1571,12 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         // Respect cooldown period before launching an emergency update.
         const timeSinceLastEmergencyUpdate = (now - lastEmergencyUpdate) / 3600000;
         if ( timeSinceLastEmergencyUpdate > 1 ) {
-            const assetDict = await io.metadata();
-            for ( const [ assetKey, asset ] of Object.entries(assetDict) ) {
-                if ( asset.hasRemoteURL !== true ) { continue; }
-                if ( asset.content === 'filters' ) {
-                    if ( µb.selectedFilterLists.includes(assetKey) === false ) {
-                        continue;
-                    }
-                }
-                if ( asset.obsolete !== true ) { continue; }
-                const lastUpdateInDays = (now - asset.writeTime) / 86400000;
-                const daysSinceVeryObsolete = lastUpdateInDays - 2 * asset.updateAfter;
-                if ( daysSinceVeryObsolete < 0 ) { continue; }
+            const entries = await io.getUpdateAges({
+                filters: µb.selectedFilterLists,
+                internal: [ '*' ],
+            });
+            for ( const entry of entries ) {
+                if ( entry.ageNormalized < 2 ) { continue; }
                 needEmergencyUpdate = true;
                 lastEmergencyUpdate = now;
                 break;
@@ -1632,7 +1639,8 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
                         io.put(
                             'compiled/' + details.assetKey,
                             this.compileFilters(details.content, {
-                                assetKey: details.assetKey
+                                assetKey: details.assetKey,
+                                isTrusted: this.isTrustedList(details.assetKey),
                             })
                         );
                     }
@@ -1720,13 +1728,21 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 
     if ( topic === 'assets.json-updated' ) {
         const { newDict, oldDict } = details;
+        if ( newDict['assets.json'] === undefined ) { return; }
+        if ( oldDict['assets.json'] === undefined ) { return; }
         const newDefaultListset = new Set(newDict['assets.json'].defaultListset || []);
         const oldDefaultListset = new Set(oldDict['assets.json'].defaultListset || []);
+        if ( newDefaultListset.size === 0 ) { return; }
         if ( oldDefaultListset.size === 0 ) {
-            Array.from(Object.entries(newDict))
-                .filter(a => a[1].content === 'filters' && a[1].off === undefined)
+            Array.from(Object.entries(oldDict))
+                .filter(a =>
+                    a[1].content === 'filters' &&
+                    a[1].off === undefined &&
+                    /^https?:\/\//.test(a[0]) === false
+                )
                 .map(a => a[0])
                 .forEach(a => oldDefaultListset.add(a));
+            if ( oldDefaultListset.size === 0 ) { return; }
         }
         const selectedListset = new Set(this.selectedFilterLists);
         let selectedListModified = false;
