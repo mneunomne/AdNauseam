@@ -23,3 +23,6 @@ body {
 #strictBlockList {
     text-align: left;
     }
+#lists {
+    padding-top: 0.5em; /* adn */
+}
