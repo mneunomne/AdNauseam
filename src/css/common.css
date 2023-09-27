@@ -325,7 +325,11 @@ button.custom#buttonUpdateAdNauseam{
   border-width:1px;
   padding: 1px 4px;
   height: 24px;
-  margin-left: 4px;
+  margin: 0;
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translate(100%, -50%);
 }
 button.important {
     padding: 1px 2em;
@@ -778,7 +782,6 @@ input.cmn-toggle-round-flat.cmn-toggle-small:checked + label::after {
   color: #000;
   background-color: #0076FF;
 }
-
 ul {
     padding: 0;
     list-style-type: none;

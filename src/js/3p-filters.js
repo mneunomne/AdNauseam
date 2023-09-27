@@ -154,32 +154,26 @@ const renderFilterLists = ( ) => {
         if ( asset.cached === true ) {
             dom.cl.add(listEntry, 'cached');
             dom.attr(qs$(listEntry, ':scope > .detailbar .status.cache'), 'title', lastUpdateString);
-            /*
             // AdNauseam update button
-            let button = li.querySelector('#buttonUpdateAdNauseam');
+            let button = listEntry.querySelector('#buttonUpdateAdNauseam');
             if ( button != null ) {
                 button.setAttribute(
                     'title',
                     lastUpdateTemplateString.replace(
                         '{{ago}}',
                         renderElapsedTimeToString(asset.writeTime)
-                    )
+                        )
                 );
             }
-            */
         } else {
             dom.cl.remove(listEntry, 'cached');
         }
-        
-        /*
-        if (entry.hidden) li.classList.toggle('hidden', true); // ADN
 
         // ADN: add adnauseam update button
-        if (listKey === "adnauseam-filters") {
+        if (listkey === "adnauseam-filters") {
             const button = document.getElementById("buttonUpdateAdNauseam");
-            li.appendChild(button);
+            listEntry.querySelector(".detailbar").appendChild(button);
         }
-        */
     };
 
     const createListEntry = (listDetails, depth) => {
@@ -193,7 +187,6 @@ const renderFilterLists = ( ) => {
     };
 
     const createListEntries = (parentkey, listTree, depth = 0) => {
-        console.log("createListEntries", parentkey, listTree)
         const listEntries = dom.clone('#templates .listEntries');
         const treeEntries = Object.entries(listTree);
         if ( depth !== 0 ) {
@@ -209,7 +202,6 @@ const renderFilterLists = ( ) => {
         }
         for ( const [ listkey, listDetails ] of treeEntries ) {
             const listEntry = createListEntry(listDetails, depth);
-            console.log("listEntry", listEntry)
             if ( dom.cl.has(dom.root, 'mobile') ) {
                 const leafStats = qs$(listEntry, '.leafstats');
                 if ( leafStats ) {
@@ -238,7 +230,6 @@ const renderFilterLists = ( ) => {
     };
 
     const onListsReceived = response => {
-        console.log("response:", response)
         // Store in global variable
         listsetDetails = response;
         hashFromListsetDetails();
@@ -286,7 +277,6 @@ const renderFilterLists = ( ) => {
 
         for ( const [ listkey, listDetails ] of Object.entries(response.available) ) {
             let groupKey = listDetails.group;
-            console.log("[adn]", listkey, listDetails);
             if ( groupKey === 'social' ) {
                 groupKey = 'annoyances';
             }
@@ -673,8 +663,8 @@ dom.on('#buttonApply', 'click', ( ) => { buttonApplyHandler(); });
 /******************************************************************************/
 
 const buttonUpdateAdNauseam = async function() {
-    //only update adnauseam.txt
-     let adnauseamEntry = document.querySelector(".listEntry[data-listkey='adnauseam-filters']");
+    // only update adnauseam.txt
+     let adnauseamEntry = document.querySelector(".listEntry[data-key='adnauseam-filters']");
      dom.cl.add(adnauseamEntry, 'obsolete');
      dom.cl.remove(adnauseamEntry, 'cached');
      setTimeout(function(){
