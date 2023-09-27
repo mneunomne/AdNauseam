@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-
-
-
 uBO Lite (uBOL) is an experimental *permission-less* MV3-based content blocker.
 =======
 uBO Lite (uBOL), deneysel bir *izin gerektirmeyen* MV3 tabanlı içerik engelleyicidir.

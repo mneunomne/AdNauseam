@@ -9,6 +9,7 @@
   },
   "browser_action": {
     "browser_style": false,
+    "default_area": "navbar",
     "default_icon": {
       "16": "img/icon-16.png",
       "32": "img/icon-32.png",
