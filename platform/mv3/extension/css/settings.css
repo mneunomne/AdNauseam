@@ -109,7 +109,6 @@ p {
 .listEntry > * {
     margin-left: 0;
     margin-right: 0;
-    text-transform: capitalize;
     unicode-bidi: embed;
     }
 .listEntry .listname {
@@ -143,6 +142,11 @@ p {
 .listEntry .status {
     cursor: default;
     display: none;
+}
+
+body.noMoreRuleset .listEntry:not(.checked) {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 /* touch-screen devices */

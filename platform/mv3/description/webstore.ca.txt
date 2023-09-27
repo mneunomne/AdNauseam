@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 
 
 L'uBO Lite (uBOL) és un blocador de contingut experimental *sense permís* basat en MV3.
+=======
+L'uBO Lite (uBOL) és un blocador de contingut *sense permisos* basat en MV3.
+>>>>>>> upstream1.51.0
 
 El conjunt de regles per defecte correspon al conjunt de filtres per defecte d'uBlock Origin:
 
