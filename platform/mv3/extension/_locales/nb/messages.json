@@ -4,7 +4,7 @@
     "description": "extension name."
   },
   "extShortDesc": {
-    "message": "En eksperimentell, tillatelsesbegrenset innholdsblokkerer. Blokkerer reklame, sporere, minere og mer umiddelbart etter installering.",
+    "message": "En tillatelsesbegrenset innholdsblokkerer. Blokkerer reklame, sporere, minere og mer umiddelbart etter installering.",
     "description": "this will be in the Chrome web store: must be 132 characters or less"
   },
   "perRulesetStats": {
@@ -52,7 +52,7 @@
     "description": "Link to privacy policy on GitHub (English)"
   },
   "popupFilteringModeLabel": {
-    "message": "filtering mode",
+    "message": "filtreringsmodus",
     "description": "Label in the popup panel for the current filtering mode"
   },
   "popupTipDashboard": {

@@ -98,13 +98,20 @@ export default new Map([
         alias: 'google-analytics.com/inpage_linkid.js',
     } ],
     [ 'google-ima.js', {
+        alias: 'google-ima3',                       /* adguard compatibility */
     } ],
     [ 'googlesyndication_adsbygoogle.js', {
-        alias: 'googlesyndication.com/adsbygoogle.js',
+        alias: [
+            'googlesyndication.com/adsbygoogle.js',
+            'googlesyndication-adsbygoogle',        /* adguard compatibility */
+        ],
         data: 'text',
     } ],
     [ 'googletagservices_gpt.js', {
-        alias: 'googletagservices.com/gpt.js',
+        alias: [
+            'googletagservices.com/gpt.js',
+            'googletagservices-gpt',                /* adguard compatibility */
+        ],
         data: 'text',
     } ],
     [ 'hd-main.js', {
@@ -118,7 +125,7 @@ export default new Map([
         alias: 'd3pkae9owd2lcf.cloudfront.net/mb105.js',
     } ],
     [ 'nobab.js', {
-        alias: 'bab-defuser.js',
+        alias: [ 'bab-defuser.js', 'prevent-bab.js' ],
         data: 'text',
     } ],
     [ 'nobab2.js', {
@@ -167,7 +174,7 @@ export default new Map([
         alias: 'widgets.outbrain.com/outbrain.js',
     } ],
     [ 'popads.js', {
-        alias: 'popads.net.js',
+        alias: [ 'popads.net.js', 'prevent-popads-net.js' ],
         data: 'text',
     } ],
     [ 'popads-dummy.js', {
@@ -178,9 +185,5 @@ export default new Map([
     } ],
     [ 'scorecardresearch_beacon.js', {
         alias: 'scorecardresearch.com/beacon.js',
-    } ],
-    [ 'window.open-defuser.js', {
-        alias: 'nowoif.js',
-        data: 'text',
     } ],
 ]);

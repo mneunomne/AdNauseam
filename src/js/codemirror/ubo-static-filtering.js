@@ -32,7 +32,7 @@ import { dom, qs$ } from '../dom.js';
 
 const redirectNames = new Map();
 const scriptletNames = new Map();
-const preparseDirectiveTokens = new Map();
+const preparseDirectiveEnv = [];
 const preparseDirectiveHints = [];
 const originHints = [];
 let hintHelperRegistered = false;
@@ -59,16 +59,20 @@ CodeMirror.defineMode('ubo-static-filtering', function() {
     let lastNetOptionType = 0;
 
     const redirectTokenStyle = node => {
-        const rawToken = astParser.getNodeString(node);
+        const rawToken = astParser.getNodeString(node || currentWalkerNode);
         const { token } = sfp.parseRedirectValue(rawToken);
         return redirectNames.has(token) ? 'value' : 'value warning';
     };
 
+    const nodeHasError = node => {
+        return astParser.getNodeFlags(
+            node || currentWalkerNode, sfp.NODE_FLAG_ERROR
+        ) !== 0;
+    };
+
     const colorFromAstNode = function() {
         if ( astParser.nodeIsEmptyString(currentWalkerNode) ) { return '+'; }
-        if ( astParser.getNodeFlags(currentWalkerNode, sfp.NODE_FLAG_ERROR) !== 0 ) {
-            return 'error';
-        }
+        if ( nodeHasError() ) { return 'error'; }
         const nodeType = astParser.getNodeType(currentWalkerNode);
         switch ( nodeType ) {
             case sfp.NODE_TYPE_WHITESPACE:
@@ -84,15 +88,9 @@ CodeMirror.defineMode('ubo-static-filtering', function() {
             case sfp.NODE_TYPE_PREPARSE_DIRECTIVE_VALUE:
                 return 'directive';
             case sfp.NODE_TYPE_PREPARSE_DIRECTIVE_IF_VALUE: {
-                if ( preparseDirectiveTokens.size === 0 ) {
-                    return 'positive strong';
-                }
                 const raw = astParser.getNodeString(currentWalkerNode);
-                const not = raw.startsWith('!');
-                const token = not ? raw.slice(1) : raw;
-                return not === preparseDirectiveTokens.get(token)
-                    ? 'negative strong'
-                    : 'positive strong';
+                const state = sfp.utils.preparser.evaluateExpr(raw, preparseDirectiveEnv);
+                return state ? 'positive strong' : 'negative strong';
             }
             case sfp.NODE_TYPE_EXT_OPTIONS_ANCHOR:
                 return astParser.getFlags(sfp.AST_FLAG_IS_EXCEPTION)
@@ -199,7 +197,7 @@ CodeMirror.defineMode('ubo-static-filtering', function() {
                 switch ( lastNetOptionType ) {
                     case sfp.NODE_TYPE_NET_OPTION_NAME_REDIRECT:
                     case sfp.NODE_TYPE_NET_OPTION_NAME_REDIRECTRULE:
-                        return redirectTokenStyle(currentWalkerNode);
+                        return redirectTokenStyle();
                     default:
                         break;
                 }
@@ -234,6 +232,8 @@ CodeMirror.defineMode('ubo-static-filtering', function() {
                     return 'comment';
                 }
                 currentWalkerNode = astWalker.reset();
+            } else if ( nodeHasError() ) {
+                currentWalkerNode = astWalker.right();
             } else {
                 currentWalkerNode = astWalker.next();
             }
@@ -281,10 +281,9 @@ CodeMirror.defineMode('ubo-static-filtering', function() {
                     }
                 }
             }
-            if ( Array.isArray(details.preparseDirectiveTokens)) {
-                details.preparseDirectiveTokens.forEach(([ a, b ]) => {
-                    preparseDirectiveTokens.set(a, b);
-                });
+            if ( Array.isArray(details.preparseDirectiveEnv)) {
+                preparseDirectiveEnv.length = 0;
+                preparseDirectiveEnv.push(...details.preparseDirectiveEnv);
             }
             if ( Array.isArray(details.preparseDirectiveHints)) {
                 preparseDirectiveHints.push(...details.preparseDirectiveHints);

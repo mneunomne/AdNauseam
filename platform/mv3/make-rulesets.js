@@ -27,7 +27,7 @@ import fs from 'fs/promises';
 import https from 'https';
 import path from 'path';
 import process from 'process';
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import redirectResourcesMap from './js/redirect-resources.js';
 import { dnrRulesetFromRawLists } from './js/static-dnr-filtering.js';
 import * as sfp from './js/static-filtering-parser.js';
@@ -182,6 +182,9 @@ async function fetchAsset(assetDetails) {
                 continue;
             }
             fetchedURLs.add(part.url);
+            if ( part.url.startsWith('https://ublockorigin.github.io/uAssets/filters/') ) {
+                newParts.push(`!#trusted on ${assetDetails.secret}`);
+            }
             newParts.push(
                 fetchList(part.url, cacheDir).then(details => {
                     const { url } = details;
@@ -198,6 +201,7 @@ async function fetchAsset(assetDetails) {
                     return { url, content: '' };
                 })
             );
+            newParts.push(`!#trusted off ${assetDetails.secret}`);
         }
         parts = await Promise.all(newParts);
         parts = sfp.utils.preparser.expandIncludes(parts, env);
@@ -224,7 +228,7 @@ const isRedirect = rule =>
     rule.action.type === 'redirect' &&
     rule.action.redirect.extensionPath !== undefined;
 
-const isCsp = rule =>
+const isModifyHeaders = rule =>
     rule.action !== undefined &&
     rule.action.type === 'modifyHeaders';
 
@@ -236,7 +240,7 @@ const isRemoveparam = rule =>
 const isGood = rule =>
     isUnsupported(rule) === false &&
     isRedirect(rule) === false &&
-    isCsp(rule) === false &&
+    isModifyHeaders(rule) === false &&
     isRemoveparam(rule) === false;
 
 /******************************************************************************/
@@ -294,11 +298,11 @@ async function processNetworkFilters(assetDetails, network) {
     );
     log(`\tremoveparams= (accepted/discarded): ${removeparamsGood.length}/${removeparamsBad.length}`);
 
-    const csps = rules.filter(rule =>
+    const modifyHeaders = rules.filter(rule =>
         isUnsupported(rule) === false &&
-        isCsp(rule)
+        isModifyHeaders(rule)
     );
-    log(`\tcsp=: ${csps.length}`);
+    log(`\tmodifyHeaders=: ${modifyHeaders.length}`);
 
     const bad = rules.filter(rule =>
         isUnsupported(rule)
@@ -332,10 +336,10 @@ async function processNetworkFilters(assetDetails, network) {
         );
     }
 
-    if ( csps.length !== 0 ) {
+    if ( modifyHeaders.length !== 0 ) {
         writeFile(
-            `${rulesetDir}/csp/${assetDetails.id}.json`,
-            `${JSON.stringify(csps, replacer, 1)}\n`
+            `${rulesetDir}/modify-headers/${assetDetails.id}.json`,
+            `${JSON.stringify(modifyHeaders, replacer, 1)}\n`
         );
     }
 
@@ -347,7 +351,7 @@ async function processNetworkFilters(assetDetails, network) {
         regex: regexes.length,
         removeparam: removeparamsGood.length,
         redirect: redirects.length,
-        csp: csps.length,
+        modifyHeaders: modifyHeaders.length,
     };
 }
 
@@ -378,7 +382,8 @@ function loadAllSourceScriptlets() {
             const originalScriptletMap = new Map();
             for ( const details of results ) {
                 originalScriptletMap.set(
-                    details.file.replace('.template.js', ''),
+                    details.file.replace('.template.js', '')
+                                .replace('.template.css', ''),
                     details.text
                 );
             }
@@ -391,13 +396,26 @@ function loadAllSourceScriptlets() {
 
 /******************************************************************************/
 
-async function processGenericCosmeticFilters(assetDetails, bucketsMap, exclusions) {
+async function processGenericCosmeticFilters(assetDetails, bucketsMap, exceptionSet) {
     if ( bucketsMap === undefined ) { return 0; }
+    if ( exceptionSet ) {
+        for ( const [ hash, selectors ] of bucketsMap ) {
+            let i = selectors.length;
+            while ( i-- ) {
+                const selector = selectors[i];
+                if ( exceptionSet.has(selector) === false ) { continue; }
+                selectors.splice(i, 1);
+                //log(`\tRemoving excepted generic filter ##${selector}`);
+            }
+            if ( selectors.length === 0 ) {
+                bucketsMap.delete(hash);
+            }
+        }
+    }
     if ( bucketsMap.size === 0 ) { return 0; }
     const bucketsList = Array.from(bucketsMap);
     const count = bucketsList.reduce((a, v) => a += v[1].length, 0);
     if ( count === 0 ) { return 0; }
-
     const selectorLists = bucketsList.map(v => [ v[0], v[1].join(',') ]);
     const originalScriptletMap = await loadAllSourceScriptlets();
 
@@ -415,11 +433,43 @@ async function processGenericCosmeticFilters(assetDetails, bucketsMap, exclusion
         patchedScriptlet
     );
 
-    genericDetails.set(assetDetails.id, exclusions.sort());
-
     log(`CSS-generic: ${count} plain CSS selectors`);
 
     return count;
+}
+
+/******************************************************************************/
+
+async function processGenericHighCosmeticFilters(assetDetails, selectorSet, exceptionSet) {
+    if ( selectorSet === undefined ) { return 0; }
+    if ( exceptionSet ) {
+        for ( const selector of selectorSet ) {
+            if ( exceptionSet.has(selector) === false ) { continue; }
+            selectorSet.delete(selector);
+            //log(`\tRemoving excepted generic filter ##${selector}`);
+        }
+    }
+    if ( selectorSet.size === 0 ) { return 0; }
+    const selectorLists = Array.from(selectorSet).sort().join(',\n');
+    const originalScriptletMap = await loadAllSourceScriptlets();
+
+    let patchedScriptlet = originalScriptletMap.get('css-generichigh').replace(
+        '$rulesetId$',
+        assetDetails.id
+    );
+    patchedScriptlet = safeReplace(patchedScriptlet,
+        /\$selectorList\$/,
+        selectorLists
+    );
+
+    writeFile(
+        `${scriptletDir}/generichigh/${assetDetails.id}.css`,
+        patchedScriptlet
+    );
+
+    log(`CSS-generic-high: ${selectorSet.size} plain CSS selectors`);
+
+    return selectorSet.size;
 }
 
 /******************************************************************************/
@@ -637,7 +687,8 @@ async function processDeclarativeCosmeticFilters(assetDetails, mapin) {
     mapin.forEach((details, jsonSelector) => {
         const selector = JSON.parse(jsonSelector);
         if ( selector.cssable !== true ) { return; }
-        declaratives.set(jsonSelector, details);
+        selector.cssable = undefined;
+        declaratives.set(JSON.stringify(selector), details);
     });
     if ( declaratives.size === 0 ) { return 0; }
 
@@ -807,7 +858,7 @@ async function processScriptletFilters(assetDetails, mapin) {
     makeScriptlet.init();
 
     for ( const details of mapin.values() ) {
-        makeScriptlet.compile(details, assetDetails.isTrusted);
+        makeScriptlet.compile(details);
     }
     const stats = await makeScriptlet.commit(
         assetDetails.id,
@@ -850,7 +901,7 @@ async function rulesetFromURLs(assetDetails) {
 
     const results = await dnrRulesetFromRawLists(
         [ { name: assetDetails.id, text: assetDetails.text } ],
-        { env, extensionPaths }
+        { env, extensionPaths, secret: assetDetails.secret }
     );
 
     const netStats = await processNetworkFilters(
@@ -882,10 +933,25 @@ async function rulesetFromURLs(assetDetails) {
         log(rejectedCosmetic.map(line => `\t${line}`).join('\n'), true);
     }
 
+    if (
+        Array.isArray(results.network.generichideExclusions) &&
+        results.network.generichideExclusions.length !== 0
+    ) {
+        genericDetails.set(
+            assetDetails.id,
+            results.network.generichideExclusions.filter(hn => hn.endsWith('.*') === false).sort()
+        );
+    }
+
     const genericCosmeticStats = await processGenericCosmeticFilters(
         assetDetails,
         results.genericCosmetic,
-        results.network.generichideExclusions.filter(hn => hn.endsWith('.*') === false)
+        results.genericCosmeticExceptions
+    );
+    const genericHighCosmeticStats = await processGenericHighCosmeticFilters(
+        assetDetails,
+        results.genericHighCosmetic,
+        results.genericCosmeticExceptions
     );
     const specificCosmeticStats = await processCosmeticFilters(
         assetDetails,
@@ -922,12 +988,13 @@ async function rulesetFromURLs(assetDetails) {
             regex: netStats.regex,
             removeparam: netStats.removeparam,
             redirect: netStats.redirect,
-            csp: netStats.csp,
+            modifyHeaders: netStats.modifyHeaders,
             discarded: netStats.discarded,
             rejected: netStats.rejected,
         },
         css: {
             generic: genericCosmeticStats,
+            generichigh: genericHighCosmeticStats,
             specific: specificCosmeticStats,
             declarative: declarativeStats,
             procedural: proceduralStats,
@@ -974,6 +1041,10 @@ async function main() {
         JSON.parse(text)
     );
 
+    // This will be used to sign our inserted `!#trusted on` directives
+    const secret = createHash('sha256').update(randomBytes(16)).digest('hex').slice(0,16);
+    log(`Secret: ${secret}`);
+
     // Assemble all default lists as the default ruleset
     const contentURLs = [
         'https://ublockorigin.github.io/uAssets/filters/filters.min.txt',
@@ -990,9 +1061,9 @@ async function main() {
         id: 'default',
         name: 'Ads, trackers, miners, and more' ,
         enabled: true,
+        secret,
         urls: contentURLs,
         homeURL: 'https://github.com/uBlockOrigin/uAssets',
-        isTrusted: true,
     });
 
     // Regional rulesets
@@ -1058,29 +1129,58 @@ async function main() {
 
     // Handpicked annoyance rulesets from assets.json
     await rulesetFromURLs({
-        id: 'easylist-cookies',
-        name: 'EasyList – Cookies Notices' ,
+        id: 'annoyances-cookies',
+        name: 'EasyList/uBO – Cookie Notices',
         group: 'annoyances',
         enabled: false,
+        secret,
         urls: [
             'https://ublockorigin.github.io/uAssets/thirdparties/easylist-cookies.txt',
+            'https://ublockorigin.github.io/uAssets/filters/annoyances-cookies.txt',
         ],
-        homeURL: 'https://github.com/uBlockOrigin/uAssets',
+        homeURL: 'https://github.com/easylist/easylist#fanboy-lists',
     });
     await rulesetFromURLs({
-        id: 'easylist-annoyances',
-        name: 'EasyList – Annoyances' ,
+        id: 'annoyances-overlays',
+        name: 'AdGuard/uBO – Overlays',
+        group: 'annoyances',
+        enabled: false,
+        secret,
+        urls: [
+            'https://filters.adtidy.org/extension/ublock/filters/19.txt',
+            'https://ublockorigin.github.io/uAssets/filters/annoyances-others.txt',
+        ],
+        homeURL: 'https://github.com/AdguardTeam/AdguardFilters#adguard-filters',
+    });
+    await rulesetFromURLs({
+        id: 'annoyances-social',
+        name: 'AdGuard – Social Media',
         group: 'annoyances',
         enabled: false,
         urls: [
-            'https://ublockorigin.github.io/uAssets/thirdparties/easylist-annoyances.txt',
-            'https://ublockorigin.github.io/uAssets/thirdparties/easylist-chat.txt',
-            'https://ublockorigin.github.io/uAssets/thirdparties/easylist-newsletters.txt',
-            'https://ublockorigin.github.io/uAssets/thirdparties/easylist-notifications.txt',
-            'https://ublockorigin.github.io/uAssets/thirdparties/easylist-social.txt',
-            'https://ublockorigin.github.io/uAssets/filters/annoyances.txt',
+            'https://filters.adtidy.org/extension/ublock/filters/4.txt',
         ],
-        homeURL: 'https://github.com/uBlockOrigin/uAssets',
+        homeURL: 'https://github.com/AdguardTeam/AdguardFilters#adguard-filters',
+    });
+    await rulesetFromURLs({
+        id: 'annoyances-widgets',
+        name: 'AdGuard – Widgets',
+        group: 'annoyances',
+        enabled: false,
+        urls: [
+            'https://filters.adtidy.org/extension/ublock/filters/22.txt',
+        ],
+        homeURL: 'https://github.com/AdguardTeam/AdguardFilters#adguard-filters',
+    });
+    await rulesetFromURLs({
+        id: 'annoyances-others',
+        name: 'AdGuard – Other Annoyances',
+        group: 'annoyances',
+        enabled: false,
+        urls: [
+            'https://filters.adtidy.org/extension/ublock/filters/21.txt',
+        ],
+        homeURL: 'https://github.com/AdguardTeam/AdguardFilters#adguard-filters',
     });
 
     // Handpicked rulesets from abroad

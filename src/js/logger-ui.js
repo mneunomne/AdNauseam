@@ -102,7 +102,7 @@ const onStartMovingWidget = (( ) => {
 
     const move = ( ) => {
         timer = undefined;
-        const l1 = Math.min(Math.max(l0 + mx1 - mx0, 0), pw - cw);
+        const l1 = Math.min(Math.max(l0 + mx1 - mx0, 0), Math.max(pw - cw, 0));
         if ( (l1+cw/2) < (pw/2) ) {
             widget.style.left = `${l1/pw*100}%`;
             widget.style.right = '';
@@ -110,7 +110,7 @@ const onStartMovingWidget = (( ) => {
             widget.style.right = `${(pw-l1-cw)/pw*100}%`;
             widget.style.left = '';
         }
-        const t1 = Math.min(Math.max(t0 + my1 - my0, 0), ph - ch);
+        const t1 = Math.min(Math.max(t0 + my1 - my0, 0), Math.max(ph - ch, 0));
         widget.style.top = `${t1/ph*100}%`;
         widget.style.bottom = '';
     };
@@ -2086,10 +2086,13 @@ dom.on(document, 'keydown', ev => {
         if ( typeof response !== 'string' ) { return; }
         const settings = JSON.parse(response);
         const widget = qs$('#netInspector .entryTools');
-        widget.style.bottom = settings.bottom || '';
+        widget.style.bottom = '';
         widget.style.left = settings.left || '';
         widget.style.right = settings.right || '';
         widget.style.top = settings.top || '';
+        if ( /^-/.test(widget.style.top) ) {
+            widget.style.top = '0';
+        }
     });
 
     dom.on(

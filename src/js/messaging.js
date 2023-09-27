@@ -1572,8 +1572,6 @@ const getSupportData = async function() {
         removedListset = undefined;
     }
 
-    const { versionUpdateTime = 0 } = await vAPI.storage.get('versionUpdateTime');
-
     let browserFamily = (( ) => {
         if ( vAPI.webextFlavor.soup.has('firefox') ) { return 'Firefox'; }
         if ( vAPI.webextFlavor.soup.has('chromium') ) { return 'Chromium'; }
@@ -1584,9 +1582,7 @@ const getSupportData = async function() {
     }
 
     return {
-        [`${vAPI.app.name} ${vAPI.app.version}`]: {
-            since: formatDelayFromNow(versionUpdateTime),
-        },
+        [`${vAPI.app.name}`]: `${vAPI.app.version}`,
         [`${browserFamily}`]: `${vAPI.webextFlavor.major}`,
         'filterset (summary)': {
             network: staticNetFilteringEngine.getFilterCount(),
@@ -1685,8 +1681,7 @@ const onMessage = function(request, sender, callback) {
         response = {};
         if ( (request.hintUpdateToken || 0) === 0 ) {
             response.redirectResources = redirectEngine.getResourceDetails();
-            response.preparseDirectiveTokens =
-                sfp.utils.preparser.getTokens(vAPI.webextFlavor.env);
+            response.preparseDirectiveEnv = vAPI.webextFlavor.env.slice();
             response.preparseDirectiveHints =
                 sfp.utils.preparser.getHints();
             response.expertMode = µb.hiddenSettings.filterAuthorMode;
