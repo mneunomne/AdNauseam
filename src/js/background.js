@@ -268,10 +268,14 @@ const µBlock = {  // jshint ignore:line
     // settings. The content of 'assets.json' will also tell which filter
     // lists to enable by default when uBO is first installed.
     assetsBootstrapLocation: undefined,
-
+    
+    /*
+        ADN - no need for us to use dev assets for dev build, but it is something we can implement later. 
     assetsJsonPath: vAPI.webextFlavor.soup.has('devbuild')
         ? '/assets/assets.dev.json'
-        : '/assets/assets.json',
+        : '/assets/assets.json',    
+    */
+    assetsJsonPath: '/assets/assets.json', // Adn
     userFiltersPath: 'user-filters',
     pslAssetKey: 'public_suffix_list.dat',
 

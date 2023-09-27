@@ -196,7 +196,6 @@ a.external-link {
 }
 
 /* ADN */
-
 ::-webkit-scrollbar {
   width: 9px;
 }
@@ -787,82 +786,7 @@ ul {
 #options li {
     margin-bottom: 0.5em;
     }
-#lists {
-    margin: 0.5em 0 0 0;
-    padding-left: 1em;
-    padding-right: 0em;
-    }
-body[dir=rtl] #lists {
-    padding-left: 0em;
-    padding-right: 1em;
-    }
-#lists > li {
-    margin: 0.5em 0 0 0;
-    padding: 0;
-    list-style-type: none;
-    }
-#lists > .groupEntry {
-    margin-top: 0.5em;  /* ADN add more spacing */
-    }
-#lists > .groupEntry .geName {
-    cursor: pointer;
-    font-size: 120%;
-    font-family: bebas_neue,roboto_flex,noto_sans,sans-serif; /* ADN */
-    font-stretch: 47.5%; /* ADN */
-    font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712; /* ADN */
-    }
-#lists > .groupEntry > .geCount {
-    font-size: 90%;
-    }
-#lists > .groupEntry:not(:first-child) > .geName:before {
-    color: #aaa;
-    /*content: '\2212  ';*/
-    }
-#lists > .groupEntry > .geName:before {
-    content: '-  ';
-    }
-#lists > .groupEntry.collapsed > .geName:before {
-    color: #aaa;
-    content: '+  ';
-    }
-#lists > .groupEntry > .listEntries {
-    margin: 0.25em 0 0 10px; /* ADN add more spacing */
-    }
-#lists > .groupEntry.collapsed > .listEntries {
-    display: none;
-}
-.li.listEntry {
-    font-size: 14px;
-    margin: 0 auto 0 auto;
-    margin-right: 0em;
-    text-indent: -2em;
-    height: 1.85em; /* ADN make listEntry hieght equal */
-    }
-body[dir=rtl] .li.listEntry {
-    margin-left: 0em;
-    margin-right: 1em;
-    }
-.li.listEntry > * {
-    text-indent: 0;
-    unicode-bidi: embed;
-    }
-.li.listEntry > a:nth-of-type(2) {
-    font-size: 16px;
-    opacity: 0.7;
-    }
-    /*
-.li.listEntry > a:nth-of-type(2),
-.li.listEntry > a:nth-of-type(2):visited {
-    color: mediumblue;
-  }
-  */
-.li.listEntry > a:nth-of-type(2):hover {
-    opacity: 1;
-    }
-.li.listEntry > a:nth-of-type(3) {
-    font-size: 13px;
-    opacity: 0.75;
-    }
+
 .dim {
     opacity: 0.75;
     }
@@ -883,7 +807,6 @@ span.status {
     display: inline-block;
     font-size: smaller;
     line-height: 1;
-    margin: 0 0 0 0.5em;
     opacity: 0.8;
     padding: 1px 2px;
 }
@@ -978,8 +901,13 @@ button.important.disabled,
 button.important[disabled] {
     /* background-color: var(--button-disabled-surface); */
     /* color: var(--button-disabled-ink);
-    fill: var(--button-disabled-ink); */
+    fill: var(--button-disabled-ink); 
     filter: var(--button-disabled-filter);
+    */
+    /* TODO: add these colors to the pallett */
+    color: #8d8d8d82;
+    fill: #8d8d8d82;
+    border-color: #8d8d8d82;
     pointer-events: none;
     }
     /* Adn
@@ -1041,6 +969,11 @@ body.cyrilic #vault-button {
 label:hover .checkbox:not([disabled]) {
     background-color: var(--surface-2);
     }
+/* Adn */ 
+label:hover .checkbox:not([disabled]) svg {
+  background-color: var(--surface-2);
+}
+/* end of Adn */
 .checkbox > input[type="checkbox"] {
     box-sizing: border-box;
     height: 100%;

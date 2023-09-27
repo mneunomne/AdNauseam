@@ -154,7 +154,7 @@ const renderFilterLists = ( ) => {
         if ( asset.cached === true ) {
             dom.cl.add(listEntry, 'cached');
             dom.attr(qs$(listEntry, ':scope > .detailbar .status.cache'), 'title', lastUpdateString);
-
+            /*
             // AdNauseam update button
             let button = li.querySelector('#buttonUpdateAdNauseam');
             if ( button != null ) {
@@ -166,10 +166,12 @@ const renderFilterLists = ( ) => {
                     )
                 );
             }
+            */
         } else {
             dom.cl.remove(listEntry, 'cached');
         }
         
+        /*
         if (entry.hidden) li.classList.toggle('hidden', true); // ADN
 
         // ADN: add adnauseam update button
@@ -177,6 +179,7 @@ const renderFilterLists = ( ) => {
             const button = document.getElementById("buttonUpdateAdNauseam");
             li.appendChild(button);
         }
+        */
     };
 
     const createListEntry = (listDetails, depth) => {
@@ -190,6 +193,7 @@ const renderFilterLists = ( ) => {
     };
 
     const createListEntries = (parentkey, listTree, depth = 0) => {
+        console.log("createListEntries", parentkey, listTree)
         const listEntries = dom.clone('#templates .listEntries');
         const treeEntries = Object.entries(listTree);
         if ( depth !== 0 ) {
@@ -205,6 +209,7 @@ const renderFilterLists = ( ) => {
         }
         for ( const [ listkey, listDetails ] of treeEntries ) {
             const listEntry = createListEntry(listDetails, depth);
+            console.log("listEntry", listEntry)
             if ( dom.cl.has(dom.root, 'mobile') ) {
                 const leafStats = qs$(listEntry, '.leafstats');
                 if ( leafStats ) {

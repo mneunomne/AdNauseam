@@ -7,43 +7,20 @@ body {
 }
 #actions {
     background-color: transparent; /*ADN*/
-    backdrop-filter: blur(2px); /*ADN*/
     padding: var(--default-gap-small) 0 var(--default-gap-xsmall) 0;
     position: sticky;
     top: 0;
     z-index: 10;
 }
-/*ADN*/
-
-/*
+/* ADN */
 #actions button {
-    background-color: rgba(0, 118, 255,0.2);
     backdrop-filter: blur(5px);
 }
 
-#options .li:nth-child(2), #options .li:nth-child(3){
-    display: none;
-}
-*/
-#options .li:nth-child(1) {
-  margin-left:1em;
-}
 #options .li:nth-child(1) input{
   /* auto-update filter lists */
     margin-right: 0.6em;
 }
-/* ul {
-    list-style-type: none;
-    padding-left: 1em;
-    padding-right: 0;
-    }
-body[dir="rtl"] ul {
-    padding-left: 0;
-    padding-right: 1em;
-    }
-ul.root {
-    padding: 0;
-    } */
 
 body.updating #actions,
 body.working #actions {
@@ -57,14 +34,16 @@ body.working #actions button {
 .listExpander {
     font-size: 18px;
     padding: 0;
+    color: var(--info0-ink);
+    fill: var(--info0-ink);
     }
 .listExpander:first-child {
     justify-content: flex-start;
     min-width: 20px;
     }
 .listExpander:not(:first-child) {
-    color: var(--checkbox-checked-ink);
-        fill: var(--checkbox-checked-ink);
+    color: #0076FF; /* adn blue */
+    fill: #0076FF; /* adn blue */
     }
 .listExpander svg {
     transform: rotate(90deg);
@@ -133,7 +112,15 @@ body.working #actions button {
 #lists .listEntry > .detailbar {
     column-gap: calc(var(--default-gap-xxsmall) + 2px);
     display: inline-flex;
-    }
+}
+/* ADN - font changes */
+#lists .listEntry[data-parent="root"] > .detailbar {
+    font-size: 120%;
+    font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
+    font-stretch: 47.5%;
+    font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
+}
+/* end of ADN */
 #lists .listEntry[data-key="user"] > .detailbar {
     display: none;
     }
@@ -306,3 +293,27 @@ body.updating #lists .listEntry.checked.obsolete > .detailbar .iconbar .updating
     -moz-box-shadow: none;
     box-shadow: none;
 }
+
+/* Adn changes */
+
+#lists > .groupEntry .listname {
+    font-size: 120%;
+    font-family: bebas_neue,roboto_flex,noto_sans,sans-serif; /* ADN */
+    font-stretch: 47.5%; /* ADN */
+    font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712; /* ADN */
+    }
+#lists > .groupEntry > .geCount {
+    font-size: 90%;
+    }
+#lists > .groupEntry:not(:first-child) > .geName:before {
+    color: #aaa;
+    /*content: '\2212  ';*/
+    }
+#lists > .groupEntry > .geName:before {
+    content: '-  ';
+    }
+#lists > .groupEntry.collapsed > .geName:before {
+    color: #aaa;
+    content: '+  ';
+    }
+/* end of adn */
