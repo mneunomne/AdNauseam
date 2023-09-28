@@ -112,6 +112,7 @@ body.working #actions button {
 #lists .listEntry > .detailbar {
     column-gap: calc(var(--default-gap-xxsmall) + 2px);
     display: inline-flex;
+    position: relative; /* ADN */
 }
 /* ADN - font changes */
 #lists .listEntry[data-parent="root"] > .detailbar {
@@ -280,7 +281,8 @@ body.updating #lists .listEntry.checked.obsolete > .detailbar .iconbar .updating
     display: block;
     font-size: smaller;
     height: 6em;
-    margin-left: 2em;
+    /* margin-left: 2em; ADN */
+    margin-top: 0.5em; /* ADN */
     resize: vertical;
     visibility: hidden;
     white-space: pre;
