@@ -1008,6 +1008,10 @@ label:hover .checkbox:not([disabled]) svg {
 .checkbox[disabled] ~ span {
     opacity: 0.5;
     }
+.checkbox:has(input[disabled]) > svg {
+  filter: saturate(0);
+}
+
 .checkbox.partial > input[type="checkbox"]:checked + svg {
     background-color: var(--surface-1);
     border-color: var(--checkbox-checked-ink);
