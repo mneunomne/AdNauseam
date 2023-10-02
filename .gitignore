@@ -3,3 +3,5 @@
 /dist/build/
 /bin/build/
 /tmp/
+/artifacts
+/submodules
