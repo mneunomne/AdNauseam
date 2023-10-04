@@ -132,7 +132,7 @@
     "description": "Tooltip used for the 'chat' icon in the panel"
   },
   "popupTipNoPopups": {
-    "message": "ამ საიტზე ყველა ამომხტომი ფანჯრის შეზღუდვის ჩართვა/გამორთვა",
+    "message": "ამ საიტზე ყველა ამომხტომის შეზღუდვის ჩამრთველი",
     "description": "Tooltip for the no-popups per-site switch"
   },
   "popupTipNoPopups1": {
@@ -144,7 +144,7 @@
     "description": "Tooltip for the no-popups per-site switch"
   },
   "popupTipNoLargeMedia": {
-    "message": "დიდი მედიაფაილების შეზღუდვის ჩართვა/გამორთვა ამ საიტზე",
+    "message": "ამ საიტზე დიდი მედიაფაილების შეზღუდვის ჩამრთველი",
     "description": "Tooltip for the no-large-media per-site switch"
   },
   "popupTipNoLargeMedia1": {
@@ -156,11 +156,11 @@
     "description": "Tooltip for the no-large-media per-site switch"
   },
   "popupTipNoCosmeticFiltering": {
-    "message": "გარეგნული ნაწილების ფილტრაციის ჩართვა/გამორთვა ამ საიტზე",
+    "message": "გარეგნული ნაწილების ფილტრის ჩამრთველი",
     "description": "Tooltip for the no-cosmetic-filtering per-site switch"
   },
   "popupTipNoCosmeticFiltering1": {
-    "message": "დააწკაპეთ გარეგნული ნაწილების ფილტრაციის გასაუქმებლად ამ საიტზე",
+    "message": "დაწკაპეთ გარეგნული ნაწილების ფილტრის გასათიშად ამ საიტზე",
     "description": "Tooltip for the no-cosmetic-filtering per-site switch"
   },
   "popupTipNoCosmeticFiltering2": {
@@ -275,13 +275,13 @@
     "message": "ვერსია",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑: გამოკვეთა რიგებისა, გარეშე მხარის სკრიპტებით",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "სკრიპტი",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑: გამოკვეთა რიგებისა, გარეშე მხარის სკრიპტებით",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "ჩარჩო",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "შექმნა",
@@ -356,7 +356,7 @@
     "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
-    "message": "წინასწარი ჩატვირთვის გათიშვა (ქსელის შეზღუდული მოთხოვნებისათვის კავშირების თავიდან ასაცილებლად)",
+    "message": "წინასწარი ჩატვირთვის გათიშვა (კავშირის არიდება ქსელის შეზღუდული მოთხოვნებისთვის)",
     "description": "English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt": {
@@ -372,11 +372,11 @@
     "description": ""
   },
   "settingPerSiteSwitchGroupSynopsis": {
-    "message": "ეს ნაგულისხმევი მითითებები შესაძლებელია შეიცვალოს ცალკეული საიტებისთვის",
+    "message": "ეს ნაგულისხმევი მითითებები შესაძლებელია შეიცვალოს ცალკეული საიტისთვის",
     "description": ""
   },
   "settingsNoCosmeticFilteringPrompt": {
-    "message": "გარეგნული ნაწილების ფილტრაციის გამორთვა",
+    "message": "გარეგნული ნაწილების ფილტრის გათიშვა",
     "description": ""
   },
   "settingsNoLargeMediaPrompt": {
@@ -404,7 +404,7 @@
     "description": "Section for controlling advanced-user settings"
   },
   "settingsAdvancedSynopsis": {
-    "message": "შესაძლებლობები, მხოლოდ ტექნიკური მომხმარებლებისთვის",
+    "message": "შესაძლებლობები მხოლოდ ტექნიკური მომხმარებლებისთვის",
     "description": "Description of section controlling advanced-user settings"
   },
   "settingsAdvancedUserSettings": {
@@ -436,7 +436,7 @@
     "description": "A button in the in the _3rd-party filters_ pane"
   },
   "3pPurgeAll": {
-    "message": "კეშის გასუფთავება",
+    "message": "მარაგის გასუფთავება",
     "description": "A button in the in the _3rd-party filters_ pane"
   },
   "3pParseAllABPHideFiltersPrompt1": {
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "ჩაშენებული",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "რეკლამები",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "პირადულობა",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
     "message": "მავნე დომენები",
-    "description": "English: Malware domains"
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "შემაწუხებელი შიგთავსი",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "უნივერსალური",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "რეგიონები, ენები",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "საკუთარი სიები",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "შემოტანა...",
@@ -664,11 +664,11 @@
     "description": "Tooltip for the reload button in the logger page"
   },
   "loggerDomInspectorTip": {
-    "message": "DOM-დამკვირვებლის ჩართვა/გამორთვა",
+    "message": "DOM-დამკვირვებლის ჩამრთველი",
     "description": "Tooltip for the DOM inspector button in the logger page"
   },
   "loggerPopupPanelTip": {
-    "message": "ამომხტომი არეს ჩართვა/გამორთვა",
+    "message": "ამომხტომი არეს ჩამრთველი",
     "description": "Tooltip for the popup panel button in the logger page"
   },
   "loggerInfoTip": {
@@ -688,7 +688,7 @@
     "description": "Tooltip for the play button in the logger page"
   },
   "loggerRowFiltererButtonTip": {
-    "message": "აღრიცხულის გამორჩევის ჩართვა/გამორთვა",
+    "message": "აღმრიცხავის გამორჩევის ჩამრთველი",
     "description": "Tooltip for the row filterer button in the logger page"
   },
   "logFilterPrompt": {
@@ -912,7 +912,7 @@
     "description": "Header of 'Filter issues' section in Support pane"
   },
   "supportS3P1": {
-    "message": "ცალკეულ საიტებზე ფილტრების ხარვეზების მოსახსენებლად გამოიყენეთ <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> ხარვეზების აღსარიცხავი</span>. საჭიროებს GitHub-ანგარიშს.",
+    "message": "ცალკეულ საიტზე ფილტრების ხარვეზების მოსახსენებლად გამოიყენეთ <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> ხარვეზების აღსარიცხავი</span>. დაგჭირდებათ GitHub-ანგარიში.",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
   "supportS3P2": {
@@ -928,7 +928,7 @@
     "description": "Header of 'Bug report' section in Support pane"
   },
   "supportS4P1": {
-    "message": "თავად uBlock Origin-ის ხარვეზების მოსახსენებლად, გამოიყენეთ <span data-url=\"https://github.com/uBlockOrigin/uBlock-issues/issues?q=is%3Aissue\"><code>uBlockOrigin/uBlock-issue</code> ხარვეზების აღსარიცხავი</span>. საჭიროებს GitHub-ანგარიშს.",
+    "message": "თავად uBlock Origin-ის ხარვეზების მოსახსენებლად, გამოიყენეთ <span data-url=\"https://github.com/uBlockOrigin/uBlock-issues/issues?q=is%3Aissue\"><code>uBlockOrigin/uBlock-issue</code> ხარვეზების აღსარიცხავი</span>. დაგჭირდებათ GitHub-ანგარიში.",
     "description": "First paragraph of 'Bug report' section in Support pane"
   },
   "supportS5H": {
@@ -949,6 +949,14 @@
   },
   "supportS6P1S1": {
     "message": "მოხალისეები რომ არ მოცდნენ ერთნაირი მოსხენებების ნახვით, გთოხვთ გადაამოწმოთ, უკვე ხომ არაა გაგზავნილი საჩივარი ამ ხარვეზზე.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S1": {
+    "message": "ფილტრთა სიები ახლდება ყოველდღე. გადაამოწმეთ, ხარვეზი ხომ არ გამოსწორებულა უახლეს სიებში.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "შეამოწმეთ, გაახლებით ხომ არ გამოსწორდა ხარვეზიანი ვებგვერდი. ",
     "description": "A paragraph in the filter issue reporter section"
   },
   "supportS6URL": {
@@ -1036,7 +1044,7 @@
     "description": "Shown in the About pane"
   },
   "aboutCDNsInfo": {
-    "message": "შემთხვევით შერჩეული CDN გამოიყენება, როცა ფილტრების განახლებაა საჭირო",
+    "message": "CDN შეირჩევა შემთხვევითობით ფილტრების განახლების დროს",
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
@@ -1215,12 +1223,16 @@
     "message": "დიდი მედიაფაილების დროებით დაშვება",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
+  "contextMenuViewSource": {
+    "message": "პირველწყარო კოდის ნახვა…",
+    "description": "A context menu entry, to view the source code of the target resource"
+  },
   "shortcutCapturePlaceholder": {
     "message": "მალსახმობის მითითება",
     "description": "Placeholder string for input field used to capture a keyboard shortcut"
   },
   "genericMergeViewScrollLock": {
-    "message": "ჩაკეტილი გადაადგილების ჩართვა/გამორთვა",
+    "message": "ჩაკეტილად გადაადგილების ჩამრთველი",
     "description": "Tooltip for the button used to lock scrolling between the views in the 'My rules' pane"
   },
   "genericCopyToClipboard": {
@@ -1232,7 +1244,7 @@
     "description": "Label for buttons used to select all text in editor"
   },
   "toggleCosmeticFiltering": {
-    "message": "გარეგნული ფილტრების გადამრთველი",
+    "message": "გარეგნული ფილტრის ჩამრთველი",
     "description": "Label for keyboard shortcut used to toggle cosmetic filtering"
   },
   "relaxBlockingMode": {
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "დაწკაპეთ ჩასატვირთად",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "შეცდომა: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "სათანადოდ ვერ გაიფილტრა ბრაუზერის ჩართვისას.\nახლიდან გახსენით გვერდი უკეთ გასაფილტრად.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "This entry must be the last one",

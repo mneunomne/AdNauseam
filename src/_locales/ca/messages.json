@@ -275,13 +275,13 @@
     "message": "Versió",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "Emfatitza les files que contenen scripts de tercers",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "guió",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "Emfatitza les files que contenen marcs de tercers",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "marc",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "Crear",
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Local",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Anuncis",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Privacitat",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "Dominis de malware",
-    "description": "English: Malware domains"
+    "message": "Dominis perillosos",
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Elements molestos",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Polivalent",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Regions, llengües",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Personalitzat",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Importa...",
@@ -951,6 +951,14 @@
     "message": "Per evitar carregar els voluntaris amb informes duplicats, verifiqueu que el problema encara no s'hagi notificat.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Les llistes de filtres s'actualitzen diàriament. Assegureu-vos que el vostre problema encara no s'hagi resolt amb les llistes de filtres més recents.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Comproveu que el problema encara existeix després de recarregar la pàgina web problemàtica.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Adreça de la pàgina web:",
     "description": "Label for the URL of the page"
@@ -1215,6 +1223,10 @@
     "message": "Permet temporalment els fitxers multimèdia grans",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
+  "contextMenuViewSource": {
+    "message": "Mostra el codi font…",
+    "description": "A context menu entry, to view the source code of the target resource"
+  },
   "shortcutCapturePlaceholder": {
     "message": "Escriviu una drecera",
     "description": "Placeholder string for input field used to capture a keyboard shortcut"
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "Clic per carregar",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "Errors: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "No s'ha pogut filtrar correctament en iniciar el navegador.\nTorneu a carregar la pàgina per garantir un filtratge correcte",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "Aquesta entrada ha de ser l'última",

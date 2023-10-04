@@ -275,13 +275,13 @@
     "message": "Versiune",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "Accentuează rândurile care au script-uri de la terți",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "script",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "Accentuează rândurile care au cadre de la terți",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "cadru",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "Creează",
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Încorporate",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Reclame",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Intimitate",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
     "message": "Domenii malițioase",
-    "description": "English: Malware domains"
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Neplăceri",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Multifuncționale",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Regiuni, limbi",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Personalizare",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Importă…",
@@ -951,6 +951,14 @@
     "message": "Pentru a evita suprasolicitarea voluntarilor, vă rugăm să verificați dacă această problemă nu a fost deja raportată.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Listele cu filtre sunt actualizate zilnic. Verificați că problema dumneavoastră nu a fost rezolvată în cele mai recente liste cu filtre.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Verificați că problema există și după reîncărcarea paginii.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Adresa paginii web:",
     "description": "Label for the URL of the page"
@@ -1215,6 +1223,10 @@
     "message": "Permite temporar elementele media mari",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
+  "contextMenuViewSource": {
+    "message": "Vezi sursa",
+    "description": "A context menu entry, to view the source code of the target resource"
+  },
   "shortcutCapturePlaceholder": {
     "message": "Tastează o comandă rapidă",
     "description": "Placeholder string for input field used to capture a keyboard shortcut"
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "Apasă pentru a încărca",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "Erori: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "Nu s-a putut filtra corespunzător in timpul lansării browser-ului. Reîncarcați paginile",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "Aceasta intrare trebuie sa fie ultima",

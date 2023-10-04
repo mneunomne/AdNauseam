@@ -261,6 +261,7 @@ vAPI.SafeAnimationFrame = class {
     let timer;
 
     const send = function() {
+        if ( self.vAPI instanceof Object === false ) { return; }
         vAPI.messaging.send('scriptlets', {
             what: 'securityPolicyViolation',
             type: 'net',
@@ -305,7 +306,7 @@ vAPI.SafeAnimationFrame = class {
             timer = undefined;
         }
         document.removeEventListener('securitypolicyviolation', listener);
-        vAPI.shutdown.remove(stop);
+        if ( vAPI ) { vAPI.shutdown.remove(stop); }
     };
 
     document.addEventListener('securitypolicyviolation', listener);
@@ -471,7 +472,7 @@ vAPI.injectScriptlet = function(doc, text) {
     if ( !doc ) { return; }
     let script, url;
     try {
-        const blob = new self.Blob([ text ], { type: 'text/javascript' });
+        const blob = new self.Blob([ text ], { type: 'text/javascript; charset=utf-8' });
         url = self.URL.createObjectURL(blob);
         script = doc.createElement('script');
         script.async = false;
@@ -678,9 +679,9 @@ vAPI.DOMFilterer = class {
             const proceduralFilterer = this.proceduralFiltererInstance();
             if ( proceduralFilterer !== null ) {
                 for ( const json of this.convertedProceduralFilters ) {
-                    out.procedural.push(
-                        proceduralFilterer.createProceduralFilter(json)
-                    );
+                    const pfilter = proceduralFilterer.createProceduralFilter(json);
+                    pfilter.converted = true;
+                    out.procedural.push(pfilter);
                 }
             }
         }
@@ -722,7 +723,7 @@ vAPI.DOMFilterer = class {
         object: 'object',
         video: 'media',
     };
-    let resquestIdGenerator = 1,
+    let requestIdGenerator = 1,
         processTimer,
         cachedBlockedSet,
         cachedBlockedSetHash,
@@ -816,10 +817,10 @@ vAPI.DOMFilterer = class {
 
     const send = function() {
         processTimer = undefined;
-        toCollapse.set(resquestIdGenerator, toProcess);
+        toCollapse.set(requestIdGenerator, toProcess);
         messaging.send('contentscript', {
             what: 'getCollapsibleBlockedRequests',
-            id: resquestIdGenerator,
+            id: requestIdGenerator,
             frameURL: window.location.href,
             resources: toFilter,
             hash: cachedBlockedSetHash,
@@ -828,7 +829,7 @@ vAPI.DOMFilterer = class {
         });
         toProcess = [];
         toFilter = [];
-        resquestIdGenerator += 1;
+        requestIdGenerator += 1;
     };
 
     const process = function(delay) {
@@ -1080,11 +1081,11 @@ vAPI.DOMFilterer = class {
             });
         promise.then(response => {
             processSurveyResults(response);
-            // bootstrapPhaseAdn() ? // Adn
         });
     };
 
     const doSurvey = ( ) => {
+        if ( self.vAPI instanceof Object === false ) { return; }
         const t0 = performance.now();
         const hashes = [];
         const nodes = pendingNodes;
@@ -1351,11 +1352,6 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
 
 {
     const onDomReady = ( ) => {
-        // This can happen on Firefox. For instance:
-        // https://github.com/gorhill/uBlock/issues/1893
-        if ( window.location === null ) { return; }
-        if ( self.vAPI instanceof Object === false ) { return; }
-    
         /*
         ADN catch ads with delay: https://github.com/dhowe/AdNauseam/issues/1838
         This is a workaround to catch ads that apear with a certain delay but don't trigger the DomWatcher, such as dockduckgo 
@@ -1364,7 +1360,7 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
             bootstrapPhaseAdn()
             bootstrapAdnTimer.start(2000)
         }
-
+        
         // This can happen on Firefox. For instance:
         // https://github.com/gorhill/uBlock/issues/1893
         if ( window.location === null ) { return; }
@@ -1373,6 +1369,10 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
         vAPI.messaging.send('contentscript', {
             what: 'shouldRenderNoscriptTags',
         });
+
+        if ( vAPI.domFilterer instanceof Object ) {
+            vAPI.domFilterer.commitNow();
+        }
 
         if ( vAPI.domWatcher instanceof Object ) {
             vAPI.domWatcher.start();
@@ -1440,7 +1440,7 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
         const {
             noSpecificCosmeticFiltering,
             noGenericCosmeticFiltering,
-            scriptlets,
+            scriptletDetails,
         } = response;
 
         vAPI.noSpecificCosmeticFiltering = noSpecificCosmeticFiltering;
@@ -1451,7 +1451,7 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
             vAPI.domSurveyor = null;
         } else {
             const domFilterer = vAPI.domFilterer = new vAPI.DOMFilterer();
-            if ( noGenericCosmeticFiltering || cfeDetails.noDOMSurveying ) {
+            if ( noGenericCosmeticFiltering || cfeDetails.disableSurveyor ) {
                 vAPI.domSurveyor = null;
             } 
             domFilterer.exceptions = cfeDetails.exceptionFilters;
@@ -1464,10 +1464,12 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
 
         // Library of resources is located at:
         // https://github.com/gorhill/uBlock/blob/master/assets/ublock/resources.txt
-        if ( scriptlets && typeof self.uBO_scriptletsInjected !== 'boolean' ) {
-            self.uBO_scriptletsInjected = true;
-            vAPI.injectScriptlet(document, scriptlets);
-            vAPI.injectedScripts = scriptlets;
+        if ( scriptletDetails && typeof self.uBO_scriptletsInjected !== 'string' ) {
+            self.uBO_scriptletsInjected = scriptletDetails.filters;
+            if ( scriptletDetails.mainWorld ) {
+                vAPI.injectScriptlet(document, scriptletDetails.mainWorld);
+                vAPI.injectedScripts = scriptletDetails.mainWorld;
+            }
         }
 
         if ( vAPI.domSurveyor ) {
@@ -1490,7 +1492,7 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
         vAPI.messaging.send('contentscript', {
             what: 'retrieveContentScriptParameters',
             url: vAPI.effectiveSelf.location.href,
-            needScriptlets: typeof self.uBO_scriptletsInjected !== 'boolean',
+            needScriptlets: typeof self.uBO_scriptletsInjected !== 'string',
         }).then(response => {
             onResponseReady(response);
         });

@@ -275,13 +275,13 @@
     "message": "Versio",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑: Emfazi tiujn vicojn, kiuj enhavas triapartiajn programetojn",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "skripto",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑: Emfazi tiujn vicojn, kiuj enhavas triapartiajn kadrojn",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "kadro",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "Krei",
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Interna",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Reklamoj",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Privateco",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
     "message": "Domajno kun fiprogramaro",
-    "description": "English: Malware domains"
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Ĝenoj",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Plurcela",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Regionoj, lingvoj",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Tajlorita",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Importi...",
@@ -951,6 +951,14 @@
     "message": "To avoid burdening volunteers with duplicate reports, please verify that the issue has not already been reported.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Filter lists are updated daily. Be sure your issue has not already been addressed in the most recent filter lists.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Verify that the issue still exists after reloading the problematic webpage.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Adreso de la retpaĝo:",
     "description": "Label for the URL of the page"
@@ -1116,7 +1124,7 @@
     "description": "Firefox-specific: appears as 'uBlock₀ (off)'"
   },
   "docblockedTitle": {
-    "message": "Page blocked",
+    "message": "Paĝo blokita",
     "description": "Used as a title for the document-blocked page"
   },
   "docblockedPrompt1": {
@@ -1160,7 +1168,7 @@
     "description": "English: Permanently"
   },
   "docblockedDisable": {
-    "message": "Proceed",
+    "message": "Procedi",
     "description": "Button text to navigate to the blocked page"
   },
   "cloudPush": {
@@ -1215,6 +1223,10 @@
     "message": "Permesi grandajn aŭdvideajn elementojn nedaŭre",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
+  "contextMenuViewSource": {
+    "message": "Vidi fontkodon...",
+    "description": "A context menu entry, to view the source code of the target resource"
+  },
   "shortcutCapturePlaceholder": {
     "message": "Tajpu alirklavon",
     "description": "Placeholder string for input field used to capture a keyboard shortcut"
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "Alklaku por ŝarĝi",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "Eraroj: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "Could not filter properly at browser launch. Reload the page to ensure proper filtering.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "This entry must be the last one",

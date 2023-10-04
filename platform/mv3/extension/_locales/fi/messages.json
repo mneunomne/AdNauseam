@@ -4,7 +4,7 @@
     "description": "extension name."
   },
   "extShortDesc": {
-    "message": "Kokeellinen estotyökalu, joka ei tarvitse erityisiä käyttöoikeuksia. Estää välittömästi mm. mainokset, seurannat ja kryptolouhijat.",
+    "message": "Käyttöoikeudeton estotyökalu, joka estää välittömästi asennuksesta lähtien mm. mainokset, seurannat ja kryptolouhijat.",
     "description": "this will be in the Chrome web store: must be 132 characters or less"
   },
   "perRulesetStats": {
@@ -51,9 +51,9 @@
     "message": "Tietosuojakäytäntö",
     "description": "Link to privacy policy on GitHub (English)"
   },
-  "popupPowerSwitchInfo": {
-    "message": "Poista uBO Lite käytöstä/ota se käyttöön tällä sivustolla",
-    "description": "Tooltip for the main power button in the popup panel"
+  "popupFilteringModeLabel": {
+    "message": "suodatustila",
+    "description": "Label in the popup panel for the current filtering mode"
   },
   "popupTipDashboard": {
     "message": "Avaa hallintapaneeli",
@@ -216,7 +216,7 @@
     "description": "for generic 'Submit' buttons"
   },
   "genericApplyChanges": {
-    "message": "Käytä muutoksia",
+    "message": "Vahvista muutokset",
     "description": "for generic 'Apply changes' buttons"
   },
   "genericRevert": {
@@ -256,15 +256,15 @@
     "description": "Name of blocking mode 3"
   },
   "basicFilteringModeDescription": {
-    "message": "Perustason verkkosuodatus valikoiduilla suodatinlistoilla.\n\nEi edellytä sivustojen tietojen luku- ja muokkausoikeutta.",
+    "message": "Perustason verkkosuodatus valituilla suodatinlistoilla.\n\nEi edellytä sivustojen tietojen luku- ja muokkausoikeutta.",
     "description": "This describes the 'basic' filtering mode"
   },
   "optimalFilteringModeDescription": {
-    "message": "Edistynyt verkkosuodatus sekä kohdistettu laajempi suodatus valikoiduilla suodatinlistoilla.\n\nEdellyttää kaikki sivustot kattavan, laajemman tietojen luku- ja muokkausoikeuden myöntöä.",
+    "message": "Edistynyt verkkosuodatus sekä kohdistettu laajempi suodatus valituilla suodatinlistoilla.\n\nEdellyttää kaikki sivustot kattavan, laajemman tietojen luku- ja muokkausoikeuden.",
     "description": "This describes the 'optimal' filtering mode"
   },
   "completeFilteringModeDescription": {
-    "message": "Edistynyt verkkosuodatus sekä kohdistettu ja yleinen laajempi suodatus valikoiduilla suodatinlistoilla.\n\nEdellyttää kaikki sivustot kattavan, laajemman tietojen luku- ja muokkausoikeuden myöntöä.\n\nYleinen laajempi suodatus saattaa kasvattaa sivukohtaista resurssien käyttöä.",
+    "message": "Edistynyt verkkosuodatus sekä kohdistettu ja yleinen laajempi suodatus valituilla suodatinlistoilla.\n\nEdellyttää kaikki sivustot kattavan, laajemman tietojen luku- ja muokkausoikeuden.\n\nYleinen laajempi suodatus saattaa kasvattaa sivukohtaista resurssien käyttöä.",
     "description": "This describes the 'complete' filtering mode"
   },
   "behaviorSectionLabel": {

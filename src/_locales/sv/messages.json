@@ -40,7 +40,7 @@
     "description": "appears as tab name in dashboard"
   },
   "whitelistPageName": {
-    "message": "Pålitliga webbplatser",
+    "message": "Betrodda webbplatser",
     "description": "appears as tab name in dashboard"
   },
   "shortcutsPageName": {
@@ -68,11 +68,11 @@
     "description": "Title for the advanced settings page"
   },
   "popupPowerSwitchInfo": {
-    "message": "Klick: inaktivera/aktivera uBlock₀ för denna webbplats.\n\nCtrl+klick: inaktivera uBlock₀ endast för denna sida.",
+    "message": "Klick: inaktivera/aktivera uBlock₀ för denna webbplats.\n\nCtrl+klick: inaktivera uBlock₀ enbart på denna sida.",
     "description": "English: Click: disable/enable uBlock₀ for this site.\n\nCtrl+click: disable uBlock₀ only on this page."
   },
   "popupPowerSwitchInfo1": {
-    "message": "Klicka för att inaktivera uBlock₀ för denna webbplats.\n\nCtrl+klicka för att inaktivera uBlock₀ enbart för denna sida.",
+    "message": "Klicka för att inaktivera uBlock₀ för denna webbplats.\n\nCtrl+klicka för att inaktivera uBlock₀ enbart på denna sida.",
     "description": "Message to be read by screen readers"
   },
   "popupPowerSwitchInfo2": {
@@ -92,7 +92,7 @@
     "description": "Example: 15 (13%)"
   },
   "popupBlockedSinceInstallPrompt": {
-    "message": "sedan installation",
+    "message": "sedan installationen",
     "description": "English: since install"
   },
   "popupOr": {
@@ -104,7 +104,7 @@
     "description": "For the new mobile-friendly popup design"
   },
   "popupBlockedSinceInstall_v2": {
-    "message": "Blockerat sedan installation",
+    "message": "Blockerat sedan installationen",
     "description": "For the new mobile-friendly popup design"
   },
   "popupDomainsConnected_v2": {
@@ -192,7 +192,7 @@
     "description": "Caption for the no-popups per-site switch"
   },
   "popupNoLargeMedia_v2": {
-    "message": "Stora mediaelement",
+    "message": "Stora medieelement",
     "description": "Caption for the no-large-media per-site switch"
   },
   "popupNoCosmeticFiltering_v2": {
@@ -224,7 +224,7 @@
     "description": "Tooltip when hovering the top-most cell of the local-rules column."
   },
   "popupTipSaveRules": {
-    "message": "Klicka för att göra ändringarna permanenta.",
+    "message": "Klicka för att göra dina ändringar permanenta.",
     "description": "Tooltip when hovering over the padlock in the dynamic filtering pane."
   },
   "popupTipRevertRules": {
@@ -275,13 +275,13 @@
     "message": "Version",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑: Markera rader som har tredjepartsskript",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "skript",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑: Markera rader som har tredjepartsramar",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "ram",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "Skapa",
@@ -312,7 +312,7 @@
     "description": "English: Click, Ctrl-click"
   },
   "pickerContextMenuEntry": {
-    "message": "Blockera element...",
+    "message": "Blockera element…",
     "description": "An entry in the browser's contextual menu"
   },
   "settingsCollapseBlockedPrompt": {
@@ -356,7 +356,7 @@
     "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
-    "message": "Inaktivera förhandshämtning (för att förhindra anslutningar av blockerade förfrågningar)",
+    "message": "Inaktivera förhandshämtning (för att förhindra anslutning av blockerade nätverksförfrågningar)",
     "description": "English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt": {
@@ -396,7 +396,7 @@
     "description": "background information: https://github.com/gorhill/uBlock/issues/3150"
   },
   "settingsUncloakCnamePrompt": {
-    "message": "Visa CNAME-poster",
+    "message": "Ta fram kanoniska namn",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
   "settingsAdvanced": {
@@ -404,7 +404,7 @@
     "description": "Section for controlling advanced-user settings"
   },
   "settingsAdvancedSynopsis": {
-    "message": "Funktioner som endast är lämpliga för tekniska användare.",
+    "message": "Funktioner som endast är lämpliga för tekniska användare",
     "description": "Description of section controlling advanced-user settings"
   },
   "settingsAdvancedUserSettings": {
@@ -469,38 +469,38 @@
   },
   "3pGroupDefault": {
     "message": "Inbyggd",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Annonser",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Integritet",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "Domäner med skadlig kod (malware)",
-    "description": "English: Malware domains"
+    "message": "Skydd mot skadlig programvara, säkerhet",
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Störande",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Mångsidiga",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Regioner, språk",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Anpassad",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
-    "message": "Importera...",
+    "message": "Importera…",
     "description": "The label for the checkbox used to import external filter lists"
   },
   "3pExternalListsHint": {
@@ -520,7 +520,7 @@
     "description": "used as a tooltip for the clock icon beside a list"
   },
   "3pUpdating": {
-    "message": "Uppdaterar...",
+    "message": "Uppdaterar…",
     "description": "used as a tooltip for the spinner icon beside a list"
   },
   "3pNetworkError": {
@@ -576,7 +576,7 @@
     "description": "Will discard manually-edited content and exit manual-edit mode"
   },
   "rulesImport": {
-    "message": "Importera från fil...",
+    "message": "Importera från fil…",
     "description": ""
   },
   "rulesExport": {
@@ -624,7 +624,7 @@
     "description": "English: Export"
   },
   "whitelistExportFilename": {
-    "message": "mina-ublock-pålitliga-webbplatser_{{datetime}}.txt",
+    "message": "mina-ublock-betrodda-webbplatser_{{datetime}}.txt",
     "description": "The default filename to use for import/export purpose"
   },
   "whitelistApply": {
@@ -880,7 +880,7 @@
     "description": "Label for radio-button to pick export text format"
   },
   "supportOpenButton": {
-    "message": "Öppen",
+    "message": "Öppna",
     "description": "Text for button which open an external webpage in Support pane"
   },
   "supportReportSpecificButton": {
@@ -896,7 +896,7 @@
     "description": "Header of 'Documentation' section in Support pane"
   },
   "supportS1P1": {
-    "message": "Läs dokumentationen på <code>uBlock/wiki</code> för att lära dig allt om uBlock Origin's funktioner.",
+    "message": "Läs dokumentationen på <code>uBlock/wiki</code> för att lära dig allt om uBlock Origins funktioner.",
     "description": "First paragraph of 'Documentation' section in Support pane"
   },
   "supportS2H": {
@@ -904,7 +904,7 @@
     "description": "Header of 'Questions and support' section in Support pane"
   },
   "supportS2P1": {
-    "message": "Svar på frågor och andra typer av hjälp finns på subreddit <code>/r/uBlockOrigin</code>.",
+    "message": "Svar på frågor och andra typer av hjälp finns på subredditen <code>/r/uBlockOrigin</code>.",
     "description": "First paragraph of 'Questions and support' section in Support pane"
   },
   "supportS3H": {
@@ -912,7 +912,7 @@
     "description": "Header of 'Filter issues' section in Support pane"
   },
   "supportS3P1": {
-    "message": "Rapportera filterproblem med specifika webbplatser till <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> issue tracker</span>. <u>Kräver ett GitHub-konto.</u>",
+    "message": "Rapportera filterproblem med specifika webbplatser till <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> problemhanteringssystemet</span>. <u>Kräver ett GitHub-konto.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
   "supportS3P2": {
@@ -951,12 +951,20 @@
     "message": "För att undvika att belasta volontärer med dubbletter av rapporter, kontrollera att problemet inte redan har rapporterats.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Filterlistor uppdateras dagligen. Se till att ditt problem inte redan har åtgärdats i de senaste filterlistorna.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Kontrollera att problemet kvarstår efter att du har laddat om den krånglande webbsidan.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Hemsidans adress:",
     "description": "Label for the URL of the page"
   },
   "supportS6Select1": {
-    "message": "Webbsidan...",
+    "message": "Webbsidan…",
     "description": "Label for widget to select type of issue"
   },
   "supportS6Select1Option0": {
@@ -984,7 +992,7 @@
     "description": "An entry in the widget used to select the type of issue"
   },
   "supportS6Select1Option6": {
-    "message": "Öppnar oönskade flikar och fönster",
+    "message": "Öppnar oönskade flikar eller fönster",
     "description": "An entry in the widget used to select the type of issue"
   },
   "supportS6Checkbox1": {
@@ -1036,11 +1044,11 @@
     "description": "Shown in the About pane"
   },
   "aboutCDNsInfo": {
-    "message": "Ett slumpmässigt valt CDN kommer att användas när en filterlista behöver uppdateras",
+    "message": "Ett slumpmässigt valt CDN kommer att användas när en filterlista behöver uppdateras.",
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
-    "message": "Säkerhetskopiera till fil...",
+    "message": "Säkerhetskopiera till fil…",
     "description": "Text for button to create a backup of all settings"
   },
   "aboutBackupFilename": {
@@ -1048,11 +1056,11 @@
     "description": "English: my-ublock-backup_{{datetime}}.txt"
   },
   "aboutRestoreDataButton": {
-    "message": "Återställ från fil...",
+    "message": "Återställ från fil…",
     "description": "English: Restore from file..."
   },
   "aboutResetDataButton": {
-    "message": "Återställ till standardinställningarna...",
+    "message": "Återställ till standardinställningarna…",
     "description": "English: Reset to default settings..."
   },
   "aboutRestoreDataConfirm": {
@@ -1176,7 +1184,7 @@
     "description": "tooltip"
   },
   "cloudNoData": {
-    "message": "...\n...",
+    "message": "…\n…",
     "description": ""
   },
   "cloudDeviceNamePrompt": {
@@ -1204,16 +1212,20 @@
     "description": ""
   },
   "contextMenuBlockElementInFrame": {
-    "message": "Blockera element i ramar...",
+    "message": "Blockera element i ramar…",
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuSubscribeToList": {
-    "message": "Prenumerera på filterlista...",
+    "message": "Prenumerera på filterlista…",
     "description": "An entry in the browser's contextual menu"
   },
   "contextMenuTemporarilyAllowLargeMediaElements": {
     "message": "Tillåt tillfälligt stora medieelement",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
+  },
+  "contextMenuViewSource": {
+    "message": "Visa källkoden…",
+    "description": "A context menu entry, to view the source code of the target resource"
   },
   "shortcutCapturePlaceholder": {
     "message": "Ange en genväg",
@@ -1228,7 +1240,7 @@
     "description": "Label for buttons used to copy something to the clipboard"
   },
   "genericSelectAll": {
-    "message": "Markera alla",
+    "message": "Markera allt",
     "description": "Label for buttons used to select all text in editor"
   },
   "toggleCosmeticFiltering": {
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "Klicka för att ladda",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "Fel: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "Det gick inte att filtrera ordentligt vid webbläsarstart. Ladda om sidan för att säkerställa korrekt filtrering.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "This entry must be the last one",

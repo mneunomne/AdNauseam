@@ -22,42 +22,234 @@
     web page context.
 */
 
-// The lines below are skipped by the resource parser. Purpose is clean
-// jshinting.
-(function() {
-// >>>> start of private namespace
+// Externally added to the private namespace in which scriptlets execute.
+/* global scriptletGlobals */
+
 'use strict';
 
+export const builtinScriptlets = [];
 
+/*******************************************************************************
 
+    Helper functions
+    
+    These are meant to be used as dependencies to injectable scriptlets.
 
+*******************************************************************************/
 
-/// abort-current-script.js
-/// alias acs.js
-/// alias abort-current-inline-script.js
-/// alias acis.js
+builtinScriptlets.push({
+    name: 'safe-self.fn',
+    fn: safeSelf,
+});
+function safeSelf() {
+    if ( scriptletGlobals.has('safeSelf') ) {
+        return scriptletGlobals.get('safeSelf');
+    }
+    const self = globalThis;
+    const safe = {
+        'Error': self.Error,
+        'Object_defineProperty': Object.defineProperty.bind(Object),
+        'RegExp': self.RegExp,
+        'RegExp_test': self.RegExp.prototype.test,
+        'RegExp_exec': self.RegExp.prototype.exec,
+        'XMLHttpRequest': self.XMLHttpRequest,
+        'addEventListener': self.EventTarget.prototype.addEventListener,
+        'removeEventListener': self.EventTarget.prototype.removeEventListener,
+        'fetch': self.fetch,
+        'jsonParse': self.JSON.parse.bind(self.JSON),
+        'jsonStringify': self.JSON.stringify.bind(self.JSON),
+        'log': console.log.bind(console),
+        uboLog(...args) {
+            if ( args.length === 0 ) { return; }
+            if ( `${args[0]}` === '' ) { return; }
+            this.log('[uBO]', ...args);
+        },
+        initPattern(pattern, options = {}) {
+            if ( pattern === '' ) {
+                return { matchAll: true };
+            }
+            const expect = (options.canNegate === true && pattern.startsWith('!') === false);
+            if ( expect === false ) {
+                pattern = pattern.slice(1);
+            }
+            const match = /^\/(.+)\/([gimsu]*)$/.exec(pattern);
+            if ( match !== null ) {
+                return {
+                    pattern,
+                    re: new this.RegExp(
+                        match[1],
+                        match[2] || options.flags
+                    ),
+                    expect,
+                };
+            }
+            return {
+                pattern,
+                re: new this.RegExp(pattern.replace(
+                    /[.*+?^${}()|[\]\\]/g, '\\$&'),
+                    options.flags
+                ),
+                expect,
+            };
+        },
+        testPattern(details, haystack) {
+            if ( details.matchAll ) { return true; }
+            return this.RegExp_test.call(details.re, haystack) === details.expect;
+        },
+        patternToRegex(pattern, flags = undefined) {
+            if ( pattern === '' ) { return /^/; }
+            const match = /^\/(.+)\/([gimsu]*)$/.exec(pattern);
+            if ( match === null ) {
+                return new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
+            }
+            try {
+                return new RegExp(match[1], match[2] || flags);
+            }
+            catch(ex) {
+            }
+            return /^/;
+        },
+        getExtraArgs(args, offset = 0) {
+            const entries = args.slice(offset).reduce((out, v, i, a) => {
+                if ( (i & 1) === 0 ) {
+                    const rawValue = a[i+1];
+                    const value = /^\d+$/.test(rawValue)
+                        ? parseInt(rawValue, 10)
+                        : rawValue;
+                    out.push([ a[i], value ]);
+                }
+                return out;
+            }, []);
+            return Object.fromEntries(entries);
+        },
+    };
+    scriptletGlobals.set('safeSelf', safe);
+    return safe;
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'get-exception-token.fn',
+    fn: getExceptionToken,
+});
+function getExceptionToken() {
+    const token =
+        String.fromCharCode(Date.now() % 26 + 97) +
+        Math.floor(Math.random() * 982451653 + 982451653).toString(36);
+    const oe = self.onerror;
+    self.onerror = function(msg, ...args) {
+        if ( typeof msg === 'string' && msg.includes(token) ) { return true; }
+        if ( oe instanceof Function ) {
+            return oe.call(this, msg, ...args);
+        }
+    }.bind();
+    return token;
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'should-debug.fn',
+    fn: shouldDebug,
+});
+function shouldDebug(details) {
+    if ( details instanceof Object === false ) { return false; }
+    return scriptletGlobals.has('canDebug') && details.debug;
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'should-log.fn',
+    fn: shouldLog,
+});
+function shouldLog(details) {
+    if ( details instanceof Object === false ) { return false; }
+    return scriptletGlobals.has('canDebug') && details.log;
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'run-at.fn',
+    fn: runAt,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function runAt(fn, when) {
+    const intFromReadyState = state => {
+        const targets = {
+            'loading': 1,
+            'interactive': 2, 'end': 2, '2': 2,
+            'complete': 3, 'idle': 3, '3': 3,
+        };
+        const tokens = Array.isArray(state) ? state : [ state ];
+        for ( const token of tokens ) {
+            const prop = `${token}`;
+            if ( targets.hasOwnProperty(prop) === false ) { continue; }
+            return targets[prop];
+        }
+        return 0;
+    };
+    const runAt = intFromReadyState(when);
+    if ( intFromReadyState(document.readyState) >= runAt ) {
+        fn(); return;
+    }
+    const onStateChange = ( ) => {
+        if ( intFromReadyState(document.readyState) < runAt ) { return; }
+        fn();
+        safe.removeEventListener.apply(document, args);
+    };
+    const safe = safeSelf();
+    const args = [ 'readystatechange', onStateChange, { capture: true } ];
+    safe.addEventListener.apply(document, args);
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'run-at-html-element.fn',
+    fn: runAtHtmlElement,
+});
+function runAtHtmlElement(fn) {
+    if ( document.documentElement ) {
+        fn();
+        return;
+    }
+    const observer = new MutationObserver(( ) => {
+        observer.disconnect();
+        fn();
+    });
+    observer.observe(document, { childList: true });
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'abort-current-script-core.fn',
+    fn: abortCurrentScriptCore,
+    dependencies: [
+        'get-exception-token.fn',
+        'safe-self.fn',
+        'should-debug.fn',
+        'should-log.fn',
+    ],
+});
 // Issues to mind before changing anything:
 //  https://github.com/uBlockOrigin/uBlock-issues/issues/2154
-(function() {
-    const target = '{{1}}';
-    if ( target === '' || target === '{{1}}' ) { return; }
-    const reRegexEscape = /[.*+?^${}()|[\]\\]/g;
-    const needle = '{{2}}';
-    const reNeedle = (( ) => {
-        if ( needle === '' || needle === '{{2}}' ) { return /^/; }
-        if ( /^\/.+\/$/.test(needle) ) {
-            return new RegExp(needle.slice(1,-1));
-        }
-        return new RegExp(needle.replace(reRegexEscape, '\\$&'));
-    })();
-    const context = '{{3}}';
-    const reContext = (( ) => {
-        if ( context === '' || context === '{{3}}' ) { return; }
-        if ( /^\/.+\/$/.test(context) ) {
-            return new RegExp(context.slice(1,-1));
-        }
-        return new RegExp(context.replace(reRegexEscape, '\\$&'));
-    })();
+function abortCurrentScriptCore(
+    target = '',
+    needle = '',
+    context = ''
+) {
+    if ( typeof target !== 'string' ) { return; }
+    if ( target === '' ) { return; }
+    const safe = safeSelf();
+    const reNeedle = safe.patternToRegex(needle);
+    const reContext = safe.patternToRegex(context);
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
     const thisScript = document.currentScript;
     const chain = target.split('.');
     let owner = window;
@@ -65,6 +257,7 @@
     for (;;) {
         prop = chain.shift();
         if ( chain.length === 0 ) { break; }
+        if ( prop in owner === false ) { break; }
         owner = owner[prop];
         if ( owner instanceof Object === false ) { return; }
     }
@@ -77,8 +270,9 @@
         value = owner[prop];
         desc = undefined;
     }
-    const magic = String.fromCharCode(Date.now() % 26 + 97) +
-                  Math.floor(Math.random() * 982451653 + 982451653).toString(36);
+    const log = shouldLog(extraArgs);
+    const debug = shouldDebug(extraArgs);
+    const exceptionToken = getExceptionToken();
     const scriptTexts = new WeakMap();
     const getScriptText = elem => {
         let text = elem.textContent;
@@ -105,47 +299,693 @@
         const e = document.currentScript;
         if ( e instanceof HTMLScriptElement === false ) { return; }
         if ( e === thisScript ) { return; }
-        if ( reContext !== undefined && reContext.test(e.src) === false ) {
+        if ( context !== '' && reContext.test(e.src) === false ) {
+            if ( debug === 'nomatch' || debug === 'all' ) { debugger; }  // jshint ignore: line
             return;
         }
-        if ( reNeedle.test(getScriptText(e)) === false ) { return; }
-        throw new ReferenceError(magic);
+        if ( log && e.src !== '' ) { safe.uboLog(`matched src: ${e.src}`); }
+        const scriptText = getScriptText(e);
+        if ( reNeedle.test(scriptText) === false ) {
+            if ( debug === 'nomatch' || debug === 'all' ) { debugger; }  // jshint ignore: line
+            return;
+        }
+        if ( log ) { safe.uboLog(`matched script text: ${scriptText}`); }
+        if ( debug === 'match' || debug === 'all' ) { debugger; }  // jshint ignore: line
+        throw new ReferenceError(exceptionToken);
     };
-    Object.defineProperty(owner, prop, {
-        get: function() {
-            validate();
-            return desc instanceof Object
-                ? desc.get.call(owner)
-                : value;
-        },
-        set: function(a) {
-            validate();
-            if ( desc instanceof Object ) {
-                desc.set.call(owner, a);
-            } else {
-                value = a;
+    if ( debug === 'install' ) { debugger; }  // jshint ignore: line
+    try {
+        Object.defineProperty(owner, prop, {
+            get: function() {
+                validate();
+                return desc instanceof Object
+                    ? desc.get.call(owner)
+                    : value;
+            },
+            set: function(a) {
+                validate();
+                if ( desc instanceof Object ) {
+                    desc.set.call(owner, a);
+                } else {
+                    value = a;
+                }
+            }
+        });
+    } catch(ex) {
+        if ( log ) { safe.uboLog(ex); }
+    }
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'set-constant-core.fn',
+    fn: setConstantCore,
+    dependencies: [
+        'run-at.fn',
+        'safe-self.fn',
+    ],
+});
+
+function setConstantCore(
+    trusted = false,
+    chain = '',
+    cValue = ''
+) {
+    if ( chain === '' ) { return; }
+    const safe = safeSelf();
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
+    function setConstant(chain, cValue) {
+        const trappedProp = (( ) => {
+            const pos = chain.lastIndexOf('.');
+            if ( pos === -1 ) { return chain; }
+            return chain.slice(pos+1);
+        })();
+        if ( trappedProp === '' ) { return; }
+        const thisScript = document.currentScript;
+        const cloakFunc = fn => {
+            safe.Object_defineProperty(fn, 'name', { value: trappedProp });
+            const proxy = new Proxy(fn, {
+                defineProperty(target, prop) {
+                    if ( prop !== 'toString' ) {
+                        return Reflect.defineProperty(...arguments);
+                    }
+                    return true;
+                },
+                deleteProperty(target, prop) {
+                    if ( prop !== 'toString' ) {
+                        return Reflect.deleteProperty(...arguments);
+                    }
+                    return true;
+                },
+                get(target, prop) {
+                    if ( prop === 'toString' ) {
+                        return function() {
+                            return `function ${trappedProp}() { [native code] }`;
+                        }.bind(null);
+                    }
+                    return Reflect.get(...arguments);
+                },
+            });
+            return proxy;
+        };
+        if ( cValue === 'undefined' ) {
+            cValue = undefined;
+        } else if ( cValue === 'false' ) {
+            cValue = false;
+        } else if ( cValue === 'true' ) {
+            cValue = true;
+        } else if ( cValue === 'null' ) {
+            cValue = null;
+        } else if ( cValue === "''" || cValue === '' ) {
+            cValue = '';
+        } else if ( cValue === '[]' ) {
+            cValue = [];
+        } else if ( cValue === '{}' ) {
+            cValue = {};
+        } else if ( cValue === 'noopFunc' ) {
+            cValue = cloakFunc(function(){});
+        } else if ( cValue === 'trueFunc' ) {
+            cValue = cloakFunc(function(){ return true; });
+        } else if ( cValue === 'falseFunc' ) {
+            cValue = cloakFunc(function(){ return false; });
+        } else if ( /^-?\d+$/.test(cValue) ) {
+            cValue = parseInt(cValue);
+            if ( isNaN(cValue) ) { return; }
+            if ( Math.abs(cValue) > 0x7FFF ) { return; }
+        } else if ( trusted ) {
+            if ( cValue.startsWith('{') && cValue.endsWith('}') ) {
+                try { cValue = safe.jsonParse(cValue).value; } catch(ex) { return; }
+            }
+        } else {
+            return;
+        }
+        if ( extraArgs.as !== undefined ) {
+            if ( extraArgs.as === 'function' ) {
+                cValue = ( ) => cValue;
+            } else if ( extraArgs.as === 'callback' ) {
+                cValue = ( ) => (( ) => cValue);
+            } else if ( extraArgs.as === 'resolved' ) {
+                cValue = Promise.resolve(cValue);
+            } else if ( extraArgs.as === 'rejected' ) {
+                cValue = Promise.reject(cValue);
             }
         }
-    });
-    const oe = window.onerror;
-    window.onerror = function(msg) {
-        if ( typeof msg === 'string' && msg.includes(magic) ) {
+        let aborted = false;
+        const mustAbort = function(v) {
+            if ( trusted ) { return false; }
+            if ( aborted ) { return true; }
+            aborted =
+                (v !== undefined && v !== null) &&
+                (cValue !== undefined && cValue !== null) &&
+                (typeof v !== typeof cValue);
+            return aborted;
+        };
+        // https://github.com/uBlockOrigin/uBlock-issues/issues/156
+        //   Support multiple trappers for the same property.
+        const trapProp = function(owner, prop, configurable, handler) {
+            if ( handler.init(configurable ? owner[prop] : cValue) === false ) { return; }
+            const odesc = Object.getOwnPropertyDescriptor(owner, prop);
+            let prevGetter, prevSetter;
+            if ( odesc instanceof Object ) {
+                owner[prop] = cValue;
+                if ( odesc.get instanceof Function ) {
+                    prevGetter = odesc.get;
+                }
+                if ( odesc.set instanceof Function ) {
+                    prevSetter = odesc.set;
+                }
+            }
+            try {
+                safe.Object_defineProperty(owner, prop, {
+                    configurable,
+                    get() {
+                        if ( prevGetter !== undefined ) {
+                            prevGetter();
+                        }
+                        return handler.getter(); // cValue
+                    },
+                    set(a) {
+                        if ( prevSetter !== undefined ) {
+                            prevSetter(a);
+                        }
+                        handler.setter(a);
+                    }
+                });
+            } catch(ex) {
+            }
+        };
+        const trapChain = function(owner, chain) {
+            const pos = chain.indexOf('.');
+            if ( pos === -1 ) {
+                trapProp(owner, chain, false, {
+                    v: undefined,
+                    init: function(v) {
+                        if ( mustAbort(v) ) { return false; }
+                        this.v = v;
+                        return true;
+                    },
+                    getter: function() {
+                        return document.currentScript === thisScript
+                            ? this.v
+                            : cValue;
+                    },
+                    setter: function(a) {
+                        if ( mustAbort(a) === false ) { return; }
+                        cValue = a;
+                    }
+                });
+                return;
+            }
+            const prop = chain.slice(0, pos);
+            const v = owner[prop];
+            chain = chain.slice(pos + 1);
+            if ( v instanceof Object || typeof v === 'object' && v !== null ) {
+                trapChain(v, chain);
+                return;
+            }
+            trapProp(owner, prop, true, {
+                v: undefined,
+                init: function(v) {
+                    this.v = v;
+                    return true;
+                },
+                getter: function() {
+                    return this.v;
+                },
+                setter: function(a) {
+                    this.v = a;
+                    if ( a instanceof Object ) {
+                        trapChain(a, chain);
+                    }
+                }
+            });
+        };
+        trapChain(window, chain);
+    }
+    runAt(( ) => {
+        setConstant(chain, cValue);
+    }, extraArgs.runAt);
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'replace-node-text-core.fn',
+    fn: replaceNodeTextCore,
+    dependencies: [
+        'run-at.fn',
+        'safe-self.fn',
+    ],
+});
+function replaceNodeTextCore(
+    nodeName = '',
+    pattern = '',
+    replacement = ''
+) {
+    const safe = safeSelf();
+    const reNodeName = safe.patternToRegex(nodeName, 'i');
+    const rePattern = safe.patternToRegex(pattern, 'gms');
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
+    const shouldLog = scriptletGlobals.has('canDebug') && extraArgs.log || 0;
+    const reCondition = safe.patternToRegex(extraArgs.condition || '', 'gms');
+    const stop = (takeRecord = true) => {
+        if ( takeRecord ) {
+            handleMutations(observer.takeRecords());
+        }
+        observer.disconnect();
+        if ( shouldLog !== 0 ) {
+            safe.uboLog(`replace-node-text-core.fn: quitting "${pattern}" => "${replacement}"`);
+        }
+    };
+    let sedCount = extraArgs.sedCount || 0;
+    const handleNode = node => {
+        const before = node.textContent;
+        if ( safe.RegExp_test.call(rePattern, before) === false ) { return true; }
+        if ( safe.RegExp_test.call(reCondition, before) === false ) { return true; }
+        const after = pattern !== ''
+            ? before.replace(rePattern, replacement)
+            : replacement;
+        node.textContent = after;
+        if ( shouldLog !== 0 ) {
+            safe.uboLog('replace-node-text-core.fn before:\n', before);
+            safe.uboLog('replace-node-text-core.fn after:\n', after);
+        }
+        return sedCount === 0 || (sedCount -= 1) !== 0;
+    };
+    const handleMutations = mutations => {
+        for ( const mutation of mutations ) {
+            for ( const node of mutation.addedNodes ) {
+                if ( reNodeName.test(node.nodeName) === false ) { continue; }
+                if ( handleNode(node) ) { continue; }
+                stop(false); return;
+            }
+        }
+    };
+    const observer = new MutationObserver(handleMutations);
+    observer.observe(document, { childList: true, subtree: true });
+    if ( document.documentElement ) {
+        const treeWalker = document.createTreeWalker(
+            document.documentElement,
+            NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT
+        );
+        let count = 0;
+        for (;;) {
+            const node = treeWalker.nextNode();
+            count += 1;
+            if ( node === null ) { break; }
+            if ( reNodeName.test(node.nodeName) === false ) { continue; }
+            if ( handleNode(node) ) { continue; }
+            stop(); break;
+        }
+        if ( shouldLog !== 0 ) {
+            safe.uboLog(`replace-node-text-core.fn ${count} nodes present before installing mutation observer`);
+        }
+    }
+    if ( extraArgs.stay ) { return; }
+    runAt(( ) => {
+        const quitAfter = extraArgs.quitAfter || 0;
+        if ( quitAfter !== 0 ) {
+            setTimeout(( ) => { stop(); }, quitAfter);
+        } else {
+            stop();
+        }
+    }, 'interactive');
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'object-prune.fn',
+    fn: objectPrune,
+    dependencies: [
+        'matches-stack-trace.fn',
+        'safe-self.fn',
+    ],
+});
+//  When no "prune paths" argument is provided, the scriptlet is
+//  used for logging purpose and the "needle paths" argument is
+//  used to filter logging output.
+//
+//  https://github.com/uBlockOrigin/uBlock-issues/issues/1545
+//  - Add support for "remove everything if needle matches" case
+function objectPrune(
+    obj,
+    rawPrunePaths,
+    rawNeedlePaths,
+    stackNeedleDetails = { matchAll: true },
+    extraArgs = {}
+) {
+    if ( typeof rawPrunePaths !== 'string' ) { return; }
+    const safe = safeSelf();
+    const prunePaths = rawPrunePaths !== ''
+        ? rawPrunePaths.split(/ +/)
+        : [];
+    const needlePaths = prunePaths.length !== 0 && rawNeedlePaths !== ''
+        ? rawNeedlePaths.split(/ +/)
+        : [];
+    const logLevel = shouldLog({ log: rawPrunePaths === '' || extraArgs.log });
+    const reLogNeedle = safe.patternToRegex(logLevel === true ? rawNeedlePaths : '');
+    if ( stackNeedleDetails.matchAll !== true ) {
+        if ( matchesStackTrace(stackNeedleDetails, extraArgs.logstack) === false ) {
+            return;
+        }
+    }
+    if ( objectPrune.findOwner === undefined ) {
+        objectPrune.findOwner = (root, path, prune = false) => {
+            let owner = root;
+            let chain = path;
+            for (;;) {
+                if ( typeof owner !== 'object' || owner === null  ) { return false; }
+                const pos = chain.indexOf('.');
+                if ( pos === -1 ) {
+                    if ( prune === false ) {
+                        return owner.hasOwnProperty(chain);
+                    }
+                    let modified = false;
+                    if ( chain === '*' ) {
+                        for ( const key in owner ) {
+                            if ( owner.hasOwnProperty(key) === false ) { continue; }
+                            delete owner[key];
+                            modified = true;
+                        }
+                    } else if ( owner.hasOwnProperty(chain) ) {
+                        delete owner[chain];
+                        modified = true;
+                    }
+                    return modified;
+                }
+                const prop = chain.slice(0, pos);
+                if (
+                    prop === '[]' && Array.isArray(owner) ||
+                    prop === '*' && owner instanceof Object
+                ) {
+                    const next = chain.slice(pos + 1);
+                    let found = false;
+                    for ( const key of Object.keys(owner) ) {
+                        found = objectPrune.findOwner(owner[key], next, prune) || found;
+                    }
+                    return found;
+                }
+                if ( owner.hasOwnProperty(prop) === false ) { return false; }
+                owner = owner[prop];
+                chain = chain.slice(pos + 1);
+            }
+        };
+        objectPrune.mustProcess = (root, needlePaths) => {
+            for ( const needlePath of needlePaths ) {
+                if ( objectPrune.findOwner(root, needlePath) === false ) {
+                    return false;
+                }
+            }
             return true;
+        };
+        objectPrune.logJson = (json, msg, reNeedle) => {
+            if ( reNeedle.test(json) === false ) { return; }
+            safeSelf().uboLog(`objectPrune()`, msg, location.hostname, json);
+        };
+    }
+    const jsonBefore = logLevel ? JSON.stringify(obj, null, 2) : '';
+    if ( logLevel === true || logLevel === 'all' ) {
+        objectPrune.logJson(jsonBefore, `prune:"${rawPrunePaths}" log:"${logLevel}"`, reLogNeedle);
+    }
+    if ( prunePaths.length === 0 ) { return; }
+    let outcome = 'nomatch';
+    if ( objectPrune.mustProcess(obj, needlePaths) ) {
+        for ( const path of prunePaths ) {
+            if ( objectPrune.findOwner(obj, path, true) ) {
+                outcome = 'match';
+            }
         }
-        if ( oe instanceof Function ) {
-            return oe.apply(this, arguments);
+    }
+    if ( logLevel === outcome ) {
+        objectPrune.logJson(jsonBefore, `prune:"${rawPrunePaths}" log:"${logLevel}"`, reLogNeedle);
+    }
+    if ( outcome === 'match' ) { return obj; }
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'set-cookie-helper.fn',
+    fn: setCookieHelper,
+});
+function setCookieHelper(
+    name = '',
+    value = '',
+    expires = '',
+    path = '',
+    options = {},
+) {
+    const cookieExists = (name, value) => {
+        return document.cookie.split(/\s*;\s*/).some(s => {
+            const pos = s.indexOf('=');
+            if ( pos === -1 ) { return false; }
+            if ( s.slice(0, pos) !== name ) { return false; }
+            if ( s.slice(pos+1) !== value ) { return false; }
+            return true;
+        });
+    };
+
+    if ( options.reload && cookieExists(name, value) ) { return; }
+
+    const cookieParts = [ name, '=', value ];
+    if ( expires !== '' ) {
+        cookieParts.push('; expires=', expires);
+    }
+
+    if ( path === '' ) { path = '/'; }
+    else if ( path === 'none' ) { path = ''; }
+    if ( path !== '' && path !== '/' ) { return; }
+    if ( path === '/' ) {
+        cookieParts.push('; path=/');
+    }
+    document.cookie = cookieParts.join('');
+
+    if ( options.reload && cookieExists(name, value) ) {
+        window.location.reload();
+    }
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'set-local-storage-item-core.fn',
+    fn: setLocalStorageItemCore,
+});
+function setLocalStorageItemCore(
+    which = 'local',
+    trusted = false,
+    key = '',
+    value = '',
+) {
+    if ( key === '' ) { return; }
+
+    const trustedValues = [
+        '',
+        'undefined', 'null',
+        'false', 'true',
+        'yes', 'no',
+        '{}', '[]', '""',
+        '$remove$',
+    ];
+
+    if ( trusted ) {
+        if ( value === '$now$' ) {
+            value = Date.now();
+        } else if ( value === '$currentDate$' ) {
+            value = `${Date()}`;
+        } else if ( value === '$currentISODate$' ) {
+            value = (new Date()).toISOString();
         }
-    }.bind();
-})();
+    } else {
+        if ( trustedValues.includes(value.toLowerCase()) === false ) {
+            if ( /^\d+$/.test(value) === false ) { return; }
+            value = parseInt(value, 10);
+            if ( value > 32767 ) { return; }
+        }
+    }
 
+    try {
+        const storage = `${which}Storage`;
+        if ( value === '$remove$' ) {
+            self[storage].removeItem(key);
+        } else {
+            self[storage].setItem(key, `${value}`);
+        }
+    } catch(ex) {
+    }
+}
 
-/// abort-on-property-read.js
-/// alias aopr.js
-(function() {
-    const magic = String.fromCharCode(Date.now() % 26 + 97) +
-                  Math.floor(Math.random() * 982451653 + 982451653).toString(36);
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'matches-stack-trace.fn',
+    fn: matchesStackTrace,
+    dependencies: [
+        'get-exception-token.fn',
+        'safe-self.fn',
+    ],
+});
+function matchesStackTrace(
+    needleDetails,
+    logLevel = 0
+) {
+    const safe = safeSelf();
+    const exceptionToken = getExceptionToken();
+    const error = new safe.Error(exceptionToken);
+    const docURL = new URL(self.location.href);
+    docURL.hash = '';
+    // Normalize stack trace
+    const reLine = /(.*?@)?(\S+)(:\d+):\d+\)?$/;
+    const lines = [];
+    for ( let line of error.stack.split(/[\n\r]+/) ) {
+        if ( line.includes(exceptionToken) ) { continue; }
+        line = line.trim();
+        const match = safe.RegExp_exec.call(reLine, line);
+        if ( match === null ) { continue; }
+        let url = match[2];
+        if ( url.startsWith('(') ) { url = url.slice(1); }
+        if ( url === docURL.href ) {
+            url = 'inlineScript';
+        } else if ( url.startsWith('<anonymous>') ) {
+            url = 'injectedScript';
+        }
+        let fn = match[1] !== undefined
+            ? match[1].slice(0, -1)
+            : line.slice(0, match.index).trim();
+        if ( fn.startsWith('at') ) { fn = fn.slice(2).trim(); }
+        let rowcol = match[3];
+        lines.push(' ' + `${fn} ${url}${rowcol}:1`.trim());
+    }
+    lines[0] = `stackDepth:${lines.length-1}`;
+    const stack = lines.join('\t');
+    const r = safe.testPattern(needleDetails, stack);
+    if (
+        logLevel === 1 ||
+        logLevel === 2 && r ||
+        logLevel === 3 && !r
+    ) {
+        safe.uboLog(stack.replace(/\t/g, '\n'));
+    }
+    return r;
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'parse-properties-to-match.fn',
+    fn: parsePropertiesToMatch,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function parsePropertiesToMatch(propsToMatch, implicit = '') {
+    const safe = safeSelf();
+    const needles = new Map();
+    if ( propsToMatch === undefined || propsToMatch === '' ) { return needles; }
+    const options = { canNegate: true };
+    for ( const needle of propsToMatch.split(/\s+/) ) {
+        const [ prop, pattern ] = needle.split(':');
+        if ( prop === '' ) { continue; }
+        if ( pattern !== undefined ) {
+            needles.set(prop, safe.initPattern(pattern, options));
+        } else if ( implicit !== '' ) {
+            needles.set(implicit, safe.initPattern(prop, options));
+        }
+    }
+    return needles;
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'match-object-properties.fn',
+    fn: matchObjectProperties,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function matchObjectProperties(propNeedles, ...objs) {
+    if ( matchObjectProperties.extractProperties === undefined ) {
+        matchObjectProperties.extractProperties = (src, des, props) => {
+            for ( const p of props ) {
+                const v = src[p];
+                if ( v === undefined ) { continue; }
+                des[p] = src[p];
+            }
+        };
+    }
+    const safe = safeSelf();
+    const haystack = {};
+    const props = Array.from(propNeedles.keys());
+    for ( const obj of objs ) {
+        if ( obj instanceof Object === false ) { continue; }
+        matchObjectProperties.extractProperties(obj, haystack, props);
+    }
+    for ( const [ prop, details ] of propNeedles ) {
+        let value = haystack[prop];
+        if ( value === undefined ) { continue; }
+        if ( typeof value !== 'string' ) {
+            try { value = JSON.stringify(value); }
+            catch(ex) { }
+            if ( typeof value !== 'string' ) { continue; }
+        }
+        if ( safe.testPattern(details, value) ) { continue; }
+        return false;
+    }
+    return true;
+}
+
+/*******************************************************************************
+
+    Injectable scriptlets
+
+    These are meant to be used in the MAIN (webpage) execution world.
+
+*******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'abort-current-script.js',
+    aliases: [
+        'acs.js',
+        'abort-current-inline-script.js',
+        'acis.js',
+    ],
+    fn: abortCurrentScript,
+    dependencies: [
+        'abort-current-script-core.fn',
+        'run-at-html-element.fn',
+    ],
+});
+// Issues to mind before changing anything:
+//  https://github.com/uBlockOrigin/uBlock-issues/issues/2154
+function abortCurrentScript(...args) {
+    runAtHtmlElement(( ) => {
+        abortCurrentScriptCore(...args);
+    });
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'abort-on-property-read.js',
+    aliases: [
+        'aopr.js',
+    ],
+    fn: abortOnPropertyRead,
+    dependencies: [
+        'get-exception-token.fn',
+    ],
+});
+function abortOnPropertyRead(
+    chain = ''
+) {
+    if ( typeof chain !== 'string' ) { return; }
+    if ( chain === '' ) { return; }
+    const exceptionToken = getExceptionToken();
     const abort = function() {
-        throw new ReferenceError(magic);
+        throw new ReferenceError(exceptionToken);
     };
     const makeProxy = function(owner, chain) {
         const pos = chain.indexOf('.');
@@ -179,26 +1019,27 @@
         });
     };
     const owner = window;
-    let chain = '{{1}}';
     makeProxy(owner, chain);
-    const oe = window.onerror;
-    window.onerror = function(msg, src, line, col, error) {
-        if ( typeof msg === 'string' && msg.indexOf(magic) !== -1 ) {
-            return true;
-        }
-        if ( oe instanceof Function ) {
-            return oe(msg, src, line, col, error);
-        }
-    }.bind();
-})();
+}
 
+/******************************************************************************/
 
-/// abort-on-property-write.js
-/// alias aopw.js
-(function() {
-    const magic = String.fromCharCode(Date.now() % 26 + 97) +
-                  Math.floor(Math.random() * 982451653 + 982451653).toString(36);
-    let prop = '{{1}}';
+builtinScriptlets.push({
+    name: 'abort-on-property-write.js',
+    aliases: [
+        'aopw.js',
+    ],
+    fn: abortOnPropertyWrite,
+    dependencies: [
+        'get-exception-token.fn',
+    ],
+});
+function abortOnPropertyWrite(
+    prop = ''
+) {
+    if ( typeof prop !== 'string' ) { return; }
+    if ( prop === '' ) { return; }
+    const exceptionToken = getExceptionToken();
     let owner = window;
     for (;;) {
         const pos = prop.indexOf('.');
@@ -210,96 +1051,47 @@
     delete owner[prop];
     Object.defineProperty(owner, prop, {
         set: function() {
-            throw new ReferenceError(magic);
+            throw new ReferenceError(exceptionToken);
         }
     });
-    const oe = window.onerror;
-    window.onerror = function(msg, src, line, col, error) {
-        if ( typeof msg === 'string' && msg.indexOf(magic) !== -1 ) {
-            return true;
-        }
-        if ( oe instanceof Function ) {
-            return oe(msg, src, line, col, error);
-        }
-    }.bind();
-})();
+}
 
+/******************************************************************************/
 
-/// abort-on-stack-trace.js
-/// alias aost.js
-// Status is currently experimental
-(function() {
-    let chain = '{{1}}';
-    let needle = '{{2}}';
-    let logLevel = '{{3}}';
-    const reRegexEscape = /[.*+?^${}()|[\]\\]/g;
-    if ( needle === '' || needle === '{{2}}' ) {
-        needle = '^';
-    } else if ( /^\/.+\/$/.test(needle) ) {
-        needle = needle.slice(1,-1);
-    } else {
-        needle = needle.replace(reRegexEscape, '\\$&');
-    }
-    const reNeedle = new RegExp(needle);
-    const magic = String.fromCharCode(Math.random() * 26 + 97) +
-        Math.floor(
-            (0.25 + Math.random() * 0.75) * Number.MAX_SAFE_INTEGER
-        ).toString(36).slice(-8);
-    const log = console.log.bind(console);
-    const ErrorCtor = self.Error;
-    const mustAbort = function(err) {
-        let docURL = self.location.href;
-        const pos = docURL.indexOf('#');
-        if ( pos !== -1 ) {
-            docURL = docURL.slice(0, pos);
-        }
-        // Normalize stack trace
-        const lines = [];
-        for ( let line of err.stack.split(/[\n\r]+/) ) {
-            if ( line.includes(magic) ) { continue; }
-            line = line.trim();
-            let match = /(.*?@)?(\S+)(:\d+):\d+\)?$/.exec(line);
-            if ( match === null ) { continue; }
-            let url = match[2];
-            if ( url.startsWith('(') ) { url = url.slice(1); }
-            if ( url === docURL ) {
-                url = 'inlineScript';
-            } else if ( url.startsWith('<anonymous>') ) {
-                url = 'injectedScript';
-            }
-            let fn = match[1] !== undefined
-                ? match[1].slice(0, -1)
-                : line.slice(0, match.index).trim();
-            if ( fn.startsWith('at') ) { fn = fn.slice(2).trim(); }
-            let rowcol = match[3];
-            lines.push(' ' + `${fn} ${url}${rowcol}:1`.trim());
-        }
-        lines[0] = `stackDepth:${lines.length-1}`;
-        const stack = lines.join('\t');
-        const r = reNeedle.test(stack);
-        if (
-            logLevel === '1' ||
-            logLevel === '2' && r ||
-            logLevel === '3' && !r
-        ) {
-            log(stack.replace(/\t/g, '\n'));
-        }
-        return r;
-    };
+builtinScriptlets.push({
+    name: 'abort-on-stack-trace.js',
+    aliases: [
+        'aost.js',
+    ],
+    fn: abortOnStackTrace,
+    dependencies: [
+        'get-exception-token.fn',
+        'matches-stack-trace.fn',
+        'safe-self.fn',
+    ],
+});
+function abortOnStackTrace(
+    chain = '',
+    needle = ''
+) {
+    if ( typeof chain !== 'string' ) { return; }
+    const safe = safeSelf();
+    const needleDetails = safe.initPattern(needle, { canNegate: true });
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
     const makeProxy = function(owner, chain) {
         const pos = chain.indexOf('.');
         if ( pos === -1 ) {
             let v = owner[chain];
             Object.defineProperty(owner, chain, {
                 get: function() {
-                    if ( mustAbort(new ErrorCtor(magic)) ) {
-                        throw new ReferenceError(magic);
+                    if ( matchesStackTrace(needleDetails, extraArgs.log) ) {
+                        throw new ReferenceError(getExceptionToken());
                     }
                     return v;
                 },
                 set: function(a) {
-                    if ( mustAbort(new ErrorCtor(magic)) ) {
-                        throw new ReferenceError(magic);
+                    if ( matchesStackTrace(needleDetails, extraArgs.log) ) {
+                        throw new ReferenceError(getExceptionToken());
                     }
                     v = a;
                 },
@@ -327,43 +1119,37 @@
     };
     const owner = window;
     makeProxy(owner, chain);
-    const oe = window.onerror;
-    window.onerror = function(msg, src, line, col, error) {
-        if ( typeof msg === 'string' && msg.indexOf(magic) !== -1 ) {
-            return true;
-        }
-        if ( oe instanceof Function ) {
-            return oe(msg, src, line, col, error);
-        }
-    }.bind();
-})();
+}
 
+/******************************************************************************/
 
-/// addEventListener-defuser.js
-/// alias aeld.js
+builtinScriptlets.push({
+    name: 'addEventListener-defuser.js',
+    aliases: [
+        'aeld.js',
+        'prevent-addEventListener.js',
+    ],
+    fn: addEventListenerDefuser,
+    dependencies: [
+        'run-at.fn',
+        'safe-self.fn',
+        'should-debug.fn',
+        'should-log.fn',
+    ],
+});
 // https://github.com/uBlockOrigin/uAssets/issues/9123#issuecomment-848255120
-(function() {
-    let needle1 = '{{1}}';
-    if ( needle1 === '' || needle1 === '{{1}}' ) {
-        needle1 = '.?';
-    } else if ( /^\/.+\/$/.test(needle1) ) {
-        needle1 = needle1.slice(1,-1);
-    } else {
-        needle1 = needle1.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-    needle1 = new RegExp(needle1);
-    let needle2 = '{{2}}';
-    if ( needle2 === '' || needle2 === '{{2}}' ) {
-        needle2 = '.?';
-    } else if ( /^\/.+\/$/.test(needle2) ) {
-        needle2 = needle2.slice(1,-1);
-    } else {
-        needle2 = needle2.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-    needle2 = new RegExp(needle2);
-    self.EventTarget.prototype.addEventListener = new Proxy(
-        self.EventTarget.prototype.addEventListener,
-        {
+function addEventListenerDefuser(
+    type = '',
+    pattern = ''
+) {
+    const safe = safeSelf();
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
+    const reType = safe.patternToRegex(type);
+    const rePattern = safe.patternToRegex(pattern);
+    const log = shouldLog(extraArgs);
+    const debug = shouldDebug(extraArgs);
+    const trapEddEventListeners = ( ) => {
+        const eventListenerHandler = {
             apply: function(target, thisArg, args) {
                 let type, handler;
                 try {
@@ -371,149 +1157,296 @@
                     handler = String(args[1]);
                 } catch(ex) {
                 }
-                if (
-                    needle1.test(type) === false ||
-                    needle2.test(handler) === false
-                ) {
-                    return target.apply(thisArg, args);
+                const matchesType = safe.RegExp_test.call(reType, type);
+                const matchesHandler = safe.RegExp_test.call(rePattern, handler);
+                const matchesEither = matchesType || matchesHandler;
+                const matchesBoth = matchesType && matchesHandler;
+                if ( log === 1 && matchesBoth || log === 2 && matchesEither || log === 3 ) {
+                    safe.uboLog(`addEventListener('${type}', ${handler})`);
                 }
-            }
-        }
-    );
-})();
-
-
-/// addEventListener-logger.js
-/// alias aell.js
-// https://github.com/uBlockOrigin/uAssets/issues/9123#issuecomment-848255120
-(function() {
-    const log = console.log.bind(console);
-    self.EventTarget.prototype.addEventListener = new Proxy(
-        self.EventTarget.prototype.addEventListener,
-        {
-            apply: function(target, thisArg, args) {
-                let type, handler;
-                try {
-                    type = String(args[0]);
-                    handler = String(args[1]);
-                } catch(ex) {
+                if ( debug === 1 && matchesBoth || debug === 2 && matchesEither ) {
+                    debugger; // jshint ignore:line
                 }
-                log('uBO: addEventListener("%s", %s)', type, handler);
-                return target.apply(thisArg, args);
-            }
-        }
-    );
-})();
+                if ( matchesBoth ) { return; }
+                return Reflect.apply(target, thisArg, args);
+            },
+            get(target, prop, receiver) {
+                if ( prop === 'toString' ) {
+                    return target.toString.bind(target);
+                }
+                return Reflect.get(target, prop, receiver);
+            },
+        };
+        self.EventTarget.prototype.addEventListener = new Proxy(
+            self.EventTarget.prototype.addEventListener,
+            eventListenerHandler
+        );
+    };
+    runAt(( ) => {
+        trapEddEventListeners();
+    }, extraArgs.runAt);
+}
 
+/******************************************************************************/
 
-/// json-prune.js
-//
+builtinScriptlets.push({
+    name: 'json-prune.js',
+    fn: jsonPrune,
+    dependencies: [
+        'match-object-properties.fn',
+        'object-prune.fn',
+        'parse-properties-to-match.fn',
+        'safe-self.fn',
+        'should-log.fn',
+    ],
+});
 //  When no "prune paths" argument is provided, the scriptlet is
 //  used for logging purpose and the "needle paths" argument is
 //  used to filter logging output.
 //
 //  https://github.com/uBlockOrigin/uBlock-issues/issues/1545
 //  - Add support for "remove everything if needle matches" case
-//
-(function() {
-    const rawPrunePaths = '{{1}}';
-    const rawNeedlePaths = '{{2}}';
-    const prunePaths = rawPrunePaths !== '{{1}}' && rawPrunePaths !== ''
-        ? rawPrunePaths.split(/ +/)
-        : [];
-    let needlePaths;
-    let log, reLogNeedle;
-    if ( prunePaths.length !== 0 ) {
-        needlePaths = prunePaths.length !== 0 &&
-                      rawNeedlePaths !== '{{2}}' && rawNeedlePaths !== ''
-            ? rawNeedlePaths.split(/ +/)
-            : [];
-    } else {
-        log = console.log.bind(console);
-        let needle;
-        if ( rawNeedlePaths === '' || rawNeedlePaths === '{{2}}' ) {
-            needle = '.?';
-        } else if ( rawNeedlePaths.charAt(0) === '/' && rawNeedlePaths.slice(-1) === '/' ) {
-            needle = rawNeedlePaths.slice(1, -1);
-        } else {
-            needle = rawNeedlePaths.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-        reLogNeedle = new RegExp(needle);
-    }
-    const findOwner = function(root, path, prune = false) {
-        let owner = root;
-        let chain = path;
-        for (;;) {
-            if ( typeof owner !== 'object' || owner === null  ) {
-                return false;
-            }
-            const pos = chain.indexOf('.');
-            if ( pos === -1 ) {
-                if ( prune === false ) {
-                    return owner.hasOwnProperty(chain);
-                }
-                if ( chain === '*' ) {
-                    for ( const key in owner ) {
-                        if ( owner.hasOwnProperty(key) === false ) { continue; }
-                        delete owner[key];
-                    }
-                } else if ( owner.hasOwnProperty(chain) ) {
-                    delete owner[chain];
-                }
-                return true;
-            }
-            const prop = chain.slice(0, pos);
-            if (
-                prop === '[]' && Array.isArray(owner) ||
-                prop === '*' && owner instanceof Object
-            ) {
-                const next = chain.slice(pos + 1);
-                let found = false;
-                for ( const key of Object.keys(owner) ) {
-                    found = findOwner(owner[key], next, prune) || found;
-                }
-                return found;
-            }
-            if ( owner.hasOwnProperty(prop) === false ) { return false; }
-            owner = owner[prop];
-            chain = chain.slice(pos + 1);
-        }
-    };
-    const mustProcess = function(root) {
-        for ( const needlePath of needlePaths ) {
-            if ( findOwner(root, needlePath) === false ) {
-                return false;
-            }
-        }
-        return true;
-    };
-    const pruner = function(o) {
-        if ( log !== undefined ) {
-            const json = JSON.stringify(o, null, 2);
-            if ( reLogNeedle.test(json) ) {
-                log('uBO:', location.hostname, json);
-            }
-            return o;
-        }
-        if ( mustProcess(o) === false ) { return o; }
-        for ( const path of prunePaths ) {
-            findOwner(o, path, true);
-        }
-        return o;
-    };
+function jsonPrune(
+    rawPrunePaths = '',
+    rawNeedlePaths = '',
+    stackNeedle = ''
+) {
+    const safe = safeSelf();
+    const stackNeedleDetails = safe.initPattern(stackNeedle, { canNegate: true });
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
     JSON.parse = new Proxy(JSON.parse, {
-        apply: function() {
-            return pruner(Reflect.apply(...arguments));
+        apply: function(target, thisArg, args) {
+            const objBefore = Reflect.apply(target, thisArg, args);
+            const objAfter = objectPrune(
+                objBefore,
+                rawPrunePaths,
+                rawNeedlePaths,
+                stackNeedleDetails,
+                extraArgs
+           );
+           return objAfter || objBefore;
         },
     });
-    Response.prototype.json = new Proxy(Response.prototype.json, {
-        apply: function() {
-            return Reflect.apply(...arguments).then(o => pruner(o));
-        },
+}
+
+/*******************************************************************************
+ * 
+ * json-prune-fetch-response.js
+ * 
+ * Prune JSON response of fetch requests.
+ * 
+ **/
+
+builtinScriptlets.push({
+    name: 'json-prune-fetch-response.js',
+    fn: jsonPruneFetchResponse,
+    dependencies: [
+        'match-object-properties.fn',
+        'object-prune.fn',
+        'parse-properties-to-match.fn',
+        'safe-self.fn',
+        'should-log.fn',
+    ],
+});
+function jsonPruneFetchResponse(
+    rawPrunePaths = '',
+    rawNeedlePaths = ''
+) {
+    const safe = safeSelf();
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
+    const logLevel = shouldLog({ log: rawPrunePaths === '' || extraArgs.log, });
+    const log = logLevel ? ((...args) => { safe.uboLog(...args); }) : (( ) => { }); 
+    const propNeedles = parsePropertiesToMatch(extraArgs.propsToMatch, 'url');
+    const applyHandler = function(target, thisArg, args) {
+        const fetchPromise = Reflect.apply(target, thisArg, args);
+        if ( logLevel === true ) {
+            log('json-prune-fetch-response:', JSON.stringify(Array.from(args)).slice(1,-1));
+        }
+        if ( rawPrunePaths === '' ) { return fetchPromise; }
+        let outcome = 'match';
+        if ( propNeedles.size !== 0 ) {
+            const objs = [ args[0] instanceof Object ? args[0] : { url: args[0] } ];
+            if ( args[1] instanceof Object ) {
+                objs.push(args[1]);
+            }
+            if ( matchObjectProperties(propNeedles, ...objs) === false ) {
+                outcome = 'nomatch';
+            }
+            if ( outcome === logLevel || logLevel === 'all' ) {
+                log(
+                    `json-prune-fetch-response (${outcome})`,
+                    `\n\tfetchPropsToMatch: ${JSON.stringify(Array.from(propNeedles)).slice(1,-1)}`,
+                    '\n\tprops:', ...args,
+                );
+            }
+        }
+        if ( outcome === 'nomatch' ) { return fetchPromise; }
+        return fetchPromise.then(responseBefore => {
+            const response = responseBefore.clone();
+            return response.json().then(objBefore => {
+                if ( typeof objBefore !== 'object' ) { return responseBefore; }
+                const objAfter = objectPrune(
+                    objBefore,
+                    rawPrunePaths,
+                    rawNeedlePaths,
+                    { matchAll: true },
+                    extraArgs
+                );
+                if ( typeof objAfter !== 'object' ) { return responseBefore; }
+                const responseAfter = Response.json(objAfter, {
+                    status: responseBefore.status,
+                    statusText: responseBefore.statusText,
+                    headers: responseBefore.headers,
+                });
+                Object.defineProperties(responseAfter, {
+                    ok: { value: responseBefore.ok },
+                    redirected: { value: responseBefore.redirected },
+                    type: { value: responseBefore.type },
+                    url: { value: responseBefore.url },
+                });
+                return responseAfter;
+            }).catch(reason => {
+                log('json-prune-fetch-response:', reason);
+                return responseBefore;
+            });
+        }).catch(reason => {
+            log('json-prune-fetch-response:', reason);
+            return fetchPromise;
+        });
+    };
+    self.fetch = new Proxy(self.fetch, {
+        apply: applyHandler
     });
-})();
+}
 
+/******************************************************************************/
 
+builtinScriptlets.push({
+    name: 'json-prune-xhr-response.js',
+    fn: jsonPruneXhrResponse,
+    dependencies: [
+        'match-object-properties.fn',
+        'object-prune.fn',
+        'parse-properties-to-match.fn',
+        'safe-self.fn',
+        'should-log.fn',
+    ],
+});
+function jsonPruneXhrResponse(
+    rawPrunePaths = '',
+    rawNeedlePaths = ''
+) {
+    const safe = safeSelf();
+    const xhrInstances = new WeakMap();
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
+    const logLevel = shouldLog({ log: rawPrunePaths === '' || extraArgs.log, });
+    const log = logLevel ? ((...args) => { safe.uboLog(...args); }) : (( ) => { }); 
+    const propNeedles = parsePropertiesToMatch(extraArgs.propsToMatch, 'url');
+    self.XMLHttpRequest = class extends self.XMLHttpRequest {
+        open(method, url, ...args) {
+            const xhrDetails = { method, url };
+            let outcome = 'match';
+            if ( propNeedles.size !== 0 ) {
+                if ( matchObjectProperties(propNeedles, xhrDetails) === false ) {
+                    outcome = 'nomatch';
+                }
+            }
+            if ( outcome === logLevel || outcome === 'all' ) {
+                log(`xhr.open(${method}, ${url}, ${args.join(', ')})`);
+            }
+            if ( outcome === 'match' ) {
+                xhrInstances.set(this, xhrDetails);
+            }
+            return super.open(method, url, ...args);
+        }
+        get response() {
+            const innerResponse = super.response;
+            const xhrDetails = xhrInstances.get(this);
+            if ( xhrDetails === undefined ) {
+                return innerResponse;
+            }
+            if ( xhrDetails.latestResponseLength != innerResponse.length ) {
+                xhrDetails.response = undefined;
+                xhrDetails.latestResponseLength = innerResponse.length;
+            }
+            if ( xhrDetails.response !== undefined ) {
+                return xhrDetails.response;
+            }
+            let objBefore;
+            if ( typeof innerResponse === 'object' ) {
+                objBefore = innerResponse;
+            } else if ( typeof innerResponse === 'string' ) {
+                try { objBefore = safe.jsonParse(innerResponse); }
+                catch(ex) { }
+            }
+            if ( typeof objBefore !== 'object' ) {
+                return (xhrDetails.response = innerResponse);
+            }
+            const objAfter = objectPrune(
+                objBefore,
+                rawPrunePaths,
+                rawNeedlePaths,
+                { matchAll: true },
+                extraArgs
+            );
+            let outerResponse;
+            if ( typeof objAfter === 'object' ) {
+                outerResponse = typeof innerResponse === 'string'
+                    ? safe.jsonStringify(objAfter)
+                    : objAfter;
+            } else {
+                outerResponse = innerResponse;
+            }
+            return (xhrDetails.response = outerResponse);
+        }
+        get responseText() {
+            const response = this.response;
+            return typeof response !== 'string'
+                ? super.responseText
+                : response;
+        }
+    };
+}
+
+/******************************************************************************/
+
+// There is still code out there which uses `eval` in lieu of `JSON.parse`.
+
+builtinScriptlets.push({
+    name: 'evaldata-prune.js',
+    fn: evaldataPrune,
+    dependencies: [
+        'object-prune.fn',
+    ],
+});
+function evaldataPrune(
+    rawPrunePaths = '',
+    rawNeedlePaths = ''
+) {
+    self.eval = new Proxy(self.eval, {
+        apply(target, thisArg, args) {
+            const before = Reflect.apply(target, thisArg, args);
+            if ( typeof before === 'object' ) {
+                const after = objectPrune(before, rawPrunePaths, rawNeedlePaths);
+                return after || before;
+            }
+            return before;
+        }
+    });
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'nano-setInterval-booster.js',
+    aliases: [
+        'nano-sib.js',
+    ],
+    fn: nanoSetIntervalBooster,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
 // Imported from:
 // https://github.com/NanoAdblocker/NanoFilters/blob/1f3be7211bb0809c5106996f52564bf10c4525f7/NanoFiltersSource/NanoResources.txt#L126
 //
@@ -526,28 +1459,19 @@
 // boostRatio - The delay multiplier when there is a match, 0.5 speeds up by
 //      2 times and 2 slows down by 2 times, defaults to 0.05 or speed up
 //      20 times. Speed up and down both cap at 50 times.
-/// nano-setInterval-booster.js
-/// alias nano-sib.js
-(function() {
-    let needleArg = '{{1}}';
-    if ( needleArg === '{{1}}' ) { needleArg = ''; }
-    let delayArg = '{{2}}';
-    if ( delayArg === '{{2}}' ) { delayArg = ''; }
-    let boostArg = '{{3}}';
-    if ( boostArg === '{{3}}' ) { boostArg = ''; }
-    if ( needleArg === '' ) {
-        needleArg = '.?';
-    } else if ( needleArg.charAt(0) === '/' && needleArg.slice(-1) === '/' ) {
-        needleArg = needleArg.slice(1, -1);
-    } else {
-        needleArg = needleArg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-    const reNeedle = new RegExp(needleArg);
+function nanoSetIntervalBooster(
+    needleArg = '',
+    delayArg = '',
+    boostArg = ''
+) {
+    if ( typeof needleArg !== 'string' ) { return; }
+    const safe = safeSelf();
+    const reNeedle = safe.patternToRegex(needleArg);
     let delay = delayArg !== '*' ? parseInt(delayArg, 10) : -1;
     if ( isNaN(delay) || isFinite(delay) === false ) { delay = 1000; }
     let boost = parseFloat(boostArg);
     boost = isNaN(boost) === false && isFinite(boost)
-        ? Math.min(Math.max(boost, 0.02), 50)
+        ? Math.min(Math.max(boost, 0.001), 50)
         : 0.05;
     self.setInterval = new Proxy(self.setInterval, {
         apply: function(target, thisArg, args) {
@@ -561,9 +1485,20 @@
             return target.apply(thisArg, args);
         }
     });
-})();
+}
 
+/******************************************************************************/
 
+builtinScriptlets.push({
+    name: 'nano-setTimeout-booster.js',
+    aliases: [
+        'nano-stb.js',
+    ],
+    fn: nanoSetTimeoutBooster,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
 // Imported from:
 // https://github.com/NanoAdblocker/NanoFilters/blob/1f3be7211bb0809c5106996f52564bf10c4525f7/NanoFiltersSource/NanoResources.txt#L82
 //
@@ -577,28 +1512,19 @@
 // boostRatio - The delay multiplier when there is a match, 0.5 speeds up by
 //      2 times and 2 slows down by 2 times, defaults to 0.05 or speed up
 //      20 times. Speed up and down both cap at 50 times.
-/// nano-setTimeout-booster.js
-/// alias nano-stb.js
-(function() {
-    let needleArg = '{{1}}';
-    if ( needleArg === '{{1}}' ) { needleArg = ''; }
-    let delayArg = '{{2}}';
-    if ( delayArg === '{{2}}' ) { delayArg = ''; }
-    let boostArg = '{{3}}';
-    if ( boostArg === '{{3}}' ) { boostArg = ''; }
-    if ( needleArg === '' ) {
-        needleArg = '.?';
-    } else if ( needleArg.charAt(0) === '/' && needleArg.slice(-1) === '/' ) {
-        needleArg = needleArg.slice(1, -1);
-    } else {
-        needleArg = needleArg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-    const reNeedle = new RegExp(needleArg);
+function nanoSetTimeoutBooster(
+    needleArg = '',
+    delayArg = '',
+    boostArg = ''
+) {
+    if ( typeof needleArg !== 'string' ) { return; }
+    const safe = safeSelf();
+    const reNeedle = safe.patternToRegex(needleArg);
     let delay = delayArg !== '*' ? parseInt(delayArg, 10) : -1;
     if ( isNaN(delay) || isFinite(delay) === false ) { delay = 1000; }
     let boost = parseFloat(boostArg);
     boost = isNaN(boost) === false && isFinite(boost)
-        ? Math.min(Math.max(boost, 0.02), 50)
+        ? Math.min(Math.max(boost, 0.001), 50)
         : 0.05;
     self.setTimeout = new Proxy(self.setTimeout, {
         apply: function(target, thisArg, args) {
@@ -612,35 +1538,52 @@
             return target.apply(thisArg, args);
         }
     });
-})();
+}
 
+/******************************************************************************/
 
-/// noeval-if.js
-(function() {
-    let needle = '{{1}}';
-    if ( needle === '' || needle === '{{1}}' ) {
-        needle = '.?';
-    } else if ( needle.slice(0,1) === '/' && needle.slice(-1) === '/' ) {
-        needle = needle.slice(1,-1);
-    } else {
-        needle = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-    needle = new RegExp(needle);
-    window.eval = new Proxy(window.eval, {          // jshint ignore: line
+builtinScriptlets.push({
+    name: 'noeval-if.js',
+    aliases: [
+        'prevent-eval-if.js',
+    ],
+    fn: noEvalIf,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function noEvalIf(
+    needle = ''
+) {
+    if ( typeof needle !== 'string' ) { return; }
+    const safe = safeSelf();
+    const reNeedle = safe.patternToRegex(needle);
+    window.eval = new Proxy(window.eval, {  // jshint ignore: line
         apply: function(target, thisArg, args) {
             const a = args[0];
-            if ( needle.test(a.toString()) === false ) {
-                return target.apply(thisArg, args);
-            }
+            if ( reNeedle.test(a.toString()) ) { return; }
+            return target.apply(thisArg, args);
         }
     });
-})();
+}
 
+/******************************************************************************/
 
-/// no-fetch-if.js
-(function() {
-    let arg1 = '{{1}}';
-    if ( arg1 === '{{1}}' ) { arg1 = ''; }
+builtinScriptlets.push({
+    name: 'no-fetch-if.js',
+    aliases: [
+        'prevent-fetch.js',
+    ],
+    fn: noFetchIf,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function noFetchIf(
+    arg1 = '',
+) {
+    if ( typeof arg1 !== 'string' ) { return; }
+    const safe = safeSelf();
     const needles = [];
     for ( const condition of arg1.split(/\s+/) ) {
         if ( condition === '' ) { continue; }
@@ -653,14 +1596,7 @@
             key = 'url';
             value = condition;
         }
-        if ( value === '' ) {
-            value = '^';
-        } else if ( value.startsWith('/') && value.endsWith('/') ) {
-            value = value.slice(1, -1);
-        } else {
-            value = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-        needles.push({ key, re: new RegExp(value) });
+        needles.push({ key, re: safe.patternToRegex(value) });
     }
     const log = needles.length === 0 ? console.log.bind(console) : undefined;
     self.fetch = new Proxy(self.fetch, {
@@ -706,59 +1642,60 @@
                 : Promise.resolve(new Response());
         }
     });
-})();
+}
 
+/******************************************************************************/
 
-/// no-floc.js
-//  https://github.com/uBlockOrigin/uBlock-issues/issues/1553
-(function() {
-    if ( Document instanceof Object === false ) { return; }
-    if ( Document.prototype.interestCohort instanceof Function === false ) {
-        return;
-    }
-    Document.prototype.interestCohort = new Proxy(
-        Document.prototype.interestCohort,
-        {
-            apply: function() {
-                return Promise.reject();
-            }
-        }
-    );
-})();
-
-
-/// refresh-defuser.js
+builtinScriptlets.push({
+    name: 'refresh-defuser.js',
+    fn: refreshDefuser,
+    world: 'ISOLATED',
+    dependencies: [
+        'run-at.fn',
+    ],
+});
 // https://www.reddit.com/r/uBlockOrigin/comments/q0frv0/while_reading_a_sports_article_i_was_redirected/hf7wo9v/
-(function() {
-    const arg1 = '{{1}}';
+function refreshDefuser(
+    arg1 = ''
+) {
+    if ( typeof arg1 !== 'string' ) { return; }
     const defuse = ( ) => {
         const meta = document.querySelector('meta[http-equiv="refresh" i][content]');
         if ( meta === null ) { return; }
-        const s = arg1 === '' || arg1 === '{{1}}'
+        const s = arg1 === ''
             ? meta.getAttribute('content')
             : arg1;
         const ms = Math.max(parseFloat(s) || 0, 0) * 1000;
         setTimeout(( ) => { window.stop(); }, ms);
     };
-    if ( document.readyState === 'loading' ) {
-        document.addEventListener('DOMContentLoaded', defuse, { once: true });
-    } else {
+    runAt(( ) => {
         defuse();
-    }
-})();
+    }, 'interactive');
+}
 
+/******************************************************************************/
 
-/// remove-attr.js
-/// alias ra.js
-(function() {
-    const token = '{{1}}';
-    if ( token === '' || token === '{{1}}' ) { return; }
+builtinScriptlets.push({
+    name: 'remove-attr.js',
+    aliases: [
+        'ra.js',
+    ],
+    fn: removeAttr,
+    dependencies: [
+        'run-at.fn',
+    ],
+});
+function removeAttr(
+    token = '',
+    selector = '',
+    behavior = ''
+) {
+    if ( typeof token !== 'string' ) { return; }
+    if ( token === '' ) { return; }
     const tokens = token.split(/\s*\|\s*/);
-    let selector = '{{2}}';
-    if ( selector === '' || selector === '{{2}}' ) {
+    if ( selector === '' ) {
         selector = `[${tokens.join('],[')}]`;
     }
-    let behavior = '{{3}}';
     let timer;
     const rmattr = ( ) => {
         timer = undefined;
@@ -799,37 +1736,49 @@
             subtree: true,
         });
     };
-    if ( document.readyState !== 'complete' && /\bcomplete\b/.test(behavior) ) {
-        self.addEventListener('load', start, { once: true });
-    } else if ( document.readyState !== 'loading' || /\basap\b/.test(behavior) ) {
+    runAt(( ) => {
         start();
-    } else {
-        self.addEventListener('DOMContentLoaded', start, { once: true });
-    }
-})();
+    }, /\bcomplete\b/.test(behavior) ? 'idle' : 'interactive');
+}
 
+/******************************************************************************/
 
-/// remove-class.js
-/// alias rc.js
-(function() {
-    const token = '{{1}}';
-    if ( token === '' || token === '{{1}}' ) { return; }
-    const tokens = token.split(/\s*\|\s*/);
-    let selector = '{{2}}';
-    if ( selector === '' || selector === '{{2}}' ) {
-        selector = '.' + tokens.map(a => CSS.escape(a)).join(',.');
+builtinScriptlets.push({
+    name: 'remove-class.js',
+    aliases: [
+        'rc.js',
+    ],
+    fn: removeClass,
+    world: 'ISOLATED',
+    dependencies: [
+        'run-at.fn',
+    ],
+});
+function removeClass(
+    token = '',
+    selector = '',
+    behavior = ''
+) {
+    if ( typeof token !== 'string' ) { return; }
+    if ( token === '' ) { return; }
+    const classTokens = token.split(/\s*\|\s*/);
+    if ( selector === '' ) {
+        selector = '.' + classTokens.map(a => CSS.escape(a)).join(',.');
     }
-    let behavior = '{{3}}';
+    const mustStay = /\bstay\b/.test(behavior);
     let timer;
     const rmclass = function() {
         timer = undefined;
         try {
             const nodes = document.querySelectorAll(selector);
             for ( const node of nodes ) {
-                node.classList.remove(...tokens);
+                node.classList.remove(...classTokens);
             }
         } catch(ex) {
         }
+        if ( mustStay ) { return; }
+        if ( document.readyState !== 'complete' ) { return; }
+        observer.disconnect();
     };
     const mutationHandler = mutations => {
         if ( timer !== undefined ) { return; }
@@ -847,10 +1796,9 @@
         if ( skip ) { return; }
         timer = self.requestIdleCallback(rmclass, { timeout: 67 });
     };
+    const observer = new MutationObserver(mutationHandler);
     const start = ( ) => {
         rmclass();
-        if ( /\bstay\b/.test(behavior) === false ) { return; }
-        const observer = new MutationObserver(mutationHandler);
         observer.observe(document, {
             attributes: true,
             attributeFilter: [ 'class' ],
@@ -858,30 +1806,33 @@
             subtree: true,
         });
     };
-    if ( document.readyState !== 'complete' && /\bcomplete\b/.test(behavior) ) {
-        self.addEventListener('load', start, { once: true });
-    } else if ( document.readyState === 'loading' ) {
-        self.addEventListener('DOMContentLoaded', start, { once: true });
-    } else {
+    runAt(( ) => {
         start();
-    }
-})();
+    }, /\bcomplete\b/.test(behavior) ? 'idle' : 'loading');
+}
 
+/******************************************************************************/
 
-/// no-requestAnimationFrame-if.js
-/// alias norafif.js
-(function() {
-    let needle = '{{1}}';
-    if ( needle === '{{1}}' ) { needle = ''; }
+builtinScriptlets.push({
+    name: 'no-requestAnimationFrame-if.js',
+    aliases: [
+        'norafif.js',
+        'prevent-requestAnimationFrame.js',
+    ],
+    fn: noRequestAnimationFrameIf,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function noRequestAnimationFrameIf(
+    needle = ''
+) {
+    if ( typeof needle !== 'string' ) { return; }
+    const safe = safeSelf();
     const needleNot = needle.charAt(0) === '!';
     if ( needleNot ) { needle = needle.slice(1); }
-    if ( needle.startsWith('/') && needle.endsWith('/') ) {
-        needle = needle.slice(1, -1);
-    } else if ( needle !== '' ) {
-        needle = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
     const log = needleNot === false && needle === '' ? console.log : undefined;
-    const reNeedle = new RegExp(needle);
+    const reNeedle = safe.patternToRegex(needle);
     window.requestAnimationFrame = new Proxy(window.requestAnimationFrame, {
         apply: function(target, thisArg, args) {
             const a = String(args[0]);
@@ -897,161 +1848,60 @@
             return target.apply(thisArg, args);
         }
     });
-})();
+}
 
+/******************************************************************************/
 
-/// set-constant.js
-/// alias set.js
-(function() {
-    const chain = '{{1}}';
-    let cValue = '{{2}}';
-    const thisScript = document.currentScript;
-    if ( cValue === 'undefined' ) {
-        cValue = undefined;
-    } else if ( cValue === 'false' ) {
-        cValue = false;
-    } else if ( cValue === 'true' ) {
-        cValue = true;
-    } else if ( cValue === 'null' ) {
-        cValue = null;
-    } else if ( cValue === "''" ) {
-        cValue = '';
-    } else if ( cValue === '[]' ) {
-        cValue = [];
-    } else if ( cValue === '{}' ) {
-        cValue = {};
-    } else if ( cValue === 'noopFunc' ) {
-        cValue = function(){};
-    } else if ( cValue === 'trueFunc' ) {
-        cValue = function(){ return true; };
-    } else if ( cValue === 'falseFunc' ) {
-        cValue = function(){ return false; };
-    } else if ( /^\d+$/.test(cValue) ) {
-        cValue = parseFloat(cValue);
-        if ( isNaN(cValue) ) { return; }
-        if ( Math.abs(cValue) > 0x7FFF ) { return; }
-    } else {
-        return;
-    }
-    let aborted = false;
-    const mustAbort = function(v) {
-        if ( aborted ) { return true; }
-        aborted =
-            (v !== undefined && v !== null) &&
-            (cValue !== undefined && cValue !== null) &&
-            (typeof v !== typeof cValue);
-        return aborted;
-    };
-    // https://github.com/uBlockOrigin/uBlock-issues/issues/156
-    //   Support multiple trappers for the same property.
-    const trapProp = function(owner, prop, configurable, handler) {
-        if ( handler.init(owner[prop]) === false ) { return; }
-        const odesc = Object.getOwnPropertyDescriptor(owner, prop);
-        let prevGetter, prevSetter;
-        if ( odesc instanceof Object ) {
-            owner[prop] = cValue;
-            if ( odesc.get instanceof Function ) {
-                prevGetter = odesc.get;
-            }
-            if ( odesc.set instanceof Function ) {
-                prevSetter = odesc.set;
-            }
-        }
-        try {
-            Object.defineProperty(owner, prop, {
-                configurable,
-                get() {
-                    if ( prevGetter !== undefined ) {
-                        prevGetter();
-                    }
-                    return handler.getter(); // cValue
-                },
-                set(a) {
-                    if ( prevSetter !== undefined ) {
-                        prevSetter(a);
-                    }
-                    handler.setter(a);
-                }
-            });
-        } catch(ex) {
-        }
-    };
-    const trapChain = function(owner, chain) {
-        const pos = chain.indexOf('.');
-        if ( pos === -1 ) {
-            trapProp(owner, chain, false, {
-                v: undefined,
-                init: function(v) {
-                    if ( mustAbort(v) ) { return false; }
-                    this.v = v;
-                    return true;
-                },
-                getter: function() {
-                    return document.currentScript === thisScript
-                        ? this.v
-                        : cValue;
-                },
-                setter: function(a) {
-                    if ( mustAbort(a) === false ) { return; }
-                    cValue = a;
-                }
-            });
-            return;
-        }
-        const prop = chain.slice(0, pos);
-        const v = owner[prop];
-        chain = chain.slice(pos + 1);
-        if ( v instanceof Object || typeof v === 'object' && v !== null ) {
-            trapChain(v, chain);
-            return;
-        }
-        trapProp(owner, prop, true, {
-            v: undefined,
-            init: function(v) {
-                this.v = v;
-                return true;
-            },
-            getter: function() {
-                return this.v;
-            },
-            setter: function(a) {
-                this.v = a;
-                if ( a instanceof Object ) {
-                    trapChain(a, chain);
-                }
-            }
-        });
-    };
-    trapChain(window, chain);
-})();
+builtinScriptlets.push({
+    name: 'set-constant.js',
+    aliases: [
+        'set.js',
+    ],
+    fn: setConstant,
+    dependencies: [
+        'set-constant-core.fn'
+    ],
+});
+function setConstant(
+    ...args
+) {
+    setConstantCore(false, ...args);
+}
 
+/******************************************************************************/
 
-/// no-setInterval-if.js
-/// alias nosiif.js
-(function() {
-    let needle = '{{1}}';
+builtinScriptlets.push({
+    name: 'no-setInterval-if.js',
+    aliases: [
+        'nosiif.js',
+        'prevent-setInterval.js',
+        'setInterval-defuser.js',
+    ],
+    fn: noSetIntervalIf,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function noSetIntervalIf(
+    needle = '',
+    delay = ''
+) {
+    if ( typeof needle !== 'string' ) { return; }
+    const safe = safeSelf();
     const needleNot = needle.charAt(0) === '!';
     if ( needleNot ) { needle = needle.slice(1); }
-    let delay = '{{2}}';
-    if ( delay === '{{2}}' ) { delay = undefined; }
+    if ( delay === '' ) { delay = undefined; }
     let delayNot = false;
     if ( delay !== undefined ) {
         delayNot = delay.charAt(0) === '!';
         if ( delayNot ) { delay = delay.slice(1); }
         delay = parseInt(delay, 10);
     }
-    if ( needle === '' || needle === '{{1}}' ) {
-        needle = '';
-    } else if ( needle.startsWith('/') && needle.endsWith('/') ) {
-        needle = needle.slice(1,-1);
-    } else {
-        needle = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
     const log = needleNot === false && needle === '' && delay === undefined
         ? console.log
         : undefined;
-    const reNeedle = new RegExp(needle);
-    window.setInterval = new Proxy(window.setInterval, {
+    const reNeedle = safe.patternToRegex(needle);
+    self.setInterval = new Proxy(self.setInterval, {
         apply: function(target, thisArg, args) {
             const a = String(args[0]);
             const b = args[1];
@@ -1069,39 +1919,51 @@
                     args[0] = function(){};
                 }
             }
-            return target.apply(thisArg, args);
-        }
+            return Reflect.apply(target, thisArg, args);
+        },
+        get(target, prop, receiver) {
+            if ( prop === 'toString' ) {
+                return target.toString.bind(target);
+            }
+            return Reflect.get(target, prop, receiver);
+        },
     });
-})();
+}
 
+/******************************************************************************/
 
-/// no-setTimeout-if.js
-/// alias nostif.js
-/// alias setTimeout-defuser.js
-(function() {
-    let needle = '{{1}}';
+builtinScriptlets.push({
+    name: 'no-setTimeout-if.js',
+    aliases: [
+        'nostif.js',
+        'prevent-setTimeout.js',
+        'setTimeout-defuser.js',
+    ],
+    fn: noSetTimeoutIf,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function noSetTimeoutIf(
+    needle = '',
+    delay = ''
+) {
+    if ( typeof needle !== 'string' ) { return; }
+    const safe = safeSelf();
     const needleNot = needle.charAt(0) === '!';
     if ( needleNot ) { needle = needle.slice(1); }
-    let delay = '{{2}}';
-    if ( delay === '{{2}}' ) { delay = undefined; }
+    if ( delay === '' ) { delay = undefined; }
     let delayNot = false;
     if ( delay !== undefined ) {
         delayNot = delay.charAt(0) === '!';
         if ( delayNot ) { delay = delay.slice(1); }
         delay = parseInt(delay, 10);
     }
-    if ( needle === '' || needle === '{{1}}' ) {
-        needle = '';
-    } else if ( needle.startsWith('/') && needle.endsWith('/') ) {
-        needle = needle.slice(1,-1);
-    } else {
-        needle = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
     const log = needleNot === false && needle === '' && delay === undefined
         ? console.log
         : undefined;
-    const reNeedle = new RegExp(needle);
-    window.setTimeout = new Proxy(window.setTimeout, {
+    const reNeedle = safe.patternToRegex(needle);
+    self.setTimeout = new Proxy(self.setTimeout, {
         apply: function(target, thisArg, args) {
             const a = String(args[0]);
             const b = args[1];
@@ -1119,26 +1981,32 @@
                     args[0] = function(){};
                 }
             }
-            return target.apply(thisArg, args);
-        }
+            return Reflect.apply(target, thisArg, args);
+        },
+        get(target, prop, receiver) {
+            if ( prop === 'toString' ) {
+                return target.toString.bind(target);
+            }
+            return Reflect.get(target, prop, receiver);
+        },
     });
-})();
+}
 
+/******************************************************************************/
 
-/// webrtc-if.js
-(function() {
-    let good = '{{1}}';
-    if ( good.startsWith('/') && good.endsWith('/') ) {
-        good = good.slice(1, -1);
-    } else {
-        good = good.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-    let reGood;
-    try {
-        reGood = new RegExp(good);
-    } catch(ex) {
-        return;
-    }
+builtinScriptlets.push({
+    name: 'webrtc-if.js',
+    fn: webrtcIf,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function webrtcIf(
+    good = ''
+) {
+    if ( typeof good !== 'string' ) { return; }
+    const safe = safeSelf();
+    const reGood = safe.patternToRegex(good);
     const rtcName = window.RTCPeerConnection
         ? 'RTCPeerConnection'
         : (window.webkitRTCPeerConnection ? 'webkitRTCPeerConnection' : '');
@@ -1190,126 +2058,293 @@
                 return Reflect.construct(target, args);
             }
         });
-})();
+}
 
+/******************************************************************************/
 
-/// no-xhr-if.js
-(function() {
+builtinScriptlets.push({
+    name: 'no-xhr-if.js',
+    aliases: [
+        'prevent-xhr.js',
+    ],
+    fn: noXhrIf,
+    dependencies: [
+        'match-object-properties.fn',
+        'parse-properties-to-match.fn',
+        'safe-self.fn',
+    ],
+});
+function noXhrIf(
+    propsToMatch = '',
+    directive = ''
+) {
+    if ( typeof propsToMatch !== 'string' ) { return; }
+    const safe = safeSelf();
     const xhrInstances = new WeakMap();
-    let arg1 = '{{1}}';
-    if ( arg1 === '{{1}}' ) { arg1 = ''; }
-    const needles = [];
-    for ( const condition of arg1.split(/\s+/) ) {
-        if ( condition === '' ) { continue; }
-        const pos = condition.indexOf(':');
-        let key, value;
-        if ( pos !== -1 ) {
-            key = condition.slice(0, pos);
-            value = condition.slice(pos + 1);
-        } else {
-            key = 'url';
-            value = condition;
+    const propNeedles = parsePropertiesToMatch(propsToMatch, 'url');
+    const log = propNeedles.size === 0 ? console.log.bind(console) : undefined;
+    const warOrigin = scriptletGlobals.get('warOrigin');
+    const generateRandomString = len => {
+            let s = '';
+            do { s += Math.random().toString(36).slice(2); }
+            while ( s.length < 10 );
+            return s.slice(0, len);
+    };
+    const generateContent = async directive => {
+        if ( directive === 'true' ) {
+            return generateRandomString(10);
         }
-        if ( value === '' ) {
-            value = '^';
-        } else if ( value.startsWith('/') && value.endsWith('/') ) {
-            value = value.slice(1, -1);
-        } else {
-            value = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if ( directive.startsWith('war:') ) {
+            if ( warOrigin === undefined ) { return ''; }
+            return new Promise(resolve => {
+                const warName = directive.slice(4);
+                const fullpath = [ warOrigin, '/', warName ];
+                const warSecret = scriptletGlobals.get('warSecret');
+                if ( warSecret !== undefined ) {
+                    fullpath.push('?secret=', warSecret);
+                }
+                const warXHR = new safe.XMLHttpRequest();
+                warXHR.responseType = 'text';
+                warXHR.onloadend = ev => {
+                    resolve(ev.target.responseText || '');
+                };
+                warXHR.open('GET', fullpath.join(''));
+                warXHR.send();
+            });
         }
-        needles.push({ key, re: new RegExp(value) });
-    }
-    const log = needles.length === 0 ? console.log.bind(console) : undefined;
+        return '';
+    };
     self.XMLHttpRequest = class extends self.XMLHttpRequest {
-        open(...args) {
+        open(method, url, ...args) {
             if ( log !== undefined ) {
-                log(`uBO: xhr.open(${args.join(', ')})`);
-            } else {
-                const argNames = [ 'method', 'url' ];
-                const haystack = new Map();
-                for ( let i = 0; i < args.length && i < argNames.length; i++  ) {
-                    haystack.set(argNames[i], args[i]);
-                }
-                if ( haystack.size !== 0 ) {
-                    let matches = true;
-                    for ( const { key, re } of needles ) {
-                        matches = re.test(haystack.get(key) || '');
-                        if ( matches === false ) { break; }
-                    }
-                    if ( matches ) {
-                        xhrInstances.set(this, haystack);
-                    }
-                }
+                log(`uBO: xhr.open(${method}, ${url}, ${args.join(', ')})`);
+                return super.open(method, url, ...args);
             }
-            return super.open(...args);
+            if ( warOrigin !== undefined && url.startsWith(warOrigin) ) {
+                return super.open(method, url, ...args);
+            }
+            const haystack = { method, url };
+            if ( matchObjectProperties(propNeedles, haystack) ) {
+                xhrInstances.set(this, haystack);
+            }
+            return super.open(method, url, ...args);
         }
         send(...args) {
             const haystack = xhrInstances.get(this);
             if ( haystack === undefined ) {
                 return super.send(...args);
             }
-            Object.defineProperties(this, {
-                readyState: { value: 4, writable: false },
-                response: { value: '', writable: false },
-                responseText: { value: '', writable: false },
-                responseURL: { value: haystack.get('url'), writable: false },
-                responseXML: { value: '', writable: false },
-                status: { value: 200, writable: false },
-                statusText: { value: 'OK', writable: false },
+            let promise = Promise.resolve({
+                xhr: this,
+                directive,
+                props: {
+                    readyState: { value: 4 },
+                    response: { value: '' },
+                    responseText: { value: '' },
+                    responseXML: { value: null },
+                    responseURL: { value: haystack.url },
+                    status: { value: 200 },
+                    statusText: { value: 'OK' },
+                },
             });
-            this.dispatchEvent(new Event('readystatechange'));
-            this.dispatchEvent(new Event('load'));
-            this.dispatchEvent(new Event('loadend'));
+            switch ( this.responseType ) {
+                case 'arraybuffer':
+                    promise = promise.then(details => {
+                        details.props.response.value = new ArrayBuffer(0);
+                        return details;
+                    });
+                    break;
+                case 'blob':
+                    promise = promise.then(details => {
+                        details.props.response.value = new Blob([]);
+                        return details;
+                    });
+                    break;
+                case 'document': {
+                    promise = promise.then(details => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString('', 'text/html');
+                        details.props.response.value = doc;
+                        details.props.responseXML.value = doc;
+                        return details;
+                    });
+                    break;
+                }
+                case 'json':
+                    promise = promise.then(details => {
+                        details.props.response.value = {};
+                        details.props.responseText.value = '{}';
+                        return details;
+                    });
+                    break;
+                default:
+                    if ( directive === '' ) { break; }
+                    promise = promise.then(details => {
+                        return generateContent(details.directive).then(text => {
+                            details.props.response.value = text;
+                            details.props.responseText.value = text;
+                            return details;
+                        });
+                    });
+                    break;
+            }
+            promise.then(details => {
+                Object.defineProperties(details.xhr, details.props);
+                details.xhr.dispatchEvent(new Event('readystatechange'));
+                details.xhr.dispatchEvent(new Event('load'));
+                details.xhr.dispatchEvent(new Event('loadend'));
+            });
         }
     };
-})();
+}
 
+/******************************************************************************/
 
+builtinScriptlets.push({
+    name: 'no-window-open-if.js',
+    aliases: [
+        'nowoif.js',
+        'prevent-window-open.js',
+        'window.open-defuser.js',
+    ],
+    fn: noWindowOpenIf,
+    dependencies: [
+        'safe-self.fn',
+        'should-log.fn',
+    ],
+});
+function noWindowOpenIf(
+    pattern = '',
+    delay = '',
+    decoy = ''
+) {
+    const safe = safeSelf();
+    const targetMatchResult = pattern.startsWith('!') === false;
+    if ( targetMatchResult === false ) {
+        pattern = pattern.slice(1);
+    }
+    const rePattern = safe.patternToRegex(pattern);
+    let autoRemoveAfter = parseInt(delay);
+    if ( isNaN(autoRemoveAfter) ) {
+        autoRemoveAfter = -1;
+    }
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
+    const logLevel = shouldLog(extraArgs);
+    const createDecoy = function(tag, urlProp, url) {
+        const decoyElem = document.createElement(tag);
+        decoyElem[urlProp] = url;
+        decoyElem.style.setProperty('height','1px', 'important');
+        decoyElem.style.setProperty('position','fixed', 'important');
+        decoyElem.style.setProperty('top','-1px', 'important');
+        decoyElem.style.setProperty('width','1px', 'important');
+        document.body.appendChild(decoyElem);
+        setTimeout(( ) => { decoyElem.remove(); }, autoRemoveAfter * 1000);
+        return decoyElem;
+    };
+    window.open = new Proxy(window.open, {
+        apply: function(target, thisArg, args) {
+            const haystack = args.join(' ');
+            if ( logLevel ) {
+                safe.uboLog('window.open:', haystack);
+            }
+            if ( rePattern.test(haystack) !== targetMatchResult ) {
+                return Reflect.apply(target, thisArg, args);
+            }
+            if ( autoRemoveAfter < 0 ) { return null; }
+            const decoyElem = decoy === 'obj'
+                ? createDecoy('object', 'data', ...args)
+                : createDecoy('iframe', 'src', ...args);
+            let popup = decoyElem.contentWindow;
+            if ( typeof popup === 'object' && popup !== null ) {
+                Object.defineProperty(popup, 'closed', { value: false });
+            } else {
+                const noopFunc = (function(){}).bind(self);
+                popup = new Proxy(self, {
+                    get: function(target, prop) {
+                        if ( prop === 'closed' ) { return false; }
+                        const r = Reflect.get(...arguments);
+                        if ( typeof r === 'function' ) { return noopFunc; }
+                        return target[prop];
+                    },
+                    set: function() {
+                        return Reflect.set(...arguments);
+                    },
+                });
+            }
+            if ( logLevel ) {
+                popup = new Proxy(popup, {
+                    get: function(target, prop) {
+                        safe.uboLog('window.open / get', prop, '===', target[prop]);
+                        return Reflect.get(...arguments);
+                    },
+                    set: function(target, prop, value) {
+                        safe.uboLog('window.open / set', prop, '=', value);
+                        return Reflect.set(...arguments);
+                    },
+                });
+            }
+            return popup;
+        }
+    });
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'window-close-if.js',
+    fn: windowCloseIf,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
 // https://github.com/uBlockOrigin/uAssets/issues/10323#issuecomment-992312847
 // https://github.com/AdguardTeam/Scriptlets/issues/158
 // https://github.com/uBlockOrigin/uBlock-issues/discussions/2270
-/// window-close-if.js
-(function() {
-    const arg1 = '{{1}}';
-    let reStr;
+function windowCloseIf(
+    arg1 = ''
+) {
+    if ( typeof arg1 !== 'string' ) { return; }
+    const safe = safeSelf();
     let subject = '';
-    if ( arg1 === '{{1}}' || arg1 === '' ) {
-        reStr = '^';
-    } else if ( /^\/.*\/$/.test(arg1) ) {
-        reStr = arg1.slice(1, -1);
+    if ( /^\/.*\/$/.test(arg1) ) {
         subject = window.location.href;
-    } else {
-        reStr = arg1.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    } else if ( arg1 !== '' ) {
         subject = `${window.location.pathname}${window.location.search}`;
     }
     try {
-        const re = new RegExp(reStr);
+        const re = safe.patternToRegex(arg1);
         if ( re.test(subject) ) {
             window.close();
         }
     } catch(ex) {
         console.log(ex);
     }
-})();
+}
 
+/******************************************************************************/
 
+builtinScriptlets.push({
+    name: 'window.name-defuser.js',
+    fn: windowNameDefuser,
+});
 // https://github.com/gorhill/uBlock/issues/1228
-/// window.name-defuser.js
-(function() {
+function windowNameDefuser() {
     if ( window === window.top ) {
         window.name = '';
     }
-})();
+}
 
+/******************************************************************************/
 
+builtinScriptlets.push({
+    name: 'overlay-buster.js',
+    fn: overlayBuster,
+});
 // Experimental: Generic nuisance overlay buster.
 // if this works well and proves to be useful, this may end up
 // as a stock tool in uBO's popup panel.
-/// overlay-buster.js
-(function() {
-    if ( window !== window.top ) {
-        return;
-    }
+function overlayBuster() {
+    if ( window !== window.top ) { return; }
     var tstart;
     var ttl = 30000;
     var delay = 0;
@@ -1357,44 +2392,37 @@
     } else {
         domReady();
     }
-})();
+}
 
+/******************************************************************************/
 
+builtinScriptlets.push({
+    name: 'alert-buster.js',
+    fn: alertBuster,
+});
 // https://github.com/uBlockOrigin/uAssets/issues/8
-/// alert-buster.js
-(function() {
+function alertBuster() {
     window.alert = new Proxy(window.alert, {
         apply: function(a) {
             console.info(a);
         },
+        get(target, prop, receiver) {
+            if ( prop === 'toString' ) {
+                return target.toString.bind(target);
+            }
+            return Reflect.get(target, prop, receiver);
+        },
     });
-})();
+}
 
+/******************************************************************************/
 
-// https://github.com/uBlockOrigin/uAssets/issues/58
-/// gpt-defuser.js
-(function() {
-    const noopfn = function() {
-    };
-    let props = '_resetGPT resetGPT resetAndLoadGPTRecovery _resetAndLoadGPTRecovery setupGPT setupGPTuo';
-    props = props.split(/\s+/);
-    while ( props.length ) {
-        var prop = props.pop();
-        if ( typeof window[prop] === 'function' ) {
-            window[prop] = noopfn;
-        } else {
-            Object.defineProperty(window, prop, {
-                get: function() { return noopfn; },
-                set: noopfn
-            });
-        }
-    }
-})();
-
-
+builtinScriptlets.push({
+    name: 'nowebrtc.js',
+    fn: noWebrtc,
+});
 // Prevent web pages from using RTCPeerConnection(), and report attempts in console.
-/// nowebrtc.js
-(function() {
+function noWebrtc() {
     var rtcName = window.RTCPeerConnection ? 'RTCPeerConnection' : (
         window.webkitRTCPeerConnection ? 'webkitRTCPeerConnection' : ''
     );
@@ -1424,12 +2452,16 @@
             };
         }.bind(null);
     }
-})();
+}
 
+/******************************************************************************/
 
+builtinScriptlets.push({
+    name: 'golem.de.js',
+    fn: golemDe,
+});
 // https://github.com/uBlockOrigin/uAssets/issues/88
-/// golem.de.js
-(function() {
+function golemDe() {
     const rael = window.addEventListener;
     window.addEventListener = function(a, b) {
         rael(...arguments);
@@ -1445,104 +2477,16 @@
             b();
         }
     }.bind(window);
-})();
+}
 
+/******************************************************************************/
 
-// https://forums.lanik.us/viewtopic.php?f=64&t=32278
-// https://www.reddit.com/r/chrome/comments/58eix6/ublock_origin_not_working_on_certain_sites/
-/// upmanager-defuser.js
-(function() {
-    var onerror = window.onerror;
-    window.onerror = function(msg, source, lineno, colno, error) {
-        if ( typeof msg === 'string' && msg.indexOf('upManager') !== -1 ) {
-            return true;
-        }
-        if ( onerror instanceof Function ) {
-            onerror.call(window, msg, source, lineno, colno, error);
-        }
-    };
-    Object.defineProperty(window, 'upManager', { value: function() {} });
-})();
-
-
-// https://github.com/uBlockOrigin/uAssets/issues/110
-/// smartadserver.com.js
-(function() {
-    Object.defineProperties(window, {
-        SmartAdObject: { value: function(){} },
-        SmartAdServerAjax: { value: function(){} },
-        smartAd: { value: { LoadAds: function() {}, Register: function() {} } }
-    });
-})();
-
-
-// https://github.com/reek/anti-adblock-killer/issues/3774#issuecomment-348536138
-// https://github.com/uBlockOrigin/uAssets/issues/883
-/// adfly-defuser.js
-(function() {
-    // Based on AdsBypasser
-    // License:
-    //   https://github.com/adsbypasser/adsbypasser/blob/master/LICENSE
-    var isDigit = /^\d$/;
-    var handler = function(encodedURL) {
-        var var1 = "", var2 = "", i;
-        for (i = 0; i < encodedURL.length; i++) {
-            if (i % 2 === 0) {
-                var1 = var1 + encodedURL.charAt(i);
-            } else {
-                var2 = encodedURL.charAt(i) + var2;
-            }
-        }
-        var data = (var1 + var2).split("");
-        for (i = 0; i < data.length; i++) {
-            if (isDigit.test(data[i])) {
-                for (var ii = i + 1; ii < data.length; ii++) {
-                    if (isDigit.test(data[ii])) {
-                        var temp = parseInt(data[i],10) ^ parseInt(data[ii],10);
-                        if (temp < 10) {
-                            data[i] = temp.toString();
-                        }
-                        i = ii;
-                        break;
-                    }
-                }
-            }
-        }
-        data = data.join("");
-        var decodedURL = window.atob(data).slice(16, -16);
-        window.stop();
-        window.onbeforeunload = null;
-        window.location.href = decodedURL;
-    };
-    try {
-        var val;
-        var flag = true;
-        window.Object.defineProperty(window, "ysmm", {
-            configurable: false,
-            set: function(value) {
-                if (flag) {
-                    flag = false;
-                    try {
-                        if (typeof value === "string") {
-                            handler(value);
-                        }
-                    } catch (err) { }
-                }
-                val = value;
-            },
-            get: function() {
-                return val;
-            }
-        });
-    } catch (err) {
-        window.console.error("Failed to set up Adfly bypasser!");
-    }
-})();
-
-
+builtinScriptlets.push({
+    name: 'disable-newtab-links.js',
+    fn: disableNewtabLinks,
+});
 // https://github.com/uBlockOrigin/uAssets/issues/913
-/// disable-newtab-links.js
-(function() {
+function disableNewtabLinks() {
     document.addEventListener('click', function(ev) {
         var target = ev.target;
         while ( target !== null ) {
@@ -1554,80 +2498,28 @@
             target = target.parentNode;
         }
     });
-})();
+}
 
+/******************************************************************************/
 
-/// damoh-defuser.js
-(function() {
-    const handled = new WeakSet();
-    let asyncTimer;
-    const cleanVideo = function() {
-        asyncTimer = undefined;
-        const v = document.querySelector('video');
-        if ( v === null ) { return; }
-        if ( handled.has(v) ) { return; }
-        handled.add(v);
-        v.pause();
-        v.controls = true;
-        let el = v.querySelector('meta[itemprop="contentURL"][content]');
-        if ( el === null ) { return; }
-        v.src = el.getAttribute('content');
-        el = v.querySelector('meta[itemprop="thumbnailUrl"][content]');
-        if ( el !== null ) { v.poster = el.getAttribute('content'); }
-    };
-    const cleanVideoAsync = function() {
-        if ( asyncTimer !== undefined ) { return; }
-        asyncTimer = window.requestAnimationFrame(cleanVideo);
-    };
-    const observer = new MutationObserver(cleanVideoAsync);
-    observer.observe(document, { childList: true, subtree: true });
-})();
-
-
-/// twitch-videoad.js
-// https://github.com/uBlockOrigin/uAssets/issues/5184
-// https://github.com/pixeltris/TwitchAdSolutions/commit/6be4c5313035
-// https://github.com/pixeltris/TwitchAdSolutions/commit/3d2883ea9e3a
-// https://github.com/pixeltris/TwitchAdSolutions/commit/7233b5fd2284
-// https://github.com/pixeltris/TwitchAdSolutions/commit/aad8946dab2b
-(function() {
-    if ( /(^|\.)twitch\.tv$/.test(document.location.hostname) === false ) { return; }
-    window.fetch = new Proxy(window.fetch, {
-        apply: function(target, thisArg, args) {
-            const [ url, init ] = args;
-            if (
-                typeof url === 'string' &&
-                url.includes('gql') &&
-                init instanceof Object &&
-                init.headers instanceof Object &&
-                typeof init.body === 'string' &&
-                init.body.includes('PlaybackAccessToken') &&
-                init.body.includes('"isVod":true') === false
-            ) {
-                const { headers } = init;
-                if ( typeof headers['X-Device-Id'] === 'string' ) {
-                    headers['X-Device-Id'] = 'twitch-web-wall-mason';
-                }
-                if ( typeof headers['Device-ID'] === 'string' ) {
-                    headers['Device-ID'] = 'twitch-web-wall-mason';
-                }
-            }
-            return Reflect.apply(target, thisArg, args);
-        }
-    });
-})();
-
-
+builtinScriptlets.push({
+    name: 'cookie-remover.js',
+    aliases: [
+        'remove-cookie.js',
+    ],
+    fn: cookieRemover,
+    world: 'ISOLATED',
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
 // https://github.com/NanoAdblocker/NanoFilters/issues/149
-/// cookie-remover.js
-(function() {
-    const needle = '{{1}}';
-    let reName = /./;
-    if ( /^\/.+\/$/.test(needle) ) {
-        reName = new RegExp(needle.slice(1,-1));
-    } else if ( needle !== '' && needle !== '{{1}}' ) {
-        reName = new RegExp(needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-    }
+function cookieRemover(
+    needle = ''
+) {
+    if ( typeof needle !== 'string' ) { return; }
+    const safe = safeSelf();
+    const reName = safe.patternToRegex(needle);
     const removeCookie = function() {
         document.cookie.split(';').forEach(cookieStr => {
             let pos = cookieStr.indexOf('=');
@@ -1665,51 +2557,83 @@
     };
     removeCookie();
     window.addEventListener('beforeunload', removeCookie);
-})();
+}
 
+/******************************************************************************/
 
-
-/// xml-prune.js
-(function() {
-    let selector = '{{1}}';
-    if ( selector === '{{1}}' ) {
-        selector = '';
-    }
+builtinScriptlets.push({
+    name: 'xml-prune.js',
+    fn: xmlPrune,
+    dependencies: [
+        'safe-self.fn',
+        'should-log.fn',
+    ],
+});
+function xmlPrune(
+    selector = '',
+    selectorCheck = '',
+    urlPattern = ''
+) {
+    if ( typeof selector !== 'string' ) { return; }
     if ( selector === '' ) { return; }
-    let selectorCheck = '{{2}}';
-    if ( selectorCheck === '{{2}}' ) {
-        selectorCheck = '';
-    }
-    let urlPattern = '{{3}}';
-    if ( urlPattern === '{{3}}' ) {
-        urlPattern = '';
-    }
-    let reUrl;
-    if ( urlPattern === '' ) {
-        reUrl = /^/;
-    } else if ( /^\/.*\/$/.test(urlPattern) ) {
-        reUrl = new RegExp(urlPattern.slice(1, -1));
-    } else {
-        reUrl = new RegExp(urlPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-    }
-    const pruner = text => {
+    const safe = safeSelf();
+    const reUrl = safe.patternToRegex(urlPattern);
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
+    const log = shouldLog(extraArgs) ? ((...args) => { safe.uboLog(...args); }) : (( ) => { });
+    const queryAll = (xmlDoc, selector) => {
+        const isXpath = /^xpath\(.+\)$/.test(selector);
+        if ( isXpath === false ) {
+            return Array.from(xmlDoc.querySelectorAll(selector));
+        }
+        const xpr = xmlDoc.evaluate(
+            selector.slice(6, -1),
+            xmlDoc,
+            null,
+            XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
+            null
+        );
+        const out = [];
+        for ( let i = 0; i < xpr.snapshotLength; i++ ) {
+            const node = xpr.snapshotItem(i);
+            out.push(node);
+        }
+        return out;
+    };
+    const pruneFromDoc = xmlDoc => {
+        try {
+            if ( selectorCheck !== '' && xmlDoc.querySelector(selectorCheck) === null ) {
+                return xmlDoc;
+            }
+            if ( extraArgs.logdoc ) {
+                const serializer = new XMLSerializer();
+                log(`xmlPrune: document is\n\t${serializer.serializeToString(xmlDoc)}`);
+            }
+            const items = queryAll(xmlDoc, selector);
+            if ( items.length === 0 ) { return xmlDoc; }
+            log(`xmlPrune: removing ${items.length} items`);
+            for ( const item of items ) {
+                if ( item.nodeType === 1 ) {
+                    item.remove();
+                } else if ( item.nodeType === 2 ) {
+                    item.ownerElement.removeAttribute(item.nodeName);
+                }
+                log(`xmlPrune: ${item.constructor.name}.${item.nodeName} removed`);
+            }
+        } catch(ex) {
+            log(ex);
+        }
+        return xmlDoc;
+    };
+    const pruneFromText = text => {
         if ( (/^\s*</.test(text) && />\s*$/.test(text)) === false ) {
             return text;
         }
         try {
             const xmlParser = new DOMParser();
             const xmlDoc = xmlParser.parseFromString(text, 'text/xml');
-            if ( selectorCheck !== '' && xmlDoc.querySelector(selectorCheck) === null ) {
-                return text;
-            }
-            const elems = xmlDoc.querySelectorAll(selector);
-            if ( elems.length !== 0 ) {
-                for ( const elem of elems ) {
-                    elem.remove();
-                }
-                const serializer = new XMLSerializer();
-                text = serializer.serializeToString(xmlDoc);
-            }
+            pruneFromDoc(xmlDoc);
+            const serializer = new XMLSerializer();
+            text = serializer.serializeToString(xmlDoc);
         } catch(ex) {
         }
         return text;
@@ -1719,41 +2643,93 @@
         if ( arg instanceof Request ) { return arg.url; }
         return String(arg);
     };
-    const realFetch = self.fetch;
     self.fetch = new Proxy(self.fetch, {
         apply: function(target, thisArg, args) {
+            const fetchPromise = Reflect.apply(target, thisArg, args);
             if ( reUrl.test(urlFromArg(args[0])) === false ) {
-                return Reflect.apply(target, thisArg, args);
+                return fetchPromise;
             }
-            return realFetch(...args).then(realResponse =>
-                realResponse.text().then(text =>
-                    new Response(pruner(text), {
-                        status: realResponse.status,
-                        statusText: realResponse.statusText,
-                        headers: realResponse.headers,
-                    })
-                )
-            );
+            return fetchPromise.then(responseBefore => {
+                const response = responseBefore.clone();
+                return response.text().then(text => {
+                    const responseAfter = new Response(pruneFromText(text), {
+                        status: responseBefore.status,
+                        statusText: responseBefore.statusText,
+                        headers: responseBefore.headers,
+                    });
+                    Object.defineProperties(responseAfter, {
+                        ok: { value: responseBefore.ok },
+                        redirected: { value: responseBefore.redirected },
+                        type: { value: responseBefore.type },
+                        url: { value: responseBefore.url },
+                    });
+                    return responseAfter;
+                }).catch(( ) =>
+                    responseBefore
+                );
+            });
         }
     });
-})();
+    self.XMLHttpRequest.prototype.open = new Proxy(self.XMLHttpRequest.prototype.open, {
+        apply: async (target, thisArg, args) => {
+            if ( reUrl.test(urlFromArg(args[1])) === false ) {
+                return Reflect.apply(target, thisArg, args);
+            }
+            thisArg.addEventListener('readystatechange', function() {
+                if ( thisArg.readyState !== 4 ) { return; }
+                const type = thisArg.responseType;
+                if (
+                    type === 'document' ||
+                    type === '' && thisArg.responseXML instanceof XMLDocument
+                ) {
+                    pruneFromDoc(thisArg.responseXML);
+                    return;
+                }
+                if (
+                    type === 'text' ||
+                    type === '' && typeof thisArg.responseText === 'string'
+                ) {
+                    const textin = thisArg.responseText;
+                    const textout = pruneFromText(textin);
+                    if ( textout === textin ) { return; }
+                    Object.defineProperty(thisArg, 'response', { value: textout });
+                    Object.defineProperty(thisArg, 'responseText', { value: textout });
+                    return;
+                }
+            });
+            return Reflect.apply(target, thisArg, args);
+        }
+    });
+}
 
+/******************************************************************************/
 
-
-/// m3u-prune.js
+builtinScriptlets.push({
+    name: 'm3u-prune.js',
+    fn: m3uPrune,
+    dependencies: [
+        'safe-self.fn',
+        'should-log.fn',
+    ],
+});
 // https://en.wikipedia.org/wiki/M3U
-(function() {
-    let m3uPattern = '{{1}}';
-    if ( m3uPattern === '{{1}}' ) {
-        m3uPattern = '';
-    }
-    let urlPattern = '{{2}}';
-    if ( urlPattern === '{{2}}' ) {
-        urlPattern = '';
-    }
+function m3uPrune(
+    m3uPattern = '',
+    urlPattern = ''
+) {
+    if ( typeof m3uPattern !== 'string' ) { return; }
+    const safe = safeSelf();
+    const options = safe.getExtraArgs(Array.from(arguments), 2);
+    const logLevel = shouldLog(options);
+    const uboLog = logLevel ? ((...args) => safe.uboLog(...args)) : (( ) => { });
     const regexFromArg = arg => {
         if ( arg === '' ) { return /^/; }
-        if ( /^\/.*\/$/.test(arg) ) { return new RegExp(arg.slice(1, -1)); }
+        const match = /^\/(.+)\/([gms]*)$/.exec(arg);
+        if ( match !== null ) {
+            let flags = match[2] || '';
+            if ( flags.includes('m') ) { flags += 's'; }
+            return new RegExp(match[1], flags);
+        }
         return new RegExp(
             arg.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*+/g, '.*?')
         );
@@ -1764,17 +2740,22 @@
         if ( lines[i].startsWith('#EXT-X-CUE:TYPE="SpliceOut"') === false ) {
             return false;
         }
+        uboLog('m3u-prune: discarding', `\n\t${lines[i]}`);
         lines[i] = undefined; i += 1;
         if ( lines[i].startsWith('#EXT-X-ASSET:CAID') ) {
+            uboLog(`\t${lines[i]}`);
             lines[i] = undefined; i += 1;
         }
         if ( lines[i].startsWith('#EXT-X-SCTE35:') ) {
+            uboLog(`\t${lines[i]}`);
             lines[i] = undefined; i += 1;
         }
         if ( lines[i].startsWith('#EXT-X-CUE-IN') ) {
+            uboLog(`\t${lines[i]}`);
             lines[i] = undefined; i += 1;
         }
         if ( lines[i].startsWith('#EXT-X-SCTE35:') ) {
+            uboLog(`\t${lines[i]}`);
             lines[i] = undefined; i += 1;
         }
         return true;
@@ -1782,14 +2763,53 @@
     const pruneInfBlock = (lines, i) => {
         if ( lines[i].startsWith('#EXTINF') === false ) { return false; }
         if ( reM3u.test(lines[i+1]) === false ) { return false; }
+        uboLog('m3u-prune: discarding', `\n\t${lines[i]}, \n\t${lines[i+1]}`);
         lines[i] = lines[i+1] = undefined; i += 2;
         if ( lines[i].startsWith('#EXT-X-DISCONTINUITY') ) {
+            uboLog(`\t${lines[i]}`);
             lines[i] = undefined; i += 1;
         }
         return true;
     };
     const pruner = text => {
         if ( (/^\s*#EXTM3U/.test(text)) === false ) { return text; }
+        if ( reM3u.multiline ) {
+            reM3u.lastIndex = 0;
+            for (;;) {
+                const match = reM3u.exec(text);
+                if ( match === null ) { break; }
+                let discard = match[0];
+                let before = text.slice(0, match.index);
+                if (
+                    /^[\n\r]+/.test(discard) === false &&
+                    /[\n\r]+$/.test(before) === false
+                ) {
+                    const startOfLine = /[^\n\r]+$/.exec(before);
+                    if ( startOfLine !== null ) {
+                        before = before.slice(0, startOfLine.index);
+                        discard = startOfLine[0] + discard;
+                    }
+                }
+                let after = text.slice(match.index + match[0].length);
+                if (
+                    /[\n\r]+$/.test(discard) === false &&
+                    /^[\n\r]+/.test(after) === false
+                ) {
+                    const endOfLine = /^[^\n\r]+/.exec(after);
+                    if ( endOfLine !== null ) {
+                        after = after.slice(endOfLine.index);
+                        discard += discard + endOfLine[0];
+                    }
+                }
+                text = before.trim() + '\n' + after.trim();
+                reM3u.lastIndex = before.length + 1;
+                uboLog('m3u-prune: discarding\n',
+                    discard.split(/\n+/).map(s => `\t${s}`).join('\n')
+                );
+                if ( reM3u.global === false ) { break; }
+            }
+            return text;
+        }
         const lines = text.split(/\n\r|\n|\r/);
         for ( let i = 0; i < lines.length; i++ ) {
             if ( lines[i] === undefined ) { continue; }
@@ -1838,10 +2858,870 @@
             return Reflect.apply(target, thisArg, args);
         }
     });
-})();
+}
+
+/*******************************************************************************
+ * 
+ * @scriptlet href-sanitizer
+ * 
+ * @description
+ * Set the `href` attribute to a value found in the DOM at, or below the
+ * targeted `a` element.
+ * 
+ * ### Syntax
+ * 
+ * ```text
+ * example.org##+js(href-sanitizer, selector [, source])
+ * ```
+ * 
+ * - `selector`: required, CSS selector, specifies `a` elements for which the
+ *   `href` attribute must be overridden.
+ * - `source`: optional, default to `text`, specifies from where to get the
+ *   value which will override the `href` attribute.
+ *     - `text`: the value will be the first valid URL found in the text
+ *       content of the targeted `a` element.
+ *     - `[attr]`: the value will be the attribute _attr_ of the targeted `a`
+ *       element.
+ *     - `?param`: the value will be the query parameter _param_ of the URL
+ *       found in the `href` attribute of the targeted `a` element.
+ * 
+ * ### Examples
+ * 
+ * example.org##+js(href-sanitizer, a)
+ * example.org##+js(href-sanitizer, a[title], [title])
+ * example.org##+js(href-sanitizer, a[href*="/away.php?to="], ?to)
+ * 
+ * */
+
+builtinScriptlets.push({
+    name: 'href-sanitizer.js',
+    fn: hrefSanitizer,
+    world: 'ISOLATED',
+    dependencies: [
+        'run-at.fn',
+    ],
+});
+function hrefSanitizer(
+    selector = '',
+    source = ''
+) {
+    if ( typeof selector !== 'string' ) { return; }
+    if ( selector === '' ) { return; }
+    if ( source === '' ) { source = 'text'; }
+    const sanitizeCopycats = (href, text) => {
+        let elems = [];
+        try {
+            elems = document.querySelectorAll(`a[href="${href}"`);
+        }
+        catch(ex) {
+        }
+        for ( const elem of elems ) {
+            elem.setAttribute('href', text);
+        }
+    };
+    const validateURL = text => {
+        if ( text === '' ) { return ''; }
+        if ( /[^\x21-\x7e]/.test(text) ) { return ''; }
+        try {
+            const url = new URL(text, document.location);
+            return url.href;
+        } catch(ex) {
+        }
+        return '';
+    };
+    const extractText = (elem, source) => {
+        if ( /^\[.*\]$/.test(source) ) {
+            return elem.getAttribute(source.slice(1,-1).trim()) || '';
+        }
+        if ( source.startsWith('?') ) {
+            try {
+                const url = new URL(elem.href, document.location);
+                return url.searchParams.get(source.slice(1)) || '';
+            } catch(x) {
+            }
+            return '';
+        }
+        if ( source === 'text' ) {
+            return elem.textContent
+                .replace(/^[^\x21-\x7e]+/, '') // remove leading invalid characters
+                .replace(/[^\x21-\x7e]+$/, '') // remove trailing invalid characters
+                ;
+        }
+        return '';
+    };
+    const sanitize = ( ) => {
+        let elems = [];
+        try {
+            elems = document.querySelectorAll(selector);
+        }
+        catch(ex) {
+            return false;
+        }
+        for ( const elem of elems ) {
+            if ( elem.localName !== 'a' ) { continue; }
+            if ( elem.hasAttribute('href') === false ) { continue; }
+            const href = elem.getAttribute('href');
+            const text = extractText(elem, source);
+            const hrefAfter = validateURL(text);
+            if ( hrefAfter === '' ) { continue; }
+            if ( hrefAfter === href ) { continue; }
+            elem.setAttribute('href', hrefAfter);
+            sanitizeCopycats(href, hrefAfter);
+        }
+        return true;
+    };
+    let observer, timer;
+    const onDomChanged = mutations => {
+        if ( timer !== undefined ) { return; }
+        let shouldSanitize = false;
+        for ( const mutation of mutations ) {
+            if ( mutation.addedNodes.length === 0 ) { continue; }
+            for ( const node of mutation.addedNodes ) {
+                if ( node.nodeType !== 1 ) { continue; }
+                shouldSanitize = true;
+                break;
+            }
+            if ( shouldSanitize ) { break; }
+        }
+        if ( shouldSanitize === false ) { return; }
+        timer = self.requestAnimationFrame(( ) => {
+            timer = undefined;
+            sanitize();
+        });
+    };
+    const start = ( ) => {
+        if ( sanitize() === false ) { return; }
+        observer = new MutationObserver(onDomChanged);
+        observer.observe(document.body, {
+            subtree: true,
+            childList: true,
+        });
+    };
+    runAt(( ) => { start(); }, 'interactive');
+}
+
+/*******************************************************************************
+ * 
+ * @scriptlet call-nothrow
+ * 
+ * @description
+ * Prevent a function call from throwing. The function will be called, however
+ * should it throw, the scriptlet will silently process the exception and
+ * returns as if no exception has occurred.
+ * 
+ * ### Syntax
+ * 
+ * ```text
+ * example.org##+js(call-nothrow, propertyChain)
+ * ```
+ * 
+ * - `propertyChain`: a chain of dot-separated properties which leads to the
+ * function to be trapped.
+ * 
+ * ### Examples
+ * 
+ * example.org##+js(call-nothrow, Object.defineProperty)
+ * 
+ * */
+
+builtinScriptlets.push({
+    name: 'call-nothrow.js',
+    fn: callNothrow,
+});
+function callNothrow(
+    chain = ''
+) {
+    if ( typeof chain !== 'string' ) { return; }
+    if ( chain === '' ) { return; }
+    const parts = chain.split('.');
+    let owner = window, prop;
+    for (;;) {
+        prop = parts.shift();
+        if ( parts.length === 0 ) { break; }
+        owner = owner[prop];
+        if ( owner instanceof Object === false ) { return; }
+    }
+    if ( prop === '' ) { return; }
+    const fn = owner[prop];
+    if ( typeof fn !== 'function' ) { return; }
+    owner[prop] = new Proxy(fn, {
+        apply: function(...args) {
+            let r;
+            try {
+                r = Reflect.apply(...args);
+            } catch(ex) {
+            }
+            return r;
+        },
+    });
+}
 
 
+/******************************************************************************/
 
-// These lines below are skipped by the resource parser.
-// <<<< end of private namespace
-})();
+builtinScriptlets.push({
+    name: 'spoof-css.js',
+    fn: spoofCSS,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function spoofCSS(
+    selector,
+    ...args
+) {
+    if ( typeof selector !== 'string' ) { return; }
+    if ( selector === '' ) { return; }
+    const toCamelCase = s => s.replace(/-[a-z]/g, s => s.charAt(1).toUpperCase());
+    const propToValueMap = new Map();
+    for ( let i = 0; i < args.length; i += 2 ) {
+        if ( typeof args[i+0] !== 'string' ) { break; }
+        if ( args[i+0] === '' ) { break; }
+        if ( typeof args[i+1] !== 'string' ) { break; }
+        propToValueMap.set(toCamelCase(args[i+0]), args[i+1]);
+    }
+    const safe = safeSelf();
+    const canDebug = scriptletGlobals.has('canDebug');
+    const shouldDebug = canDebug && propToValueMap.get('debug') || 0;
+    const shouldLog = canDebug && propToValueMap.has('log') || 0;
+    const spoofStyle = (prop, real) => {
+        const normalProp = toCamelCase(prop);
+        const shouldSpoof = propToValueMap.has(normalProp);
+        const value = shouldSpoof ? propToValueMap.get(normalProp) : real;
+        if ( shouldLog === 2 || shouldSpoof && shouldLog === 1 ) {
+            safe.uboLog(prop, value);
+        }
+        return value;
+    };
+    self.getComputedStyle = new Proxy(self.getComputedStyle, {
+        apply: function(target, thisArg, args) {
+            if ( shouldDebug !== 0 ) { debugger; }    // jshint ignore: line
+            const style = Reflect.apply(target, thisArg, args);
+            const targetElements = new WeakSet(document.querySelectorAll(selector));
+            if ( targetElements.has(args[0]) === false ) { return style; }
+            const proxiedStyle = new Proxy(style, {
+                get(target, prop, receiver) {
+                    if ( typeof target[prop] === 'function' ) {
+                        if ( prop === 'getPropertyValue' ) {
+                            return (function(prop) {
+                                return spoofStyle(prop, target[prop]);
+                            }).bind(target);
+                        }
+                        return target[prop].bind(target);
+                    }
+                    return spoofStyle(prop, Reflect.get(target, prop, receiver));
+                },
+                getOwnPropertyDescriptor(target, prop) {
+                    if ( propToValueMap.has(prop) ) {
+                        return {
+                            configurable: true,
+                            enumerable: true,
+                            value: propToValueMap.get(prop),
+                            writable: true,
+                        };
+                    }
+                    return Reflect.getOwnPropertyDescriptor(target, prop);
+                },
+            });
+            return proxiedStyle;
+        },
+        get(target, prop, receiver) {
+            if ( prop === 'toString' ) {
+                return target.toString.bind(target);
+            }
+            return Reflect.get(target, prop, receiver);
+        },
+    });
+    Element.prototype.getBoundingClientRect = new Proxy(Element.prototype.getBoundingClientRect, {
+        apply: function(target, thisArg, args) {
+            if ( shouldDebug !== 0 ) { debugger; }    // jshint ignore: line
+            const rect = Reflect.apply(target, thisArg, args);
+            const targetElements = new WeakSet(document.querySelectorAll(selector));
+            if ( targetElements.has(thisArg) === false ) { return rect; }
+            let { height, width } = rect;
+            if ( propToValueMap.has('width') ) {
+                width = parseFloat(propToValueMap.get('width'));
+            }
+            if ( propToValueMap.has('height') ) {
+                height = parseFloat(propToValueMap.get('height'));
+            }
+            return new self.DOMRect(rect.x, rect.y, width, height);
+        },
+        get(target, prop, receiver) {
+            if ( prop === 'toString' ) {
+                return target.toString.bind(target);
+            }
+            return Reflect.get(target, prop, receiver);
+        },
+    });
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'remove-node-text.js',
+    aliases: [
+        'rmnt.js',
+    ],
+    fn: removeNodeText,
+    world: 'ISOLATED',
+    dependencies: [
+        'replace-node-text-core.fn',
+    ],
+});
+function removeNodeText(
+    nodeName,
+    condition,
+    ...extraArgs
+) {
+    replaceNodeTextCore(nodeName, '', '', 'condition', condition || '', ...extraArgs);
+}
+
+/*******************************************************************************
+ * 
+ * set-cookie.js
+ * 
+ * Set specified cookie to a specific value.
+ * 
+ * Reference:
+ * https://github.com/AdguardTeam/Scriptlets/blob/master/src/scriptlets/set-cookie.js
+ * 
+ **/
+
+builtinScriptlets.push({
+    name: 'set-cookie.js',
+    fn: setCookie,
+    world: 'ISOLATED',
+    dependencies: [
+        'safe-self.fn',
+        'set-cookie-helper.fn',
+    ],
+});
+function setCookie(
+    name = '',
+    value = '',
+    path = ''
+) {
+    if ( name === '' ) { return; }
+    name = encodeURIComponent(name);
+
+    const validValues = [
+        'true', 'false',
+        'yes', 'y', 'no', 'n',
+        'ok',
+        'accept', 'reject',
+        'allow', 'deny',
+    ];
+    if ( validValues.includes(value.toLowerCase()) === false ) {
+        if ( /^\d+$/.test(value) === false ) { return; }
+        const n = parseInt(value, 10);
+        if ( n > 15 ) { return; }
+    }
+    value = encodeURIComponent(value);
+
+    setCookieHelper(
+        name,
+        value,
+        '',
+        path,
+        safeSelf().getExtraArgs(Array.from(arguments), 3)
+    );
+}
+
+/*******************************************************************************
+ * 
+ * set-local-storage-item.js
+ * set-session-storage-item.js
+ * 
+ * Set a local/session storage entry to a specific, allowed value.
+ * 
+ * Reference:
+ * https://github.com/AdguardTeam/Scriptlets/blob/master/src/scriptlets/set-local-storage-item.js
+ * https://github.com/AdguardTeam/Scriptlets/blob/master/src/scriptlets/set-session-storage-item.js
+ * 
+ **/
+
+builtinScriptlets.push({
+    name: 'set-local-storage-item.js',
+    fn: setLocalStorageItem,
+    world: 'ISOLATED',
+    dependencies: [
+        'set-local-storage-item-core.fn',
+    ],
+});
+function setLocalStorageItem(key = '', value = '') {
+    setLocalStorageItemCore('local', false, key, value);
+}
+
+builtinScriptlets.push({
+    name: 'set-session-storage-item.js',
+    fn: setSessionStorageItem,
+    world: 'ISOLATED',
+    dependencies: [
+        'set-local-storage-item-core.fn',
+    ],
+});
+function setSessionStorageItem(key = '', value = '') {
+    setLocalStorageItemCore('session', false, key, value);
+}
+
+/*******************************************************************************
+ * 
+ * @scriptlet set-attr
+ * 
+ * @description
+ * Sets the specified attribute on the specified elements. This scriptlet runs
+ * once when the page loads then afterward on DOM mutations.
+
+ * Reference: https://github.com/AdguardTeam/Scriptlets/blob/master/src/scriptlets/set-attr.js
+ * 
+ * ### Syntax
+ * 
+ * ```text
+ * example.org##+js(set-attr, selector, attr [, value])
+ * ```
+ * 
+ * - `selector`: CSS selector of DOM elements for which the attribute `attr`
+ *   must be modified.
+ * - `attr`: the name of the attribute to modify
+ * - `value`: the value to assign to the target attribute. Possible values:
+ *     - `''`: empty string (default)
+ *     - `true`
+ *     - `false`
+ *     - positive decimal integer 0 <= value < 32768
+ *     - `[other]`: copy the value from attribute `other` on the same element
+ * */
+
+builtinScriptlets.push({
+    name: 'set-attr.js',
+    fn: setAttr,
+    world: 'ISOLATED',
+    dependencies: [
+        'run-at.fn',
+    ],
+});
+function setAttr(
+    selector = '',
+    attr = '',
+    value = ''
+) {
+    if ( typeof selector !== 'string' ) { return; }
+    if ( selector === '' ) { return; }
+
+    const validValues = [ '', 'false', 'true' ];
+    let copyFrom = '';
+
+    if ( validValues.includes(value.toLowerCase()) === false ) {
+        if ( /^\d+$/.test(value) ) {
+            const n = parseInt(value, 10);
+            if ( n >= 32768 ) { return; }
+            value = `${n}`;
+        } else if ( /^\[.+\]$/.test(value) ) {
+            copyFrom = value.slice(1, -1);
+        } else {
+            return;
+        }
+    }
+
+    const extractValue = elem => {
+        if ( copyFrom !== '' ) {
+            return elem.getAttribute(copyFrom) || '';
+        }
+        return value;
+    };
+
+    const applySetAttr = ( ) => {
+        const elems = [];
+        try {
+            elems.push(...document.querySelectorAll(selector));
+        }
+        catch(ex) {
+            return false;
+        }
+        for ( const elem of elems ) {
+            const before = elem.getAttribute(attr);
+            const after = extractValue(elem);
+            if ( after === before ) { continue; }
+            elem.setAttribute(attr, after);
+        }
+        return true;
+    };
+    let observer, timer;
+    const onDomChanged = mutations => {
+        if ( timer !== undefined ) { return; }
+        let shouldWork = false;
+        for ( const mutation of mutations ) {
+            if ( mutation.addedNodes.length === 0 ) { continue; }
+            for ( const node of mutation.addedNodes ) {
+                if ( node.nodeType !== 1 ) { continue; }
+                shouldWork = true;
+                break;
+            }
+            if ( shouldWork ) { break; }
+        }
+        if ( shouldWork === false ) { return; }
+        timer = self.requestAnimationFrame(( ) => {
+            timer = undefined;
+            applySetAttr();
+        });
+    };
+    const start = ( ) => {
+        if ( applySetAttr() === false ) { return; }
+        observer = new MutationObserver(onDomChanged);
+        observer.observe(document.body, {
+            subtree: true,
+            childList: true,
+        });
+    };
+    runAt(( ) => { start(); }, 'idle');
+}
+
+
+/*******************************************************************************
+ * 
+ * Scriplets below this section are only available for filter lists from
+ * trusted sources. They all have the property `requiresTrust` set to `true`.
+ * 
+ * Trusted sources are:
+ *
+ * - uBO's own filter lists, which name starts with "uBlock filters – ", and
+ *   maintained at: https://github.com/uBlockOrigin/uAssets
+ * 
+ * - The user's own filters as seen in "My filters" pane in uBO's dashboard. 
+ * 
+ * The trustworthiness of filters using these privileged scriptlets are
+ * evaluated at filter list compiled time: when a filter using one of the
+ * privileged scriptlet originates from a non-trusted filter list source, it
+ * is discarded at compile time, specifically from within:
+ * 
+ * - Source: ./src/js/scriptlet-filtering.js
+ * - Method: scriptletFilteringEngine.compile(), via normalizeRawFilter()
+ * 
+ **/
+
+/*******************************************************************************
+ * 
+ * replace-node-text.js
+ * 
+ * Replace text instance(s) with another text instance inside specific
+ * DOM nodes. By default, the scriplet stops and quits at the interactive
+ * stage of a document.
+ * 
+ * See commit messages for usage:
+ * - https://github.com/gorhill/uBlock/commit/99ce027fd702
+ * - https://github.com/gorhill/uBlock/commit/41876336db48
+ * 
+ **/
+
+builtinScriptlets.push({
+    name: 'replace-node-text.js',
+    requiresTrust: true,
+    aliases: [
+        'rpnt.js',
+    ],
+    fn: replaceNodeText,
+    world: 'ISOLATED',
+    dependencies: [
+        'replace-node-text-core.fn',
+    ],
+});
+function replaceNodeText(
+    nodeName,
+    pattern,
+    replacement,
+    ...extraArgs
+) {
+    replaceNodeTextCore(nodeName, pattern, replacement, ...extraArgs);
+}
+
+/*******************************************************************************
+ * 
+ * trusted-set-constant.js
+ * 
+ * Set specified property to any value. This is essentially the same as
+ * set-constant.js, but with no restriction as to which values can be used.
+ * 
+ **/
+
+builtinScriptlets.push({
+    name: 'trusted-set-constant.js',
+    requiresTrust: true,
+    aliases: [
+        'trusted-set.js',
+    ],
+    fn: trustedSetConstant,
+    dependencies: [
+        'set-constant-core.fn'
+    ],
+});
+function trustedSetConstant(
+    ...args
+) {
+    setConstantCore(true, ...args);
+}
+
+/*******************************************************************************
+ * 
+ * trusted-set-cookie.js
+ * 
+ * Set specified cookie to an arbitrary value.
+ * 
+ * Reference:
+ * https://github.com/AdguardTeam/Scriptlets/blob/master/src/scriptlets/trusted-set-cookie.js#L23
+ * 
+ **/
+
+builtinScriptlets.push({
+    name: 'trusted-set-cookie.js',
+    requiresTrust: true,
+    fn: trustedSetCookie,
+    world: 'ISOLATED',
+    dependencies: [
+        'safe-self.fn',
+        'set-cookie-helper.fn',
+    ],
+});
+function trustedSetCookie(
+    name = '',
+    value = '',
+    offsetExpiresSec = '',
+    path = ''
+) {
+    if ( name === '' ) { return; }
+
+    const time = new Date();
+
+    if ( value === '$now$' ) {
+        value = Date.now();
+    } else if ( value === '$currentDate$' ) {
+        value = time.toUTCString();
+    }
+
+    let expires = '';
+    if ( offsetExpiresSec !== '' ) {
+        if ( offsetExpiresSec === '1day' ) {
+            time.setDate(time.getDate() + 1);
+        } else if ( offsetExpiresSec === '1year' ) {
+            time.setFullYear(time.getFullYear() + 1);
+        } else {
+            if ( /^\d+$/.test(offsetExpiresSec) === false ) { return; }
+            time.setSeconds(time.getSeconds() + parseInt(offsetExpiresSec, 10));
+        }
+        expires = time.toUTCString();
+    }
+
+    setCookieHelper(
+        name,
+        value,
+        expires,
+        path,
+        safeSelf().getExtraArgs(Array.from(arguments), 4)
+    );
+}
+
+/*******************************************************************************
+ * 
+ * trusted-set-local-storage-item.js
+ * 
+ * Set a local storage entry to an arbitrary value.
+ * 
+ * Reference:
+ * https://github.com/AdguardTeam/Scriptlets/blob/master/src/scriptlets/trusted-set-local-storage-item.js
+ * 
+ **/
+
+builtinScriptlets.push({
+    name: 'trusted-set-local-storage-item.js',
+    requiresTrust: true,
+    fn: trustedSetLocalStorageItem,
+    world: 'ISOLATED',
+    dependencies: [
+        'set-local-storage-item-core.fn',
+    ],
+});
+function trustedSetLocalStorageItem(key = '', value = '') {
+    setLocalStorageItemCore('local', true, key, value);
+}
+
+/*******************************************************************************
+ * 
+ * trusted-replace-fetch-response.js
+ * 
+ * Replaces response text content of fetch requests if all given parameters
+ * match.
+ * 
+ * Reference:
+ * https://github.com/AdguardTeam/Scriptlets/blob/master/src/scriptlets/trusted-replace-fetch-response.js
+ * 
+ **/
+
+builtinScriptlets.push({
+    name: 'trusted-replace-fetch-response.js',
+    requiresTrust: true,
+    fn: trustedReplaceFetchResponse,
+    dependencies: [
+        'match-object-properties.fn',
+        'parse-properties-to-match.fn',
+        'safe-self.fn',
+        'should-log.fn',
+    ],
+});
+function trustedReplaceFetchResponse(
+    pattern = '',
+    replacement = '',
+    propsToMatch = ''
+) {
+    const safe = safeSelf();
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
+    const logLevel = shouldLog({
+        log: pattern === '' || extraArgs.log,
+    });
+    const log = logLevel ? ((...args) => { safe.uboLog(...args); }) : (( ) => { }); 
+    if ( pattern === '*' ) { pattern = '.*'; }
+    const rePattern = safe.patternToRegex(pattern);
+    const propNeedles = parsePropertiesToMatch(propsToMatch, 'url');
+    self.fetch = new Proxy(self.fetch, {
+        apply: function(target, thisArg, args) {
+            if ( logLevel === true ) {
+                log('trusted-replace-fetch-response:', JSON.stringify(Array.from(args)).slice(1,-1));
+            }
+            const fetchPromise = Reflect.apply(target, thisArg, args);
+            if ( pattern === '' ) { return fetchPromise; }
+            let outcome = 'match';
+            if ( propNeedles.size !== 0 ) {
+                const objs = [ args[0] instanceof Object ? args[0] : { url: args[0] } ];
+                if ( args[1] instanceof Object ) {
+                    objs.push(args[1]);
+                }
+                if ( matchObjectProperties(propNeedles, ...objs) === false ) {
+                    outcome = 'nomatch';
+                }
+                if ( outcome === logLevel || logLevel === 'all' ) {
+                    log(
+                        `trusted-replace-fetch-response (${outcome})`,
+                        `\n\tpropsToMatch: ${JSON.stringify(Array.from(propNeedles)).slice(1,-1)}`,
+                        '\n\tprops:', ...args,
+                    );
+                }
+            }
+            if ( outcome === 'nomatch' ) { return fetchPromise; }
+            return fetchPromise.then(responseBefore => {
+                const response = responseBefore.clone();
+                return response.text().then(textBefore => {
+                    const textAfter = textBefore.replace(rePattern, replacement);
+                    const outcome = textAfter !== textBefore ? 'match' : 'nomatch';
+                    if ( outcome === logLevel || logLevel === 'all' ) {
+                        log(
+                            `trusted-replace-fetch-response (${outcome})`,
+                            `\n\tpattern: ${pattern}`, 
+                            `\n\treplacement: ${replacement}`,
+                        );
+                    }
+                    if ( outcome === 'nomatch' ) { return responseBefore; }
+                    const responseAfter = new Response(textAfter, {
+                        status: responseBefore.status,
+                        statusText: responseBefore.statusText,
+                        headers: responseBefore.headers,
+                    });
+                    Object.defineProperties(responseAfter, {
+                        ok: { value: responseBefore.ok },
+                        redirected: { value: responseBefore.redirected },
+                        type: { value: responseBefore.type },
+                        url: { value: responseBefore.url },
+                    });
+                    return responseAfter;
+                }).catch(reason => {
+                    log('trusted-replace-fetch-response:', reason);
+                    return responseBefore;
+                });
+            }).catch(reason => {
+                log('trusted-replace-fetch-response:', reason);
+                return fetchPromise;
+            });
+        }
+    });
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'trusted-replace-xhr-response.js',
+    requiresTrust: true,
+    fn: trustedReplaceXhrResponse,
+    dependencies: [
+        'match-object-properties.fn',
+        'parse-properties-to-match.fn',
+        'safe-self.fn',
+        'should-log.fn',
+    ],
+});
+function trustedReplaceXhrResponse(
+    pattern = '',
+    replacement = '',
+    propsToMatch = ''
+) {
+    const safe = safeSelf();
+    const xhrInstances = new WeakMap();
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
+    const logLevel = shouldLog({
+        log: pattern === '' && 'all' || extraArgs.log,
+    });
+    const log = logLevel ? ((...args) => { safe.uboLog(...args); }) : (( ) => { }); 
+    if ( pattern === '*' ) { pattern = '.*'; }
+    const rePattern = safe.patternToRegex(pattern);
+    const propNeedles = parsePropertiesToMatch(propsToMatch, 'url');
+    self.XMLHttpRequest = class extends self.XMLHttpRequest {
+        open(method, url, ...args) {
+            const outerXhr = this;
+            const xhrDetails = { method, url };
+            let outcome = 'match';
+            if ( propNeedles.size !== 0 ) {
+                if ( matchObjectProperties(propNeedles, xhrDetails) === false ) {
+                    outcome = 'nomatch';
+                }
+            }
+            if ( outcome === logLevel || outcome === 'all' ) {
+                log(`xhr.open(${method}, ${url}, ${args.join(', ')})`);
+            }
+            if ( outcome === 'match' ) {
+                xhrInstances.set(outerXhr, xhrDetails);
+            }
+            return super.open(method, url, ...args);
+        }
+        get response() {
+            const innerResponse = super.response;
+            const xhrDetails = xhrInstances.get(this);
+            if ( xhrDetails === undefined ) {
+                return innerResponse;
+            }
+            if ( typeof innerResponse !== 'string' ) {
+                xhrDetails.response = innerResponse;
+            }
+            let outerResponse = xhrDetails.response;
+            if ( outerResponse !== undefined ) {
+                return outerResponse;
+            }
+            const textBefore = innerResponse;
+            const textAfter = textBefore.replace(rePattern, replacement);
+            const outcome = textAfter !== textBefore ? 'match' : 'nomatch';
+            if ( outcome === logLevel || logLevel === 'all' ) {
+                log(
+                    `trusted-replace-xhr-response (${outcome})`,
+                    `\n\tpattern: ${pattern}`, 
+                    `\n\treplacement: ${replacement}`,
+                );
+            }
+            xhrDetails.response = textAfter;
+            return textAfter;
+        }
+        get responseText() {
+            const response = this.response;
+            if ( typeof response !== 'string' ) {
+                return super.responseText;
+            }
+            return response;
+        }
+    };
+}
+
+/******************************************************************************/

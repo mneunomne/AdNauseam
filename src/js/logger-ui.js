@@ -37,13 +37,22 @@ const logDateTimezoneOffset = logDate.getTimezoneOffset() * 60000;
 const loggerEntries = [];
 
 let dntDomains = [];
+const COLUMN_TIMESTAMP = 0;
+const COLUMN_FILTER = 1;
+const COLUMN_MESSAGE = 1;
+const COLUMN_RESULT = 2;
+const COLUMN_INITIATOR = 3;
+const COLUMN_PARTYNESS = 4;
+const COLUMN_METHOD = 5;
+const COLUMN_TYPE = 6;
+const COLUMN_URL = 7;
+
 let filteredLoggerEntries = [];
 let filteredLoggerEntryVoidedCount = 0;
 
 let popupLoggerBox;
 let popupLoggerTooltips;
 let activeTabId = 0;
-let filterAuthorMode = false;
 let selectedTabId = 0;
 let netInspectorPaused = false;
 let cnameOfEnabled = false;
@@ -63,6 +72,96 @@ const tabIdFromAttribute = function(elem) {
     return isNaN(tabId) ? 0 : tabId;
 };
 
+
+/******************************************************************************/
+/******************************************************************************/
+
+const onStartMovingWidget = (( ) => {
+    let widget = null;
+    let ondone = null;
+    let mx0 = 0, my0 = 0;
+    let mx1 = 0, my1 = 0;
+    let l0 = 0, t0 = 0;
+    let pw = 0, ph = 0;
+    let cw = 0, ch = 0;
+    let timer;
+
+    const xyFromEvent = ev => {
+        if ( ev.type.startsWith('mouse') ) {
+            return { x: ev.pageX, y: ev.pageY };
+        }
+        const touch = ev.touches[0];
+        return  { x: touch.pageX, y: touch.pageY };
+    };
+
+    const eatEvent = function(ev) {
+        ev.stopPropagation();
+        if ( ev.touches !== undefined ) { return; }
+        ev.preventDefault();
+    };
+
+    const move = ( ) => {
+        timer = undefined;
+        const l1 = Math.min(Math.max(l0 + mx1 - mx0, 0), Math.max(pw - cw, 0));
+        if ( (l1+cw/2) < (pw/2) ) {
+            widget.style.left = `${l1/pw*100}%`;
+            widget.style.right = '';
+        } else {
+            widget.style.right = `${(pw-l1-cw)/pw*100}%`;
+            widget.style.left = '';
+        }
+        const t1 = Math.min(Math.max(t0 + my1 - my0, 0), Math.max(ph - ch, 0));
+        widget.style.top = `${t1/ph*100}%`;
+        widget.style.bottom = '';
+    };
+
+    const moveAsync = ev => {
+        if ( timer !== undefined ) { return; }
+        const coord = xyFromEvent(ev);
+        mx1 = coord.x; my1 = coord.y;
+        timer = self.requestAnimationFrame(move);
+        eatEvent(ev);
+    };
+
+    const stop = ev => {
+        if ( timer !== undefined ) {
+            self.cancelAnimationFrame(timer);
+            timer = undefined;
+        }
+        if ( widget === null ) { return; }
+        if ( widget.classList.contains('moving') === false ) { return; }
+        widget.classList.remove('moving');
+        self.removeEventListener('mousemove', moveAsync, { capture: true });
+        self.removeEventListener('touchmove', moveAsync, { capture: true });
+        eatEvent(ev);
+        widget = null;
+        if ( ondone !== null ) {
+            ondone();
+            ondone = null;
+        }
+    };
+
+    return function(ev, target, callback) {
+        if ( dom.cl.has(target, 'moving') ) { return; }
+        widget = target;
+        ondone = callback || null;
+        const coord = xyFromEvent(ev);
+        mx0 = coord.x; my0 = coord.y;
+        const widgetParent = widget.parentElement;
+        const crect = widget.getBoundingClientRect();
+        const prect = widgetParent.getBoundingClientRect();
+        pw = prect.width; ph = prect.height;
+        cw = crect.width; ch = crect.height;
+        l0 = crect.x - prect.x; t0 = crect.y - prect.y;
+        widget.classList.add('moving');
+        self.addEventListener('mousemove', moveAsync, { capture: true });
+        self.addEventListener('mouseup', stop, { capture: true, once: true });
+        self.addEventListener('touchmove', moveAsync, { capture: true });
+        self.addEventListener('touchend', stop, { capture: true, once: true });
+        eatEvent(ev);
+    };
+})();
+
 /******************************************************************************/
 /******************************************************************************/
 
@@ -70,8 +169,8 @@ const tabIdFromAttribute = function(elem) {
 //
 const modalDialog = (( ) => {
     const overlay = qs$('#modalOverlay');
-    const container = qs$(overlay, ':scope > div > div:nth-of-type(1)');
-    const closeButton = qs$(overlay, ':scope > div > div:nth-of-type(2)');
+    const container = qs$('#modalOverlayContainer');
+    const closeButton = qs$(overlay, ':scope .closeButton');
     let onDestroyed;
 
     const removeChildren = logger.removeAllChildren = function(node) {
@@ -116,6 +215,7 @@ const modalDialog = (( ) => {
 
 self.logger.modalDialog = modalDialog;
 
+
 /******************************************************************************/
 /******************************************************************************/
 
@@ -153,7 +253,7 @@ const regexFromURLFilteringResult = function(result) {
 
 // Emphasize hostname in URL, as this is what matters in uMatrix's rules.
 
-const nodeFromURL = function(parent, url, re) {
+const nodeFromURL = function(parent, url, re, type) {
     const fragment = document.createDocumentFragment();
     if ( re === undefined ) {
         fragment.textContent = url;
@@ -182,7 +282,21 @@ const nodeFromURL = function(parent, url, re) {
     }
     if ( /^https?:\/\//.test(url) ) {
         const a = document.createElement('a');
-        dom.attr(a, 'href', url);
+        let href = url;
+        switch ( type ) {
+            case 'css':
+            case 'doc':
+            case 'frame':
+            case 'object':
+            case 'other':
+            case 'script':
+            case 'xhr':
+                href = `code-viewer.html?url=${encodeURIComponent(href)}`;
+                break;
+            default:
+                break;
+        }
+        dom.attr(a, 'href', href);
         dom.attr(a, 'target', '_blank');
         fragment.appendChild(a);
     }
@@ -212,7 +326,6 @@ const LogEntry = function(details) {
             this[prop] = details[prop];
         }
     }
-    this.type = details.stype || details.type;
     if ( details.aliasURL !== undefined ) {
         this.aliased = true;
     }
@@ -234,6 +347,7 @@ LogEntry.prototype = {
     domain: '',
     filter: undefined,
     id: '',
+    method: '',
     realm: '',
     tabDomain: '',
     tabHostname: '',
@@ -304,7 +418,7 @@ const processLoggerEntries = function(response) {
             parsed.type === 'main_frame' &&
             parsed.aliased === false && (
                 parsed.filter === undefined ||
-                parsed.filter.source !== 'redirect'
+                parsed.filter.modifier !== true
             )
         ) {
             const separator = createLogSeparator(parsed, unboxed.url);
@@ -430,18 +544,20 @@ const parseLogEntry = function(details) {
         textContent.push('');
     }
 
+    // Cell 5: method
+    textContent.push(entry.method || '');
 
-    // Cell 5
+    // Cell 6
     textContent.push(
         normalizeToStr(prettyRequestTypes[entry.type] || entry.type)
     );
 
-    // Cell 6
+    // Cell 7
     textContent.push(normalizeToStr(details.url));
 
     // Hidden cells -- useful for row-filtering purpose
 
-    // Cell 7
+    // Cell 8
     if ( entry.aliased ) {
         textContent.push(`aliasURL=${details.aliasURL}`);
     }
@@ -468,8 +584,6 @@ const viewPort = (( ) => {
     let wholeHeight = 0;
     let lastTopPix = 0;
     let lastTopRow = 0;
-    let scrollTimer;
-    let resizeTimer;
 
     const ViewEntry = function() {
         this.div = document.createElement('div');
@@ -503,19 +617,10 @@ const viewPort = (( ) => {
     };
 
     // Coalesce scroll events
-    const onScroll = function() {
-        if ( scrollTimer !== undefined ) { return; }
-        scrollTimer = setTimeout(
-            ( ) => {
-                scrollTimer = requestAnimationFrame(( ) => {
-                    scrollTimer = undefined;
-                    onScrollChanged();
-                });
-            },
-            1000/32
-        );
+    const scrollTimer = vAPI.defer.create(onScrollChanged);
+    const onScroll = ( ) => {
+        scrollTimer.onvsync(1000/32);
     };
-
     dom.on(vwScroller, 'scroll', onScroll, { passive: true });
 
     const onLayoutChanged = function() {
@@ -552,49 +657,56 @@ const viewPort = (( ) => {
                 : 0;
         });
         const reservedWidth =
-            cellWidths[0] + cellWidths[2] + cellWidths[4] + cellWidths[5];
-        cellWidths[6] = 0.5;
-        if ( cellWidths[1] === 0 && cellWidths[3] === 0 ) {
-            cellWidths[6] = 1;
-        } else if ( cellWidths[1] === 0 ) {
-            cellWidths[3] = 0.35;
-            cellWidths[6] = 0.65;
-        } else if ( cellWidths[3] === 0 ) {
-            cellWidths[1] = 0.35;
-            cellWidths[6] = 0.65;
+            cellWidths[COLUMN_TIMESTAMP] +
+            cellWidths[COLUMN_RESULT] +
+            cellWidths[COLUMN_PARTYNESS] +
+            cellWidths[COLUMN_METHOD] +
+            cellWidths[COLUMN_TYPE];
+        cellWidths[COLUMN_URL] = 0.5;
+        if ( cellWidths[COLUMN_FILTER] === 0 && cellWidths[COLUMN_INITIATOR] === 0 ) {
+            cellWidths[COLUMN_URL] = 1;
+        } else if ( cellWidths[COLUMN_FILTER] === 0 ) {
+            cellWidths[COLUMN_INITIATOR] = 0.35;
+            cellWidths[COLUMN_URL] = 0.65;
+        } else if ( cellWidths[COLUMN_INITIATOR] === 0 ) {
+            cellWidths[COLUMN_FILTER] = 0.35;
+            cellWidths[COLUMN_URL] = 0.65;
         } else {
-            cellWidths[1] = 0.25;
-            cellWidths[3] = 0.25;
-            cellWidths[6] = 0.5;
+            cellWidths[COLUMN_FILTER] = 0.25;
+            cellWidths[COLUMN_INITIATOR] = 0.25;
+            cellWidths[COLUMN_URL] = 0.5;
         }
         const style = qs$('#vwRendererRuntimeStyles');
         const cssRules = [
             '#vwContent .logEntry {',
             `  height: ${newLineHeight}px;`,
             '}',
-            '#vwContent .logEntry > div > span:nth-of-type(1) {',
-            `  width: ${cellWidths[0]}px;`,
+            `#vwContent .logEntry > div > span:nth-of-type(${COLUMN_TIMESTAMP+1}) {`,
+            `  width: ${cellWidths[COLUMN_TIMESTAMP]}px;`,
             '}',
-            '#vwContent .logEntry > div > span:nth-of-type(2) {',
-            `  width: calc(calc(100% - ${reservedWidth}px) * ${cellWidths[1]});`,
+            `#vwContent .logEntry > div > span:nth-of-type(${COLUMN_FILTER+1}) {`,
+            `  width: calc(calc(100% - ${reservedWidth}px) * ${cellWidths[COLUMN_FILTER]});`,
             '}',
-            '#vwContent .logEntry > div.messageRealm > span:nth-of-type(2) {',
-            `  width: calc(100% - ${cellWidths[0]}px);`,
+            `#vwContent .logEntry > div.messageRealm > span:nth-of-type(${COLUMN_MESSAGE+1}) {`,
+            `  width: calc(100% - ${cellWidths[COLUMN_MESSAGE]}px);`,
             '}',
-            '#vwContent .logEntry > div > span:nth-of-type(3) {',
-            `  width: ${cellWidths[2]}px;`,
+            `#vwContent .logEntry > div > span:nth-of-type(${COLUMN_RESULT+1}) {`,
+            `  width: ${cellWidths[COLUMN_RESULT]}px;`,
             '}',
-            '#vwContent .logEntry > div > span:nth-of-type(4) {',
-            `  width: calc(calc(100% - ${reservedWidth}px) * ${cellWidths[3]});`,
+            `#vwContent .logEntry > div > span:nth-of-type(${COLUMN_INITIATOR+1}) {`,
+            `  width: calc(calc(100% - ${reservedWidth}px) * ${cellWidths[COLUMN_INITIATOR]});`,
             '}',
-            '#vwContent .logEntry > div > span:nth-of-type(5) {',
-            `  width: ${cellWidths[4]}px;`,
+            `#vwContent .logEntry > div > span:nth-of-type(${COLUMN_PARTYNESS+1}) {`,
+            `  width: ${cellWidths[COLUMN_PARTYNESS]}px;`,
             '}',
-            '#vwContent .logEntry > div > span:nth-of-type(6) {',
-            `  width: ${cellWidths[5]}px;`,
+            `#vwContent .logEntry > div > span:nth-of-type(${COLUMN_METHOD+1}) {`,
+            `  width: ${cellWidths[COLUMN_METHOD]}px;`,
             '}',
-            '#vwContent .logEntry > div > span:nth-of-type(7) {',
-            `  width: calc(calc(100% - ${reservedWidth}px) * ${cellWidths[6]});`,
+            `#vwContent .logEntry > div > span:nth-of-type(${COLUMN_TYPE+1}) {`,
+            `  width: ${cellWidths[COLUMN_TYPE]}px;`,
+            '}',
+            `#vwContent .logEntry > div > span:nth-of-type(${COLUMN_URL+1}) {`,
+            `  width: calc(calc(100% - ${reservedWidth}px) * ${cellWidths[COLUMN_URL]});`,
             '}',
             '',
         ];
@@ -615,19 +727,10 @@ const viewPort = (( ) => {
         updateContent(0);
     };
 
+    const resizeTimer = vAPI.defer.create(onLayoutChanged);
     const updateLayout = function() {
-        if ( resizeTimer !== undefined ) { return; }
-        resizeTimer = setTimeout(
-            ( ) => {
-                resizeTimer = requestAnimationFrame(( ) => {
-                    resizeTimer = undefined;
-                    onLayoutChanged();
-                });
-            },
-            1000/8
-        );
+        resizeTimer.onvsync(1000/8);
     };
-
     dom.on(window, 'resize', updateLayout, { passive: true });
 
     updateLayout();
@@ -669,8 +772,8 @@ const viewPort = (( ) => {
         }
 
         // Timestamp
-        span = div.children[0];
-        span.textContent = cells[0];
+        span = div.children[COLUMN_TIMESTAMP];
+        span.textContent = cells[COLUMN_TIMESTAMP];
 
         // Tab id
         if ( details.tabId !== undefined ) {
@@ -684,8 +787,8 @@ const viewPort = (( ) => {
             if ( details.type !== undefined ) {
                 dom.attr(div, 'data-type', details.type);
             }
-            span = div.children[1];
-            span.textContent = cells[1];
+            span = div.children[COLUMN_MESSAGE];
+            span.textContent = cells[COLUMN_MESSAGE];
             return div;
         }
 
@@ -710,28 +813,31 @@ const viewPort = (( ) => {
                 dom.attr(div, 'data-modifier', '');
             }
         }
-        span = div.children[1];
-        if ( renderFilterToSpan(span, cells[1]) === false ) {
-            span.textContent = cells[1];
+        span = div.children[COLUMN_FILTER];
+        if ( renderFilterToSpan(span, cells[COLUMN_FILTER]) ) {
+            if ( /^\+js\(.*\)$/.test(span.children[1].textContent) ) {
+                divcl.add('scriptlet');
+            }
+        } else {
+            span.textContent = cells[COLUMN_FILTER];
         }
 
         // Event
-        if ( cells[2] === '--' ) {
+        if ( cells[COLUMN_RESULT] === '--' ) {
             dom.attr(div, 'data-status', '1');
-        } else if ( cells[2] === '++' ) {
+        } else if ( cells[COLUMN_RESULT] === '++' ) {
             dom.attr(div, 'data-status', '2');
-        } else if ( cells[2] === '**' ) {
+        } else if ( cells[COLUMN_RESULT] === '**' ) {
             dom.attr(div, 'data-status', '3');
-        } else if ( cells[2] === '~~' ) {
+        } else if ( cells[COLUMN_RESULT] === '~~' ) { // ADN: allow
             dom.attr(div, 'data-status', '4');
-        } else if ( cells[2] === '@@' ) {
+        } else if ( cells[COLUMN_RESULT] === '@@' ) {
             dom.attr(div, 'data-status', '5');
-        } else if ( cells[2] === '<<' ) {
+        } else if ( cells[COLUMN_RESULT] === '<<' ) {
             divcl.add('redirect');
         }
-
-        span = div.children[2];
-        span.textContent = cells[2];
+        span = div.children[COLUMN_RESULT];
+        span.textContent = cells[COLUMN_RESULT];
 
         // Origins
         if ( details.tabHostname ) {
@@ -740,12 +846,12 @@ const viewPort = (( ) => {
         if ( details.docHostname ) {
             dom.attr(div, 'data-dochn', details.docHostname);
         }
-        span = div.children[3];
-        span.textContent = cells[3];
+        span = div.children[COLUMN_INITIATOR];
+        span.textContent = cells[COLUMN_INITIATOR];
 
         // Partyness
         if (
-            cells[4] !== '' &&
+            cells[COLUMN_PARTYNESS] !== '' &&
             details.realm === 'network' &&
             details.domain !== undefined
         ) {
@@ -756,12 +862,16 @@ const viewPort = (( ) => {
             text += ` \u21d2 ${details.domain}`;
             dom.attr(div, 'data-parties', text);
         }
-        span = div.children[4];
-        span.textContent = cells[4];
+        span = div.children[COLUMN_PARTYNESS];
+        span.textContent = cells[COLUMN_PARTYNESS];
+
+        // Method
+        span = div.children[COLUMN_METHOD];
+        span.textContent = cells[COLUMN_METHOD];
 
         // Type
-        span = div.children[5];
-        span.textContent = cells[5];
+        span = div.children[COLUMN_TYPE];
+        span.textContent = cells[COLUMN_TYPE];
 
         // URL
         let re;
@@ -770,10 +880,10 @@ const viewPort = (( ) => {
         } else if ( filteringType === 'dynamicUrl' ) {
             re = regexFromURLFilteringResult(filter.rule.join(' '));
         }
-        nodeFromURL(div.children[6], cells[6], re);
+        nodeFromURL(div.children[COLUMN_URL], cells[COLUMN_URL], re, cells[COLUMN_TYPE]);
 
         // Alias URL (CNAME, etc.)
-        if ( cells.length > 7 ) {
+        if ( cells.length > 8 ) {
             const pos = details.textContent.lastIndexOf('\taliasURL=');
             if ( pos !== -1 ) {
                 dom.attr(div, 'data-aliasid', details.id);
@@ -1012,8 +1122,6 @@ const onLogBufferRead = function(response) {
         allTabIdsToken = response.tabIdsToken;
     }
 
-    filterAuthorMode = response.filterAuthorMode === true;
-
     if ( activeTabIdChanged ) {
         pageSelectorFromURLHash();
     }
@@ -1029,10 +1137,13 @@ const onLogBufferRead = function(response) {
 /******************************************************************************/
 
 const readLogBuffer = (( ) => {
-    let timer;
+    let reading = false;
 
     const readLogBufferNow = async function() {
         if ( logger.ownerId === undefined ) { return; }
+        if ( reading ) { return; }
+
+        reading = true;
 
         const msg = {
             what: 'readAll',
@@ -1060,20 +1171,20 @@ const readLogBuffer = (( ) => {
 
         const response = await vAPI.messaging.send('loggerUI', msg);
 
-        timer = undefined;
         onLogBufferRead(response);
-        readLogBufferLater();
+
+        reading = false;
+
+        timer.on(1200);
     };
 
-    const readLogBufferLater = function() {
-        if ( timer !== undefined ) { return; }
-        if ( logger.ownerId === undefined ) { return; }
-        timer = vAPI.setTimeout(readLogBufferNow, 1200);
-    };
+    const timer = vAPI.defer.create(readLogBufferNow);
 
     readLogBufferNow();
 
-    return readLogBufferLater;
+    return ( ) => {
+        timer.on(1200);
+    };
 })();
 
 /******************************************************************************/
@@ -1126,15 +1237,41 @@ const pageSelectorFromURLHash = (( ) => {
 
 /******************************************************************************/
 
-const reloadTab = function(ev) {
+const reloadTab = function(bypassCache = false) {
     const tabId = tabIdFromPageSelector();
     if ( tabId <= 0 ) { return; }
     messaging.send('loggerUI', {
         what: 'reloadTab',
-        tabId: tabId,
-        bypassCache: ev && (ev.ctrlKey || ev.metaKey || ev.shiftKey),
+        tabId,
+        bypassCache,
     });
 };
+
+dom.on('#refresh', 'click', ev => {
+    reloadTab(ev.ctrlKey || ev.metaKey || ev.shiftKey);
+});
+
+dom.on(document, 'keydown', ev => {
+    if ( ev.isComposing ) { return; }
+    let bypassCache = false;
+    switch ( ev.key ) {
+        case 'F5':
+            bypassCache = ev.ctrlKey || ev.metaKey || ev.shiftKey;
+            break;
+        case 'r':
+            if ( (ev.ctrlKey || ev.metaKey) !== true ) { return; }
+            break;
+        case 'R':
+            if ( (ev.ctrlKey || ev.metaKey) !== true ) { return; }
+            bypassCache = true;
+            break;
+        default:
+            return;
+    }
+    reloadTab(bypassCache);
+    ev.preventDefault();
+    ev.stopPropagation();
+}, { capture: true });
 
 /******************************************************************************/
 /******************************************************************************/
@@ -1269,7 +1406,14 @@ const reloadTab = function(ev) {
         const target = ev.target;
         const tcl = target.classList;
 
-        // Select a mode
+        // Close entry tools
+        if ( tcl.contains('closeButton') ) {
+            ev.stopPropagation();
+            toggleOff();
+            return;
+        }
+
+        // Select a pane
         if ( tcl.contains('header') ) {
             ev.stopPropagation();
             dom.attr(dialog, 'data-pane', dom.attr(target, 'data-pane'));
@@ -1387,16 +1531,6 @@ const reloadTab = function(ev) {
             return;
         }
 
-        // Force a reload of the tab
-        if ( tcl.contains('reload') ) {
-            ev.stopPropagation();
-            messaging.send('loggerUI', {
-                what: 'reloadTab',
-                tabId: targetTabId,
-            });
-            return;
-        }
-
         // Highlight corresponding element in target web page
         if ( tcl.contains('picker') ) {
             ev.stopPropagation();
@@ -1405,6 +1539,17 @@ const reloadTab = function(ev) {
                 tabId: targetTabId,
                 targetURL: 'img\t' + targetURLs[0],
                 select: true,
+            });
+            return;
+        }
+
+        // Reload tab associated with event
+        if ( tcl.contains('reload') ) {
+            ev.stopPropagation();
+            messaging.send('loggerUI', {
+                what: 'reloadTab',
+                tabId: targetTabId,
+                bypassCache: ev.ctrlKey || ev.metaKey || ev.shiftKey,
             });
             return;
         }
@@ -1495,7 +1640,7 @@ const reloadTab = function(ev) {
     };
 
     const filterFromTargetRow = function() {
-        return dom.text(targetRow.children[1]);
+        return dom.text(targetRow.children[COLUMN_FILTER]);
     };
 
     const aliasURLFromID = function(id) {
@@ -1503,13 +1648,13 @@ const reloadTab = function(ev) {
         for ( const entry of loggerEntries ) {
             if ( entry.id !== id || entry.aliased ) { continue; }
             const fields = entry.textContent.split('\t');
-            return fields[6] || '';
+            return fields[COLUMN_URL] || '';
         }
         return '';
     };
 
     const toSummaryPaneFilterNode = async function(receiver, filter) {
-        receiver.children[1].textContent = filter;
+        receiver.children[COLUMN_FILTER].textContent = filter;
         if ( dom.cl.has(targetRow, 'canLookup') === false ) { return; }
         const isException = reIsExceptionFilter.test(filter);
         let isExcepted = false;
@@ -1525,7 +1670,7 @@ const reloadTab = function(ev) {
     };
 
     const fillSummaryPaneFilterList = async function(rows) {
-        const rawFilter = targetRow.children[1].textContent;
+        const rawFilter = targetRow.children[COLUMN_FILTER].textContent;
 
         const nodeFromFilter = function(filter, lists) {
             const fragment = document.createDocumentFragment();
@@ -1543,7 +1688,7 @@ const reloadTab = function(ev) {
                 const span = dom.clone(template);
                 let a = qs$(span, 'a:nth-of-type(1)');
                 a.href += encodeURIComponent(list.assetKey);
-                a.textContent = list.title;
+                a.append(i18n.patchUnicodeFlags(list.title));
                 a = qs$(span, 'a:nth-of-type(2)');
                 if ( list.supportURL ) {
                     dom.attr(a, 'href', list.supportURL);
@@ -1605,7 +1750,7 @@ const reloadTab = function(ev) {
         } else if ( dom.cl.has(targetRow, 'extendedRealm') ) {
             const response = await messaging.send('loggerUI', {
                 what: 'listsFromCosmeticFilter',
-                url: targetRow.children[6].textContent,
+                url: targetRow.children[COLUMN_URL].textContent,
                 rawFilter: rawFilter,
             });
             handleResponse(response);
@@ -1663,19 +1808,19 @@ const reloadTab = function(ev) {
         // Partyness
         text = dom.attr(tr, 'data-parties') || '';
         if ( text !== '' ) {
-            rows[5].children[1].textContent = `(${trch[4].textContent})\u2002${text}`;
+            rows[5].children[1].textContent = `(${trch[COLUMN_PARTYNESS].textContent})\u2002${text}`;
         } else {
             rows[5].style.display = 'none';
         }
         // Type
-        text = trch[5].textContent;
+        text = trch[COLUMN_TYPE].textContent;
         if ( text !== '' ) {
             rows[6].children[1].textContent = text;
         } else {
             rows[6].style.display = 'none';
         }
         // URL
-        const canonicalURL = trch[6].textContent;
+        const canonicalURL = trch[COLUMN_URL].textContent;
         if ( canonicalURL !== '' ) {
             const attr = dom.attr(tr, 'data-status') || '';
             if ( attr !== '' ) {
@@ -1684,7 +1829,7 @@ const reloadTab = function(ev) {
                     dom.attr(rows[7], 'data-modifier', '');
                 }
             }
-            rows[7].children[1].appendChild(dom.clone(trch[6]));
+            rows[7].children[1].appendChild(dom.clone(trch[COLUMN_URL]));
         } else {
             rows[7].style.display = 'none';
         }
@@ -1858,15 +2003,24 @@ const reloadTab = function(ev) {
         parseStaticInputs();
     };
 
+    const moveDialog = ev => {
+        if ( ev.button !== 0 && ev.touches === undefined ) { return; }
+        const widget = qs$('#netInspector .entryTools');
+        onStartMovingWidget(ev, widget, ( ) => {
+            vAPI.localStorage.setItem(
+                'loggerUI.entryTools',
+                JSON.stringify({
+                    bottom: widget.style.bottom,
+                    left: widget.style.left,
+                    right: widget.style.right,
+                    top: widget.style.top,
+                })
+            );
+        });
+    };
+
     const fillDialog = function(domains) {
-        dialog = modalDialog.create(
-            '#netFilteringDialog',
-            ( ) => {
-                targetURLs = [];
-                targetRow = null;
-                dialog = null;
-            }
-        );
+        dialog = dom.clone('#templates .netFilteringDialog');
         dom.cl.toggle(
             dialog,
             'extendedRealm',
@@ -1882,7 +2036,15 @@ const reloadTab = function(ev) {
         dom.on(dialog, 'click', ev => { onClick(ev); }, true);
         dom.on(dialog, 'change', onSelectChange, true);
         dom.on(dialog, 'input', onInputChange, true);
-        modalDialog.show();
+        const container = qs$('#netInspector .entryTools');
+        if ( container.firstChild ) {
+            container.replaceChild(dialog, container.firstChild);
+        } else {
+            container.append(dialog);
+        }
+        const moveBand = qs$(dialog, '.moveBand');
+        dom.on(moveBand, 'mousedown', moveDialog);
+        dom.on(moveBand, 'touchstart', moveDialog);
     };
 
     const toggleOn = async function(ev) {
@@ -1890,8 +2052,8 @@ const reloadTab = function(ev) {
         if ( targetRow === null ) { return; }
         ev.stopPropagation();
         targetTabId = tabIdFromAttribute(targetRow);
-        targetType = targetRow.children[5].textContent.trim() || '';
-        targetURLs = createTargetURLs(targetRow.children[6].textContent);
+        targetType = targetRow.children[COLUMN_TYPE].textContent.trim() || '';
+        targetURLs = createTargetURLs(targetRow.children[COLUMN_URL].textContent);
         targetPageHostname = dom.attr(targetRow, 'data-tabhn') || '';
         targetFrameHostname = dom.attr(targetRow, 'data-dochn') || '';
 
@@ -1907,11 +2069,54 @@ const reloadTab = function(ev) {
         fillDialog(domains);
     };
 
+    const toggleOff = function() {
+        const container = qs$('#netInspector .entryTools');
+        if ( container.firstChild ) {
+            container.firstChild.remove();
+        }
+        targetURLs = [];
+        targetRow = null;
+        dialog = null;
+    };
+
+    // Restore position of entry tools dialog
+    vAPI.localStorage.getItemAsync(
+        'loggerUI.entryTools',
+    ).then(response => {
+        if ( typeof response !== 'string' ) { return; }
+        const settings = JSON.parse(response);
+        const widget = qs$('#netInspector .entryTools');
+        widget.style.bottom = '';
+        widget.style.left = settings.left || '';
+        widget.style.right = settings.right || '';
+        widget.style.top = settings.top || '';
+        if ( /^-/.test(widget.style.top) ) {
+            widget.style.top = '0';
+        }
+    });
+
     dom.on(
         '#netInspector',
         'click',
-        '.canDetails > span:nth-of-type(2),.canDetails > span:nth-of-type(3),.canDetails > span:nth-of-type(5)',
+        '.canDetails > span:not(:nth-of-type(4)):not(:nth-of-type(8))',
         ev => { toggleOn(ev); }
+    );
+
+    dom.on(
+        '#netInspector',
+        'click',
+        '.logEntry > div > span:nth-of-type(8) a',
+        ev => {
+            vAPI.messaging.send('codeViewer', {
+                what: 'gotoURL',
+                details: {
+                    url: ev.target.getAttribute('href'),
+                    select: true,
+                },
+            });
+            ev.preventDefault();
+            ev.stopPropagation();
+        }
     );
 })();
 
@@ -2030,17 +2235,13 @@ const rowFilterer = (( ) => {
     };
 
     const onFilterChangedAsync = (( ) => {
-        let timer;
         const commit = ( ) => {
-            timer = undefined;
             parseInput();
             filterAll();
         };
+        const timer = vAPI.defer.create(commit);
         return ( ) => {
-            if ( timer !== undefined ) {
-                clearTimeout(timer);
-            }
-            timer = vAPI.setTimeout(commit, 750);
+            timer.offon(750);
         };
     })();
 
@@ -2117,7 +2318,7 @@ const rowJanitor = (( ) => {
 
     let rowIndex = 0;
 
-    const discard = function(timeRemaining) {
+    const discard = function(deadline) {
         const opts = loggerSettings.discard;
         const maxLoadCount = typeof opts.maxLoadCount === 'number'
             ? opts.maxLoadCount
@@ -2128,7 +2329,6 @@ const rowJanitor = (( ) => {
         const obsolete = typeof opts.maxAge === 'number'
             ? Date.now() - opts.maxAge * 60000
             : 0;
-        const deadline = Date.now() + Math.ceil(timeRemaining);
 
         let i = rowIndex;
         // TODO: below should not happen -- remove when confirmed.
@@ -2149,7 +2349,7 @@ const rowJanitor = (( ) => {
 
         while ( i < loggerEntries.length ) {
 
-            if ( i % 64 === 0 && Date.now() >= deadline ) { break; }
+            if ( i % 64 === 0 && deadline.timeRemaining() === 0 ) { break; }
 
             const entry = loggerEntries[i];
             const tabId = entry.tabId || 0;
@@ -2218,17 +2418,14 @@ const rowJanitor = (( ) => {
         rowFilterer.filterAll();
     };
 
-    const discardAsync = function() {
-        setTimeout(
-            ( ) => {
-                self.requestIdleCallback(deadline => {
-                    discard(deadline.timeRemaining());
-                    discardAsync();
-                });
-            },
-            1889
-        );
+    const discardAsync = function(deadline) {
+        if ( deadline ) {
+            discard(deadline);
+        }
+        janitorTimer.onidle(1889);
     };
+
+    const janitorTimer = vAPI.defer.create(discardAsync);
 
     // Clear voided entries from the logger's visible content.
     //
@@ -2684,7 +2881,7 @@ const loggerSettings = (( ) => {
             maxEntryCount: 2000,    // per-tab
             maxLoadCount: 20,       // per-tab
         },
-        columns: [ true, true, true, true, true, true, true, true ],
+        columns: [ true, true, true, true, true, true, true, true, true ],
         linesPerEntry: 4,
     };
 
@@ -2867,7 +3064,6 @@ dom.on(window, 'beforeunload', releaseView);
 /******************************************************************************/
 
 dom.on('#pageSelector', 'change', pageSelectorChanged);
-dom.on('#refresh', 'click', reloadTab);
 dom.on('#netInspector .vCompactToggler', 'click', toggleVCompactView);
 dom.on('#pause', 'click', pauseNetInspector);
 
@@ -2881,15 +3077,14 @@ dom.on(window, 'hashchange', pageSelectorFromURLHash);
 // to the window geometry pontentially not settling fast enough.
 if ( self.location.search.includes('popup=1') ) {
     dom.on(window, 'load', ( ) => {
-        setTimeout(
-            ( ) => {
-                popupLoggerBox = {
-                    x: self.screenX,
-                    y: self.screenY,
-                    w: self.outerWidth,
-                    h: self.outerHeight,
-                };
-        }, 2000);
+        vAPI.defer.once(2000).then(( ) => {
+            popupLoggerBox = {
+                x: self.screenX,
+                y: self.screenY,
+                w: self.outerWidth,
+                h: self.outerHeight,
+            };
+        });
     }, { once: true });
 }
 

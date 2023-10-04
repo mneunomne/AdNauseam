@@ -275,13 +275,13 @@
     "message": "Verzia",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑: Zvýrazniť riadky, ktoré majú skripty tretích strán",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "skript",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑: Zvýrazniť riadky, ktoré majú rámy tretích strán",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "rámec",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "Vytvoriť",
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Vstavané",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Reklamy",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Súkromie",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
     "message": "Domény malvéru",
-    "description": "English: Malware domains"
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Obťažujúce",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Viacúčelové",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Regióny, jazyky",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Vlastné",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Importovať...",
@@ -951,6 +951,14 @@
     "message": "Aby ste dobrovoľníkov nezaťažovali duplicitnými hláseniami, overte si, či už problém nebol nahlásený.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Zoznamy filtrov sa aktualizujú denne. Uistite sa, že váš problém už nebol riešený v najnovších zoznamoch filtrov.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Overte, či problém pretrváva aj po opätovnom načítaní problematickej webovej stránky.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Adresa webovej stránky:",
     "description": "Label for the URL of the page"
@@ -1215,6 +1223,10 @@
     "message": "Dočasne povoliť veľké multimediálne prvky",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
+  "contextMenuViewSource": {
+    "message": "Zobraziť zdrojový kód…",
+    "description": "A context menu entry, to view the source code of the target resource"
+  },
   "shortcutCapturePlaceholder": {
     "message": "Zadajte klávesovú skratku",
     "description": "Placeholder string for input field used to capture a keyboard shortcut"
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "Kliknite pre načítanie",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "Chyby: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "Pri spustení prehliadača sa nepodarilo správne filtrovať.\nZnova načítajte stránku, aby ste zaistili správne filtrovanie",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "This entry must be the last one",

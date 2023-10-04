@@ -36,7 +36,7 @@ const nonVisualElements = {
 
 const regexFromString = (s, exact = false) => {
     if ( s === '' ) { return /^/; }
-    const match = /^\/(.+)\/([i]?)$/.exec(s);
+    const match = /^\/(.+)\/([imu]*)$/.exec(s);
     if ( match !== null ) {
         return new RegExp(match[1], match[2] || undefined);
     }
@@ -161,7 +161,9 @@ class PSelectorMatchesMediaTask extends PSelectorTask {
 class PSelectorMatchesPathTask extends PSelectorTask {
     constructor(task) {
         super();
-        this.needle = regexFromString(task[1]);
+        this.needle = regexFromString(
+            task[1].replace(/\P{ASCII}/gu, s => encodeURIComponent(s))
+        );
     }
     transpose(node, output) {
         if ( this.needle.test(self.location.pathname + self.location.search) ) {
@@ -376,8 +378,13 @@ class PSelector {
     prime(input) {
         const root = input || document;
         if ( this.selector === '' ) { return [ root ]; }
-        if ( input !== document && /^ ?[>+~]/.test(this.selector) ) {
-            return Array.from(PSelectorSpathTask.qsa(input, this.selector));
+        if ( input !== document ) {
+            const c0 = this.selector.charCodeAt(0);
+            if ( c0 === 0x2B /* + */ || c0 === 0x7E /* ~ */ ) {
+                return Array.from(PSelectorSpathTask.qsa(input, this.selector));
+            } else if ( c0 === 0x3E /* > */ ) {
+                return Array.from(input.querySelectorAll(`:scope ${this.selector}`));
+            }
         }
         return Array.from(root.querySelectorAll(this.selector));
     }

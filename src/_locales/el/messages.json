@@ -275,13 +275,13 @@
     "message": "Έκδοση",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "Τόνισε τις εγγραφές που έχουν κώδικα τρίτων",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "δέσμη ενεργειών",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "Τόνισε τις εγγραφές που έχουν πλαίσια τρίτων",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "πλαίσιο",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "Δημιουργία",
@@ -388,7 +388,7 @@
     "description": ""
   },
   "settingsNoScriptingPrompt": {
-    "message": "Απενεργοποίηση της JavaScript",
+    "message": "Απενεργοποίηση JavaScript",
     "description": "The default state for the per-site no-scripting switch"
   },
   "settingsNoCSPReportsPrompt": {
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Τοπικά",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Διαφημίσεις",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Ιδιωτικό απόρρητο",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
     "message": "Τομείς κακόβουλου λογισμικού",
-    "description": "English: Malware domains"
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Ενοχλήσεις",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Πολλαπλών χρήσεων",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Περιοχές, γλώσσες",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Προσαρμοσμένη",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Εισαγωγή...",
@@ -951,6 +951,14 @@
     "message": "Για να αποφύγετε την επιβάρυνση των εθελοντών με διπλές αναφορές, βεβαιωθείτε ότι το ζήτημα δεν έχει ήδη αναφερθεί.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Οι λίστες φίλτρων ενημερώνονται καθημερινά. Βεβαιωθείτε ότι το πρόβλημά σας δεν έχει ήδη αντιμετωπιστεί στις πιο πρόσφατες λίστες φίλτρων.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Βεβαιωθείτε ότι το πρόβλημα εξακολουθεί να υπάρχει μετά τη φόρτωση εκ νέου της προβληματικής ιστοσελίδας.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Διεύθυνση της ιστοσελίδας:",
     "description": "Label for the URL of the page"
@@ -1040,7 +1048,7 @@
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
-    "message": "Δημιουργία αρχείου αντιγράφου ασφαλείας",
+    "message": "Δημιουργία αντιγράφου ασφαλείας σε αρχείο...",
     "description": "Text for button to create a backup of all settings"
   },
   "aboutBackupFilename": {
@@ -1180,7 +1188,7 @@
     "description": ""
   },
   "cloudDeviceNamePrompt": {
-    "message": "Το όνομα αυτής της συσκευής:",
+    "message": "Όνομα αυτής της συσκευής:",
     "description": "used as a prompt for the user to provide a custom device name"
   },
   "advancedSettingsWarning": {
@@ -1214,6 +1222,10 @@
   "contextMenuTemporarilyAllowLargeMediaElements": {
     "message": "Να επιτρέπονται προσωρινά μεγάλα στοιχεία πολυμέσων",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
+  },
+  "contextMenuViewSource": {
+    "message": "Προβολή πηγαίου κώδικα…",
+    "description": "A context menu entry, to view the source code of the target resource"
   },
   "shortcutCapturePlaceholder": {
     "message": "Πληκτρολογήστε μια συντόμευση",
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "Κάντε κλικ για φόρτωση",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "Σφάλματα: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "Δεν ήταν δυνατό το σωστό φιλτράρισμα κατά την εκκίνηση του προγράμματος περιήγησης.\nΦορτώστε ξανά τη σελίδα για να διασφαλίσετε το σωστό φιλτράρισμα",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "Αυτή η καταχώρηση θα πρέπει να είναι τελευταία",

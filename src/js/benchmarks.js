@@ -69,18 +69,13 @@ import {
 
 const loadBenchmarkDataset = (( ) => {
     let datasetPromise;
-    let ttlTimer;
+
+    const ttlTimer = vAPI.defer.create(( ) => {
+        datasetPromise = undefined;
+    });
 
     return function() {
-        if ( ttlTimer !== undefined ) {
-            clearTimeout(ttlTimer);
-            ttlTimer = undefined;
-        }
-
-        setTimeout(( ) => {
-            ttlTimer = undefined;
-            datasetPromise = undefined;
-        }, 5 * 60 * 1000);
+        ttlTimer.offon({ min: 5 });
 
         if ( datasetPromise !== undefined ) {
             return datasetPromise;
@@ -191,8 +186,9 @@ const loadBenchmarkDataset = (( ) => {
             }
             if ( fctxt.type === 'main_frame' || fctxt.type === 'sub_frame' ) {
                 staticNetFilteringEngine.matchAndFetchModifiers(fctxt, 'csp');
+                staticNetFilteringEngine.matchAndFetchModifiers(fctxt, 'permissions');
             }
-            staticNetFilteringEngine.matchHeaders(fctxt, []);
+            //staticNetFilteringEngine.matchHeaders(fctxt, []);
         } else if ( redirectEngine !== undefined ) {
             staticNetFilteringEngine.redirectRequest(redirectEngine, fctxt);
         }

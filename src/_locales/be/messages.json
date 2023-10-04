@@ -260,7 +260,7 @@
     "description": ""
   },
   "popup3pFrameRulePrompt": {
-    "message": "староннія фрэймы",
+    "message": "староннія рамкі",
     "description": ""
   },
   "popupHitDomainCountPrompt": {
@@ -275,13 +275,13 @@
     "message": "Версія",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑: Падкрэсліваць радкі, якія ўтрымліваюць староннія скрыпты",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "скрыпт",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑: Падкрэсліваць радкі, якія ўтрымліваюць староннія фрэймы",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "рамка",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "Стварыць",
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Убудаваныя",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Рэклама",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Прыватнасць",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
     "message": "Дамены шкодных праграм",
-    "description": "English: Malware domains"
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Надакучлівасці",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Шматмэтавыя",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Рэгіёны, мовы",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Карыстальніцкія",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Імпартаваць…",
@@ -951,6 +951,14 @@
     "message": "Каб не абцяжарваць добраахвотнікаў дубляванымі справаздачамі, калі ласка, праверце, што пра гэтую праблему не паведамлялі раней.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Спісы фільтраў абнаўляюцца штодзённа. Упэўніцеся, што ваша праблема не была вырашана ў найноўшых спісах фільтраў.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Спраўдзіце, ці праблема ўсё яшчэ існуе пасля перазагрузкі праблемнай вэб-старонкі.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Адрас вэб-старонкі:",
     "description": "Label for the URL of the page"
@@ -1040,7 +1048,7 @@
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
-    "message": "Стварыць рэзервовую копію ў файле…",
+    "message": "Стварыць рэзервовую копію…",
     "description": "Text for button to create a backup of all settings"
   },
   "aboutBackupFilename": {
@@ -1215,6 +1223,10 @@
     "message": "Тымчасова дазволіць вялікія медыя-элементы",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
+  "contextMenuViewSource": {
+    "message": "Паглядзець зыходны код…",
+    "description": "A context menu entry, to view the source code of the target resource"
+  },
   "shortcutCapturePlaceholder": {
     "message": "Упішыце спалучэнне",
     "description": "Placeholder string for input field used to capture a keyboard shortcut"
@@ -1224,7 +1236,7 @@
     "description": "Tooltip for the button used to lock scrolling between the views in the 'My rules' pane"
   },
   "genericCopyToClipboard": {
-    "message": "Капіяваць у буфер",
+    "message": "Капіяваць у буфер абмену",
     "description": "Label for buttons used to copy something to the clipboard"
   },
   "genericSelectAll": {
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "Націсніце, каб загрузіць",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "Памылак: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "Немагчыма фільтраваць належным чынам пры запуску браўзера.\nАбнавіце старонку, каб забяспечыць належнае фільтраванне.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "This entry must be the last one",

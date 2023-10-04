@@ -168,15 +168,15 @@
     "description": "Tooltip for the no-cosmetic-filtering per-site switch"
   },
   "popupTipNoRemoteFonts": {
-    "message": "Bu site için uzak yazıtiplerini engellemeyi aç/kapat",
+    "message": "Bu site için uzak yazı tiplerini engellemeyi aç/kapat",
     "description": "Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipNoRemoteFonts1": {
-    "message": "Bu sitede uzak yazıtiplerini engellemek için tıklayın",
+    "message": "Bu sitede uzak yazı tiplerini engellemek için tıklayın",
     "description": "Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipNoRemoteFonts2": {
-    "message": "Bu sitede uzak yazıtiplerini artık engellememek için tıklayın",
+    "message": "Bu sitede uzak yazı tiplerini artık engellememek için tıklayın",
     "description": "Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipNoScripting1": {
@@ -275,13 +275,13 @@
     "message": "Sürüm",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑: 3. taraf betik içeren satırları vurgula",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "betik",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑: 3. taraf çerçeve içeren satırları vurgula",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "çerçeve",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "Oluştur",
@@ -348,7 +348,7 @@
     "description": "Label for checkbox to pick an accent color"
   },
   "settingsCloudStorageEnabledPrompt": {
-    "message": "Bulut depo desteğini etkinleştir",
+    "message": "Bulut depolama desteğini etkinleştir",
     "description": ""
   },
   "settingsAdvancedUserPrompt": {
@@ -384,7 +384,7 @@
     "description": ""
   },
   "settingsNoRemoteFontsPrompt": {
-    "message": "Uzak yazıtiplerini engelle",
+    "message": "Uzak yazı tiplerini engelle",
     "description": ""
   },
   "settingsNoScriptingPrompt": {
@@ -468,36 +468,36 @@
     "description": "English: Apply changes"
   },
   "3pGroupDefault": {
-    "message": "Yerel",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "message": "Yerleşik",
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Reklamlar",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Gizlilik",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
     "message": "Zararlı alan adları",
-    "description": "English: Malware domains"
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Can sıkıcı ögeler",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Çok-amaçlı",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Bölgeler, diller",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Özel",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "İçe aktar…",
@@ -951,6 +951,14 @@
     "message": "Gönüllülere aynı raporlarla sıkıntı vermemek için, lütfen sorunun daha önce bildirilmediğinden emin olun.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Filtre listeleri günlük olarak güncellenir. Sorununuzun en son filtre listelerinde zaten ele alınıp alınmadığından emin olun.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Sorunlu web sayfasını yeniden yükledikten sonra sorunun hala var olup olmadığını doğrulayın.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Web sayfasının adresi:",
     "description": "Label for the URL of the page"
@@ -1036,7 +1044,7 @@
     "description": "Shown in the About pane"
   },
   "aboutCDNsInfo": {
-    "message": "Bir filtre listesinin güncellenmesi gerektiğinde rastgele seçilen bir CDN kullanılır",
+    "message": "Bir filtre listesi güncellenmesi gerektiğinde rastgele seçilen bir CDN kullanılır.",
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
@@ -1164,15 +1172,15 @@
     "description": "Button text to navigate to the blocked page"
   },
   "cloudPush": {
-    "message": "Bulut depoya aktar",
+    "message": "Bulut depolamaya aktar",
     "description": "tooltip"
   },
   "cloudPull": {
-    "message": "Bulut depodan al",
+    "message": "Bulut depolamadan içe aktar",
     "description": "tooltip"
   },
   "cloudPullAndMerge": {
-    "message": "Bulut depodan al ve şu anki ayarlarla birleştir",
+    "message": "Bulut depolamadan içe aktar ve şu anki ayarlarla birleştir",
     "description": "tooltip"
   },
   "cloudNoData": {
@@ -1214,6 +1222,10 @@
   "contextMenuTemporarilyAllowLargeMediaElements": {
     "message": "Geçici olarak büyük medya ögelerine izin ver",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
+  },
+  "contextMenuViewSource": {
+    "message": "Kaynağı görüntüle…",
+    "description": "A context menu entry, to view the source code of the target resource"
   },
   "shortcutCapturePlaceholder": {
     "message": "Bir kısayol girin",
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "Yüklemek için tıkla",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "Hata sayısı: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "Tarayıcı açılışında düzgün filtreleme yapılamadı.\nDüzgün filtreleme için sayfayı yenileyin.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "Bu girdi en sonda olmalıdır",

@@ -82,8 +82,8 @@ const handleImportFilePicker = function() {
 };
 
 /******************************************************************************/
-// ADN, stay inside settings.js
-const startImportFilePicker = function() { 
+
+const startImportFilePicker = function() {
     const input = qs$('#restoreFilePicker');
     // Reset to empty string, this will ensure an change event is properly
     // triggered if the user pick a file, even if it is the same as the last
@@ -140,7 +140,7 @@ const onLocalDataReceived = function(details) {
             .replace('{{value}}', v.toLocaleString(undefined, { maximumSignificantDigits: 3 }))
             .replace('{{unit}}', unit && i18n$(unit) || '')
             .replace(/uBlock₀/g, 'AdNauseam')
-    )
+    );
 
     const timeOptions = {
         weekday: 'long',

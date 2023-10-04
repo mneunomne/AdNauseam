@@ -133,7 +133,9 @@ const hashFromPopupData = function(reset = false) {
     if ( reset ) {
         cachedPopupHash = hash;
     }
-    dom.cl.toggle(dom.body, 'needReload', hash !== cachedPopupHash);
+    dom.cl.toggle(dom.body, 'needReload',
+        hash !== cachedPopupHash || popupData.hasUnprocessedRequest === true
+    );
 };
 
 /******************************************************************************/
@@ -457,6 +459,75 @@ const reIP = /(\d|\])$/;
 
 /******************************************************************************/
 
+function filterFirewallRows() {
+    const firewallElem = qs$('#firewall');
+    const elems = qsa$('#firewall .filterExpressions span[data-expr]');
+    let not = false;
+    for ( const elem of elems ) {
+        const on = dom.cl.has(elem, 'on');
+        switch ( elem.dataset.expr ) {
+            case 'not':
+                not = on;
+                break;
+            case 'blocked':
+                dom.cl.toggle(firewallElem, 'showBlocked', !not && on);
+                dom.cl.toggle(firewallElem, 'hideBlocked', not && on);
+                break;
+            case 'allowed':
+                dom.cl.toggle(firewallElem, 'showAllowed', !not && on);
+                dom.cl.toggle(firewallElem, 'hideAllowed', not && on);
+                break;
+            case 'script':
+                dom.cl.toggle(firewallElem, 'show3pScript', !not && on);
+                dom.cl.toggle(firewallElem, 'hide3pScript', not && on);
+                break;
+            case 'frame':
+                dom.cl.toggle(firewallElem, 'show3pFrame', !not && on);
+                dom.cl.toggle(firewallElem, 'hide3pFrame', not && on);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+dom.on('#firewall .filterExpressions', 'click', 'span[data-expr]', ev => {
+    const target = ev.target;
+    dom.cl.toggle(target, 'on');
+    switch ( target.dataset.expr ) {
+        case 'blocked':
+            if ( dom.cl.has(target, 'on') === false ) { break; }
+            dom.cl.remove('#firewall .filterExpressions span[data-expr="allowed"]', 'on');
+            break;
+        case 'allowed':
+            if ( dom.cl.has(target, 'on') === false ) { break; }
+            dom.cl.remove('#firewall .filterExpressions span[data-expr="blocked"]', 'on');
+            break;
+    }
+    filterFirewallRows();
+    const elems = qsa$('#firewall .filterExpressions span[data-expr]');
+    const filters = Array.from(elems) .map(el => dom.cl.has(el, 'on') ? '1' : '0');
+    filters.unshift('00');
+    vAPI.localStorage.setItem('firewallFilters', filters.join(' '));
+});
+
+{
+    vAPI.localStorage.getItemAsync('firewallFilters').then(v => {
+        if ( v === null ) { return; }
+        const filters = v.split(' ');
+        if ( filters.shift() !== '00' ) { return; }
+        if ( filters.every(v => v === '0') ) { return; }
+        const elems = qsa$('#firewall .filterExpressions span[data-expr]');
+        for ( let i = 0; i < elems.length; i++ ) {
+            if ( filters[i] === '0' ) { continue; }
+            dom.cl.add(elems[i], 'on');
+        }
+        filterFirewallRows();
+    });
+}
+
+/******************************************************************************/
+
 const renderPrivacyExposure = function() {
     const allDomains = {};
     let allDomainCount = 0;
@@ -604,6 +675,9 @@ const renderPopup = function() {
         total ? Math.min(total, 99).toLocaleString() : ''
     );
 
+    // Unprocesseed request(s) warning
+    dom.cl.toggle(dom.root, 'warn', popupData.hasUnprocessedRequest === true);
+
     dom.cl.toggle(dom.html, 'colorBlind', popupData.colorBlindFriendly === true);
 
     setGlobalExpand(popupData.firewallPaneMinimized === false, true);
@@ -615,6 +689,18 @@ const renderPopup = function() {
 
     renderTooltips();
 };
+
+/******************************************************************************/
+
+dom.on('.dismiss', 'click', ( ) => {
+    messaging.send('popupPanel', {
+        what: 'dismissUnprocessedRequest',
+        tabId: popupData.tabId,
+    }).then(( ) => {
+        popupData.hasUnprocessedRequest = false;
+        dom.cl.remove(dom.root, 'warn');
+    });
+});
 
 /******************************************************************************/
 
@@ -843,7 +929,7 @@ const gotoReport = function() {
         popupPanel[name] = !expected;
     }
     if ( hostnameToSortableTokenMap.size !== 0 ) {
-        const blockedDetails = {};
+        const network = {};
         const hostnames =
             Array.from(hostnameToSortableTokenMap.keys()).sort(hostnameCompare);
         for ( const hostname of hostnames ) {
@@ -851,20 +937,20 @@ const gotoReport = function() {
             const count = entry.counts.blocked.any;
             if ( count === 0 ) { continue; }
             const domain = entry.domain;
-            if ( blockedDetails[domain] === undefined ) {
-                blockedDetails[domain] = 0;
+            if ( network[domain] === undefined ) {
+                network[domain] = 0;
             }
-            blockedDetails[domain] += count;
+            network[domain] += count;
         }
-        if ( Object.keys(blockedDetails).length !== 0 ) {
-            popupPanel.blockedDetails = blockedDetails;
+        if ( Object.keys(network).length !== 0 ) {
+            popupPanel.network = network;
         }
     }
     messaging.send('popupPanel', {
         what: 'launchReporter',
         tabId: popupData.tabId,
-        pageURL: popupData.pageURL,
-        popupPanel: JSON.stringify(popupPanel),
+        pageURL: popupData.rawURL,
+        popupPanel,
     });
 
     vAPI.closePopup();
@@ -1070,13 +1156,25 @@ const setFirewallRuleHandler = function(ev) {
 
 /******************************************************************************/
 
-const reloadTab = function(ev) {
+const reloadTab = function(bypassCache = false) {
+    // Preemptively clear the unprocessed-requests status since we know for sure
+    // the page is being reloaded in this code path.
+    if ( popupData.hasUnprocessedRequest === true )  {
+        messaging.send('popupPanel', {
+            what: 'dismissUnprocessedRequest',
+            tabId: popupData.tabId,
+        }).then(( ) => {
+            popupData.hasUnprocessedRequest = false;
+            dom.cl.remove(dom.root, 'warn');
+        });
+    }
+
     messaging.send('popupPanel', {
         what: 'reloadTab',
         tabId: popupData.tabId,
-        url: popupData.pageURL,
+        url: popupData.rawURL,
         select: vAPI.webextFlavor.soup.has('mobile'),
-        bypassCache: ev.ctrlKey || ev.metaKey || ev.shiftKey,
+        bypassCache,
     });
 
     // Polling will take care of refreshing the popup content
@@ -1089,12 +1187,29 @@ const reloadTab = function(ev) {
     hashFromPopupData(true);
 };
 
-dom.on('#refresh', 'click', reloadTab);
+dom.on('#refresh', 'click', ev => {
+    reloadTab(ev.ctrlKey || ev.metaKey || ev.shiftKey);
+});
 
 // https://github.com/uBlockOrigin/uBlock-issues/issues/672
 dom.on(document, 'keydown', ev => {
-    if ( ev.code !== 'F5' ) { return; }
-    reloadTab(ev);
+    if ( ev.isComposing ) { return; }
+    let bypassCache = false;
+    switch ( ev.key ) {
+        case 'F5':
+            bypassCache = ev.ctrlKey || ev.metaKey || ev.shiftKey;
+            break;
+        case 'r':
+            if ( (ev.ctrlKey || ev.metaKey) !== true ) { return; }
+            break;
+        case 'R':
+            if ( (ev.ctrlKey || ev.metaKey) !== true ) { return; }
+            bypassCache = true;
+            break;
+        default:
+            return;
+    }
+    reloadTab(bypassCache);
     ev.preventDefault();
     ev.stopPropagation();
 }, { capture: true });
@@ -1295,29 +1410,23 @@ const toggleHostnameSwitch = async function(ev) {
 // it and thus having to push it all the time unconditionally.
 
 const pollForContentChange = (( ) => {
-    let pollTimer;
-
     const pollCallback = async function() {
-        pollTimer = undefined;
         const response = await messaging.send('popupPanel', {
             what: 'hasPopupContentChanged',
             tabId: popupData.tabId,
             contentLastModified: popupData.contentLastModified,
         });
-        queryCallback(response);
-    };
-
-    const queryCallback = function(response) {
         if ( response ) {
-            getPopupData(popupData.tabId);
+            await getPopupData(popupData.tabId);
             return;
         }
         poll();
     };
 
+    const pollTimer = vAPI.defer.create(pollCallback);
+
     const poll = function() {
-        if ( pollTimer !== undefined ) { return; }
-        pollTimer = vAPI.setTimeout(pollCallback, 1500);
+        pollTimer.on(1500);
     };
 
     return poll;
@@ -1421,17 +1530,5 @@ dom.on('.hnSwitch', 'click', ev => { toggleHostnameSwitch(ev); });
 dom.on('#saveRules', 'click', saveFirewallRules);
 dom.on('#revertRules', 'click', ( ) => { revertFirewallRules(); });
 dom.on('a[href]', 'click', gotoURL);
-
-/******************************************************************************/
-
-// Toggle emphasis of rows with[out] 3rd-party scripts/frames
-dom.on('#firewall > [data-type="3p-script"] .filter', 'click', ( ) => {
-    dom.cl.toggle('#firewall', 'show3pScript');
-});
-
-// Toggle visibility of rows with[out] 3rd-party frames
-dom.on('#firewall > [data-type="3p-frame"] .filter', 'click', ( ) => {
-    dom.cl.toggle('#firewall', 'show3pFrame');
-});
 
 /******************************************************************************/

@@ -1,4 +1,9 @@
+<<<<<<< HEAD
+
 uBO Lite（uBOL）是一个实验性的，基于浏览器最新扩展接口（Manifest Version 3）打造的“无权限”内容屏蔽工具。
+=======
+uBO Lite (uBOL) 是一个基于最新浏览器扩展接口（Manifest Version 3）打造的“无需权限”的内容屏蔽工具。
+>>>>>>> upstream1.51.0
 
 该扩展预设的规则列表对应 uBlock Origin 的预设过滤规则列表：
 
@@ -6,7 +11,6 @@ uBO Lite（uBOL）是一个实验性的，基于浏览器最新扩展接口（Ma
 - EasyList
 - EasyPrivacy
 - Peter Lowe’s Ad and tracking server list
-- AdGuard CNAME-Cloaked Trackers
 
 您可以通过设置页面添加更多过滤规则列表——点击弹出面板的“齿轮”图标。
 

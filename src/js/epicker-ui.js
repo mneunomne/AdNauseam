@@ -26,7 +26,8 @@
 import './codemirror/ubo-static-filtering.js';
 
 import { hostnameFromURI } from './uri-utils.js';
-import { StaticFilteringParser } from './static-filtering-parser.js';
+import punycode from '../lib/punycode.js';
+import * as sfp from './static-filtering-parser.js';
 
 /******************************************************************************/
 /******************************************************************************/
@@ -50,7 +51,7 @@ const svgOcean = svgRoot.children[0];
 const svgIslands = svgRoot.children[1];
 const NoPaths = 'M0 0';
 
-const reCosmeticAnchor = /^#[$?]?#/;
+const reCosmeticAnchor = /^#(\$|\?|\$\?)?#/;
 
 const epickerId = (( ) => {
     const url = new URL(self.location.href);
@@ -110,13 +111,12 @@ const rawFilterFromTextarea = function() {
 const filterFromTextarea = function() {
     const filter = rawFilterFromTextarea();
     if ( filter === '' ) { return ''; }
-    const sfp = staticFilteringParser;
-    sfp.analyze(filter);
-    sfp.analyzeExtra();
-    if ( sfp.shouldDiscard() ) { return '!'; }
-    if ( sfp.category === sfp.CATStaticExtFilter ) {
-        if ( sfp.hasFlavor(sfp.BITFlavorExtCosmetic) === false ) { return '!'; }
-    } else if ( sfp.category !== sfp.CATStaticNetFilter ) {
+    const parser = staticFilteringParser;
+    parser.parse(filter);
+    if ( parser.isFilter() === false ) { return '!'; }
+    if ( parser.isExtendedFilter() ) {
+        if ( parser.isCosmeticFilter() === false ) { return '!'; }
+    } else if ( parser.isNetworkFilter() === false ) {
         return '!';
     }
     return filter;
@@ -148,7 +148,10 @@ const renderRange = function(id, value, invert = false) {
 const userFilterFromCandidate = function(filter) {
     if ( filter === '' || filter === '!' ) { return; }
 
-    const hn = hostnameFromURI(docURL.href);
+    let hn = hostnameFromURI(docURL.href);
+    if ( hn.startsWith('xn--') ) {
+        hn = punycode.toUnicode(hn);
+    }
 
     // Cosmetic filter?
     if ( reCosmeticAnchor.test(filter) ) {
@@ -601,6 +604,11 @@ const onStartMoving = (( ) => {
     let rMax = 0, bMax = 0;
     let timer;
 
+    const eatEvent = function(ev) {
+        ev.stopPropagation();
+        ev.preventDefault();
+    };
+
     const move = ( ) => {
         timer = undefined;
         const r1 = Math.min(Math.max(r0 - mx1 + mx0, 2), rMax);
@@ -702,13 +710,6 @@ const svgListening = (( ) => {
         }
     };
 })();
-
-/******************************************************************************/
-
-const eatEvent = function(ev) {
-    ev.stopPropagation();
-    ev.preventDefault();
-};
 
 /******************************************************************************/
 
@@ -831,7 +832,7 @@ const startPicker = function() {
     $id('candidateFilters').addEventListener('click', onCandidateClicked);
     $stor('#resultsetDepth input').addEventListener('input', onDepthChanged);
     $stor('#resultsetSpecificity input').addEventListener('input', onSpecificityChanged);
-    staticFilteringParser = new StaticFilteringParser({
+    staticFilteringParser = new sfp.AstFilterParser({
         interactive: true,
         nativeCssHas: vAPI.webextFlavor.env.includes('native_css_has'),
     });

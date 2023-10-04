@@ -43,7 +43,7 @@ import { denseBase64 } from './base64-custom.js';
 import { dnrRulesetFromRawLists } from './static-dnr-filtering.js';
 import { i18n$ } from './i18n.js';
 import { redirectEngine } from './redirect-engine.js';
-import { StaticFilteringParser } from './static-filtering-parser.js';
+import * as sfp from './static-filtering-parser.js';
 
 import {
     permanentFirewall,
@@ -349,6 +349,10 @@ const onMessage = function(request, sender, callback) {
         µb.openNewTab(request.details);
         break;
 
+    case 'readyToFilter':
+        response = µb.readyToFilter;
+        break;
+
     // https://github.com/uBlockOrigin/uBlock-issues/issues/1954
     //   In case of document-blocked page, navigate to blocked URL instead
     //   of forcing a reload.
@@ -541,9 +545,10 @@ const popupDataFromTabId = function(tabId, tabTitle) {
         popupPanelDisabledSections: µbhs.popupPanelDisabledSections,
         popupPanelLockedSections: µbhs.popupPanelLockedSections,
         popupPanelHeightMode: µbhs.popupPanelHeightMode,
-        tabId: tabId,
-        tabTitle: tabTitle,
-        tooltipsDisabled: µbus.tooltipsDisabled
+        tabId,
+        tabTitle,
+        tooltipsDisabled: µbus.tooltipsDisabled,
+        hasUnprocessedRequest: vAPI.net && vAPI.net.hasUnprocessedRequest(tabId),
     };
 
     if ( µbhs.uiPopupConfig !== 'unset' ) {
@@ -634,6 +639,54 @@ const getElementCount = async function(tabId, what) {
     return total;
 };
 
+const launchReporter = async function(request) {
+    const pageStore = µb.pageStoreFromTabId(request.tabId);
+    if ( pageStore === null ) { return; }
+    if ( pageStore.hasUnprocessedRequest ) {
+        request.popupPanel.hasUnprocessedRequest = true;
+    }
+
+    const entries = await io.getUpdateAges({
+        filters: µb.selectedFilterLists.slice()
+    });
+    let shouldUpdateLists = false;
+    for ( const entry of entries ) {
+        if ( entry.age < (2 * 60 * 60 * 1000) ) { continue; }
+        io.purge(entry.assetKey);
+        shouldUpdateLists = true;
+    }
+
+    // https://github.com/gorhill/uBlock/commit/6efd8eb#commitcomment-107523558
+    //   Important: for whatever reason, not using `document_start` causes the
+    //   Promise returned by `tabs.executeScript()` to resolve only when the
+    //   associated tab is closed.
+    const cosmeticSurveyResults = await vAPI.tabs.executeScript(request.tabId, {
+        allFrames: true,
+        file: '/js/scriptlets/cosmetic-report.js',
+        matchAboutBlank: true,
+        runAt: 'document_start',
+    });
+
+    const filters = cosmeticSurveyResults.reduce((a, v) => {
+        if ( Array.isArray(v) ) { a.push(...v); }
+        return a;
+    }, []);
+    // Remove duplicate, truncate too long filters.
+    if ( filters.length !== 0 ) {
+        request.popupPanel.extended = Array.from(
+            new Set(filters.map(s => s.length <= 64 ? s : `${s.slice(0, 64)}…`))
+        );
+    }
+
+    const supportURL = new URL(vAPI.getURL('support.html'));
+    supportURL.searchParams.set('pageURL', request.pageURL);
+    supportURL.searchParams.set('popupPanel', JSON.stringify(request.popupPanel));
+    if ( shouldUpdateLists ) {
+        supportURL.searchParams.set('shouldUpdate', 1);
+    }
+    return supportURL.href;
+};
+
 const onMessage = function(request, sender, callback) {
     // Async
     switch ( request.what ) {
@@ -663,21 +716,26 @@ const onMessage = function(request, sender, callback) {
     let response;
 
     switch ( request.what ) {
+    case 'dismissUnprocessedRequest':
+        vAPI.net.removeUnprocessedRequest(request.tabId);
+        µb.updateToolbarIcon(request.tabId, 0b110);
+        break;
+
     case 'hasPopupContentChanged': {
         const pageStore = µb.pageStoreFromTabId(request.tabId);
         const lastModified = pageStore ? pageStore.contentLastModified : 0;
         response = lastModified !== request.contentLastModified;
         break;
     }
+
     case 'launchReporter': {
-        const pageStore = µb.pageStoreFromTabId(request.tabId);
-        if ( pageStore === null ) { break; }
-        const supportURL = new URL(vAPI.getURL('support.html'));
-        supportURL.searchParams.set('pageURL', request.pageURL);
-        supportURL.searchParams.set('popupPanel', request.popupPanel);
-        µb.openNewTab({ url: supportURL.href, select: true, index: -1 });
+        launchReporter(request).then(url => {
+            if ( typeof url !== 'string' ) { return; }
+            µb.openNewTab({ url, select: true, index: -1 });
+        });
         break;
     }
+
     case 'revertFirewallRules':
         // TODO: use Set() to message around sets of hostnames
         sessionFirewall.copyRules(
@@ -827,8 +885,20 @@ const retrieveContentScriptParameters = async function(sender, request) {
     // https://github.com/uBlockOrigin/uBlock-issues/issues/688#issuecomment-748179731
     //   For non-network URIs, scriptlet injection is deferred to here. The
     //   effective URL is available here in `request.url`.
-    if ( request.needScriptlets ) {
-        response.scriptlets = scriptletFilteringEngine.injectNow(request);
+    if ( logger.enabled || request.needScriptlets ) {
+        const scriptletDetails = scriptletFilteringEngine.injectNow(request);
+        if ( scriptletDetails !== undefined ) {
+            if ( logger.enabled ) {
+                scriptletFilteringEngine.logFilters(
+                    tabId,
+                    request.url,
+                    scriptletDetails.filters
+                );
+            }
+            if ( request.needScriptlets ) {
+                response.scriptletDetails = scriptletDetails;
+            }
+        }
     }
 
     // https://github.com/NanoMeow/QuickReports/issues/6#issuecomment-414516623
@@ -973,7 +1043,7 @@ const onMessage = function(request, sender, callback) {
                 zap: µb.epickerArgs.zap,
                 eprom: µb.epickerArgs.eprom,
                 pickerURL: vAPI.getURL(
-                    `/web_accessible_resources/epicker-ui.html?secret=${vAPI.warSecret()}`
+                    `/web_accessible_resources/epicker-ui.html?secret=${vAPI.warSecret.short()}`
                 ),
             });
             µb.epickerArgs.target = '';
@@ -1437,6 +1507,22 @@ const getSupportData = async function() {
         filterset.push(line);
     }
 
+    const now = Date.now();
+
+    const formatDelayFromNow = time => {
+        if ( (time || 0) === 0 ) { return '?'; }
+        const delayInSec = (now - time) / 1000;
+        const days = (delayInSec / 86400) | 0;
+        const hours = (delayInSec % 86400) / 3600 | 0;
+        const minutes = (delayInSec % 3600) / 60 | 0;
+        const parts = [];
+        if ( days > 0 ) { parts.push(`${days}d`); }
+        if ( hours > 0 ) { parts.push(`${hours}h`); }
+        if ( minutes > 0 ) { parts.push(`${minutes}m`); }
+        if ( parts.length === 0 ) { parts.push('now'); }
+        return parts.join('.');
+    };
+
     const lists = µb.availableFilterLists;
     let defaultListset = {};
     let addedListset = {};
@@ -1454,16 +1540,7 @@ const getSupportData = async function() {
             if ( typeof list.writeTime !== 'number' || list.writeTime === 0 ) {
                 listDetails.push('never');
             } else {
-                const delta = (Date.now() - list.writeTime) / 1000 | 0;
-                const days = (delta / 86400) | 0;
-                const hours = (delta % 86400) / 3600 | 0;
-                const minutes = (delta % 3600) / 60 | 0;
-                const parts = [];
-                if ( days > 0 ) { parts.push(`${days}d`); }
-                if ( hours > 0 ) { parts.push(`${hours}h`); }
-                if ( minutes > 0 ) { parts.push(`${minutes}m`); }
-                if ( parts.length === 0 ) { parts.push('now'); }
-                listDetails.push(parts.join('.'));
+                listDetails.push(formatDelayFromNow(list.writeTime));
             }
         }
         if ( list.isDefault || listKey === µb.userFiltersPath ) {
@@ -1481,13 +1558,15 @@ const getSupportData = async function() {
     }
     if ( Object.keys(addedListset).length === 0 ) {
         addedListset = undefined;
-    } else if ( Object.keys(addedListset).length > 20 ) {
+    } else {
         const added = Object.keys(addedListset);
-        const truncated = added.slice(20);
+        const truncated = added.slice(12);
         for ( const key of truncated ) {
             delete addedListset[key];
         }
-        addedListset[`[${truncated.length} lists not shown]`] = '[too many]';
+        if ( truncated.length !== 0 ) {
+            addedListset[`[${truncated.length} lists not shown]`] = '[too many]';
+        }
     }
     if ( Object.keys(removedListset).length === 0 ) {
         removedListset = undefined;
@@ -1539,8 +1618,8 @@ const getSupportData = async function() {
             sessionURLFiltering.toArray(),
             []
         ),
-        modifiedUserSettings,
-        modifiedHiddenSettings,
+        'userSettings': modifiedUserSettings,
+        'hiddenSettings': modifiedHiddenSettings,
         supportStats: µb.supportStats,
     };
 };
@@ -1602,11 +1681,11 @@ const onMessage = function(request, sender, callback) {
         response = {};
         if ( (request.hintUpdateToken || 0) === 0 ) {
             response.redirectResources = redirectEngine.getResourceDetails();
-            response.preparseDirectiveTokens =
-                StaticFilteringParser.utils.preparser.getTokens(vAPI.webextFlavor.env);
+            response.preparseDirectiveEnv = vAPI.webextFlavor.env.slice();
             response.preparseDirectiveHints =
-                StaticFilteringParser.utils.preparser.getHints();
+                sfp.utils.preparser.getHints();
             response.expertMode = µb.hiddenSettings.filterAuthorMode;
+            response.filterOnHeaders = µb.hiddenSettings.filterOnHeaders;
         }
         if ( request.hintUpdateToken !== µb.pageStoresToken ) {
             response.originHints = getOriginHints();
@@ -1633,9 +1712,11 @@ const onMessage = function(request, sender, callback) {
         }
         break;
 
-    case 'purgeCache':
-        io.purge(request.assetKey);
-        io.remove('compiled/' + request.assetKey);
+    case 'purgeCaches':
+        for ( const assetKey of request.assetKeys ) {
+            io.purge(assetKey);
+            io.remove(`compiled/${assetKey}`);
+        }
         break;
 
     case 'readHiddenSettings':
@@ -1693,7 +1774,6 @@ const getLoggerData = async function(details, activeTabId, callback) {
         activeTabId,
         colorBlind: µb.userSettings.colorBlindFriendly,
         entries: logger.readAll(details.ownerId),
-        filterAuthorMode: µb.hiddenSettings.filterAuthorMode,
         tabIdsToken: µb.pageStoresToken,
         dntDomains: µb.userSettings.dntDomains, // ADN
         tooltips: µb.userSettings.tooltipsDisabled === false

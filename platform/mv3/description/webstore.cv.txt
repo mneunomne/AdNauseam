@@ -1,4 +1,11 @@
+<<<<<<< HEAD
+
+
+
 uBO Lite (uBOL) is an experimental *permission-less* MV3-based content blocker.
+=======
+uBO Lite (uBOL) is a *permission-less* MV3-based content blocker.
+>>>>>>> upstream1.51.0
 
 The default ruleset corresponds to uBlock Origin's default filterset:
 
@@ -6,7 +13,6 @@ The default ruleset corresponds to uBlock Origin's default filterset:
 - EasyList
 - EasyPrivacy
 - Peter Lowe’s Ad and tracking server list
-- AdGuard CNAME-Cloaked Trackers
 
 You can add more rulesets by visiting the options page -- click the _Cogs_ icon in the popup panel.
 

@@ -196,7 +196,6 @@ a.external-link {
 }
 
 /* ADN */
-
 ::-webkit-scrollbar {
   width: 9px;
 }
@@ -324,8 +323,13 @@ button.custom:hover {
 button.custom#buttonUpdateAdNauseam{
   font-size:14px;
   border-width:1px;
-  padding:3px;
-  height:24px;
+  padding: 1px 4px;
+  height: 24px;
+  margin: 0;
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translate(100%, -50%);
 }
 button.important {
     padding: 1px 2em;
@@ -616,15 +620,6 @@ a:hover {
 }
 .cmn-toggle + label {
   display: block;
-  position: relative;
-  cursor: pointer;
-  outline: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-.row {
     position: relative;
 }
 .question {
@@ -787,7 +782,6 @@ input.cmn-toggle-round-flat.cmn-toggle-small:checked + label::after {
   color: #000;
   background-color: #0076FF;
 }
-
 ul {
     padding: 0;
     list-style-type: none;
@@ -795,82 +789,7 @@ ul {
 #options li {
     margin-bottom: 0.5em;
     }
-#lists {
-    margin: 0.5em 0 0 0;
-    padding-left: 1em;
-    padding-right: 0em;
-    }
-body[dir=rtl] #lists {
-    padding-left: 0em;
-    padding-right: 1em;
-    }
-#lists > li {
-    margin: 0.5em 0 0 0;
-    padding: 0;
-    list-style-type: none;
-    }
-#lists > .groupEntry {
-    margin-top: 0.5em;  /* ADN add more spacing */
-    }
-#lists > .groupEntry .geName {
-    cursor: pointer;
-    font-size: 120%;
-    font-family: bebas_neue,roboto_flex,noto_sans,sans-serif; /* ADN */
-    font-stretch: 47.5%; /* ADN */
-    font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712; /* ADN */
-    }
-#lists > .groupEntry > .geCount {
-    font-size: 90%;
-    }
-#lists > .groupEntry:not(:first-child) > .geName:before {
-    color: #aaa;
-    /*content: '\2212  ';*/
-    }
-#lists > .groupEntry > .geName:before {
-    content: '-  ';
-    }
-#lists > .groupEntry.collapsed > .geName:before {
-    color: #aaa;
-    content: '+  ';
-    }
-#lists > .groupEntry > .listEntries {
-    margin: 0.25em 0 0 10px; /* ADN add more spacing */
-    }
-#lists > .groupEntry.collapsed > .listEntries {
-    display: none;
-}
-.li.listEntry {
-    font-size: 14px;
-    margin: 0 auto 0 auto;
-    margin-right: 0em;
-    text-indent: -2em;
-    height: 1.85em; /* ADN make listEntry hieght equal */
-    }
-body[dir=rtl] .li.listEntry {
-    margin-left: 0em;
-    margin-right: 1em;
-    }
-.li.listEntry > * {
-    text-indent: 0;
-    unicode-bidi: embed;
-    }
-.li.listEntry > a:nth-of-type(2) {
-    font-size: 16px;
-    opacity: 0.7;
-    }
-    /*
-.li.listEntry > a:nth-of-type(2),
-.li.listEntry > a:nth-of-type(2):visited {
-    color: mediumblue;
-  }
-  */
-.li.listEntry > a:nth-of-type(2):hover {
-    opacity: 1;
-    }
-.li.listEntry > a:nth-of-type(3) {
-    font-size: 13px;
-    opacity: 0.75;
-    }
+
 .dim {
     opacity: 0.75;
     }
@@ -891,7 +810,6 @@ span.status {
     display: inline-block;
     font-size: smaller;
     line-height: 1;
-    margin: 0 0 0 0.5em;
     opacity: 0.8;
     padding: 1px 2px;
 }
@@ -986,8 +904,13 @@ button.important.disabled,
 button.important[disabled] {
     /* background-color: var(--button-disabled-surface); */
     /* color: var(--button-disabled-ink);
-    fill: var(--button-disabled-ink); */
+    fill: var(--button-disabled-ink); 
     filter: var(--button-disabled-filter);
+    */
+    /* TODO: add these colors to the pallett */
+    color: #8d8d8d82;
+    fill: #8d8d8d82;
+    border-color: #8d8d8d82;
     pointer-events: none;
     }
     /* Adn
@@ -1036,20 +959,24 @@ body.cyrilic #vault-button {
     - To have a single checkbox design across all platforms.
 */
 .checkbox {
-    --margin-end: calc(var(--font-size) * 0.75);
     box-sizing: border-box;
     display: inline-flex;
     flex-shrink: 0;
     height: var(--checkbox-size);
     margin: 0;
-    margin-inline-end: var(--margin-end);
-    -webkit-margin-end: var(--margin-end);
+    margin-inline-end: var(--checkbox-margin-end);
+    -webkit-margin-end: var(--checkbox-margin-end);
     position: relative;
     width: var(--checkbox-size);
     }
 label:hover .checkbox:not([disabled]) {
     background-color: var(--surface-2);
     }
+/* Adn */ 
+label:hover .checkbox:not([disabled]) svg {
+  background-color: var(--surface-2);
+}
+/* end of Adn */
 .checkbox > input[type="checkbox"] {
     box-sizing: border-box;
     height: 100%;
@@ -1080,6 +1007,15 @@ label:hover .checkbox:not([disabled]) {
 .checkbox[disabled],
 .checkbox[disabled] ~ span {
     opacity: 0.5;
+    }
+.checkbox:has(input[disabled]) > svg {
+  filter: saturate(0);
+}
+
+.checkbox.partial > input[type="checkbox"]:checked + svg {
+    background-color: var(--surface-1);
+    border-color: var(--checkbox-checked-ink);
+    stroke: var(--checkbox-checked-ink);
     }
 
 .radio {
@@ -1169,6 +1105,13 @@ select {
     button.iconifiable > [data-i18n] {
         display: none;
         }
+    }
+
+.countryFlag {
+    height: var(--font-size);
+    position: relative;
+    top: calc(var(--font-size) / 7);
+    max-width: calc(var(--font-size) * 1.5);
     }
 
 .logo {

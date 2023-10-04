@@ -109,7 +109,6 @@ p {
 .listEntry > * {
     margin-left: 0;
     margin-right: 0;
-    text-transform: capitalize;
     unicode-bidi: embed;
     }
 .listEntry .listname {
@@ -145,6 +144,11 @@ p {
     display: none;
 }
 
+body.noMoreRuleset .listEntry:not(.checked) {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
 /* touch-screen devices */
 :root.mobile .listEntry .fa-icon {
     font-size: 120%;
@@ -173,3 +177,12 @@ p {
 #templates {
     display: none;
     }
+
+@media (max-width: 480px) {
+    #defaultFilteringMode {
+        grid: 1fr 1fr 1fr / auto-flow dense;
+    }
+    .filteringModeCard > div:nth-of-type(2) {
+        justify-content: flex-start;
+    }
+}

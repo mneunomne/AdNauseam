@@ -43,7 +43,7 @@ vAPI.cantWebsocket =
 vAPI.canWASM = vAPI.webextFlavor.soup.has('chromium') === false;
 if ( vAPI.canWASM === false ) {
     const csp = manifest.content_security_policy;
-    vAPI.canWASM = csp !== undefined && csp.indexOf("'unsafe-eval'") !== -1;
+    vAPI.canWASM = csp !== undefined && csp.indexOf("'wasm-unsafe-eval'") !== -1;
 }
 
 vAPI.supportsUserStylesheets = vAPI.webextFlavor.soup.has('user_stylesheet');
@@ -91,7 +91,38 @@ vAPI.app = {
 /******************************************************************************/
 /******************************************************************************/
 
-vAPI.storage = webext.storage.local;
+vAPI.storage = {
+    get(...args) {
+        return webext.storage.local.get(...args).catch(reason => {
+            console.log(reason);
+        });
+    },
+    set(...args) {
+        return webext.storage.local.set(...args).catch(reason => {
+            console.log(reason);
+        });
+    },
+    remove(...args) {
+        return webext.storage.local.remove(...args).catch(reason => {
+            console.log(reason);
+        });
+    },
+    clear(...args) {
+        return webext.storage.local.clear(...args).catch(reason => {
+            console.log(reason);
+        });
+    },
+    QUOTA_BYTES: browser.storage.local.QUOTA_BYTES,
+};
+
+// Not all platforms support getBytesInUse
+if ( webext.storage.local.getBytesInUse instanceof Function ) {
+    vAPI.storage.getBytesInUse = function(...args) {
+        return webext.storage.local.getBytesInUse(...args).catch(reason => {
+            console.log(reason);
+        });
+    };
+}
 
 /******************************************************************************/
 /******************************************************************************/
@@ -212,6 +243,12 @@ vAPI.Tabs = class {
             this.onCreatedNavigationTargetHandler(details);
         });
         browser.webNavigation.onCommitted.addListener(details => {
+            const { frameId, tabId } = details;
+            if ( frameId === 0 && tabId > 0 && details.transitionType === 'reload' ) {
+                if ( vAPI.net && vAPI.net.hasUnprocessedRequest(tabId) ) {
+                    vAPI.net.removeUnprocessedRequest(tabId);
+                }
+            }
             this.onCommittedHandler(details);
         });
         browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -228,6 +265,9 @@ vAPI.Tabs = class {
             });
         }
         browser.tabs.onRemoved.addListener((tabId, details) => {
+            if ( vAPI.net && vAPI.net.hasUnprocessedRequest(tabId) ) {
+                vAPI.net.removeUnprocessedRequest(tabId);
+            }
             this.onRemovedHandler(tabId, details);
         });
      }
@@ -669,19 +709,45 @@ if ( webext.browserAction instanceof Object ) {
 // https://github.com/uBlockOrigin/uBlock-issues/issues/32
 //   Ensure ImageData for toolbar icon is valid before use.
 
-vAPI.setIcon = (( ) => {
+{
     const browserAction = vAPI.browserAction;
-    const  titleTemplate =
-        browser.runtime.getManifest().browser_action.default_title +
-        ' ({badge})';
+    const titleTemplate = `${browser.runtime.getManifest().browser_action.default_title} ({badge})`;
     const icons = [
-        { path: { '16': 'img/adn_off_16.png', '32': 'img/adn_off_32.png' } },
-        { path: { '16': 'img/adn_on_16.png', '32': 'img/adn_on_32.png' } },
-        { path: { '16': 'img/adn_active_16.png', '32': 'img/adn_active_32.png' } },
-        { path: { '16': 'img/adn_dnt_on_16.png', '32': 'img/adn_dnt_on_32.png' } },
-        { path: { '16': 'img/adn_dnt_active_16.png', '32': 'img/adn_dnt_active_32.png' } },
-        { path: { '16': 'img/adn_strict_on_16.png', '32': 'img/adn_strict_on_32.png' } },
-        { path: { '16': 'img/adn_strict_active_16.png', '32': 'img/adn_strict_active_32.png' } },
+        { path: {
+            '16': 'img/adn_off_16.png',
+            '32': 'img/adn_off_32.png',
+            '64': 'img/adn_off_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_on_16.png',
+            '32': 'img/adn_on_32.png',
+            '64': 'img/adn_on_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_active_16.png',
+            '32': 'img/adn_active_32.png',
+            '64': 'img/adn_active_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_dnt_on_16.png',
+            '32': 'img/adn_dnt_on_32.png',
+            '64': 'img/adn_dnt_on_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_dnt_active_16.png',
+            '32': 'img/adn_dnt_active_32.png',
+            '64': 'img/adn_dnt_active_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_strict_on_16.png',
+            '32': 'img/adn_strict_on_32.png',
+            '64': 'img/adn_strict_on_32.png', // ADN: to-do - add 64px icon
+        } },
+        { path: {
+            '16': 'img/adn_strict_active_16.png',
+            '32': 'img/adn_strict_active_32.png',
+            '64': 'img/adn_strict_active_32.png', // ADN: to-do - add 64px icon
+        } },
     ];
 
     (( ) => {
@@ -708,9 +774,8 @@ vAPI.setIcon = (( ) => {
 
         const imgs = [];
         for ( let i = 0; i < icons.length; i++ ) {
-            const path = icons[i].path;
-            for ( const key in path ) {
-                if ( path.hasOwnProperty(key) === false ) { continue; }
+            for ( const key of Object.keys(icons[i].path) ) {
+                if ( parseInt(key, 10) >= 64 ) { continue; }
                 imgs.push({ i: i, p: key, cached: false });
             }
         }
@@ -773,14 +838,19 @@ vAPI.setIcon = (( ) => {
     //        bit 2 = badge color
     //        bit 3 = hide badge
 
-    return async function(tabId, details) {
+    vAPI.setIcon = async function(tabId, details) {
         tabId = toTabId(tabId);
         if ( tabId === 0 ) { return; }
 
         const tab = await vAPI.tabs.get(tabId);
         if ( tab === null ) { return; }
 
-        const { parts, state, badge, color} = details;
+        const hasUnprocessedRequest = vAPI.net && vAPI.net.hasUnprocessedRequest(tabId);
+        const { parts, state } = details;
+        const { badge, color } = hasUnprocessedRequest
+                ? { badge: '!', color: '#FC0' }
+                : details;
+
         if ( browserAction.setIcon !== undefined ) {
             if ( parts === undefined || (parts & 0b0001) !== 0 ) {
                 browserAction.setIcon(
@@ -802,20 +872,32 @@ vAPI.setIcon = (( ) => {
         // - the platform does not support browserAction.setIcon(); OR
         // - the rendering of the badge is disabled
         if ( browserAction.setTitle !== undefined ) {
-            browserAction.setTitle({
-                tabId: tabId,
-                // title: titleTemplate.replace(
-                //     '{badge}',
-                //     iconStatus.indexOf('on') > -1 || iconStatus.indexOf('dnt') > -1  ? (badge !== '' ? badge : '0') : 'off'
-                // )
-            });
+            const title = titleTemplate.replace('{badge}',
+                state === 1 ? (badge !== '' ? badge : '0') : 'off'
+            );
+            browserAction.setTitle({ tabId: tab.id, title });
         }
 
         if ( vAPI.contextMenu instanceof Object ) {
             vAPI.contextMenu.onMustUpdate(tabId);
         }
     };
-})();
+
+    vAPI.setDefaultIcon = function(flavor, text) {
+        if ( browserAction.setIcon === undefined ) { return; }
+        browserAction.setIcon({
+            path: {
+                '16': `img/icon-16.png`, //'16': `img/icon_16${flavor}.png`, // Adn
+                '32': `img/icon-32.png`, //'32': `img/icon_32${flavor}.png`, // Adn
+                '64': `img/icon-64.png`,
+            }
+        });
+        browserAction.setBadgeText({ text });
+        browserAction.setBadgeBackgroundColor({
+            color: text === '!' ? '#FC0' : '#666'
+        });
+    };
+}
 
 browser.browserAction.onClicked.addListener(function(tab) {
     vAPI.tabs.open({
@@ -1117,24 +1199,30 @@ vAPI.messaging = {
 // https://github.com/uBlockOrigin/uBlock-issues/issues/550
 //   Support using a new secret for every network request.
 
-vAPI.warSecret = (( ) => {
-    const generateSecret = ( ) => {
-        return Math.floor(Math.random() * 982451653 + 982451653).toString(36);
-    };
+{
+    // Generate a 6-character alphanumeric string, thus one random value out
+    // of 36^6 = over 2x10^9 values.
+    const generateSecret = ( ) =>
+        (Math.floor(Math.random() * 2176782336) + 2176782336).toString(36).slice(1);
 
     const root = vAPI.getURL('/');
-    const secrets = [];
-    let lastSecretTime = 0;
+    const reSecret = /\?secret=(\w+)/;
+    const shortSecrets = [];
+    let lastShortSecretTime = 0;
 
-    const guard = function(details) {
-        const url = details.url;
-        const pos = secrets.findIndex(secret =>
-            url.lastIndexOf(`?secret=${secret}`) !== -1
-        );
-        if ( pos === -1 ) {
-            return { cancel: true };
-        }
-        secrets.splice(pos, 1);
+    // Long secrets are meant to be used multiple times, but for at most a few
+    // minutes. The realm is one value out of 36^18 = over 10^28 values.
+    const longSecrets = [ '', '' ];
+    let lastLongSecretTimeSlice = 0;
+
+    const guard = details => {
+        const match = reSecret.exec(details.url);
+        if ( match === null ) { return { cancel: true }; }
+        const secret = match[1];
+        if ( longSecrets.includes(secret) ) { return; }
+        const pos = shortSecrets.indexOf(secret);
+        if ( pos === -1 ) { return { cancel: true }; }
+        shortSecrets.splice(pos, 1);
     };
 
     browser.webRequest.onBeforeRequest.addListener(
@@ -1145,20 +1233,31 @@ vAPI.warSecret = (( ) => {
         [ 'blocking' ]
     );
 
-    return ( ) => {
-        if ( secrets.length !== 0 ) {
-            if ( (Date.now() - lastSecretTime) > 5000 ) {
-                secrets.splice(0);
-            } else if ( secrets.length > 256 ) {
-                secrets.splice(0, secrets.length - 192);
+    vAPI.warSecret = {
+        short: ( ) => {
+            if ( shortSecrets.length !== 0 ) {
+                if ( (Date.now() - lastShortSecretTime) > 5000 ) {
+                    shortSecrets.splice(0);
+                } else if ( shortSecrets.length > 256 ) {
+                    shortSecrets.splice(0, shortSecrets.length - 192);
+                }
             }
-        }
-        lastSecretTime = Date.now();
-        const secret = generateSecret();
-        secrets.push(secret);
-        return secret;
+            lastShortSecretTime = Date.now();
+            const secret = generateSecret();
+            shortSecrets.push(secret);
+            return secret;
+        },
+        long: ( ) => {
+            const timeSlice = Date.now() >>> 19; // Changes every ~9 minutes
+            if ( timeSlice !== lastLongSecretTimeSlice ) {
+                longSecrets[1] = longSecrets[0];
+                longSecrets[0] = `${generateSecret()}${generateSecret()}${generateSecret()}`;
+                lastLongSecretTimeSlice = timeSlice;
+            }
+            return longSecrets[0];
+        },
     };
-})();
+}
 
 /******************************************************************************/
 
@@ -1174,8 +1273,10 @@ vAPI.Net = class {
             }
         }
         this.suspendableListener = undefined;
+        this.deferredSuspendableListener = undefined;
         this.listenerMap = new WeakMap();
         this.suspendDepth = 0;
+        this.unprocessedTabs = new Map();
 
         browser.webRequest.onBeforeRequest.addListener(
             details => {
@@ -1188,6 +1289,8 @@ vAPI.Net = class {
             this.denormalizeFilters({ urls: [ 'http://*/*', 'https://*/*' ] }),
             [ 'blocking' ]
         );
+
+        vAPI.setDefaultIcon('-loading', '');
     }
     setOptions(/* options */) {
     }
@@ -1228,11 +1331,37 @@ vAPI.Net = class {
         );
     }
     onBeforeSuspendableRequest(details) {
-        if ( this.suspendableListener === undefined ) { return; }
-        return this.suspendableListener(details);
+        if ( this.suspendableListener !== undefined ) {
+            return this.suspendableListener(details);
+        }
+        this.onUnprocessedRequest(details);
     }
     setSuspendableListener(listener) {
+        for ( const [ tabId, requests ] of this.unprocessedTabs ) {
+            let i = requests.length;
+            while ( i-- ) {
+                const r = listener(requests[i]);
+                if ( r === undefined || r.cancel !== true ) {
+                    requests.splice(i, 1);
+                }
+            }
+            if ( requests.length !== 0 ) { continue; }
+            this.unprocessedTabs.delete(tabId);
+        }
+        if ( this.unprocessedTabs.size !== 0 ) {
+            this.deferredSuspendableListener = listener;
+            listener = details => {
+                const { tabId, type  } = details;
+                if ( type === 'main_frame' && this.unprocessedTabs.has(tabId) ) {
+                    if ( this.removeUnprocessedRequest(tabId) ) {
+                        return this.suspendableListener(details);
+                    }
+                }
+                return this.deferredSuspendableListener(details);
+            };
+        }
         this.suspendableListener = listener;
+        vAPI.setDefaultIcon('', '');
     }
     removeListener(which, clientListener) {
         const actualListener = this.listenerMap.get(clientListener);
@@ -1247,6 +1376,41 @@ vAPI.Net = class {
         };
         this.listenerMap.set(clientListener, actualListener);
         return actualListener;
+    }
+    handlerBehaviorChanged() {
+        browser.webRequest.handlerBehaviorChanged();
+    }
+    onUnprocessedRequest(details) {
+        const { tabId } = details;
+        if ( tabId === -1 ) { return; }
+        if ( this.unprocessedTabs.size === 0 ) {
+            vAPI.setDefaultIcon('-loading', '!');
+        }
+        let requests = this.unprocessedTabs.get(tabId);
+        if ( requests === undefined ) {
+            this.unprocessedTabs.set(tabId, (requests = []));
+        }
+        requests.push(Object.assign({}, details));
+    }
+    hasUnprocessedRequest(tabId) {
+        if ( this.unprocessedTabs.size === 0 ) { return false; }
+        if ( tabId === undefined ) { return true; }
+        return this.unprocessedTabs.has(tabId);
+    }
+    removeUnprocessedRequest(tabId) {
+        if ( this.deferredSuspendableListener === undefined ) {
+            this.unprocessedTabs.clear();
+            return true;
+        }
+        if ( tabId !== undefined ) {
+            this.unprocessedTabs.delete(tabId);
+        } else {
+            this.unprocessedTabs.clear();
+        }
+        if ( this.unprocessedTabs.size !== 0 ) { return false; }
+        this.suspendableListener = this.deferredSuspendableListener;
+        this.deferredSuspendableListener = undefined;
+        return true;
     }
     suspendOneRequest() {
     }
@@ -1276,7 +1440,7 @@ vAPI.Net = class {
 // To be defined by platform-specific code.
 
 vAPI.scriptletsInjector = (( ) => {
-    self.uBO_scriptletsInjected = true;
+    self.uBO_scriptletsInjected = '';
 }).toString();
 
 /******************************************************************************/
@@ -1402,6 +1566,11 @@ vAPI.onLoadAllCompleted = function(tabId, frameId) { //ADN
 // https://github.com/gorhill/uBlock/issues/900
 // Also, UC Browser: http://www.upsieutoc.com/image/WXuH
 
+// https://github.com/uBlockOrigin/uAssets/discussions/16939
+//   Use a cached version of admin settings, such that there is no blocking
+//   call on `storage.managed`. The side effect is that any changes to admin
+//   settings will require an extra extension restart to take effect.
+
 vAPI.adminStorage = (( ) => {
     if ( webext.storage.managed instanceof Object === false ) {
         return {
@@ -1410,17 +1579,47 @@ vAPI.adminStorage = (( ) => {
             },
         };
     }
+    const cacheManagedStorage = async ( ) => {
+        let store;
+        try {
+            store = await webext.storage.managed.get();
+        } catch(ex) {
+        }
+        webext.storage.local.set({ cachedManagedStorage: store || {} });
+    };
+
     return {
         get: async function(key) {
             let bin;
             try {
-                bin = await webext.storage.managed.get(key);
+                bin = await webext.storage.local.get('cachedManagedStorage') || {};
+                if ( Object.keys(bin).length === 0 ) {
+                    bin = await webext.storage.managed.get() || {};
+                } else {
+                    bin = bin.cachedManagedStorage;
+                }
             } catch(ex) {
+                bin = {};
+            }
+            cacheManagedStorage();
+            if ( key === undefined || key === null ) {
+                return bin;
             }
             if ( typeof key === 'string' && bin instanceof Object ) {
                 return bin[key];
             }
-            return bin;
+            const out = {};
+            if ( Array.isArray(key) ) {
+                for ( const k of key ) {
+                    if ( bin[k] === undefined ) { continue; }
+                    out[k] = bin[k];
+                }
+                return out;
+            }
+            for ( const [ k, v ] of Object.entries(key) ) {
+                out[k] = bin[k] !== undefined ? bin[k] : v;
+            }
+            return out;
         }
     };
 })();
@@ -1548,7 +1747,7 @@ vAPI.cloud = (( ) => {
         try {
             bin = await webext.storage.sync.get(keys);
         } catch (reason) {
-            return reason;
+            return String(reason);
         }
         let chunkCount = 0;
         for ( let i = 0; i < maxChunkCountPerItem; i += 16 ) {

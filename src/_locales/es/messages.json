@@ -275,13 +275,13 @@
     "message": "Versión",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑: resaltar filas que tienen scripts de terceros",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "script",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑: resaltar filas que tienen frames de terceros",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "frame",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "Crear",
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Incluidos",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Anuncios",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Privacidad",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "Dominios de malware",
-    "description": "English: Malware domains"
+    "message": "Protección de malware, seguridad",
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Elementos molestos",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Multiusos",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Regiones, idiomas",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Personalizado",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Importar…",
@@ -951,6 +951,14 @@
     "message": "Para evitar sobrecargar a voluntarios con reportes duplicados, verifica que el problema no haya sido reportado.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Las listas de filtros se actualizan diariamente. Asegúrate de que tu problema no haya sido abordado en las listas de filtros más recientes.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Verifica que el problema aún exista después de recargar la página web problemática.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Dirección de la página web:",
     "description": "Label for the URL of the page"
@@ -1036,7 +1044,7 @@
     "description": "Shown in the About pane"
   },
   "aboutCDNsInfo": {
-    "message": "Se utilizará una CDN elegida al azar cuando sea necesario actualizar una lista de filtros",
+    "message": "Se utilizará una CDN elegida al azar cuando sea necesario actualizar una lista de filtros.",
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
@@ -1215,6 +1223,10 @@
     "message": "Permitir temporalmente elementos multimedia grandes",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
+  "contextMenuViewSource": {
+    "message": "Ver código fuente…",
+    "description": "A context menu entry, to view the source code of the target resource"
+  },
   "shortcutCapturePlaceholder": {
     "message": "Escribe un atajo",
     "description": "Placeholder string for input field used to capture a keyboard shortcut"
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "Clic para cargar",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "Errores: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "No se puede filtrar correctamente al iniciar el navegador. Recarga la página para garantizar el filtrado correcto.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "Esta entrada debe ser la última",

@@ -275,13 +275,13 @@
     "message": "Версия",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑: Открояване на редовете, в които има скриптове на 3-ти страни",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "скрипт",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑: Открояване на редовете, в които има рамки на 3-ти страни",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "рамка",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "Създаване",
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Вградени",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Реклами",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Поверителност",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "Вредоносни домейни",
-    "description": "English: Malware domains"
+    "message": "Защита от зловреден софтуер, сигурност",
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Досадни неща",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Многоцелеви",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Региони, езици",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Потребителски",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Внасяне...",
@@ -951,6 +951,14 @@
     "message": "За да се избегне натоварването на доброволците с дублиращи се доклади, моля, проверете дали проблемът все още не е докладван.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Списъците с филтри се актуализират ежедневно. Уверете се, че вашият проблем вече не е решен в най-новите списъци с филтри.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Проверете дали проблемът продължава да съществува след презареждане на проблемната уеб страница.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Адрес на уеб страницата:",
     "description": "Label for the URL of the page"
@@ -1215,6 +1223,10 @@
     "message": "Временно разрешаване на големи мултимедийни елементи",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
+  "contextMenuViewSource": {
+    "message": "Преглед на изходния код…",
+    "description": "A context menu entry, to view the source code of the target resource"
+  },
   "shortcutCapturePlaceholder": {
     "message": "Натиснете клавиши",
     "description": "Placeholder string for input field used to capture a keyboard shortcut"
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "Щракнете, за да се зареди",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "Грешки: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "Не може да се филтрира правилно при стартиране на браузъра.\nПрезаредете страницата, за да се уверите, че филтрирането е правилно.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "Това поле трябва да бъде последното",

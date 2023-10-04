@@ -275,13 +275,13 @@
     "message": "Versioon",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑: Tõsta esile kolmanda osapoole skriptidega read",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "skript",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑: Tõsta esile kolmanda osapoole raamidega read",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "raam",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "Loo",
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "Sisseehitatud",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "Reklaamid",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "Privaatsus",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "Pahavara domeenid",
-    "description": "English: Malware domains"
+    "message": "Pahavara kaitse, turvalisus",
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "Tüütused",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "Mitmeotstarbelised",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "Regioonid, keeled",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "Kohandatud",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "Impordi...",
@@ -951,6 +951,14 @@
     "message": "Vabatahtlike koormuse vähendamiseks veendu, et probleemi pole juba teatatud.",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "Filtriloendeid uuendatakse iga päev. Kindlasti veenduge, kas probleem on juba lahendatud uusimates filtriloendites.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "Kontrollige probleemi olemasolu veel kord, laadides muret tekitav veebileht uuesti.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "Veebilehe aadress:",
     "description": "Label for the URL of the page"
@@ -1036,7 +1044,7 @@
     "description": "Shown in the About pane"
   },
   "aboutCDNsInfo": {
-    "message": "Filtriloendi uuendamiseks kasutatakse juhuslikult valitud sisuedastusvõrku",
+    "message": "Filtriloendi uuendamiseks kasutatakse juhuslikult valitud sisuedastusvõrku.",
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
@@ -1215,6 +1223,10 @@
     "message": "Luba ajutiselt mahukad meediaelemendid",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
+  "contextMenuViewSource": {
+    "message": "Vaata lähtekoodi…",
+    "description": "A context menu entry, to view the source code of the target resource"
+  },
   "shortcutCapturePlaceholder": {
     "message": "Kirjuta kiirklahv",
     "description": "Placeholder string for input field used to capture a keyboard shortcut"
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "Klõpsa laadimiseks",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "Vigu: {{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "Veebilehitseja avamisel nurjus filtreerimine.\nÕige filtreerimise tagab veebilehe uuesti laadimine.",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "See sisestus peab olema viimane",

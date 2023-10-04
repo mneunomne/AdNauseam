@@ -7,7 +7,8 @@
   "browser_action": {
     "default_icon": {
       "16": "img/icon_16.png",
-      "32": "img/icon_32.png"
+      "32": "img/icon_32.png",
+      "64": "img/icon_64.png"
     },
     "default_title": "AdNauseam",
     "default_popup": "popup-fenix.html"
@@ -75,7 +76,7 @@
   },
   "incognito": "split",
   "manifest_version": 2,
-  "minimum_chrome_version": "66.0",
+  "minimum_chrome_version": "73.0",
   "name": "uBlock Origin",
   "options_ui": {
     "page": "dashboard.html",

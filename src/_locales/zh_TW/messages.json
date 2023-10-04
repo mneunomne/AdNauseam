@@ -180,11 +180,11 @@
     "description": "Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipNoScripting1": {
-    "message": "點擊以禁用此網站的所有腳本",
+    "message": "點擊以停用此網站的 JavaScript",
     "description": "Tooltip for the no-scripting per-site switch"
   },
   "popupTipNoScripting2": {
-    "message": "點擊以停止禁用此網站的所有腳本",
+    "message": "點擊以使此網站的 JavaScript 不再停用",
     "description": "Tooltip for the no-scripting per-site switch"
   },
   "popupNoPopups_v2": {
@@ -275,13 +275,13 @@
     "message": "版本",
     "description": "Example of use: Version 1.26.4"
   },
-  "popup3pScriptFilterTip": {
-    "message": "↑：強調有第三方腳本的一行",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party scripts' cell"
+  "popup3pScriptFilter": {
+    "message": "腳本",
+    "description": "Appears as an option to filter out firewall rows"
   },
-  "popup3pFrameFilterTip": {
-    "message": "↑：強調有第三方框架的一行",
-    "description": "Tooltip shown when hovering small filtering widget in '3rd-party frames' cell"
+  "popup3pFrameFilter": {
+    "message": "框架",
+    "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
     "message": "建立",
@@ -356,7 +356,7 @@
     "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
-    "message": "關閉預讀功能（避免連線至被阻擋的網域）",
+    "message": "停用預先載入模式（避免連線至已阻擋的網路要求）",
     "description": "English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt": {
@@ -388,7 +388,7 @@
     "description": ""
   },
   "settingsNoScriptingPrompt": {
-    "message": "禁用網頁腳本",
+    "message": "停用 JavaScript",
     "description": "The default state for the per-site no-scripting switch"
   },
   "settingsNoCSPReportsPrompt": {
@@ -469,35 +469,35 @@
   },
   "3pGroupDefault": {
     "message": "內建",
-    "description": "Header for the uBlock filters section in 'Filter lists pane'"
+    "description": "Filter lists section name"
   },
   "3pGroupAds": {
     "message": "廣告",
-    "description": "English: Ads"
+    "description": "Filter lists section name"
   },
   "3pGroupPrivacy": {
     "message": "隱私",
-    "description": "English: Privacy"
+    "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "惡意網域",
-    "description": "English: Malware domains"
+    "message": "惡意軟體防護及安全性",
+    "description": "Filter lists section name"
   },
   "3pGroupAnnoyances": {
     "message": "惱人的",
-    "description": "The header identifying the filter lists in the category 'annoyances'"
+    "description": "Filter lists section name"
   },
   "3pGroupMultipurpose": {
     "message": "多用途",
-    "description": "English: Multipurpose"
+    "description": "Filter lists section name"
   },
   "3pGroupRegions": {
     "message": "地區、語言",
-    "description": "English: Regions, languages"
+    "description": "Filter lists section name"
   },
   "3pGroupCustom": {
     "message": "自訂",
-    "description": "English: Custom"
+    "description": "Filter lists section name"
   },
   "3pImport": {
     "message": "匯入…",
@@ -951,6 +951,14 @@
     "message": "為了避免太多人發出重複的報告拖垮志工，請先確認是否已經有人回報過您打算報告的問題。",
     "description": "A paragraph in the filter issue reporter section"
   },
+  "supportS6P2S1": {
+    "message": "過濾器清單每天更新。請確認您的問題無法用最新的過濾器清單解決。",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P2S2": {
+    "message": "重新載入有問題的網頁後，驗證問題是否仍然存在。",
+    "description": "A paragraph in the filter issue reporter section"
+  },
   "supportS6URL": {
     "message": "網址：",
     "description": "Label for the URL of the page"
@@ -1032,7 +1040,7 @@
     "description": "Shown in the About pane"
   },
   "aboutCDNs": {
-    "message": "uBO 自家的過濾規則清單是透過下列 <a href=\"https://wikipedia.org/wiki/Content_delivery_network\">CDN</a> 進行代管：",
+    "message": "uBO 自家的過濾規則清單由下列 <a href=\"https://wikipedia.org/wiki/Content_delivery_network\">CDN</a> 免費代管：",
     "description": "Shown in the About pane"
   },
   "aboutCDNsInfo": {
@@ -1215,6 +1223,10 @@
     "message": "暫時允許大型媒體元素",
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
+  "contextMenuViewSource": {
+    "message": "檢視原始碼…",
+    "description": "A context menu entry, to view the source code of the target resource"
+  },
   "shortcutCapturePlaceholder": {
     "message": "輸入快捷鍵",
     "description": "Placeholder string for input field used to capture a keyboard shortcut"
@@ -1258,6 +1270,14 @@
   "clickToLoad": {
     "message": "點擊以載入",
     "description": "Message used in frame placeholders"
+  },
+  "linterMainReport": {
+    "message": "錯誤：{{count}}",
+    "description": "Summary of number of errors as reported by the linter "
+  },
+  "unprocessedRequestTooltip": {
+    "message": "無法在瀏覽器啟動的時候正確過濾。請重新載入頁面來確保過濾正確。",
+    "description": "A warning which will appear in the popup panel if needed"
   },
   "dummy": {
     "message": "此條目須為最後一個",

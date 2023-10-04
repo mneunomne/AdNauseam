@@ -26,6 +26,7 @@
 import µb from '../background.js';
 import staticFilteringReverseLookup from '../reverselookup.js';
 import staticNetFilteringEngine from '../static-net-filtering.js'
+
 import dnt from './dnt.js'
 
 import {
@@ -37,7 +38,7 @@ import {
   CompiledListWriter,
 } from '../static-filtering-io.js';
 
-import { StaticFilteringParser } from '../static-filtering-parser.js';
+import * as sfp from '../static-filtering-parser.js';
 
 import {
   log,
@@ -1149,15 +1150,17 @@ const adnauseam = (function () {
     let content;
     let pos;
     let c;
+
     const writer = new CompiledListWriter();
-    const parser = new StaticFilteringParser();
-    // urlTokenizer property doesn't exist anymore, MAX_TOKEN_LENGTH can now be found on 'staticNetFilteringEngine'
-    // parser.setMaxTokenLength(µb.urlTokenizer.MAX_TOKEN_LENGTH);
-    parser.setMaxTokenLength(staticNetFilteringEngine.MAX_TOKEN_LENGTH);
-    parser.analyze(filter.raw);
+    const parser = new sfp.AstFilterParser({
+      expertMode: true,
+      nativeCssHas: vAPI.webextFlavor.env.includes('native_css_has'),
+      maxTokenLength: staticNetFilteringEngine.MAX_TOKEN_LENGTH,
+    });
+    parser.parse(filter.raw);
 
     const compiler = staticNetFilteringEngine.createCompiler(parser);
-    if ( compiler.compile(writer) === false ) { return; }
+    if ( compiler.compile(parser, writer) === false ) { return; }
 
     const compiledFilter = writer.last();
 
@@ -1275,7 +1278,7 @@ const adnauseam = (function () {
     const snfe = staticNetFilteringEngine, snfeData = snfe.toLogData();
 
     /* Case 4 */
-    const lists = listsForFilter(snfeData);
+    const lists = listsForFilter(snfeData); // get lists that match the filter
     if (Object.keys(lists).length === 0) {                                  // 4.A
       snfeData && logNetBlock('UserList', snfeData.raw); // always block
       return true;
