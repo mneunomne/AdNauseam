@@ -71,7 +71,7 @@ body {
 	background-image: url(../img/gray_grid.png);
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
   margin: 0;
-  color: #999;
+  color: var(--adn-text);
 }
 
 /* Headings */
@@ -82,7 +82,7 @@ h1, h2, h3, h4, h5, h6 {
 
 a {
   text-decoration: none;
-  color: #0076FF;
+  color: var(--adn-blue);
 }
 /*
 a:hover {
@@ -151,14 +151,14 @@ a.external-link {
   margin:-1px 4px 0 0;
   vertical-align:middle;
   background-color: black;
-  border: 1px solid #0076FF;
+  border: 1px solid var(--adn-blue);
   cursor:pointer;
   border-radius: 3px;
 }
 .custom-check input[type="checkbox"]:not(#effListInput):checked + label::before,
 .custom-check #lists input[type="checkbox"]:not(#effListInput):checked:before,
 .custom-check ul li input[type="radio"]:checked + label::before{
-  background: #0076FF url(../img/check.svg) -2px 0px no-repeat;
+  background: var(--adn-blue) url(../img/check.svg) -2px 0px no-repeat;
   color: black;
   content: "";
   font-size: 0.8em;
@@ -173,7 +173,7 @@ a.external-link {
   background-image: none;
 }
 .custom-check input[type="checkbox"]:disabled + label::before{
-  border-color: #999;
+  border-color: var(--adn-text-input);
   border-width: 2px;
   width: 11px;
   height: 11px;
@@ -183,11 +183,11 @@ a.external-link {
   cursor: not-allowed;
 }
 .custom-check input[type="checkbox"]:disabled:checked + label::before{
-  background-color: #999;
+  background-color: var(--adn-text-input);
 }
 
 .custom-check input[type="checkbox"]:disabled + label a {
-  color: #999;
+  color: var(--adn-text-input);
   text-decoration: underline;
 }
 
@@ -239,7 +239,7 @@ a.hide {
 }
 
 button {
-  border: 2px solid #0076FF;
+  border: 2px solid var(--adn-blue);
   border-radius: 5px;
   font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
   text-transform: uppercase;
@@ -247,8 +247,8 @@ button {
   font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
   background: none;
   box-shadow: none;
-  color: #0076FF;
-  fill: #0076FF;
+  color: var(--adn-blue);
+  fill: var(--adn-blue);
   font-size: 20px;
   line-height: 20px;
   height: 30px;
@@ -256,9 +256,10 @@ button {
 }
 
 button:hover:enabled{
-  background: #0076FF;
+  background: var(--adn-blue);
   color: #000;
   fill: #000;
+  cursor: pointer;
 }
 
 button.danger {
@@ -288,38 +289,43 @@ button.small {
   /*border-color: rgba(0,118,255,0.5);*/
   border: none;
 }
+
 /* I designed the button with: http://charliepark.org/bootstrap_buttons/ */
 button.custom {
-    border: 2px solid #0076FF;
-    border-radius: 5px;
-    background: none;
-    box-shadow: none;
-    color: #0076FF;
-    fill: #0076FF;
-    font-size: 20px;
-    height: 30px;
-    padding-top: 2px;
-    margin:4px 0;
-    }
+  border: 2px solid var(--adn-blue);
+  border-radius: 5px;
+  background: none;
+  box-shadow: none;
+  color: var(--adn-blue);
+  fill: var(--adn-blue);
+  font-size: 20px;
+  height: 30px;
+  padding-top: 2px;
+  margin:4px 0;
+}
+
 :root.mobile button {
   height:36px;
   margin:0px;
 }
-:root.mobile button.custom {/* adn */
+
+:root.mobile button.custom {
   font-size:18px;
 }
+
 button.custom.disabled,
 button.custom[disabled],
-button.large.disabled {
-    border-color: #999;
-    color: #999;
-    fill: #999;
-    opacity: 0.6;
-    pointer-events: none;
-    }
+button.large;.disabled {
+  border-color: var(--adn-button-disabled);
+  color: var(--adn-button-disabled);
+  fill: var(--adn-button-disabled);
+  pointer-events: none;
+}
+
 button.custom:hover {
-    opacity: 1.0;
-    }
+  opacity: 1.0;
+}
+
 button.custom#buttonUpdateAdNauseam{
   font-size:14px;
   border-width:1px;
@@ -331,13 +337,15 @@ button.custom#buttonUpdateAdNauseam{
   top: 50%;
   transform: translate(100%, -50%);
 }
+
 button.important {
-    padding: 1px 2em;
-    }
+  padding: 1px 2em;
+}
+
 .alert {
-    height: 200;
-    width: 100%;
-    position: relative;
+  height: 200;
+  width: 100%;
+  position: relative;
 }
 
 #proceed {
@@ -454,37 +462,37 @@ button.warning{
 .notification.info,
 .notification.info button,
 button.info{
-  color: #00529B;
-  background-color: #BDE5F8;
+  color: var(--adn-notification-info);
+  background-color: var(--adn-notification-info-bg);
   background-image: url(../img/icon_info@2x.png);
-  border-color: #00529B;
+  border-color: var(--adn-notification-info);
 }
 .notification.info button {
-  box-shadow: -7px 0 10px 0 #DFF2BF;
+  box-shadow: -7px 0 10px 0 var(--adn-notification-info-bg);
 }
 .notification.info button:hover:enabled,
 .notification.info a.help-mark,
 button.info:hover:enabled{
-  color: #BDE5F8;
-  background-color: #00529B !important;
+  color: var(--adn-notification-info-bg);
+  background-color: var(--adn-notification-info) !important;
 }
 .notification.success,
 .notification.success button,
 button.success{
-  color: #4F8A10;
-  background-color: #DFF2BF;
+  color: var(--adn-notification-dnt);
+  background-color: var(--adn-notification-dnt-bg);
   background-image: url(../img/icon_success@2x.png);
-  border-color: #4F8A10;
+  border-color: var(--adn-notification-dnt);
 }
 .notification.success button {
-  box-shadow: -7px 0 10px 0 #DFF2BF;
+  box-shadow: -7px 0 10px 0 var(--adn-notification-dnt-bg);
 }
 .notification.dnt,.notification.dnt button,
 .notification.success.dnt button{
   background-image: url(../img/icon_dnt@2x.png);
-  color: #4F8A10;
-  background-color: #DFF2BF;
-  border-color: #4F8A10;
+  color: var(--adn-notification-dnt);
+  background-color: var(--adn-notification-dnt-bg);
+  border-color: var(--adn-notification-dnt);
 }
 .notification.success button:hover:enabled,
 .notification.success a.help-mark,
@@ -492,8 +500,8 @@ button.success:hover:enabled,
 .notification.dnt button:hover:enabled,
 .notification.dnt a.help-mark,
 button.dnt:hover:enabled {
-  color: #DFF2BF;
-  background-color: #4F8A10 !important;
+  color: var(--adn-notification-dnt-bg);
+  background-color: var(--adn-notification-dnt) !important;
 
 }
 
@@ -532,19 +540,19 @@ button.warning:hover:enabled {
 .notification.error,
 .notification.error button,
 button.error{
-  color: #D8000C;
-  background-color: #FFBABA;
+  color: var(--adn-notification-error);
+  background-color: var(--adn-notification-error-bg);
   background-image: url(../img/icon_error@2x.png);
-  border-color: #D8000C;
+  border-color: var(--adn-notification-error);
 }
 .notification.error button {
-  box-shadow: -7px 0 10px 0 #FFBABA;
+  box-shadow: -7px 0 10px 0 var(--adn-notification-error-bg);
 }
 .notification.error button:hover:enabled,
 .notification.error a.help-mark,
  button.error:hover:enabled{
-  color: #FFBABA;
-  background-color: #D8000C !important;
+  color: var(--adn-notification-error-bg);
+  background-color: var(--adn-notification-error) !important;
 }
 
 /* ============================================================
@@ -605,7 +613,7 @@ textarea {
     font-size: 90%;
 }
 input, select {
-      background: #333;
+      background: var(--adn-text-input-bg);
       color: #ccc;
       border: solid 1px #999;
       border-radius: 2px;
@@ -709,11 +717,11 @@ input.cmn-toggle-round-flat + label:after {
   transition: margin 0.4s, background 0.4s;
 }
 input.cmn-toggle-round-flat:checked + label {
-  background-color: #0076FF;
+  background-color: var(--adn-blue);
 }
 input.cmn-toggle-round-flat:checked + label:after {
   margin-left: 30px;
-  background-color: #0076FF;
+  background-color: var(--adn-blue);
 }
 input.cmn-toggle-round-flat.cmn-toggle-small + label {
   height: 20px;
@@ -747,13 +755,13 @@ input.cmn-toggle-round-flat.cmn-toggle-small:checked + label::after {
 }
 
 .cost.highlighted{
-	color: #85bb65;
+	color: var(--adn-ad-cost);
 }
 
 .help-mark {
 	font-size: 14px;
 	border-radius: 3px;
-  background-color: #0076FF;
+  background-color: var(--adn-blue);
 	padding: 0 2px 0;
 	display: inline-block;
 	height: 14px;
@@ -769,7 +777,7 @@ input.cmn-toggle-round-flat.cmn-toggle-small:checked + label::after {
 }
 
 .help-mark.cost, .help-mark.dnt {
-  background-color: #85bb65;
+  background-color: var(--adn-ad-cost);
 }
 
 .help-mark.sml{
@@ -780,7 +788,7 @@ input.cmn-toggle-round-flat.cmn-toggle-small:checked + label::after {
 }
 .help-mark.sml:hover {
   color: #000;
-  background-color: #0076FF;
+  background-color: var(--adn-blue);
 }
 ul {
     padding: 0;
@@ -806,7 +814,7 @@ body[dir=rtl] #buttonApply {
 } */
 span.status {
     border: 1px solid transparent;
-    color: #444;
+    color: var(--adn-dark-gray);
     display: inline-block;
     font-size: smaller;
     line-height: 1;
@@ -844,30 +852,7 @@ span.new {
 body[dir=rtl] #externalListsDiv {
     margin: 2em 2em 0;
     }
-/* Code Mirror Override */
-.CodeMirror {
-  background: #1f1f1f !important; /* Adn */
-  color:#ccc !important;
-  border: 1px solid #777 !important;
-}
-.CodeMirror-gutters, .CodeMirror-merge-gap{
-  background: #222 !important;
-}
-.CodeMirror-activeline-background {
-    background: #111 !important;
-}
-.CodeMirror-merge-l-chunk {
-  background: #000 !important;
-}
-.cm-search-widget{
-  background-color: #222 !important;
-  border-top: 1px #777 solid;
-  border-left: 1px #777 solid;
-  border-right: 1px #777 solid;
-}
-.cm-staticnetBlock, .cm-staticext{
-  color:white !important;
-}
+
 button.custom:hover {
     opacity: 1.0;
     }
@@ -876,15 +861,6 @@ button.custom.important {
 }
 button.custom.important:hover {
     background-color: rgb(0, 118, 255,1);
-}
-button.custom.disabled,
-button.custom[disabled],
-button.custom.important.disabled,
-button.custom.important[disabled] {
-    border-color: #ddd ;
-    background-color: #ddd;
-    color: #666;
-    opacity: 0.6;
 }
 button.vflex {
     height: 100%;
@@ -902,15 +878,9 @@ button.disabled,
 button[disabled],
 button.important.disabled,
 button.important[disabled] {
-    /* background-color: var(--button-disabled-surface); */
-    /* color: var(--button-disabled-ink);
-    fill: var(--button-disabled-ink); 
-    filter: var(--button-disabled-filter);
-    */
-    /* TODO: add these colors to the pallett */
-    color: #8d8d8d82;
-    fill: #8d8d8d82;
-    border-color: #8d8d8d82;
+    color: var(--adn-button-disabled);
+    fill: var(--adn-button-disabled);
+    border-color: var(--adn-button-disabled);
     pointer-events: none;
     }
     /* Adn
@@ -987,8 +957,7 @@ label:hover .checkbox:not([disabled]) svg {
     width: 100%;
     }
 .checkbox > input[type="checkbox"] + svg {
-    background-color: black;
-    border: 2px solid #0076FF;
+    border: 2px solid var(--adn-blue);
     border-radius: 2px;
     box-sizing: border-box;
     fill: none;
@@ -1000,8 +969,8 @@ label:hover .checkbox:not([disabled]) svg {
     width: 100%;
     }
 .checkbox > input[type="checkbox"]:checked + svg {
-    background-color: #0076FF;
-    border-color: #0076FF;
+    background-color: var(--adn-blue);
+    border-color: var(--adn-blue);
     stroke: #000;
     }
 .checkbox[disabled],

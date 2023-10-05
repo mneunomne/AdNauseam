@@ -52,6 +52,7 @@ function setTheme(theme, propagate = false) {
         } else if ( theme === 'colorBlind' ) {
             rootcl.remove('dark');
             rootcl.remove('light');
+            rootcl.add('light');
             rootcl.add('colorBlind');
         } else { // default mode is dark
             rootcl.add('dark');   

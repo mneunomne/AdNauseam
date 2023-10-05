@@ -38,7 +38,7 @@ body {
 	display:none;
   width:100%;
 	height:320px;
-	border:solid 1px #0076FF;
+	border:solid 1px var(--adn-blue);
 	background-color:#0E1217;
 	padding:15px 15px 25px;
 }
@@ -52,18 +52,18 @@ body {
 }
 .show .myStatistics-label, .min .myStatistics-label:hover{
 	color:black;
-	background-color:#0076FF;
+	background-color:var(--adn-blue);
 	transition: 0.3s;
 }
 .min .myStatistics-label{
-	color:#0076FF;;
+	color:var(--adn-blue);;
 }
 .show .myStatistics-label:hover{
-	border-color:#0076FF;
+	border-color:var(--adn-blue);
 	border-style:solid;
 	border-width:1px 1px 0 1px;
 	background-color:rgba(0,0,0,0);
-	color:#0076FF;
+	color:var(--adn-blue);
 	transition: 0.3s;
 }
 .min .myStatistics-label:hover > span.st-icon{
@@ -101,7 +101,7 @@ body {
 		color:#AAA;
 }
 .myStatistics-panel li span.number{
-		color:#0076FF;
+		color:var(--adn-blue);
 		float:right;
 }
 
@@ -347,12 +347,12 @@ div.tooltip {
 
 .session-sum .clicked{
 	font-weight: 700;
-	color: #BD10E0;
+	color: var(--adn-purple);
 }
 
 .session-sum .total{
 	font-weight: 700;
-	color: #0076FF;
+	color: var(--adn-blue);
 }
 .session-sum .showing {
 	display: none;
@@ -610,7 +610,7 @@ div.bullets { display: none; } /* hide by default */
 }
 
 .inspected .bullets .pending {
-	background-color: #0076FF;
+	background-color: var(--adn-blue);
 }
 .inspected .bullets .visited {
 	background-color: #A020F0;
@@ -624,7 +624,7 @@ div.bullets { display: none; } /* hide by default */
 
 
 .inspected.pending .target .inspected-title {
-	color: #0076FF;
+	color: var(--adn-blue);
 }
 .inspected.visited .target .inspected-title  {
 	color: #A020F0;
@@ -641,7 +641,7 @@ div.bullets { display: none; } /* hide by default */
 }
 
 
-.item.pending #index-counter, .item.pending span.counter { background-color: #0076FF;}
+.item.pending #index-counter, .item.pending span.counter { background-color: var(--adn-blue);}
 .item.visited #index-counter, .item.visited span.counter { background-color: #A020F0;}
 .item.failed  #index-counter, .item.failed  span.counter { background-color: #B80606;}
 .item.dnt-allowed #index-counter, .item.dnt-allowed span.counter { background-color: #96B96B;}
@@ -674,7 +674,7 @@ div.bullets { display: none; } /* hide by default */
 
 .inspected.pending .item-text-div,
 .item-text.pending .item-text-div:hover {
-	border-color: #0076FF;
+	border-color: var(--adn-blue);
 }
 
 .inspected.failed .item-text-div,
@@ -765,7 +765,7 @@ div.bullets { display: none; } /* hide by default */
 
 .item-text.visited:hover,
 .item-text.visited.inspected {
-  border-color: #BD10E0;
+  border-color: var(--adn-purple);
 }
 
 .item-text.failed:hover,
@@ -844,14 +844,14 @@ div.bullets { display: none; } /* hide by default */
 
 .item.just-visited .ad::before,
 .item-text.just-visited .item-text-div::before {
-	background: #BD10E0;
+	background: var(--adn-purple);
 	animation: 1000ms ease-in-out visit-marker;
   content: "VISITED";
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 .item.attempting .ad::before,
 .item-text.attempting .item-text-div::before {
-	background: #0076FF;
+	background: var(--adn-blue);
   animation: 200ms ease-in-out attempting-marker infinite alternate;
 }
 
@@ -872,7 +872,7 @@ div.bullets { display: none; } /* hide by default */
 
 @keyframes just-visited {
 	from {
-		background: #BD10E0;
+		background: var(--adn-purple);
 	}
 }
 
@@ -1052,12 +1052,12 @@ div.bullets { display: none; } /* hide by default */
 	border-radius: 3px;
 }
 .item.visited:hover img {
-	border-color: #BD10E0;
+	border-color: var(--adn-purple);
 	border-radius: 3px;
 }
 
 .item.pending:hover img {
-	border: 3px solid #0076FF;
+	border: 3px solid var(--adn-blue);
 	border-radius: 3px;
 }
 

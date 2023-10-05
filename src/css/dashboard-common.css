@@ -27,9 +27,8 @@ a {
     text-decoration: none;
     }
 .fa-icon.info { /*ADN color*/
-    color: white;
-    fill: white;
-    opacity: 0.8;
+    color: var(--info0-ink);
+    fill: var(--info0-ink);
     }
 .fa-icon.info:hover {
     opacity: 1;

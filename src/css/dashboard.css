@@ -31,7 +31,7 @@ body.notReady {
     display: flex;
     margin: 0;
     width: 100%;
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid var(--adn-tab-button-bg);
     padding: 4px 10px 0;
     white-space: nowrap;
     background-color: #000;
@@ -56,7 +56,7 @@ body.notReady {
     font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
     text-transform: uppercase;
     background-color: #222;
-    border: 2px solid #444;
+    border: 2px solid var(--adn-tab-button-bg);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     border-bottom-width: 1px;
@@ -70,8 +70,7 @@ body.notReady {
     position: relative;
     text-decoration: none;
     top: 1px;
-    opacity: 0.75;
-    }
+}
 .tabButton:hover{
   background-color: #333;
   color:#eee;
@@ -83,9 +82,9 @@ body.notReady {
     /*color: inherit;*/
     }
 .tabButton.selected {
-    background-color: #444;
+    background-color: var(--adn-tab-button-bg);
     color: #fff;
-    border-color: #444;
+    border-color: var(--adn-tab-button-bg);
     opacity: 1;
     }
 iframe {
@@ -146,7 +145,7 @@ body.noDashboard #dashboard-nav {
         border-bottom: 3px solid black;
     }
     .tabButton.selected {
-        border-bottom: 3px solid #BD10E0;
+        border-bottom: 3px solid var(--adn-purple);
         background-color: #222;
     }
 }

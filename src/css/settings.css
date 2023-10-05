@@ -160,14 +160,14 @@ input[type=range] {
   background-color: transparent;
   height: 10px;
   width: 95%;
-  border-color: #0076FF;
+  border-color: var(--adn-blue);
   padding:0;
   margin:0;
 }
 input[type=range]::-webkit-slider-thumb{
     -webkit-appearance: none;
     -moz-apperance: none;
-    box-shadow: -320px 0 0 315px #0076FF;
+    box-shadow: -320px 0 0 315px var(--adn-blue);
     width: 2em;
     height: 8px;
     background-color: #004ca5;
@@ -194,9 +194,9 @@ p:disabled{
   color: #777;
 }
 input[type=range]::-moz-range-progress {
-  background-color: #0076FF;
+  background-color: var(--adn-blue);
   height: 10px;
-  border-color: #0076FF;
+  border-color: var(--adn-blue);
   margin-right: 5px;
   padding:0px;
   border-radius: 2px;
@@ -239,7 +239,7 @@ input[type=range]:disabled::-moz-range-progress {
     content: "×";
 }
 #export-dialog h5{
-  background:#0076FF;
+  background:var(--adn-blue);
   margin:-10px -20px 20px -20px;
   font-size:22px;
   font-family: bebas_neue, sans-serif;
@@ -280,14 +280,14 @@ input[type=range]:disabled::-moz-range-progress {
   height: 16px;
   width: 16px;
   background-color: black;
-  border-color:#0076FF;
+  border-color:var(--adn-blue);
   border-style: solid;
   border-width: 2px;
   border-radius: 50%;
 }
 /* When the radio button is checked, add a blue background */
 .radioContainer input:checked ~ .radiobtn {
-  background-color: #0076FF;
+  background-color: var(--adn-blue);
 }
 
 /* Create the indicator (the dot/circle - hidden when not checked) */
