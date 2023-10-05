@@ -318,39 +318,50 @@
     --adn-transparent-gray: #8d8d8d82;
     --adn-transparent-drak-gray: #44444482;
     --adn-money-green: #85bb65;
-    /* text */
+    
+    /* adn text */
     --adn-text: var(--adn-light-gray);
     --adn-disabled-button: var(--adn-transparent-gray);
-    /* menu */
+    
+    /* adn menu */
     --adn-menu-text: var(--adn-medium-dark-gray);
     --adn-menu-highlight-text: var(--adn-light-gray);
     --adn-menu-header-text: var(--adn-ligher-gray);
     --adn-ad-cost: var(--adn-money-green);
     --adn-menu-border: var(--adn-dark-gray);
-    /* input */
+    
+    /* adn input */
     --adn-text-input-bg: var(--adn-transparent-drak-gray);
     --adn-text-input: var(--adn-transparent-drak-gray);
     --adn-text-contrast: var(--adn-white);
-    /* buttons */
+    
+    /* adn buttons */
     --adn-button-disabled: var(--adn-transparent-gray);
     --adn-button-active: var(--adn-black);
-    /* tabButton */
+    
+    /* adn tabButton */
     --adn-tab-button-bg: var(--adn-dark-gray);
-    /* notification error */ 
+    
+    /* adn notification error */ 
     --adn-notification-error: var(--adn-red);
     --adn-notification-error-bg: #ffbaba;
-    /* notification warning */
+    
+    /* adn notification warning */
     --adn-notification-warning: #9F6000;
     --adn-notification-warning-bg: #FEEFB3;
-    /* notification info */
+    
+    /* adn notification info */
     --adn-notification-info: #00529B;
     --adn-notification-info-bg: #BDE5F8;
-    /* notification dnt */
+    
+    /* adn notification dnt */
     --adn-notification-dnt: #4F8A10;
     --adn-notification-dnt-bg: #DFF2BF;
+    
     /* adn logger */
     --adn-logger-dnt: rgba(150,185,107,0.5);
     --adn-logger-adnallow: rgba(0,118,255,0.35);
+    
     /* adn vault */
     --adn-vault-text: var(--adn-medium-dark-gray);
     --adn-vault-highlight-text: var(--adn-light-gray);
@@ -591,8 +602,6 @@
     --adn-text: var(--adn-dark-gray);
     --adn-text-contrast: var(--adn-black);
     --adn-button-active: var(--adn-white);
-
-
     --adn-menu-text: var(--adn-medium-dark-gray);
     --adn-menu-highlight-text: var(--adn-dark-gray);
     --adn-menu-header-text: var(--adn-medium-dark-gray);
@@ -654,17 +663,6 @@
 
 /* popup menu */
 
-/* logo 
-
-:root.colorBlind #toggle-button {
-    filter: brightness(0);
-}
-:root.colorBlind #toggle-button,
-:root.colorBlind #paused-on-page {
-    color: black
-}
-*/
-
 :root.colorBlind #vault-count {
     /*background: #000000;*/
     color: white;
@@ -693,11 +691,6 @@
 :root.colorBlind #btn-ublock:hover svg:not(.colorBlind) {
     display: none;
 }
-/*
-:root.colorBlind #btn-ublock svg path {
-    fill: black;
-}
-*/
 
 :root.colorBlind .alert img {
     box-shadow: none;
@@ -712,25 +705,6 @@
     fill: inherit;
     stroke: inherit;
 }
-/* ublopck and settings buttons 
-
-:root.colorBlind #btn-settings:hover svg path,
-:root.colorBlind #btn-ublock:hover svg path {
-    fill: black;
-}
-
-:root.colorBlind #state_btn-wrapper {
-    border-color: black;
-    color: black;
-    fill: black;
-}
-
-:root.colorBlind .btn_radio:checked + .btn_radio_label {
-    background-color: black;
-    color: white;
-    fill: white;
-}
-*/
 
 /* menu disable popup */
 
@@ -780,11 +754,6 @@
 :root.colorBlind .netFilteringDialog > div.panes > .dynamic .entry {
     background-color: white;
 }
-/*
-:root.colorBlind #netInspector #filterExprPicker span[data-filtex] {
-    color: white;
-}
-*/
 
 /* notifications */
 
