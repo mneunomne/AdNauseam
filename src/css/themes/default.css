@@ -306,6 +306,8 @@
     --logger-scriptlet-surface: rgb(var(--yellow-30) / 50%);
 
     /* AdNauseam colors */
+    --adn-white: #FFFFFF;
+    --adn-black: #000000;
     --adn-blue: #0076FF;
     --adn-purple: #BD10E0;
     --adn-red: #D8000C;
@@ -328,8 +330,10 @@
     /* input */
     --adn-text-input-bg: var(--adn-transparent-drak-gray);
     --adn-text-input: var(--adn-transparent-drak-gray);
+    --adn-text-contrast: var(--adn-white);
     /* buttons */
     --adn-button-disabled: var(--adn-transparent-gray);
+    --adn-button-active: var(--adn-black);
     /* tabButton */
     --adn-tab-button-bg: var(--adn-dark-gray);
     /* notification error */ 
@@ -344,6 +348,9 @@
     /* notification dnt */
     --adn-notification-dnt: #4F8A10;
     --adn-notification-dnt-bg: #DFF2BF;
+    /* adn logger */
+    --adn-logger-dnt: rgba(150,185,107,0.5);
+    --adn-logger-adnallow: rgba(0,118,255,0.35);
     /* end AdNauseam colors */ 
 }   
 
@@ -566,12 +573,6 @@
     --popup-ruleset-tool-shadow: rgb(var(--gray-85));
 }
 
-/* AdNauseam colorBlind color scheme */
-
-:root.colorBlind {
-
-}
-
 /*
  * Experiment: use Firefox for Android dark theme colors
 :root.mobile.dark {
@@ -581,9 +582,15 @@
 }
 */
 
+/* AdNauseam colorBlind color scheme */
 
-/* Start AdNauseam ColorBlind */
+:root.colorBlind {
+    --adn-text: var(--adn-dark-gray);
+    --adn-text-contrast: var(--adn-black);
+    --adn-button-active: var(--adn-white);
+}
 
+/* backgrounds */
 :root.colorBlind body,
 :root.colorBlind #ad-list,
 :root.colorBlind #settings,
@@ -591,122 +598,39 @@
     background-image: url(../../img/gray_grid_light.png);
     background-color: white;
 }
-/*
-:root.colorBlind a:not(.tabButton) {
-    text-decoration: underline !important;
-    color: black;
-}
-*/
 
 :root.colorBlind header, :root.colorBlind footer {
     background-color: white;
 }
 
-
-:root.colorBlind button {
-
-}
-
-:root.colorBlind body,
-:root.colorBlind .question.small,
-:root.colorBlind .synopsis,
-:root.colorBlind h2 {
-    color: black;
-}
-
-
-
-/* settings slider */
-
-:root.colorBlind input[type=range] {
-    background-color: white;
-    border-color: black;
-}
-
-/*
-:root.colorBlind input[type=range]::-webkit-slider-thumb{
-    box-shadow: -320px 0 0 315px gray;
-    background-color: black;
-}
-
-:root.colorBlind input[type=range]::-moz-range-thumb {
-  background-color: dark-gray;
-}
-
-input[type=range]::-moz-range-progress {
-    background-color: gray;
-}
-*/
-
-/* icons */
-
-:root.colorBlind .fa-icon.info, 
-:root.colorBlind #lists .listEntry > .detailbar .iconbar a.mustread,
-:root.colorBlind .listExpander:not(:first-child)
- {
-    fill: black;
-    color: black;
-}
-
 /* toggle buttons */
-
-:root.colorBlind input.cmn-toggle-round-flat:checked + label {
-    background-color: black;
+:root.colorBlind input.cmn-toggle-round-flat:checked + label:before {
+    background-color: var(--adn-blue);
 }
 
-/*
-:root.colorBlind input.cmn-toggle-round-flat:checked + label:after {
+:root.colorBlind input.cmn-toggle-round-flat + label:before {
+    background-color: var(--adn-button-disabled);
+}
+
+:root.colorBlind input.cmn-toggle-round-flat + label:after {
     background-color: white;
 }
-*/
 
-/* buttons 
-
-:root.colorBlind button:not(.disabled):not(#notify-button) {
-    border-color: black;
-    color: black;
-    fill: black;
-}
-background: black;
-*/
-
-:root.colorBlind button:hover:enabled {
-    color: white;
-    fill: white;
-}
-
-/* checkboxes 
-border: 2px solid #000000;
-*/
-
-:root.colorBlind .checkbox > input[type="checkbox"] + svg {
-    background-color: transparent;
-}
-
-:root.colorBlind .checkbox > input[type="checkbox"]:checked + svg {
-    background-color: var(--adn-blue);
-    stroke: #fff;
-}
+/* checkboxes */
 
 :root.colorBlind label:hover .checkbox:not([disabled]) svg {
     background-color: gray;
-}
-
-/* my rules */
-
-:root.colorBlind .fieldset-header {
-    color: black;
 }
 
 /* nav bar */
 
 :root.colorBlind #dashboard-nav-widgets {
     background-color: white;
-    border-color: black;
+    border-color: var(--adn-blue);
 }
 
 :root.colorBlind #dashboard-nav-widgets span {
-    color: black;
+    color: var(--adn-blue);
 }
 
 :root.colorBlind .tabButton {
@@ -740,8 +664,12 @@ border: 2px solid #000000;
 
 
 :root.colorBlind #btn-settings svg path {
-    stroke: black;
     fill: white;
+}
+
+:root.colorBlind #btn-settings:hover svg path {
+    stroke: var(--adn-blue);
+    fill: var(--adn-blue);
 }
 
 #btn-ublock .colorBlind {
@@ -751,15 +679,17 @@ border: 2px solid #000000;
 
 :root.colorBlind #btn-ublock:hover svg.colorBlind {
     display: block;
+    fill: var(--adn-blue);
 }
 
 :root.colorBlind #btn-ublock:hover svg:not(.colorBlind) {
     display: none;
 }
-
+/*
 :root.colorBlind #btn-ublock svg path {
     fill: black;
 }
+*/
 
 :root.colorBlind .alert img {
     box-shadow: none;
@@ -794,10 +724,6 @@ border: 2px solid #000000;
 }
 */
 
-:root.colorBlind .btn_radio:checked + .btn_radio_label .popup_arrow svg path {
-    stroke: white;
-}
-
 /* menu disable popup */
 
 :root.colorBlind .inner-popup {
@@ -805,18 +731,11 @@ border: 2px solid #000000;
     background: white;
 }
 
-:root.colorBlind  .inner-popup .btn_radio_label {
-    color: black;
-}
-
+/*
 :root.colorBlind .btn_radio:hover + .btn_radio_label {
     color: gray;
 }
-
-:root.colorBlind .popup_arrow svg path {
-    stroke: black;
-}
-
+*/
 
 /* popup-fenix */
 
@@ -840,15 +759,6 @@ border: 2px solid #000000;
     color: black;
 }
 
-:root.colorBlind .netFilteringDialog > .panes > .details > div,
-:root.colorBlind .netFilteringDialog > div.panes > .dynamic .entry,
-:root.colorBlind .permatoolbar,
-:root.colorBlind #netInspector .entryTools, 
-:root.colorBlind #modalOverlayContainer,
-:root.colorBlind #colorKeyDialog #vwRenderer span.colorKey {
-    background-color: white;
-}
-
 :root.colorBlind .netFilteringDialog > .headers > .header {
     color: black;
 }
@@ -862,10 +772,11 @@ border: 2px solid #000000;
 :root.colorBlind .netFilteringDialog > div.panes > .dynamic .entry {
     background-color: white;
 }
-
+/*
 :root.colorBlind #netInspector #filterExprPicker span[data-filtex] {
     color: white;
 }
+*/
 
 /* notifications */
 
@@ -880,7 +791,11 @@ border: 2px solid #000000;
 :root.colorBlind button.info {
     background-color: white;
     box-shadow: none;
+}
 
+:root.colorBlind a.help-mark,
+:root.colorBlind button:hover:enabled {
+    color: white !important;
 }
 
 :rott.colorBlind .notification.error,

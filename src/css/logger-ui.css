@@ -276,7 +276,7 @@ body[dir="rtl"] #netInspector #filterExprPicker {
     overflow: hidden;
     position: absolute;
     width: 100%;
-    color:#ddd;
+    color: var(--adn-text-contrast);
     }
 #vwRenderer .logEntry:empty {
     display: none;
@@ -307,20 +307,20 @@ body[dir="rtl"] #netInspector #filterExprPicker {
     }
 body.colorBlind #vwRenderer .logEntry > div[data-status="2"],
 body.colorBlind #netFilteringDialog > .panes > .details > div[data-status="2"] {
-    background-color: rgba(255, 194, 57, 0.25)
+    background-color: rgba(255, 194, 57, 0.25);
     }
 /* adn allow color*/
 #vwRenderer .logEntry > div[data-status="4"],
 #netFilteringDialog > .panes > .details > div[data-status="4"] {
-    background-color: rgba(0,118,255,0.35);
+    background-color: var(--adn-logger-adnallow);
     }
 /* dnt allow color */
 #vwRenderer .logEntry > div[data-status="5"],
 #netFilteringDialog > .panes > .details > div[data-status="5"] {
-    background-color: rgba(150,185,107,0.5);
+    background-color: var(--adn-logger-dnt);
     }
 #vwRenderer .logEntry > div[data-tabid="-1"] {
-    text-shadow: 0 0.2em 0.4em #aaa;
+    /*text-shadow: 0 0.2em 0.4em #aaa; */ /* ADN comment*/ 
     }
     /* Cosmetic Color */
 #vwRenderer .logEntry > div.cosmeticRealm,
@@ -783,7 +783,7 @@ body[dir="rtl"] .netFilteringDialog > .panes > .details > div > span:nth-of-type
     opacity: 1;
     }
 .netFilteringDialog > .panes > .details .exceptored .filter {
-    text-decoration: line-through;
+    text-decor;ation: line-through;
     }
 .netFilteringDialog > .panes > .details .exceptored .exceptor {
     background-color: rgb(var(--primary-50) / 50%);

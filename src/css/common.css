@@ -257,8 +257,8 @@ button {
 
 button:hover:enabled{
   background: var(--adn-blue);
-  color: #000;
-  fill: #000;
+  color: var(--adn-button-active);
+  fill: var(--adn-button-active);
   cursor: pointer;
 }
 
@@ -613,8 +613,6 @@ textarea {
     font-size: 90%;
 }
 input, select {
-      background: var(--adn-text-input-bg);
-      color: #ccc;
       border: solid 1px #999;
       border-radius: 2px;
 }
@@ -638,7 +636,7 @@ a:hover {
 .question.large {
   font-size: 30px;
   font-weight: 700;
-  color: #fff;
+  color: var(--adn-text-contrast);
   text-transform: uppercase;
   line-height: 1em;
   font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
@@ -648,7 +646,7 @@ a:hover {
 .question.small {
   font-size: 24px;
   font-weight: 700;
-  color: #fff;
+  color: var(--adn-text-contrast);
   text-transform: uppercase;
   line-height: 1em;
   font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
@@ -971,7 +969,7 @@ label:hover .checkbox:not([disabled]) svg {
 .checkbox > input[type="checkbox"]:checked + svg {
     background-color: var(--adn-blue);
     border-color: var(--adn-blue);
-    stroke: #000;
+    stroke: var(--adn-button-active);
     }
 .checkbox[disabled],
 .checkbox[disabled] ~ span {
@@ -1044,7 +1042,7 @@ select {
     margin: var(--font-size);
     }
 .fieldset-header {
-  color: #ccc;
+  color: var(--adn-text-contrast);
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0.5px;

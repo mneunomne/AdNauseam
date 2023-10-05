@@ -13,7 +13,7 @@ h2, h3 {
 h2 {
     font-size: 18px;
     /*font-weight: 700;*/
-    color: #fff;
+    color: var(--adn-text-contrast);
     text-transform: uppercase;
     line-height: 1em;
     font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
@@ -26,6 +26,11 @@ h3 {
 a {
     text-decoration: none;
     }
+
+#userSettings .fa-icon:hover { /* adn */
+    transform: scale(1.25);
+}
+
 .fa-icon.info { /*ADN color*/
     color: var(--info0-ink);
     fill: var(--info0-ink);
@@ -34,8 +39,8 @@ a {
     opacity: 1;
     }
 .fa-icon.info.important { /*ADN color*/
-    color: #9F6000;
-    fill: #9F6000;
+    color: var(--adn-notification-warning);
+    fill: var(--adn-notification-warning);
     }
     /*ADN no need for this
 .fa-icon.info.important:hover {

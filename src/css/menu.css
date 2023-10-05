@@ -179,6 +179,10 @@ button.disabled {
   background: var(--adn-disabled-button);
 }
 
+.btn_radio:checked + .btn_radio_label .popup_arrow svg path {
+  stroke: var(--adn-button-active);
+}
+
 a.hide {
   display: none;
 }
@@ -195,11 +199,6 @@ button {
   font-size: 20px;
   height: 30px;
   padding-top: 2px;
-}
-
-button:hover:enabled{
-  background: var(--adn-blue);
-  color: #000;
 }
 
 .alert {
@@ -756,7 +755,7 @@ body.en .btn_radio_label {
 
 .btn_radio:checked + .btn_radio_label {
   background: var(--adn-blue);
-  color: white;
+  color: var(--adn-button-active);
   fill: #000;
   opacity: 1;
 }
@@ -783,7 +782,7 @@ body.en .btn_radio_label {
 }
 
 .btn_radio:hover + .btn_radio_label {
-  color: white;
+  color: var(--adn-text-contrast);
 }
 
 .btn_radio:checked + .btn_radio_label {
