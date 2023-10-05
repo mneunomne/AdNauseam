@@ -351,6 +351,9 @@
     /* adn logger */
     --adn-logger-dnt: rgba(150,185,107,0.5);
     --adn-logger-adnallow: rgba(0,118,255,0.35);
+    /* adn vault */
+    --adn-vault-text: var(--adn-medium-dark-gray);
+    --adn-vault-highlight-text: var(--adn-light-gray);
     /* end AdNauseam colors */ 
 }   
 
@@ -588,6 +591,11 @@
     --adn-text: var(--adn-dark-gray);
     --adn-text-contrast: var(--adn-black);
     --adn-button-active: var(--adn-white);
+
+
+    --adn-menu-text: var(--adn-medium-dark-gray);
+    --adn-menu-highlight-text: var(--adn-dark-gray);
+    --adn-menu-header-text: var(--adn-medium-dark-gray);
 }
 
 /* backgrounds */

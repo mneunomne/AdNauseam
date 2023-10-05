@@ -91,7 +91,6 @@ body {
 .myStatistics-panel h4{
 	font-size:16px;
 	line-height:22px;
-	color:#EEE;
 }
 .myStatistics-panel li span{
 	line-height:18px;
@@ -1172,3 +1171,47 @@ html.mobile #stats {
 html.mobile .session-sum, html.mobile #actions {
 	font-size: 21px !important;
 }
+
+/* coloBlind mode (light mode) */
+
+:root.colorBlind .myStatistics-panel {
+	background-color: #ffffffe0;
+}
+
+:root.colorBlind .session-sum {
+	color: #ffffff;
+}
+
+:root.colorBlind .zoom {
+	background: #ffffff;
+}
+
+:root.colorBlind #x-close-button {
+	color: #a0a0a0;
+}
+
+:root.colorBlind #x-close-button:hover {
+	color: #585858;
+}
+
+:root.colorBlind  .axis text {
+	fill: white;
+}
+:root.colorBlind .chart-bg {
+	fill-opacity: 0.5;
+	fill: white;
+}
+
+#x-close-button:hover {
+	color: #585858;
+}
+
+button.small {
+	font-weight: 700;
+}
+
+/*
+:root.colorBlind .myStatistics-label span {
+	color: white;
+}
+*/

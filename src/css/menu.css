@@ -175,6 +175,10 @@ button.disabled {
   pointer-events: none;
 }
 
+#state_btn-wrapper.disabled svg path {
+  stroke: var(--adn-disabled-button);
+}
+
 #state_btn-wrapper.disabled .btn_radio:checked + .btn_radio_label {
   background: var(--adn-disabled-button);
 }
@@ -517,7 +521,7 @@ span.adStatus:before {
 /* -------------------------------------------------- */
 
 .ad-item-text {
-  padding: 10px 20px 0 100px;
+  padding: 10px 20px 0 120px;
   font-size: 13px;
   overflow: hidden;
 }
@@ -540,11 +544,11 @@ span.adStatus:before {
 
 .ad-item-text .ads-creative {
   font-size: 0.8em;
-  color: #979797;
+  color: var(--adn-menu-highlight-text);
 }
 
 .ad-item-text h3 a {
-  color: #ababab;
+  color: var(--adn-menu-highlight-text);
   text-decoration: none;
   font-size: 0.8em;
   display: block;
