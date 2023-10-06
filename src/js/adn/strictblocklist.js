@@ -97,7 +97,6 @@ const cmEditor = new CodeMirror(
         lineNumbers: true,
         lineWrapping: true,
         styleActiveLine: true,
-        theme:'pastel-on-dark'
     }
 );
 

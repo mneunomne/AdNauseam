@@ -42,8 +42,8 @@ body.working #actions button {
     min-width: 20px;
     }
 .listExpander:not(:first-child) {
-    color: #0076FF; /* adn blue */
-    fill: #0076FF; /* adn blue */
+    color: var(--adn-blue); /* adn blue */
+    fill: var(--adn-blue); /* adn blue */
     }
 .listExpander svg {
     transform: rotate(90deg);

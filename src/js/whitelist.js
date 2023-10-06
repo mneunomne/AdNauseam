@@ -25,6 +25,8 @@
 
 import { i18n$ } from './i18n.js';
 import { dom, qs$ } from './dom.js';
+import { getActualTheme } from './theme.js';
+
 
 /******************************************************************************/
 
@@ -89,12 +91,17 @@ const noopFunc = function(){};
 
 let cachedWhitelist = '';
 
+const userSettings = await messaging.send('dashboard', {
+    what: 'userSettings',
+});
+
+console.log("userSettings", userSettings)
+
 const cmEditor = new CodeMirror(qs$('#whitelist'), {
     autofocus: true,
     lineNumbers: true,
     lineWrapping: true,
     styleActiveLine: true,
-    theme:'pastel-on-dark' // adn
 });
 
 uBlockDashboard.patchCodeMirrorEditor(cmEditor);

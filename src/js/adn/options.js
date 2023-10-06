@@ -25,6 +25,7 @@
 
 import { i18n$ } from '../i18n.js';
 import uDom from './uDom.js';
+import { setAccentColor, setTheme } from '../theme.js';
 
 import {
   isMobile,
@@ -126,15 +127,23 @@ const synchronizeDOM = function () {
 /******************************************************************************/
 
 const changeUserSettings = function (name, value) {
+  console.log("changeUserSettings", name, value)
   Promise.all([
     vAPI.messaging.send('dashboard', {
       what: 'userSettings',
       name,
       value,
-    }),
+    })
   ]).then(() => {
     updateGroupState();
   });
+  // reflect some changes immediately
+  switch ( name ) {
+    case 'colorBlindFriendly':
+        console.log("colorBlindFriendly", value)
+        setTheme(value ? 'colorBlind' : 'dark', true);
+        break;
+    }
 };
 
 /******************************************************************************/

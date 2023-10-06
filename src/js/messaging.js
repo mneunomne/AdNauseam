@@ -398,7 +398,7 @@ const onMessage = function(request, sender, callback) {
             uiAccentCustom0: µb.userSettings.uiAccentCustom0,
             uiAccentStylesheet: µb.uiAccentStylesheet,
             uiStyles: µb.hiddenSettings.uiStyles,
-            uiTheme: µb.userSettings.uiTheme,
+            uiTheme: µb.userSettings.colorBlindFriendly ? 'colorBlind' : µb.userSettings.uiTheme,
         };
         break;
 
