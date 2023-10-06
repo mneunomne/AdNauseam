@@ -223,7 +223,7 @@ const µBlock = {  // jshint ignore:line
         'facebook.com',
         'gmail.com',
         'instagram.com',
-        'spotify.com'
+        'open.spotify.com'
     ],
     // end of Adn
     localSettings: {
