@@ -612,7 +612,7 @@
 :root.colorBlind #ad-list,
 :root.colorBlind #settings,
 :root.colorBlind .disabled #paused-menu {
-    background-image: url(../../img/gray_grid_light.png);
+    background-image: none;
     background-color: white;
 }
 
