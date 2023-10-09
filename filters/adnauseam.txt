@@ -11,7 +11,7 @@
 ##.bstn-ad-rail--expanded.bstn-ad-rail
 
 # avoid forced redirects #2405
-*##+js(set, window.open, undefined)
+# *##+js(set, window.open, undefined)
 *##+js(window-close-if, /plan/select?popup=noads)
 
 # Generic exceptions
