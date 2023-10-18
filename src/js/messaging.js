@@ -120,6 +120,7 @@ const onMessage = function(request, sender, callback) {
             dontCache: true,
             needSourceURL: true,
         }).then(result => {
+            result.trustedSource = µb.isTrustedList(result.assetKey);
             callback(result);
         });
         return;
@@ -252,11 +253,14 @@ const onMessage = function(request, sender, callback) {
             );
             out.push(`+ Unsupported filters (${bad.length}): ${JSON.stringify(bad, replacer, 2)}`);
             out.push(`+ generichide exclusions (${network.generichideExclusions.length}): ${JSON.stringify(network.generichideExclusions, replacer, 2)}`);
-            out.push(`+ Cosmetic filters: ${result.specificCosmetic.size}`);
-            for ( const details of result.specificCosmetic ) {
-                out.push(`    ${JSON.stringify(details)}`);
+            if ( result.specificCosmetic ) {
+                out.push(`+ Cosmetic filters: ${result.specificCosmetic.size}`);
+                for ( const details of result.specificCosmetic ) {
+                    out.push(`    ${JSON.stringify(details)}`);
+                }
+            } else {
+                out.push('  Cosmetic filters: 0');
             }
-
             callback(out.join('\n'));
         });
         return;
@@ -649,11 +653,10 @@ const launchReporter = async function(request) {
     const entries = await io.getUpdateAges({
         filters: µb.selectedFilterLists.slice()
     });
-    let shouldUpdateLists = false;
+    const shouldUpdateLists = [];
     for ( const entry of entries ) {
         if ( entry.age < (2 * 60 * 60 * 1000) ) { continue; }
-        io.purge(entry.assetKey);
-        shouldUpdateLists = true;
+        shouldUpdateLists.push(entry.assetKey);
     }
 
     // https://github.com/gorhill/uBlock/commit/6efd8eb#commitcomment-107523558
@@ -681,8 +684,8 @@ const launchReporter = async function(request) {
     const supportURL = new URL(vAPI.getURL('support.html'));
     supportURL.searchParams.set('pageURL', request.pageURL);
     supportURL.searchParams.set('popupPanel', JSON.stringify(request.popupPanel));
-    if ( shouldUpdateLists ) {
-        supportURL.searchParams.set('shouldUpdate', 1);
+    if ( shouldUpdateLists.length ) {
+        supportURL.searchParams.set('shouldUpdateLists', JSON.stringify(shouldUpdateLists));
     }
     return supportURL.href;
 };
@@ -1685,7 +1688,6 @@ const onMessage = function(request, sender, callback) {
             response.preparseDirectiveHints =
                 sfp.utils.preparser.getHints();
             response.expertMode = µb.hiddenSettings.filterAuthorMode;
-            response.filterOnHeaders = µb.hiddenSettings.filterOnHeaders;
         }
         if ( request.hintUpdateToken !== µb.pageStoresToken ) {
             response.originHints = getOriginHints();
@@ -2142,6 +2144,21 @@ const onMessage = function(request, sender, callback) {
             url: `/asset-viewer.html?url=${url}&title=${title}&subscribe=1${hash}`,
             select: true,
         });
+        break;
+
+    case 'updateLists':
+        const listkeys = request.listkeys.split(',').filter(s => s !== '');
+        if ( listkeys.length === 0 ) { return; }
+        for ( const listkey of listkeys ) {
+            io.purge(listkey);
+            io.remove(`compiled/${listkey}`);
+        }
+        µb.scheduleAssetUpdater(0);
+        µb.openNewTab({
+            url: 'dashboard.html#3p-filters.html',
+            select: true,
+        });
+        io.updateStart({ delay: 100 });
         break;
 
     default:

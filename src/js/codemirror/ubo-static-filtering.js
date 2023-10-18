@@ -37,14 +37,13 @@ const preparseDirectiveHints = [];
 const originHints = [];
 let hintHelperRegistered = false;
 
-
 /******************************************************************************/
 
-let filterOnHeaders = false;
+let trustedSource = false;
 
-CodeMirror.defineOption('filterOnHeaders', false, (cm, state) => {
-    filterOnHeaders = state;
-    self.dispatchEvent(new Event('filterOnHeaders'));
+CodeMirror.defineOption('trustedSource', false, (cm, state) => {
+    trustedSource = state;
+    self.dispatchEvent(new Event('trustedSource'));
 });
 
 /******************************************************************************/
@@ -52,6 +51,7 @@ CodeMirror.defineOption('filterOnHeaders', false, (cm, state) => {
 CodeMirror.defineMode('ubo-static-filtering', function() {
     const astParser = new sfp.AstFilterParser({
         interactive: true,
+        trustedSource,
         nativeCssHas: vAPI.webextFlavor.env.includes('native_css_has'),
     });
     const astWalker = astParser.getWalker();
@@ -214,11 +214,11 @@ CodeMirror.defineMode('ubo-static-filtering', function() {
         return '+';
     };
 
-    self.addEventListener('filterOnHeaders', ( ) => {
-        astParser.options.filterOnHeaders = filterOnHeaders;
+    self.addEventListener('trustedSource', ( ) => {
+        astParser.options.trustedSource = trustedSource;
     });
 
-    return {
+   return {
         lineComment: '!',
         token: function(stream) {
             if ( stream.sol() ) {
@@ -990,8 +990,8 @@ CodeMirror.registerHelper('fold', 'ubo-static-filtering', (( ) => {
         }
     };
 
-    self.addEventListener('filterOnHeaders', ( ) => {
-        astParser.options.filterOnHeaders = filterOnHeaders;
+    self.addEventListener('trustedSource', ( ) => {
+        astParser.options.trustedSource = trustedSource;
     });
 
     CodeMirror.defineInitHook(cm => {

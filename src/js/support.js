@@ -213,8 +213,9 @@ const reportedPage = (( ) => {
             dom.text(option, parsedURL.href);
             select.append(option);
         }
-        if ( url.searchParams.get('shouldUpdate') !== null ) {
-            dom.cl.add(dom.body, 'shouldUpdate');
+        const shouldUpdateLists = url.searchParams.get('shouldUpdateLists');
+        if ( shouldUpdateLists !== null ) {
+            dom.body.dataset.shouldUpdateLists = shouldUpdateLists;
         }
         dom.cl.add(dom.body, 'filterIssue');
         return {
@@ -253,8 +254,12 @@ function reportSpecificFilterIssue() {
 }
 
 async function updateFilterLists() {
+    if ( dom.body.dataset.shouldUpdateLists === undefined ) { return false; }
     dom.cl.add(dom.body, 'updating');
+    const assetKeys = JSON.parse(dom.body.dataset.shouldUpdateLists);
+    vAPI.messaging.send('dashboard', { what: 'purgeCaches', assetKeys });
     vAPI.messaging.send('dashboard', { what: 'forceUpdateAssets' });
+    return true;
 }
 
 /******************************************************************************/
@@ -284,9 +289,9 @@ uBlockDashboard.patchCodeMirrorEditor(cmEditor);
     });
 
     if ( reportedPage !== null ) {
-        if ( dom.cl.has(dom.body, 'shouldUpdate') ) {
+        if ( dom.body.dataset.shouldUpdateLists ) {
             dom.on('.supportEntry.shouldUpdate button', 'click', ev => {
-                updateFilterLists();
+                if ( updateFilterLists() === false ) { return; }
                 ev.preventDefault();
             });
         }

@@ -48,6 +48,7 @@ const cmEditor = new CodeMirror(qs$('#userFilters'), {
     styleActiveLine: {
         nonEmpty: true,
     },
+    trustedSource: true,
 });
 
 uBlockDashboard.patchCodeMirrorEditor(cmEditor);
@@ -70,9 +71,6 @@ let cachedUserFilters = '';
         if ( response instanceof Object === false ) { return; }
         if ( response.hintUpdateToken !== undefined ) {
             const mode = cmEditor.getMode();
-            if ( typeof response.filterOnHeaders === 'boolean' ) {
-                cmEditor.setOption('filterOnHeaders', response.filterOnHeaders);
-            }
             if ( mode.setHints instanceof Function ) {
                 mode.setHints(response);
             }

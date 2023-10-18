@@ -583,7 +583,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 
     const compiledFilters = this.compileFilters(filters, {
         assetKey: this.userFiltersPath,
-        isTrusted: true,
+        trustedSource: true,
     });
     const snfe = staticNetFilteringEngine;
     const cfe = cosmeticFilteringEngine;
@@ -936,7 +936,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
                 µb.inMemoryFiltersCompiled =
                     µb.compileFilters(µb.inMemoryFilters.join('\n'), {
                         assetKey: 'in-memory',
-                        isTrusted: true,
+                        trustedSource: true,
                     });
             }
             if ( µb.inMemoryFiltersCompiled !== '' ) {
@@ -1004,7 +1004,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 
     const compiledContent = this.compileFilters(rawDetails.content, {
         assetKey,
-        isTrusted: this.isTrustedList(assetKey),
+        trustedSource: this.isTrustedList(assetKey),
     });
     io.put(compiledPath, compiledContent);
 
@@ -1069,9 +1069,10 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
 
     // Populate the writer with information potentially useful to the
     // client compilers.
+    const trustedSource = details.trustedSource === true;
     if ( details.assetKey ) {
         writer.properties.set('name', details.assetKey);
-        writer.properties.set('isTrusted', details.isTrusted === true);
+        writer.properties.set('trustedSource', trustedSource);
     }
     const assetName = details.assetKey ? details.assetKey : '?';
     const expertMode =
@@ -1079,7 +1080,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
         this.hiddenSettings.filterAuthorMode !== false;
     const parser = new sfp.AstFilterParser({
         expertMode,
-        filterOnHeaders: µb.hiddenSettings.filterOnHeaders,
+        trustedSource,
         maxTokenLength: staticNetFilteringEngine.MAX_TOKEN_LENGTH,
         nativeCssHas: vAPI.webextFlavor.env.includes('native_css_has'),
     });
@@ -1653,7 +1654,7 @@ self.addEventListener('hiddenSettingsChanged', ( ) => {
                             'compiled/' + details.assetKey,
                             this.compileFilters(details.content, {
                                 assetKey: details.assetKey,
-                                isTrusted: this.isTrustedList(details.assetKey),
+                                trustedSource: this.isTrustedList(details.assetKey),
                             })
                         );
                     }

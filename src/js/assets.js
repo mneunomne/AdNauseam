@@ -30,6 +30,7 @@ import adnauseam from './adn/core.js'
 import dnt from './adn/dnt.js'
 import { i18n$ } from './i18n.js';
 import * as sfp from './static-filtering-parser.js';
+import { ubolog } from './console.js';
 
 /******************************************************************************/
 
@@ -42,6 +43,55 @@ const assets = {};
 // A hint for various pieces of code to take measures if possible to save
 // bandwidth of remote servers.
 let remoteServerFriendly = false;
+
+const resourceTimeFromXhr = xhr => {
+    try {
+        // First lookup timestamp from content
+        let assetTime = 0;
+        if ( typeof xhr.response === 'string' ) {
+            const head = xhr.response.slice(0, 512);
+            const match = /^! Last modified: (.+)$/m.exec(head);
+            if ( match ) {
+                assetTime = (new Date(match[1])).getTime() || 0;
+            }
+        }
+        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Age
+        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date
+        let networkTime = 0;
+        const age = parseInt(xhr.getResponseHeader('Age'), 10);
+        if ( isNaN(age) === false ) {
+            const time = (new Date(xhr.getResponseHeader('Date'))).getTime();
+            if ( isNaN(time) === false ) {
+                networkTime = time - age * 1000;
+            }
+        }
+        return Math.max(assetTime, networkTime, 0);
+    } catch(_) {
+    }
+    return 0;
+};
+
+const resourceTimeFromParts = (parts, time) => {
+    const goodParts = parts.filter(part => typeof part === 'object');
+    return goodParts.reduce((acc, part) =>
+        ((part.resourceTime || 0) > acc ? part.resourceTime : acc),
+        time
+    );
+};
+
+const resourceIsStale = (networkDetails, cacheDetails) => {
+    if ( typeof networkDetails.resourceTime !== 'number' ) { return false; }
+    if ( networkDetails.resourceTime === 0 ) { return false; }
+    if ( typeof cacheDetails.resourceTime !== 'number' ) { return false; }
+    if ( cacheDetails.resourceTime === 0 ) { return false; }
+    if ( networkDetails.resourceTime < cacheDetails.resourceTime ) {
+        ubolog(`Skip ${networkDetails.url}\n\tolder than ${cacheDetails.remoteURL}`);
+        return true;
+    }
+    return false;
+};
+
+const stringIsNotEmpty = s => typeof s === 'string' && s !== '';
 
 /******************************************************************************/
 
@@ -115,6 +165,7 @@ assets.fetch = function(url, options = {}) {
         if (dnt.isDoNotTrackUrl(url)) {
             dnt.processEntries(this.response);
         }
+        details.resourceTime = resourceTimeFromXhr(this);
         resolve(details);
     };
 
@@ -318,19 +369,21 @@ assets.fetchFilterList = async function(mainlistURL) {
     ];
     // Abort processing `include` directives if at least one included sublist
     // can't be fetched.
+    let resourceTime = 0;
     do {
         allParts = await Promise.all(allParts);
-        const part = allParts.find(part => {
-            return typeof part === 'object' && part.error !== undefined;
-        });
+        const part = allParts
+            .find(part => typeof part === 'object' && part.error !== undefined);
         if ( part !== undefined ) {
             return { url: mainlistURL, content: '', error: part.error };
         }
+        resourceTime = resourceTimeFromParts(allParts, resourceTime);
         allParts = processIncludeDirectives(allParts);
     } while ( allParts.some(part => typeof part !== 'string') );
     // If we reach this point, this means all fetches were successful.
     return {
         url: mainlistURL,
+        resourceTime,
         content: allParts.length === 1
             ? allParts[0]
             : allParts.join('') + '\n'
@@ -353,7 +406,7 @@ assets.fetchFilterList = async function(mainlistURL) {
 let assetSourceRegistryPromise;
 let assetSourceRegistry = Object.create(null);
 
-const getAssetSourceRegistry = function() {
+function getAssetSourceRegistry() {
     if ( assetSourceRegistryPromise === undefined ) {
         assetSourceRegistryPromise = cacheStorage.get(
             'assetSourceRegistry'
@@ -379,9 +432,9 @@ const getAssetSourceRegistry = function() {
     }
 
     return assetSourceRegistryPromise;
-};
+}
 
-const registerAssetSource = function(assetKey, newDict) {
+function registerAssetSource(assetKey, newDict) {
     const currentDict = assetSourceRegistry[assetKey] || {};
     for ( const [ k, v ] of Object.entries(newDict) ) {
         if ( v === undefined || v === null ) {
@@ -415,12 +468,12 @@ const registerAssetSource = function(assetKey, newDict) {
         currentDict.submitTime = Date.now(); // To detect stale entries
     }
     assetSourceRegistry[assetKey] = currentDict;
-};
+}
 
-const unregisterAssetSource = function(assetKey) {
+function unregisterAssetSource(assetKey) {
     assetCacheRemove(assetKey);
     delete assetSourceRegistry[assetKey];
-};
+}
 
 const saveAssetSourceRegistry = (( ) => {
     const save = ( ) => {
@@ -437,7 +490,14 @@ const saveAssetSourceRegistry = (( ) => {
     };
 })();
 
-const updateAssetSourceRegistry = function(json, silent = false) {
+async function assetSourceGetDetails(assetKey) {
+    await getAssetSourceRegistry();
+    const entry = assetSourceRegistry[assetKey];
+    if ( entry === undefined ) { return; }
+    return entry;
+}
+
+function updateAssetSourceRegistry(json, silent = false) {
     let newDict;
     try {
         newDict = JSON.parse(json);
@@ -473,7 +533,7 @@ const updateAssetSourceRegistry = function(json, silent = false) {
         registerAssetSource(assetKey, newDict[assetKey]);
     }
     saveAssetSourceRegistry();
-};
+}
 
 assets.registerAssetSource = async function(assetKey, details) {
     await getAssetSourceRegistry();
@@ -498,7 +558,7 @@ const assetCacheRegistryStartTime = Date.now();
 let assetCacheRegistryPromise;
 let assetCacheRegistry = {};
 
-const getAssetCacheRegistry = function() {
+function getAssetCacheRegistry() {
     if ( assetCacheRegistryPromise === undefined ) {
         assetCacheRegistryPromise = cacheStorage.get(
             'assetCacheRegistry'
@@ -528,7 +588,7 @@ const getAssetCacheRegistry = function() {
     }
 
     return assetCacheRegistryPromise;
-};
+}
 
 const saveAssetCacheRegistry = (( ) => {
     const save = function() {
@@ -545,7 +605,7 @@ const saveAssetCacheRegistry = (( ) => {
     };
 })();
 
-const assetCacheRead = async function(assetKey, updateReadTime = false) {
+async function assetCacheRead(assetKey, updateReadTime = false) {
     const t0 = Date.now();
     const internalKey = `cache/${assetKey}`;
 
@@ -586,9 +646,9 @@ const assetCacheRead = async function(assetKey, updateReadTime = false) {
     }
 
     return reportBack(bin[internalKey]);
-};
+}
 
-const assetCacheWrite = async function(assetKey, details) {
+async function assetCacheWrite(assetKey, details) {
     let content = '';
     let options = {};
     if ( typeof details === 'string' ) {
@@ -609,6 +669,7 @@ const assetCacheWrite = async function(assetKey, details) {
         entry = cacheDict[assetKey] = {};
     }
     entry.writeTime = entry.readTime = Date.now();
+    entry.resourceTime = options.resourceTime || 0;
     if ( typeof options.url === 'string' ) {
         entry.remoteURL = options.url;
     }
@@ -623,9 +684,9 @@ const assetCacheWrite = async function(assetKey, details) {
         fireNotification('after-asset-updated', result);
     }
     return result;
-};
+}
 
-const assetCacheRemove = async function(pattern) {
+async function assetCacheRemove(pattern) {
     const cacheDict = await getAssetCacheRegistry();
     const removedEntries = [];
     const removedContent = [];
@@ -651,9 +712,39 @@ const assetCacheRemove = async function(pattern) {
             assetKey: removedEntries[i]
         });
     }
-};
+}
 
-const assetCacheMarkAsDirty = async function(pattern, exclude) {
+async function assetCacheGetDetails(assetKey) {
+    const cacheDict = await getAssetCacheRegistry();
+    const entry = cacheDict[assetKey];
+    if ( entry === undefined ) { return; }
+    return entry;
+}
+
+async function assetCacheSetDetails(assetKey, details) {
+    const cacheDict = await getAssetCacheRegistry();
+    const entry = cacheDict[assetKey];
+    if ( entry === undefined ) { return; }
+    let modified = false;
+    for ( const [ k, v ] of Object.entries(details) ) {
+        if ( v === undefined ) {
+            if ( entry[k] !== undefined ) {
+                delete entry[k];
+                modified = true;
+                continue;
+            }
+        }
+        if ( v !== entry[k] ) {
+            entry[k] = v;
+            modified = true;
+        }
+    }
+    if ( modified ) {
+        saveAssetCacheRegistry();
+    }
+}
+
+async function assetCacheMarkAsDirty(pattern, exclude) {
     const cacheDict = await getAssetCacheRegistry();
     let mustSave = false;
     for ( const assetKey in cacheDict ) {
@@ -679,13 +770,7 @@ const assetCacheMarkAsDirty = async function(pattern, exclude) {
     if ( mustSave ) {
         cacheStorage.set({ assetCacheRegistry });
     }
-};
-
-/******************************************************************************/
-
-const stringIsNotEmpty = function(s) {
-    return typeof s === 'string' && s !== '';
-};
+}
 
 /*******************************************************************************
 
@@ -811,9 +896,17 @@ assets.get = async function(assetKey, options = {}) {
 
 /******************************************************************************/
 
-const getRemote = async function(assetKey) {
-    const assetRegistry = await getAssetSourceRegistry();
-    const assetDetails = assetRegistry[assetKey] || {};
+async function getRemote(assetKey) {
+    const [
+        assetDetails = {},
+        cacheDetails = {},
+    ] = await Promise.all([
+        assetSourceGetDetails(assetKey),
+        assetCacheGetDetails(assetKey),
+    ]);
+
+    let error;
+    let stale = false;
 
     const reportBack = function(content, err) {
         const details = { assetKey, content };
@@ -871,31 +964,44 @@ const getRemote = async function(assetKey) {
 
         // Failure
         if ( stringIsNotEmpty(result.content) === false ) {
-            let error = result.statusText;
+            error = result.statusText;
             if ( result.statusCode === 0 ) {
                 error = 'network error';
             }
-            registerAssetSource(assetKey, {
-                error: { time: Date.now(), error }
-            });
             continue;
         }
 
+        error = undefined;
+
+        // If fetched resource is older than cached one, ignore
+        stale = resourceIsStale(result, cacheDetails);
+        if ( stale ) { continue; }
+
         // Success
-        assetCacheWrite(
-            assetKey,
-            { content: result.content, url: contentURL }
-        );
+        assetCacheWrite(assetKey, {
+            content: result.content,
+            url: contentURL,
+            resourceTime: result.resourceTime || 0,
+        });
         // ADN: If we've loaded a DNT list, we need to parse it
         if (dnt.isDoNotTrackUrl(assetKey)) {
             dnt.processEntries(result.content);
         }
-        registerAssetSource(assetKey, { error: undefined });
+        registerAssetSource(assetKey, { birthtime: undefined, error: undefined });
         return reportBack(result.content);
     }
 
-    return reportBack('', 'ENOTFOUND');
-};
+    if ( error !== undefined ) {
+        registerAssetSource(assetKey, { error: { time: Date.now(), error } });
+        return reportBack('', 'ENOTFOUND');
+    }
+
+    if ( stale ) {
+        assetCacheSetDetails(assetKey, { writeTime: cacheDetails.resourceTime });
+    }
+
+    return reportBack('');
+}
 
 /******************************************************************************/
 
@@ -1062,13 +1168,13 @@ const updateNext = async function() {
 
     remoteServerFriendly = false;
 
-    if ( result.content !== '' ) {
+    if ( result.error ) {
+        fireNotification('asset-update-failed', { assetKey: result.assetKey });
+    } else {
         updaterUpdated.push(result.assetKey);
-        if ( result.assetKey === 'assets.json' ) {
+        if ( result.assetKey === 'assets.json' && result.content !== '' ) {
             updateAssetSourceRegistry(result.content);
         }
-    } else {
-        fireNotification('asset-update-failed', { assetKey: result.assetKey });
     }
 
     updaterTimer.on(updaterAssetDelay);
@@ -1082,7 +1188,7 @@ const updateDone = function() {
     updaterUpdated.length = 0;
     updaterStatus = undefined;
     updaterAssetDelay = updaterAssetDelayDefault;
-    fireNotification('after-assets-updated', { assetKeys: assetKeys });
+    fireNotification('after-assets-updated', { assetKeys });
 };
 
 assets.updateStart = function(details) {

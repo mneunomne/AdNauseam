@@ -47,19 +47,24 @@ function safeSelf() {
     }
     const self = globalThis;
     const safe = {
+        'Array_from': Array.from,
         'Error': self.Error,
+        'Math_floor': Math.floor,
+        'Math_random': Math.random,
         'Object_defineProperty': Object.defineProperty.bind(Object),
         'RegExp': self.RegExp,
         'RegExp_test': self.RegExp.prototype.test,
         'RegExp_exec': self.RegExp.prototype.exec,
+        'Request_clone': self.Request.prototype.clone,
         'XMLHttpRequest': self.XMLHttpRequest,
         'addEventListener': self.EventTarget.prototype.addEventListener,
         'removeEventListener': self.EventTarget.prototype.removeEventListener,
         'fetch': self.fetch,
-        'jsonParse': self.JSON.parse.bind(self.JSON),
-        'jsonStringify': self.JSON.stringify.bind(self.JSON),
+        'JSON_parse': self.JSON.parse.bind(self.JSON),
+        'JSON_stringify': self.JSON.stringify.bind(self.JSON),
         'log': console.log.bind(console),
         uboLog(...args) {
+            if ( scriptletGlobals.has('canDebug') === false ) { return; }
             if ( args.length === 0 ) { return; }
             if ( `${args[0]}` === '' ) { return; }
             this.log('[uBO]', ...args);
@@ -68,7 +73,7 @@ function safeSelf() {
             if ( pattern === '' ) {
                 return { matchAll: true };
             }
-            const expect = (options.canNegate === true && pattern.startsWith('!') === false);
+            const expect = (options.canNegate !== true || pattern.startsWith('!') === false);
             if ( expect === false ) {
                 pattern = pattern.slice(1);
             }
@@ -96,11 +101,15 @@ function safeSelf() {
             if ( details.matchAll ) { return true; }
             return this.RegExp_test.call(details.re, haystack) === details.expect;
         },
-        patternToRegex(pattern, flags = undefined) {
+        patternToRegex(pattern, flags = undefined, verbatim = false) {
             if ( pattern === '' ) { return /^/; }
             const match = /^\/(.+)\/([gimsu]*)$/.exec(pattern);
             if ( match === null ) {
-                return new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
+                const reStr = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                if ( verbatim ) {
+                    return new RegExp(`^${reStr}$`, flags);
+                }
+                return new RegExp(reStr, flags);
             }
             try {
                 return new RegExp(match[1], match[2] || flags);
@@ -132,11 +141,15 @@ function safeSelf() {
 builtinScriptlets.push({
     name: 'get-exception-token.fn',
     fn: getExceptionToken,
+    dependencies: [
+        'safe-self.fn',
+    ],
 });
 function getExceptionToken() {
+    const safe = safeSelf();
     const token =
         String.fromCharCode(Date.now() % 26 + 97) +
-        Math.floor(Math.random() * 982451653 + 982451653).toString(36);
+        safe.Math_floor(safe.Math_random() * 982451653 + 982451653).toString(36);
     const oe = self.onerror;
     self.onerror = function(msg, ...args) {
         if ( typeof msg === 'string' && msg.includes(token) ) { return true; }
@@ -211,9 +224,9 @@ function runAt(fn, when) {
 
 builtinScriptlets.push({
     name: 'run-at-html-element.fn',
-    fn: runAtHtmlElement,
+    fn: runAtHtmlElementFn,
 });
-function runAtHtmlElement(fn) {
+function runAtHtmlElementFn(fn) {
     if ( document.documentElement ) {
         fn();
         return;
@@ -415,7 +428,7 @@ function setConstantCore(
             if ( Math.abs(cValue) > 0x7FFF ) { return; }
         } else if ( trusted ) {
             if ( cValue.startsWith('{') && cValue.endsWith('}') ) {
-                try { cValue = safe.jsonParse(cValue).value; } catch(ex) { return; }
+                try { cValue = safe.JSON_parse(cValue).value; } catch(ex) { return; }
             }
         } else {
             return;
@@ -531,20 +544,20 @@ function setConstantCore(
 /******************************************************************************/
 
 builtinScriptlets.push({
-    name: 'replace-node-text-core.fn',
-    fn: replaceNodeTextCore,
+    name: 'replace-node-text.fn',
+    fn: replaceNodeTextFn,
     dependencies: [
         'run-at.fn',
         'safe-self.fn',
     ],
 });
-function replaceNodeTextCore(
+function replaceNodeTextFn(
     nodeName = '',
     pattern = '',
     replacement = ''
 ) {
     const safe = safeSelf();
-    const reNodeName = safe.patternToRegex(nodeName, 'i');
+    const reNodeName = safe.patternToRegex(nodeName, 'i', true);
     const rePattern = safe.patternToRegex(pattern, 'gms');
     const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
     const shouldLog = scriptletGlobals.has('canDebug') && extraArgs.log || 0;
@@ -568,8 +581,8 @@ function replaceNodeTextCore(
             : replacement;
         node.textContent = after;
         if ( shouldLog !== 0 ) {
-            safe.uboLog('replace-node-text-core.fn before:\n', before);
-            safe.uboLog('replace-node-text-core.fn after:\n', after);
+            safe.uboLog('replace-node-text.fn before:\n', before);
+            safe.uboLog('replace-node-text.fn after:\n', after);
         }
         return sedCount === 0 || (sedCount -= 1) !== 0;
     };
@@ -617,10 +630,11 @@ function replaceNodeTextCore(
 
 builtinScriptlets.push({
     name: 'object-prune.fn',
-    fn: objectPrune,
+    fn: objectPruneFn,
     dependencies: [
         'matches-stack-trace.fn',
         'safe-self.fn',
+        'should-log.fn',
     ],
 });
 //  When no "prune paths" argument is provided, the scriptlet is
@@ -629,7 +643,7 @@ builtinScriptlets.push({
 //
 //  https://github.com/uBlockOrigin/uBlock-issues/issues/1545
 //  - Add support for "remove everything if needle matches" case
-function objectPrune(
+function objectPruneFn(
     obj,
     rawPrunePaths,
     rawNeedlePaths,
@@ -651,8 +665,8 @@ function objectPrune(
             return;
         }
     }
-    if ( objectPrune.findOwner === undefined ) {
-        objectPrune.findOwner = (root, path, prune = false) => {
+    if ( objectPruneFn.findOwner === undefined ) {
+        objectPruneFn.findOwner = (root, path, prune = false) => {
             let owner = root;
             let chain = path;
             for (;;) {
@@ -683,7 +697,7 @@ function objectPrune(
                     const next = chain.slice(pos + 1);
                     let found = false;
                     for ( const key of Object.keys(owner) ) {
-                        found = objectPrune.findOwner(owner[key], next, prune) || found;
+                        found = objectPruneFn.findOwner(owner[key], next, prune) || found;
                     }
                     return found;
                 }
@@ -692,34 +706,34 @@ function objectPrune(
                 chain = chain.slice(pos + 1);
             }
         };
-        objectPrune.mustProcess = (root, needlePaths) => {
+        objectPruneFn.mustProcess = (root, needlePaths) => {
             for ( const needlePath of needlePaths ) {
-                if ( objectPrune.findOwner(root, needlePath) === false ) {
+                if ( objectPruneFn.findOwner(root, needlePath) === false ) {
                     return false;
                 }
             }
             return true;
         };
-        objectPrune.logJson = (json, msg, reNeedle) => {
+        objectPruneFn.logJson = (json, msg, reNeedle) => {
             if ( reNeedle.test(json) === false ) { return; }
             safeSelf().uboLog(`objectPrune()`, msg, location.hostname, json);
         };
     }
-    const jsonBefore = logLevel ? JSON.stringify(obj, null, 2) : '';
+    const jsonBefore = logLevel ? safe.JSON_stringify(obj, null, 2) : '';
     if ( logLevel === true || logLevel === 'all' ) {
-        objectPrune.logJson(jsonBefore, `prune:"${rawPrunePaths}" log:"${logLevel}"`, reLogNeedle);
+        objectPruneFn.logJson(jsonBefore, `prune:"${rawPrunePaths}" log:"${logLevel}"`, reLogNeedle);
     }
     if ( prunePaths.length === 0 ) { return; }
     let outcome = 'nomatch';
-    if ( objectPrune.mustProcess(obj, needlePaths) ) {
+    if ( objectPruneFn.mustProcess(obj, needlePaths) ) {
         for ( const path of prunePaths ) {
-            if ( objectPrune.findOwner(obj, path, true) ) {
+            if ( objectPruneFn.findOwner(obj, path, true) ) {
                 outcome = 'match';
             }
         }
     }
     if ( logLevel === outcome ) {
-        objectPrune.logJson(jsonBefore, `prune:"${rawPrunePaths}" log:"${logLevel}"`, reLogNeedle);
+        objectPruneFn.logJson(jsonBefore, `prune:"${rawPrunePaths}" log:"${logLevel}"`, reLogNeedle);
     }
     if ( outcome === 'match' ) { return obj; }
 }
@@ -918,7 +932,7 @@ function matchObjectProperties(propNeedles, ...objs) {
     }
     const safe = safeSelf();
     const haystack = {};
-    const props = Array.from(propNeedles.keys());
+    const props = safe.Array_from(propNeedles.keys());
     for ( const obj of objs ) {
         if ( obj instanceof Object === false ) { continue; }
         matchObjectProperties.extractProperties(obj, haystack, props);
@@ -936,6 +950,190 @@ function matchObjectProperties(propNeedles, ...objs) {
     }
     return true;
 }
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'json-prune-fetch-response.fn',
+    fn: jsonPruneFetchResponseFn,
+    dependencies: [
+        'match-object-properties.fn',
+        'object-prune.fn',
+        'parse-properties-to-match.fn',
+        'safe-self.fn',
+        'should-log.fn',
+    ],
+});
+function jsonPruneFetchResponseFn(
+    rawPrunePaths = '',
+    rawNeedlePaths = ''
+) {
+    const safe = safeSelf();
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
+    const logLevel = shouldLog({ log: rawPrunePaths === '' || extraArgs.log, });
+    const log = logLevel ? ((...args) => { safe.uboLog(...args); }) : (( ) => { }); 
+    const propNeedles = parsePropertiesToMatch(extraArgs.propsToMatch, 'url');
+    const stackNeedle = safe.initPattern(extraArgs.stackToMatch || '', { canNegate: true });
+    const applyHandler = function(target, thisArg, args) {
+        const fetchPromise = Reflect.apply(target, thisArg, args);
+        if ( logLevel === true ) {
+            log('json-prune-fetch-response:', JSON.stringify(Array.from(args)).slice(1,-1));
+        }
+        if ( rawPrunePaths === '' ) { return fetchPromise; }
+        let outcome = 'match';
+        if ( propNeedles.size !== 0 ) {
+            const objs = [ args[0] instanceof Object ? args[0] : { url: args[0] } ];
+            if ( objs[0] instanceof Request ) {
+                try { objs[0] = safe.Request_clone.call(objs[0]); }
+                catch(ex) { log(ex); }
+            }
+            if ( args[1] instanceof Object ) {
+                objs.push(args[1]);
+            }
+            if ( matchObjectProperties(propNeedles, ...objs) === false ) {
+                outcome = 'nomatch';
+            }
+            if ( outcome === logLevel || logLevel === 'all' ) {
+                log(
+                    `json-prune-fetch-response (${outcome})`,
+                    `\n\tfetchPropsToMatch: ${JSON.stringify(Array.from(propNeedles)).slice(1,-1)}`,
+                    '\n\tprops:', ...objs,
+                );
+            }
+        }
+        if ( outcome === 'nomatch' ) { return fetchPromise; }
+        return fetchPromise.then(responseBefore => {
+            const response = responseBefore.clone();
+            return response.json().then(objBefore => {
+                if ( typeof objBefore !== 'object' ) { return responseBefore; }
+                const objAfter = objectPruneFn(
+                    objBefore,
+                    rawPrunePaths,
+                    rawNeedlePaths,
+                    stackNeedle,
+                    extraArgs
+                );
+                if ( typeof objAfter !== 'object' ) { return responseBefore; }
+                const responseAfter = Response.json(objAfter, {
+                    status: responseBefore.status,
+                    statusText: responseBefore.statusText,
+                    headers: responseBefore.headers,
+                });
+                Object.defineProperties(responseAfter, {
+                    ok: { value: responseBefore.ok },
+                    redirected: { value: responseBefore.redirected },
+                    type: { value: responseBefore.type },
+                    url: { value: responseBefore.url },
+                });
+                return responseAfter;
+            }).catch(reason => {
+                log('json-prune-fetch-response:', reason);
+                return responseBefore;
+            });
+        }).catch(reason => {
+            log('json-prune-fetch-response:', reason);
+            return fetchPromise;
+        });
+    };
+    self.fetch = new Proxy(self.fetch, {
+        apply: applyHandler
+    });
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'replace-fetch-response.fn',
+    fn: replaceFetchResponseFn,
+    dependencies: [
+        'match-object-properties.fn',
+        'parse-properties-to-match.fn',
+        'safe-self.fn',
+        'should-log.fn',
+    ],
+});
+function replaceFetchResponseFn(
+    trusted = false,
+    pattern = '',
+    replacement = '',
+    propsToMatch = ''
+) {
+    if ( trusted !== true ) { return; }
+    const safe = safeSelf();
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 4);
+    const logLevel = shouldLog({
+        log: pattern === '' || extraArgs.log,
+    });
+    const log = logLevel ? ((...args) => { safe.uboLog(...args); }) : (( ) => { }); 
+    if ( pattern === '*' ) { pattern = '.*'; }
+    const rePattern = safe.patternToRegex(pattern);
+    const propNeedles = parsePropertiesToMatch(propsToMatch, 'url');
+    self.fetch = new Proxy(self.fetch, {
+        apply: function(target, thisArg, args) {
+            if ( logLevel === true ) {
+                log('replace-fetch-response:', JSON.stringify(Array.from(args)).slice(1,-1));
+            }
+            const fetchPromise = Reflect.apply(target, thisArg, args);
+            if ( pattern === '' ) { return fetchPromise; }
+            let outcome = 'match';
+            if ( propNeedles.size !== 0 ) {
+                const objs = [ args[0] instanceof Object ? args[0] : { url: args[0] } ];
+                if ( objs[0] instanceof Request ) {
+                    try { objs[0] = safe.Request_clone.call(objs[0]); }
+                    catch(ex) { log(ex); }
+                }
+                if ( args[1] instanceof Object ) {
+                    objs.push(args[1]);
+                }
+                if ( matchObjectProperties(propNeedles, ...objs) === false ) {
+                    outcome = 'nomatch';
+                }
+                if ( outcome === logLevel || logLevel === 'all' ) {
+                    log(
+                        `replace-fetch-response (${outcome})`,
+                        `\n\tpropsToMatch: ${JSON.stringify(Array.from(propNeedles)).slice(1,-1)}`,
+                        '\n\tprops:', ...args,
+                    );
+                }
+            }
+            if ( outcome === 'nomatch' ) { return fetchPromise; }
+            return fetchPromise.then(responseBefore => {
+                const response = responseBefore.clone();
+                return response.text().then(textBefore => {
+                    const textAfter = textBefore.replace(rePattern, replacement);
+                    const outcome = textAfter !== textBefore ? 'match' : 'nomatch';
+                    if ( outcome === logLevel || logLevel === 'all' ) {
+                        log(
+                            `replace-fetch-response (${outcome})`,
+                            `\n\tpattern: ${pattern}`, 
+                            `\n\treplacement: ${replacement}`,
+                        );
+                    }
+                    if ( outcome === 'nomatch' ) { return responseBefore; }
+                    const responseAfter = new Response(textAfter, {
+                        status: responseBefore.status,
+                        statusText: responseBefore.statusText,
+                        headers: responseBefore.headers,
+                    });
+                    Object.defineProperties(responseAfter, {
+                        ok: { value: responseBefore.ok },
+                        redirected: { value: responseBefore.redirected },
+                        type: { value: responseBefore.type },
+                        url: { value: responseBefore.url },
+                    });
+                    return responseAfter;
+                }).catch(reason => {
+                    log('replace-fetch-response:', reason);
+                    return responseBefore;
+                });
+            }).catch(reason => {
+                log('replace-fetch-response:', reason);
+                return fetchPromise;
+            });
+        }
+    });
+}
+
 
 /*******************************************************************************
 
@@ -961,7 +1159,7 @@ builtinScriptlets.push({
 // Issues to mind before changing anything:
 //  https://github.com/uBlockOrigin/uBlock-issues/issues/2154
 function abortCurrentScript(...args) {
-    runAtHtmlElement(( ) => {
+    runAtHtmlElementFn(( ) => {
         abortCurrentScriptCore(...args);
     });
 }
@@ -1193,19 +1391,10 @@ builtinScriptlets.push({
     name: 'json-prune.js',
     fn: jsonPrune,
     dependencies: [
-        'match-object-properties.fn',
         'object-prune.fn',
-        'parse-properties-to-match.fn',
         'safe-self.fn',
-        'should-log.fn',
     ],
 });
-//  When no "prune paths" argument is provided, the scriptlet is
-//  used for logging purpose and the "needle paths" argument is
-//  used to filter logging output.
-//
-//  https://github.com/uBlockOrigin/uBlock-issues/issues/1545
-//  - Add support for "remove everything if needle matches" case
 function jsonPrune(
     rawPrunePaths = '',
     rawNeedlePaths = '',
@@ -1217,7 +1406,7 @@ function jsonPrune(
     JSON.parse = new Proxy(JSON.parse, {
         apply: function(target, thisArg, args) {
             const objBefore = Reflect.apply(target, thisArg, args);
-            const objAfter = objectPrune(
+            const objAfter = objectPruneFn(
                 objBefore,
                 rawPrunePaths,
                 rawNeedlePaths,
@@ -1225,6 +1414,42 @@ function jsonPrune(
                 extraArgs
            );
            return objAfter || objBefore;
+        },
+    });
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'json-prune-stringify.js',
+    fn: jsonPruneStringify,
+    dependencies: [
+        'object-prune.fn',
+        'safe-self.fn',
+    ],
+});
+function jsonPruneStringify(
+    rawPrunePaths = '',
+    rawNeedlePaths = '',
+    stackNeedle = ''
+) {
+    const safe = safeSelf();
+    const stackNeedleDetails = safe.initPattern(stackNeedle, { canNegate: true });
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
+    JSON.stringify = new Proxy(JSON.stringify, {
+        apply: function(target, thisArg, args) {
+            const objBefore = args[0];
+            if ( objBefore instanceof Object ) {
+                const objAfter = objectPruneFn(
+                    objBefore,
+                    rawPrunePaths,
+                    rawNeedlePaths,
+                    stackNeedleDetails,
+                    extraArgs
+               );
+               args[0] = objAfter || objBefore;
+            }
+           return Reflect.apply(target, thisArg, args);
         },
     });
 }
@@ -1241,82 +1466,11 @@ builtinScriptlets.push({
     name: 'json-prune-fetch-response.js',
     fn: jsonPruneFetchResponse,
     dependencies: [
-        'match-object-properties.fn',
-        'object-prune.fn',
-        'parse-properties-to-match.fn',
-        'safe-self.fn',
-        'should-log.fn',
+        'json-prune-fetch-response.fn',
     ],
 });
-function jsonPruneFetchResponse(
-    rawPrunePaths = '',
-    rawNeedlePaths = ''
-) {
-    const safe = safeSelf();
-    const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
-    const logLevel = shouldLog({ log: rawPrunePaths === '' || extraArgs.log, });
-    const log = logLevel ? ((...args) => { safe.uboLog(...args); }) : (( ) => { }); 
-    const propNeedles = parsePropertiesToMatch(extraArgs.propsToMatch, 'url');
-    const applyHandler = function(target, thisArg, args) {
-        const fetchPromise = Reflect.apply(target, thisArg, args);
-        if ( logLevel === true ) {
-            log('json-prune-fetch-response:', JSON.stringify(Array.from(args)).slice(1,-1));
-        }
-        if ( rawPrunePaths === '' ) { return fetchPromise; }
-        let outcome = 'match';
-        if ( propNeedles.size !== 0 ) {
-            const objs = [ args[0] instanceof Object ? args[0] : { url: args[0] } ];
-            if ( args[1] instanceof Object ) {
-                objs.push(args[1]);
-            }
-            if ( matchObjectProperties(propNeedles, ...objs) === false ) {
-                outcome = 'nomatch';
-            }
-            if ( outcome === logLevel || logLevel === 'all' ) {
-                log(
-                    `json-prune-fetch-response (${outcome})`,
-                    `\n\tfetchPropsToMatch: ${JSON.stringify(Array.from(propNeedles)).slice(1,-1)}`,
-                    '\n\tprops:', ...args,
-                );
-            }
-        }
-        if ( outcome === 'nomatch' ) { return fetchPromise; }
-        return fetchPromise.then(responseBefore => {
-            const response = responseBefore.clone();
-            return response.json().then(objBefore => {
-                if ( typeof objBefore !== 'object' ) { return responseBefore; }
-                const objAfter = objectPrune(
-                    objBefore,
-                    rawPrunePaths,
-                    rawNeedlePaths,
-                    { matchAll: true },
-                    extraArgs
-                );
-                if ( typeof objAfter !== 'object' ) { return responseBefore; }
-                const responseAfter = Response.json(objAfter, {
-                    status: responseBefore.status,
-                    statusText: responseBefore.statusText,
-                    headers: responseBefore.headers,
-                });
-                Object.defineProperties(responseAfter, {
-                    ok: { value: responseBefore.ok },
-                    redirected: { value: responseBefore.redirected },
-                    type: { value: responseBefore.type },
-                    url: { value: responseBefore.url },
-                });
-                return responseAfter;
-            }).catch(reason => {
-                log('json-prune-fetch-response:', reason);
-                return responseBefore;
-            });
-        }).catch(reason => {
-            log('json-prune-fetch-response:', reason);
-            return fetchPromise;
-        });
-    };
-    self.fetch = new Proxy(self.fetch, {
-        apply: applyHandler
-    });
+function jsonPruneFetchResponse(...args) {
+    jsonPruneFetchResponseFn(...args);
 }
 
 /******************************************************************************/
@@ -1342,6 +1496,7 @@ function jsonPruneXhrResponse(
     const logLevel = shouldLog({ log: rawPrunePaths === '' || extraArgs.log, });
     const log = logLevel ? ((...args) => { safe.uboLog(...args); }) : (( ) => { }); 
     const propNeedles = parsePropertiesToMatch(extraArgs.propsToMatch, 'url');
+    const stackNeedle = safe.initPattern(extraArgs.stackToMatch || '', { canNegate: true });
     self.XMLHttpRequest = class extends self.XMLHttpRequest {
         open(method, url, ...args) {
             const xhrDetails = { method, url };
@@ -1365,9 +1520,12 @@ function jsonPruneXhrResponse(
             if ( xhrDetails === undefined ) {
                 return innerResponse;
             }
-            if ( xhrDetails.latestResponseLength != innerResponse.length ) {
+            const responseLength = typeof innerResponse === 'string'
+                ? innerResponse.length
+                : undefined;
+            if ( xhrDetails.lastResponseLength !== responseLength ) {
                 xhrDetails.response = undefined;
-                xhrDetails.latestResponseLength = innerResponse.length;
+                xhrDetails.lastResponseLength = responseLength;
             }
             if ( xhrDetails.response !== undefined ) {
                 return xhrDetails.response;
@@ -1376,23 +1534,23 @@ function jsonPruneXhrResponse(
             if ( typeof innerResponse === 'object' ) {
                 objBefore = innerResponse;
             } else if ( typeof innerResponse === 'string' ) {
-                try { objBefore = safe.jsonParse(innerResponse); }
+                try { objBefore = safe.JSON_parse(innerResponse); }
                 catch(ex) { }
             }
             if ( typeof objBefore !== 'object' ) {
                 return (xhrDetails.response = innerResponse);
             }
-            const objAfter = objectPrune(
+            const objAfter = objectPruneFn(
                 objBefore,
                 rawPrunePaths,
                 rawNeedlePaths,
-                { matchAll: true },
+                stackNeedle,
                 extraArgs
             );
             let outerResponse;
             if ( typeof objAfter === 'object' ) {
                 outerResponse = typeof innerResponse === 'string'
-                    ? safe.jsonStringify(objAfter)
+                    ? safe.JSON_stringify(objAfter)
                     : objAfter;
             } else {
                 outerResponse = innerResponse;
@@ -1427,7 +1585,7 @@ function evaldataPrune(
         apply(target, thisArg, args) {
             const before = Reflect.apply(target, thisArg, args);
             if ( typeof before === 'object' ) {
-                const after = objectPrune(before, rawPrunePaths, rawNeedlePaths);
+                const after = objectPruneFn(before, rawPrunePaths, rawNeedlePaths);
                 return after || before;
             }
             return before;
@@ -1438,11 +1596,12 @@ function evaldataPrune(
 /******************************************************************************/
 
 builtinScriptlets.push({
-    name: 'nano-setInterval-booster.js',
+    name: 'adjust-setInterval.js',
     aliases: [
+        'nano-setInterval-booster.js',
         'nano-sib.js',
     ],
-    fn: nanoSetIntervalBooster,
+    fn: adjustSetInterval,
     dependencies: [
         'safe-self.fn',
     ],
@@ -1459,7 +1618,7 @@ builtinScriptlets.push({
 // boostRatio - The delay multiplier when there is a match, 0.5 speeds up by
 //      2 times and 2 slows down by 2 times, defaults to 0.05 or speed up
 //      20 times. Speed up and down both cap at 50 times.
-function nanoSetIntervalBooster(
+function adjustSetInterval(
     needleArg = '',
     delayArg = '',
     boostArg = ''
@@ -1490,11 +1649,12 @@ function nanoSetIntervalBooster(
 /******************************************************************************/
 
 builtinScriptlets.push({
-    name: 'nano-setTimeout-booster.js',
+    name: 'adjust-setTimeout.js',
     aliases: [
+        'nano-setTimeout-booster.js',
         'nano-stb.js',
     ],
-    fn: nanoSetTimeoutBooster,
+    fn: adjustSetTimeout,
     dependencies: [
         'safe-self.fn',
     ],
@@ -1512,7 +1672,7 @@ builtinScriptlets.push({
 // boostRatio - The delay multiplier when there is a match, 0.5 speeds up by
 //      2 times and 2 slows down by 2 times, defaults to 0.05 or speed up
 //      20 times. Speed up and down both cap at 50 times.
-function nanoSetTimeoutBooster(
+function adjustSetTimeout(
     needleArg = '',
     delayArg = '',
     boostArg = ''
@@ -1647,15 +1807,18 @@ function noFetchIf(
 /******************************************************************************/
 
 builtinScriptlets.push({
-    name: 'refresh-defuser.js',
-    fn: refreshDefuser,
+    name: 'prevent-refresh.js',
+    aliases: [
+        'refresh-defuser.js',
+    ],
+    fn: preventRefresh,
     world: 'ISOLATED',
     dependencies: [
         'run-at.fn',
     ],
 });
 // https://www.reddit.com/r/uBlockOrigin/comments/q0frv0/while_reading_a_sports_article_i_was_redirected/hf7wo9v/
-function refreshDefuser(
+function preventRefresh(
     arg1 = ''
 ) {
     if ( typeof arg1 !== 'string' ) { return; }
@@ -2086,7 +2249,7 @@ function noXhrIf(
     const warOrigin = scriptletGlobals.get('warOrigin');
     const generateRandomString = len => {
             let s = '';
-            do { s += Math.random().toString(36).slice(2); }
+            do { s += safe.Math_random().toString(36).slice(2); }
             while ( s.length < 10 );
             return s.slice(0, len);
     };
@@ -2291,8 +2454,12 @@ function noWindowOpenIf(
 /******************************************************************************/
 
 builtinScriptlets.push({
-    name: 'window-close-if.js',
-    fn: windowCloseIf,
+    name: 'close-window.js',
+    aliases: [
+        'window-close-if.js',
+    ],
+    fn: closeWindow,
+    world: 'ISOLATED',
     dependencies: [
         'safe-self.fn',
     ],
@@ -2300,7 +2467,7 @@ builtinScriptlets.push({
 // https://github.com/uBlockOrigin/uAssets/issues/10323#issuecomment-992312847
 // https://github.com/AdguardTeam/Scriptlets/issues/158
 // https://github.com/uBlockOrigin/uBlock-issues/discussions/2270
-function windowCloseIf(
+function closeWindow(
     arg1 = ''
 ) {
     if ( typeof arg1 !== 'string' ) { return; }
@@ -3166,7 +3333,7 @@ builtinScriptlets.push({
     fn: removeNodeText,
     world: 'ISOLATED',
     dependencies: [
-        'replace-node-text-core.fn',
+        'replace-node-text.fn',
     ],
 });
 function removeNodeText(
@@ -3174,7 +3341,7 @@ function removeNodeText(
     condition,
     ...extraArgs
 ) {
-    replaceNodeTextCore(nodeName, '', '', 'condition', condition || '', ...extraArgs);
+    replaceNodeTextFn(nodeName, '', '', 'condition', condition || '', ...extraArgs);
 }
 
 /*******************************************************************************
@@ -3226,6 +3393,19 @@ function setCookie(
         path,
         safeSelf().getExtraArgs(Array.from(arguments), 3)
     );
+}
+
+// For compatibility with AdGuard
+builtinScriptlets.push({
+    name: 'set-cookie-reload.js',
+    fn: setCookieReload,
+    world: 'ISOLATED',
+    dependencies: [
+        'set-cookie.js',
+    ],
+});
+function setCookieReload(name, value, path, ...args) {
+    setCookie(name, value, path, 'reload', '1', ...args);
 }
 
 /*******************************************************************************
@@ -3376,6 +3556,93 @@ function setAttr(
     runAt(( ) => { start(); }, 'idle');
 }
 
+/*******************************************************************************
+ * 
+ * @scriptlet prevent-canvas
+ * 
+ * @description
+ * Prevent usage of specific or all (default) canvas APIs.
+ *
+ * ### Syntax
+ * 
+ * ```text
+ * example.com##+js(prevent-canvas [, contextType])
+ * ```
+ * 
+ * - `contextType`: A specific type of canvas API to prevent (default to all
+ *   APIs). Can be a string or regex which will be matched against the type
+ *   used in getContext() call. Prepend with `!` to test for no-match.
+ * 
+ * ### Examples
+ * 
+ * 1. Prevent `example.com` from accessing all canvas APIs
+ * 
+ * ```adblock
+ * example.com##+js(prevent-canvas)
+ * ```
+ * 
+ * 2. Prevent access to any flavor of WebGL API, everywhere
+ * 
+ * ```adblock
+ * *##+js(prevent-canvas, /webgl/)
+ * ```
+ * 
+ * 3. Prevent `example.com` from accessing any flavor of canvas API except `2d`
+ * 
+ * ```adblock
+ * example.com##+js(prevent-canvas, !2d)
+ * ```
+ * 
+ * ### References
+ * 
+ * https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext
+ * 
+ * */
+
+builtinScriptlets.push({
+    name: 'prevent-canvas.js',
+    fn: preventCanvas,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function preventCanvas(
+    contextType = ''
+) {
+    const safe = safeSelf();
+    const pattern = safe.initPattern(contextType, { canNegate: true });
+    const proto = globalThis.HTMLCanvasElement.prototype;
+    proto.getContext = new Proxy(proto.getContext, {
+        apply(target, thisArg, args) {
+            if ( safe.testPattern(pattern, args[0]) ) { return null; }
+            return Reflect.apply(target, thisArg, args);
+        }
+    });
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'multiup.js',
+    fn: multiup,
+    world: 'ISOLATED',
+});
+function multiup() {
+    const handler = ev => {
+        const target = ev.target;
+        if ( target.matches('button[link]') === false ) { return; }
+        const ancestor = target.closest('form');
+        if ( ancestor === null ) { return; }
+        if ( ancestor !== target.parentElement ) { return; }
+        const link = (target.getAttribute('link') || '').trim();
+        if ( link === '' ) { return; }
+        ev.preventDefault();
+        ev.stopPropagation();
+        document.location.href = link;
+    };
+    document.addEventListener('click', handler, { capture: true });
+}
+
 
 /*******************************************************************************
  * 
@@ -3422,7 +3689,7 @@ builtinScriptlets.push({
     fn: replaceNodeText,
     world: 'ISOLATED',
     dependencies: [
-        'replace-node-text-core.fn',
+        'replace-node-text.fn',
     ],
 });
 function replaceNodeText(
@@ -3431,7 +3698,7 @@ function replaceNodeText(
     replacement,
     ...extraArgs
 ) {
-    replaceNodeTextCore(nodeName, pattern, replacement, ...extraArgs);
+    replaceNodeTextFn(nodeName, pattern, replacement, ...extraArgs);
 }
 
 /*******************************************************************************
@@ -3519,6 +3786,20 @@ function trustedSetCookie(
     );
 }
 
+// For compatibility with AdGuard
+builtinScriptlets.push({
+    name: 'trusted-set-cookie-reload.js',
+    requiresTrust: true,
+    fn: trustedSetCookieReload,
+    world: 'ISOLATED',
+    dependencies: [
+        'trusted-set-cookie.js',
+    ],
+});
+function trustedSetCookieReload(name, value, offsetExpiresSec, path, ...args) {
+    trustedSetCookie(name, value, offsetExpiresSec, path, 'reload', '1', ...args);
+}
+
 /*******************************************************************************
  * 
  * trusted-set-local-storage-item.js
@@ -3560,86 +3841,11 @@ builtinScriptlets.push({
     requiresTrust: true,
     fn: trustedReplaceFetchResponse,
     dependencies: [
-        'match-object-properties.fn',
-        'parse-properties-to-match.fn',
-        'safe-self.fn',
-        'should-log.fn',
+        'replace-fetch-response.fn',
     ],
 });
-function trustedReplaceFetchResponse(
-    pattern = '',
-    replacement = '',
-    propsToMatch = ''
-) {
-    const safe = safeSelf();
-    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
-    const logLevel = shouldLog({
-        log: pattern === '' || extraArgs.log,
-    });
-    const log = logLevel ? ((...args) => { safe.uboLog(...args); }) : (( ) => { }); 
-    if ( pattern === '*' ) { pattern = '.*'; }
-    const rePattern = safe.patternToRegex(pattern);
-    const propNeedles = parsePropertiesToMatch(propsToMatch, 'url');
-    self.fetch = new Proxy(self.fetch, {
-        apply: function(target, thisArg, args) {
-            if ( logLevel === true ) {
-                log('trusted-replace-fetch-response:', JSON.stringify(Array.from(args)).slice(1,-1));
-            }
-            const fetchPromise = Reflect.apply(target, thisArg, args);
-            if ( pattern === '' ) { return fetchPromise; }
-            let outcome = 'match';
-            if ( propNeedles.size !== 0 ) {
-                const objs = [ args[0] instanceof Object ? args[0] : { url: args[0] } ];
-                if ( args[1] instanceof Object ) {
-                    objs.push(args[1]);
-                }
-                if ( matchObjectProperties(propNeedles, ...objs) === false ) {
-                    outcome = 'nomatch';
-                }
-                if ( outcome === logLevel || logLevel === 'all' ) {
-                    log(
-                        `trusted-replace-fetch-response (${outcome})`,
-                        `\n\tpropsToMatch: ${JSON.stringify(Array.from(propNeedles)).slice(1,-1)}`,
-                        '\n\tprops:', ...args,
-                    );
-                }
-            }
-            if ( outcome === 'nomatch' ) { return fetchPromise; }
-            return fetchPromise.then(responseBefore => {
-                const response = responseBefore.clone();
-                return response.text().then(textBefore => {
-                    const textAfter = textBefore.replace(rePattern, replacement);
-                    const outcome = textAfter !== textBefore ? 'match' : 'nomatch';
-                    if ( outcome === logLevel || logLevel === 'all' ) {
-                        log(
-                            `trusted-replace-fetch-response (${outcome})`,
-                            `\n\tpattern: ${pattern}`, 
-                            `\n\treplacement: ${replacement}`,
-                        );
-                    }
-                    if ( outcome === 'nomatch' ) { return responseBefore; }
-                    const responseAfter = new Response(textAfter, {
-                        status: responseBefore.status,
-                        statusText: responseBefore.statusText,
-                        headers: responseBefore.headers,
-                    });
-                    Object.defineProperties(responseAfter, {
-                        ok: { value: responseBefore.ok },
-                        redirected: { value: responseBefore.redirected },
-                        type: { value: responseBefore.type },
-                        url: { value: responseBefore.url },
-                    });
-                    return responseAfter;
-                }).catch(reason => {
-                    log('trusted-replace-fetch-response:', reason);
-                    return responseBefore;
-                });
-            }).catch(reason => {
-                log('trusted-replace-fetch-response:', reason);
-                return fetchPromise;
-            });
-        }
-    });
+function trustedReplaceFetchResponse(...args) {
+    replaceFetchResponseFn(true, ...args);
 }
 
 /******************************************************************************/
@@ -3694,12 +3900,18 @@ function trustedReplaceXhrResponse(
             if ( xhrDetails === undefined ) {
                 return innerResponse;
             }
-            if ( typeof innerResponse !== 'string' ) {
-                xhrDetails.response = innerResponse;
+            const responseLength = typeof innerResponse === 'string'
+                ? innerResponse.length
+                : undefined;
+            if ( xhrDetails.lastResponseLength !== responseLength ) {
+                xhrDetails.response = undefined;
+                xhrDetails.lastResponseLength = responseLength;
             }
-            let outerResponse = xhrDetails.response;
-            if ( outerResponse !== undefined ) {
-                return outerResponse;
+            if ( xhrDetails.response !== undefined ) {
+                return xhrDetails.response;
+            }
+            if ( typeof innerResponse !== 'string' ) {
+                return (xhrDetails.response = innerResponse);
             }
             const textBefore = innerResponse;
             const textAfter = textBefore.replace(rePattern, replacement);
@@ -3711,8 +3923,7 @@ function trustedReplaceXhrResponse(
                     `\n\treplacement: ${replacement}`,
                 );
             }
-            xhrDetails.response = textAfter;
-            return textAfter;
+            return (xhrDetails.response = textAfter);
         }
         get responseText() {
             const response = this.response;
@@ -3722,6 +3933,129 @@ function trustedReplaceXhrResponse(
             return response;
         }
     };
+}
+
+/*******************************************************************************
+ * 
+ * trusted-click-element.js
+ * 
+ * Reference API:
+ * https://github.com/AdguardTeam/Scriptlets/blob/master/src/scriptlets/trusted-click-element.js
+ * 
+ **/
+
+builtinScriptlets.push({
+    name: 'trusted-click-element.js',
+    requiresTrust: true,
+    fn: trustedClickElement,
+    world: 'ISOLATED',
+    dependencies: [
+        'run-at-html-element.fn',
+        'safe-self.fn',
+    ],
+});
+function trustedClickElement(
+    selectors = '',
+    extraMatch = '', // not yet supported
+    delay = ''
+) {
+    if ( extraMatch !== '' ) { return; }
+
+    const safe = safeSelf();
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
+    const uboLog = extraArgs.log !== undefined
+        ? ((...args) => { safe.uboLog(...args); })
+        : (( ) => { });
+
+    const selectorList = selectors.split(/\s*,\s*/)
+        .filter(s => {
+            try {
+                void document.querySelector(s);
+            } catch(_) {
+                return false;
+            }
+            return true;
+        });
+    if ( selectorList.length === 0 ) { return; }
+
+    const clickDelay = parseInt(delay, 10) || 1;
+    const t0 = Date.now();
+    const tbye = t0 + 10000;
+    let tnext = selectorList.length !== 1 ? t0 : t0 + clickDelay;
+
+    const terminate = ( ) => {
+        selectorList.length = 0;
+        next.stop();
+        observe.stop();
+    };
+
+    const next = notFound => {
+        if ( selectorList.length === 0 ) {
+            uboLog(`trusted-click-element: Completed`);
+            return terminate();
+        }
+        const tnow = Date.now();
+        if ( tnow >= tbye ) {
+            uboLog(`trusted-click-element: Timed out`);
+            return terminate();
+        }
+        if ( notFound ) { observe(); }
+        const delay = Math.max(notFound ? tbye - tnow : tnext - tnow, 1);
+        next.timer = setTimeout(( ) => {
+            next.timer = undefined;
+            process();
+        }, delay);
+        uboLog(`trusted-click-element: Waiting for ${selectorList[0]}...`);
+    };
+    next.stop = ( ) => {
+        if ( next.timer === undefined ) { return; }
+        clearTimeout(next.timer);
+        next.timer = undefined;
+    };
+
+    const observe = ( ) => {
+        if ( observe.observer !== undefined ) { return; }
+        observe.observer = new MutationObserver(( ) => {
+            if ( observe.timer !== undefined ) { return; }
+            observe.timer = setTimeout(( ) => {
+                observe.timer = undefined;
+                process();
+            }, 20);
+        });
+        observe.observer.observe(document, {
+            attributes: true,
+            childList: true,
+            subtree: true,
+        });
+    };
+    observe.stop = ( ) => {
+        if ( observe.timer !== undefined ) {
+            clearTimeout(observe.timer);
+            observe.timer = undefined;
+        }
+        if ( observe.observer ) {
+            observe.observer.disconnect();
+            observe.observer = undefined;
+        }
+    };
+
+    const process = ( ) => {
+        next.stop();
+        if ( Date.now() < tnext ) { return next(); }
+        const selector = selectorList.shift();
+        if ( selector === undefined ) { return terminate(); }
+        const elem = document.querySelector(selector);
+        if ( elem === null ) {
+            selectorList.unshift(selector);
+            return next(true);
+        }
+        uboLog(`trusted-click-element: Clicked ${selector}`);
+        elem.click();
+        tnext += clickDelay;
+        next();
+    };
+
+    runAtHtmlElementFn(process);
 }
 
 /******************************************************************************/

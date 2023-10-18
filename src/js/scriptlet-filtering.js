@@ -19,6 +19,8 @@
     Home: https://github.com/gorhill/uBlock
 */
 
+/* globals browser */
+
 'use strict';
 
 /******************************************************************************/
@@ -60,6 +62,55 @@ const scriptletFilteringEngine = {
         return scriptletDB.size;
     },
 };
+
+const contentScriptRegisterer = new (class {
+    constructor() {
+        this.hostnameToDetails = new Map();
+    }
+    register(hostname, code) {
+        if ( browser.contentScripts === undefined ) { return false; }
+        const details = this.hostnameToDetails.get(hostname);
+        if ( details !== undefined ) {
+            if ( code === details.code ) {
+                return details.handle instanceof Promise === false;
+            }
+            details.handle.unregister();
+            this.hostnameToDetails.delete(hostname);
+        }
+        const promise = browser.contentScripts.register({
+            js: [ { code } ],
+            allFrames: true,
+            matches: [ `*://*.${hostname}/*` ],
+            matchAboutBlank: true,
+            runAt: 'document_start',
+        }).then(handle => {
+            this.hostnameToDetails.set(hostname, { handle, code });
+        });
+        this.hostnameToDetails.set(hostname, { handle: promise, code });
+        return false;
+    }
+    unregister(hostname) {
+        if ( this.hostnameToDetails.size === 0 ) { return; }
+        const details = this.hostnameToDetails.get(hostname);
+        if ( details === undefined ) { return; }
+        this.hostnameToDetails.delete(hostname);
+        this.unregisterHandle(details.handle);
+    }
+    reset() {
+        if ( this.hostnameToDetails.size === 0 ) { return; }
+        for ( const details of this.hostnameToDetails.values() ) {
+            this.unregisterHandle(details.handle);
+        }
+        this.hostnameToDetails.clear();
+    }
+    unregisterHandle(handle) {
+        if ( handle instanceof Promise ) {
+            handle.then(handle => { handle.unregister(); });
+        } else {
+            handle.unregister();
+        }
+    }
+})();
 
 // Purpose of `contentscriptCode` below is too programmatically inject
 // content script code which only purpose is to inject scriptlets. This
@@ -141,7 +192,6 @@ const isolatedWorldInjector = (( ) => {
     return {
         parts,
         jsonSlot: parts.indexOf('json-slot'),
-        scriptletSlot: parts.indexOf('scriptlet-slot'),
         assemble: function(hostname, scriptlets) {
             this.parts[this.jsonSlot] = JSON.stringify({ hostname });
             const code = this.parts.join('');
@@ -184,7 +234,8 @@ const lookupScriptlet = function(rawToken, mainMap, isolatedMap) {
     while ( dependencies.length !== 0 ) {
         const token = dependencies.shift();
         if ( targetWorldMap.has(token) ) { continue; }
-        const details = reng.contentFromName(token, 'fn/javascript');
+        const details = reng.contentFromName(token, 'fn/javascript') ||
+            reng.contentFromName(token, 'text/javascript');
         if ( details === undefined ) { continue; }
         targetWorldMap.set(token, details.js);
         if ( Array.isArray(details.dependencies) === false ) { continue; }
@@ -239,6 +290,7 @@ scriptletFilteringEngine.logFilters = function(tabId, url, filters) {
 scriptletFilteringEngine.reset = function() {
     scriptletDB.clear();
     duplicates.clear();
+    contentScriptRegisterer.reset();
     scriptletCache.reset();
     acceptedCount = 0;
     discardedCount = 0;
@@ -255,7 +307,7 @@ scriptletFilteringEngine.compile = function(parser, writer) {
 
     // Only exception filters are allowed to be global.
     const isException = parser.isException();
-    const normalized = normalizeRawFilter(parser, writer.properties.get('isTrusted'));
+    const normalized = normalizeRawFilter(parser, writer.properties.get('trustedSource'));
 
     // Can fail if there is a mismatch with trust requirement
     if ( normalized === undefined ) { return; }
@@ -441,25 +493,24 @@ scriptletFilteringEngine.injectNow = function(details) {
     request.domain = domainFromHostname(request.hostname);
     request.entity = entityFromDomain(request.domain);
     const scriptletDetails = this.retrieve(request);
-    if ( scriptletDetails === undefined ) { return; }
+    if ( scriptletDetails === undefined ) {
+        contentScriptRegisterer.unregister(request.hostname);
+        return;
+    }
+    const contentScript = [];
+    if ( µb.hiddenSettings.debugScriptletInjector ) {
+        contentScript.push('debugger');
+    }
     const { mainWorld = '', isolatedWorld = '', filters } = scriptletDetails;
     if ( mainWorld !== '' ) {
-        let code = mainWorldInjector.assemble(request.hostname, mainWorld, filters);
-        if ( µb.hiddenSettings.debugScriptletInjector ) {
-            code = 'debugger;\n' + code;
-        }
-        vAPI.tabs.executeScript(details.tabId, {
-            code,
-            frameId: details.frameId,
-            matchAboutBlank: true,
-            runAt: 'document_start',
-        });
+        contentScript.push(mainWorldInjector.assemble(request.hostname, mainWorld, filters));
     }
     if ( isolatedWorld !== '' ) {
-        let code = isolatedWorldInjector.assemble(request.hostname, isolatedWorld);
-        if ( µb.hiddenSettings.debugScriptletInjector ) {
-            code = 'debugger;\n' + code;
-        }
+        contentScript.push(isolatedWorldInjector.assemble(request.hostname, isolatedWorld));
+    }
+    const code = contentScript.join('\n\n');
+    const isAlreadyInjected = contentScriptRegisterer.register(request.hostname, code);
+    if ( isAlreadyInjected !== true ) {
         vAPI.tabs.executeScript(details.tabId, {
             code,
             frameId: details.frameId,
