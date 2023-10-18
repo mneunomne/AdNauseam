@@ -761,11 +761,7 @@ const onHeadersReceived = function (details) {
     const { responseHeaders } = details;
     if (Array.isArray(responseHeaders) === false) { return; }
 
-<<<<<<< HEAD
-    if (isRootDoc === false && µb.hiddenSettings.filterOnHeaders === true) {
-=======
     if ( isRootDoc === false ) {
->>>>>>> upstream1.52.3b16
         const result = pageStore.filterOnHeaders(fctxt, responseHeaders);
         if (result !== 0) {
             if (logger.enabled) {

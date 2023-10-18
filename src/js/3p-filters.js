@@ -155,7 +155,8 @@ const renderFilterLists = ( ) => {
         if ( asset.cached === true ) {
             dom.cl.add(listEntry, 'cached');
             dom.attr(qs$(listEntry, ':scope > .detailbar .status.cache'), 'title', lastUpdateString);
-<<<<<<< HEAD
+            const timeSinceLastUpdate = Date.now() - asset.writeTime;
+            dom.cl.toggle(listEntry, 'recent', timeSinceLastUpdate < recentlyUpdated);
             // AdNauseam update button
             let button = listEntry.querySelector('#buttonUpdateAdNauseam');
             if ( button != null ) {
@@ -167,10 +168,6 @@ const renderFilterLists = ( ) => {
                         )
                 );
             }
-=======
-            const timeSinceLastUpdate = Date.now() - asset.writeTime;
-            dom.cl.toggle(listEntry, 'recent', timeSinceLastUpdate < recentlyUpdated);
->>>>>>> upstream1.52.3b16
         } else {
             dom.cl.remove(listEntry, 'cached');
         }
