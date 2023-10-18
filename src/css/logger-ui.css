@@ -53,7 +53,7 @@ textarea {
 
 #colorKeyDialog #vwRenderer span.colorKey { /* ADN */
     border: 1px dotted var(--border-1);
-    background: black;
+    background: var(--adn-button-active);
     width: 100px;
     display: inline-block;
     text-align: center;
