@@ -789,3 +789,9 @@
 :rott.colorBlind button.warning:hover:enabled {
     background-color: black;
 }
+
+/* export dialog */
+:rott.colorBlind #export-dialog {
+    background: white;
+    border-color: var(--adn-blue);
+}
