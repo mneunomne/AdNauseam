@@ -178,11 +178,14 @@ const typeValueToDNRTypeName = [
     'other',
 ];
 
+// Do not change order. Compiled filter lists rely on this order being
+// consistent across sessions.
 const MODIFIER_TYPE_REDIRECT = 1;
 const MODIFIER_TYPE_REDIRECTRULE = 2;
 const MODIFIER_TYPE_REMOVEPARAM = 3;
 const MODIFIER_TYPE_CSP = 4;
 const MODIFIER_TYPE_PERMISSIONS = 5;
+const MODIFIER_TYPE_URLTRANSFORM = 6;
 
 const modifierTypeFromName = new Map([
     [ 'redirect', MODIFIER_TYPE_REDIRECT ],
@@ -190,6 +193,7 @@ const modifierTypeFromName = new Map([
     [ 'removeparam', MODIFIER_TYPE_REMOVEPARAM ],
     [ 'csp', MODIFIER_TYPE_CSP ],
     [ 'permissions', MODIFIER_TYPE_PERMISSIONS ],
+    [ 'urltransform', MODIFIER_TYPE_URLTRANSFORM ],
 ]);
 
 const modifierNameFromType = new Map([
@@ -198,6 +202,7 @@ const modifierNameFromType = new Map([
     [ MODIFIER_TYPE_REMOVEPARAM, 'removeparam' ],
     [ MODIFIER_TYPE_CSP, 'csp' ],
     [ MODIFIER_TYPE_PERMISSIONS, 'permissions' ],
+    [ MODIFIER_TYPE_URLTRANSFORM, 'urltransform' ],
 ]);
 
 //const typeValueFromCatBits = catBits => (catBits >>> TypeBitsOffset) & 0b11111;
@@ -2643,39 +2648,43 @@ class FilterBucket extends FilterCollection {
     }
 
     static optimize(idata, optimizeBits = 0b11) {
-        if ( filterData[idata+2] >= 3 && (optimizeBits & 0b01) !== 0 ) {
-            const iplaintrie = this.optimizePatternTests(idata);
-            if ( iplaintrie !== 0 ) {
-                const icollection = filterData[idata+1];
-                const i = filterData[icollection+1];
-                if ( i === 0 ) { return iplaintrie; }
-                this.unshift(idata, iplaintrie);
+        if ( (optimizeBits & 0b01) !== 0 ) {
+            if ( filterData[idata+2] >= 3 ) {
+                const iplaintrie = this.optimizePatternTests(idata);
+                if ( iplaintrie !== 0 ) {
+                    const icollection = filterData[idata+1];
+                    const i = filterData[icollection+1];
+                    if ( i === 0 ) { return iplaintrie; }
+                    this.unshift(idata, iplaintrie);
+                }
             }
         }
-        if ( filterData[idata+2] >= 5 && (optimizeBits & 0b10) !== 0 ) {
-            const ioptimized = this.optimizeMatch(
-                idata,
-                FilterBucketIfOriginHits,
-                5
-            );
-            if ( ioptimized !== 0 ) {
-                const icollection = filterData[idata+1];
-                const i = filterData[icollection+1];
-                if ( i === 0 ) { return ioptimized; }
-                this.unshift(idata, ioptimized);
+        if ( (optimizeBits & 0b10) !== 0 ) {
+            if ( filterData[idata+2] >= 5 ) {
+                const ioptimized = this.optimizeMatch(
+                    idata,
+                    FilterBucketIfOriginHits,
+                    5
+                );
+                if ( ioptimized !== 0 ) {
+                    const icollection = filterData[idata+1];
+                    const i = filterData[icollection+1];
+                    if ( i === 0 ) { return ioptimized; }
+                    this.unshift(idata, ioptimized);
+                }
             }
-        }
-        if ( filterData[idata+2] >= 5 && (optimizeBits & 0b10) !== 0 ) {
-            const ioptimized = this.optimizeMatch(
-                idata,
-                FilterBucketIfRegexHits,
-                5
-            );
-            if ( ioptimized !== 0 ) {
-                const icollection = filterData[idata+1];
-                const i = filterData[icollection+1];
-                if ( i === 0 ) { return ioptimized; }
-                this.unshift(idata, ioptimized);
+            if ( filterData[idata+2] >= 5 ) {
+                const ioptimized = this.optimizeMatch(
+                    idata,
+                    FilterBucketIfRegexHits,
+                    5
+                );
+                if ( ioptimized !== 0 ) {
+                    const icollection = filterData[idata+1];
+                    const i = filterData[icollection+1];
+                    if ( i === 0 ) { return ioptimized; }
+                    this.unshift(idata, ioptimized);
+                }
             }
         }
         return 0;
@@ -3178,6 +3187,7 @@ class FilterCompiler {
             [ sfp.NODE_TYPE_NET_OPTION_NAME_REDIRECT, MODIFIER_TYPE_REDIRECT ],
             [ sfp.NODE_TYPE_NET_OPTION_NAME_REDIRECTRULE, MODIFIER_TYPE_REDIRECTRULE ],
             [ sfp.NODE_TYPE_NET_OPTION_NAME_REMOVEPARAM, MODIFIER_TYPE_REMOVEPARAM ],
+            [ sfp.NODE_TYPE_NET_OPTION_NAME_URLTRANSFORM, MODIFIER_TYPE_URLTRANSFORM ],
         ]);
         // These top 100 "bad tokens" are collated using the "miss" histogram
         // from tokenHistograms(). The "score" is their occurrence among the
@@ -3480,6 +3490,12 @@ class FilterCompiler {
                 if ( this.toDomainOpt === '' ) { return false; }
                 this.optionUnitBits |= this.TO_BIT;
                 break;
+            case sfp.NODE_TYPE_NET_OPTION_NAME_URLTRANSFORM:
+                if ( this.processModifierOption(id, parser.getNetOptionValue(id)) === false ) {
+                    return false;
+                }
+                this.optionUnitBits |= this.REDIRECT_BIT;
+                break;
             default:
                 break;
         }
@@ -3571,6 +3587,7 @@ class FilterCompiler {
             case sfp.NODE_TYPE_NET_OPTION_NAME_REDIRECTRULE:
             case sfp.NODE_TYPE_NET_OPTION_NAME_REMOVEPARAM:
             case sfp.NODE_TYPE_NET_OPTION_NAME_TO:
+            case sfp.NODE_TYPE_NET_OPTION_NAME_URLTRANSFORM:
                 if ( this.processOptionWithValue(parser, type) === false ) {
                     return this.FILTER_INVALID;
                 }
@@ -4517,6 +4534,20 @@ FilterContainer.prototype.dnrFromCompiled = function(op, context, ...args) {
                 dnrAddRuleError(rule, 'Unsupported modifier exception');
             }
             break;
+        case 'urltransform': {
+            const path = rule.__modifierValue;
+            let priority = rule.priority || 1;
+            if ( rule.__modifierAction !== AllowAction ) {
+                const transform = { path };
+                rule.action.type = 'redirect';
+                rule.action.redirect = { transform };
+                rule.priority = priority + 1;
+            } else {
+                rule.action.type = 'block';
+                rule.priority = priority + 2;
+            }
+            break;
+        }
         default:
             dnrAddRuleError(rule, `Unsupported modifier ${rule.__modifierType}`);
             break;
@@ -4996,25 +5027,25 @@ FilterContainer.prototype.realmMatchString = function(
     let tokenHash = DOT_TOKEN_HASH;
     if (
         (ibucket00 !== 0) &&
-        (iunit = bucket00.get(tokenHash) || 0) !== 0 &&
+        (iunit = bucket00.get(DOT_TOKEN_HASH) || 0) !== 0 &&
         (filterMatch(iunit) === true)
     ) {
         catBits = catBits00;
     } else if (
         (ibucket01 !== 0) &&
-        (iunit = bucket01.get(tokenHash) || 0) !== 0 &&
+        (iunit = bucket01.get(DOT_TOKEN_HASH) || 0) !== 0 &&
         (filterMatch(iunit) === true)
     ) {
         catBits = catBits01;
     } else if (
         (ibucket10 !== 0) &&
-        (iunit = bucket10.get(tokenHash) || 0) !== 0 &&
+        (iunit = bucket10.get(DOT_TOKEN_HASH) || 0) !== 0 &&
         (filterMatch(iunit) === true)
     ) {
         catBits = catBits10;
     } else if (
         (ibucket11 !== 0) &&
-        (iunit = bucket11.get(tokenHash) || 0) !== 0 &&
+        (iunit = bucket11.get(DOT_TOKEN_HASH) || 0) !== 0 &&
         (filterMatch(iunit) === true)
     ) {
         catBits = catBits11;
@@ -5281,12 +5312,16 @@ FilterContainer.prototype.matchHeaders = function(fctxt, headers) {
     $httpHeaders.init(headers);
 
     let r = 0;
-    if ( this.realmMatchString(HEADERS | BlockImportant, typeBits, partyBits) ) {
+    if ( this.realmMatchString(HEADERS | BlockAction, typeBits, partyBits) ) {
         r = 1;
-    } else if ( this.realmMatchString(HEADERS | BlockAction, typeBits, partyBits) ) {
-        r = this.realmMatchString(HEADERS | AllowAction, typeBits, partyBits)
-            ? 2
-            : 1;
+    }
+    if ( r !== 0 && $isBlockImportant !== true ) {
+        if ( this.realmMatchString(HEADERS | AllowAction, typeBits, partyBits) ) {
+            r = 2;
+            if ( this.realmMatchString(HEADERS | BlockImportant, typeBits, partyBits) ) {
+                r = 1;
+            }
+        }
     }
 
     $httpHeaders.reset();
@@ -5307,18 +5342,28 @@ FilterContainer.prototype.redirectRequest = function(redirectEngine, fctxt) {
     }
     // Redirect to highest-ranked directive
     const directive = directives[highest];
-    if ( (directive.bits & AllowAction) === 0 ) {
-        const { token } = parseRedirectRequestValue(directive);
-        fctxt.redirectURL = redirectEngine.tokenToURL(fctxt, token);
-        if ( fctxt.redirectURL === undefined ) { return; }
-    }
+    if ( (directive.bits & AllowAction) !== 0 ) { return directives; }
+    const { token } = parseRedirectRequestValue(directive);
+    fctxt.redirectURL = redirectEngine.tokenToURL(fctxt, token);
+    if ( fctxt.redirectURL === undefined ) { return; }
+    return directives;
+};
+
+FilterContainer.prototype.transformRequest = function(fctxt) {
+    const directives = this.matchAndFetchModifiers(fctxt, 'urltransform');
+    if ( directives === undefined ) { return; }
+    const directive = directives[directives.length-1];
+    if ( (directive.bits & AllowAction) !== 0 ) { return directives; }
+    const redirectURL = new URL(fctxt.url);
+    if ( directive.value === redirectURL.pathname ) { return; }
+    redirectURL.pathname = directive.value;
+    fctxt.redirectURL = redirectURL.href;
     return directives;
 };
 
 function parseRedirectRequestValue(directive) {
     if ( directive.cache === null ) {
-        directive.cache =
-            sfp.parseRedirectValue(directive.value);
+        directive.cache = sfp.parseRedirectValue(directive.value);
     }
     return directive.cache;
 }

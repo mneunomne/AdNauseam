@@ -73,7 +73,6 @@ import './codemirror/ubo-static-filtering.js';
     });
     if ( hints instanceof Object ) {
         const mode = cmEditor.getMode();
-        cmEditor.setOption('filterOnHeaders', hints.filterOnHeaders === true);
         if ( mode.setHints instanceof Function ) {
             mode.setHints(hints);
         }
@@ -83,6 +82,7 @@ import './codemirror/ubo-static-filtering.js';
         what : 'getAssetContent',
         url: assetKey,
     });
+    cmEditor.setOption('trustedSource', details.trustedSource === true);
     cmEditor.setValue(details && details.content || '');
 
     if ( subscribeElem !== null ) {

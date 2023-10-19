@@ -386,12 +386,7 @@ const onBeforeRootFrameRequest = function (fctxt) {
 
     // https://github.com/uBlockOrigin/uBlock-issues/issues/760
     //   Redirect non-blocked request?
-    if (
-        result !== 1 &&
-        trusted === false &&
-        pageStore !== null &&
-        staticNetFilteringEngine.hasQuery(fctxt)
-    ) {
+    if ( result !== 1 && trusted === false && pageStore !== null ) {
         // Q: fctxt is often undefined here, but we've already referenced its type and tabId ??
         logRedirect(fctxt, 'beforeRequest.non-blocked'); // ADN: redirect unblocked
         pageStore.redirectNonBlockedRequest(fctxt);
@@ -766,7 +761,7 @@ const onHeadersReceived = function (details) {
     const { responseHeaders } = details;
     if (Array.isArray(responseHeaders) === false) { return; }
 
-    if (isRootDoc === false && µb.hiddenSettings.filterOnHeaders === true) {
+    if ( isRootDoc === false ) {
         const result = pageStore.filterOnHeaders(fctxt, responseHeaders);
         if (result !== 0) {
             if (logger.enabled) {

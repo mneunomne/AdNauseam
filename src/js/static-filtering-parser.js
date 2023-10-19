@@ -188,6 +188,7 @@ export const NODE_TYPE_NET_OPTION_NAME_REMOVEPARAM  = iota++;
 export const NODE_TYPE_NET_OPTION_NAME_SCRIPT       = iota++;
 export const NODE_TYPE_NET_OPTION_NAME_SHIDE        = iota++;
 export const NODE_TYPE_NET_OPTION_NAME_TO           = iota++;
+export const NODE_TYPE_NET_OPTION_NAME_URLTRANSFORM = iota++;
 export const NODE_TYPE_NET_OPTION_NAME_XHR          = iota++;
 export const NODE_TYPE_NET_OPTION_NAME_WEBRTC       = iota++;
 export const NODE_TYPE_NET_OPTION_NAME_WEBSOCKET    = iota++;
@@ -267,6 +268,7 @@ export const nodeTypeFromOptionName = new Map([
     [ 'shide', NODE_TYPE_NET_OPTION_NAME_SHIDE ],
     /* synonym */ [ 'specifichide', NODE_TYPE_NET_OPTION_NAME_SHIDE ],
     [ 'to', NODE_TYPE_NET_OPTION_NAME_TO ],
+    [ 'urltransform', NODE_TYPE_NET_OPTION_NAME_URLTRANSFORM ],
     [ 'xhr', NODE_TYPE_NET_OPTION_NAME_XHR ],
     /* synonym */ [ 'xmlhttprequest', NODE_TYPE_NET_OPTION_NAME_XHR ],
     [ 'webrtc', NODE_TYPE_NET_OPTION_NAME_WEBRTC ],
@@ -595,6 +597,105 @@ const exCharCodeAt = (s, i) => {
 
 /******************************************************************************/
 
+class argListParser {
+    constructor(separatorChar = ',', mustQuote = false) {
+        this.separatorChar = this.actualSeparatorChar = separatorChar;
+        this.separatorCode = this.actualSeparatorCode = separatorChar.charCodeAt(0);
+        this.mustQuote = mustQuote;
+        this.quoteBeg = 0; this.quoteEnd = 0;
+        this.argBeg = 0; this.argEnd = 0;
+        this.separatorBeg = 0; this.separatorEnd = 0;
+        this.transform = false;
+        this.failed = false;
+        this.reWhitespaceStart = /^\s+/;
+        this.reWhitespaceEnd = /\s+$/;
+        this.reOddTrailingEscape = /(?:^|[^\\])(?:\\\\)*\\$/;
+        this.reEscapedDoubleQuote = /((?:^|[^\\])(?:\\\\)*)\\"/g;
+        this.reEscapedSingleQuote = /((?:^|[^\\])(?:\\\\)*)\\'/g;
+        this.reEscapedBacktick = /((?:^|[^\\])(?:\\\\)*)\\`/g;
+        this.reEscapedSeparator = new RegExp(`((?:^|[^\\\\])(?:\\\\\\\\)*)\\\\${this.separatorChar}`, 'g');
+        this.unescapedSeparator = `$1${this.separatorChar}`;
+    }
+    nextArg(pattern, beg = 0) {
+        const len = pattern.length;
+        this.quoteBeg = beg + this.leftWhitespaceCount(pattern.slice(beg));
+        this.failed = false;
+        const qc = pattern.charCodeAt(this.quoteBeg);
+        if ( qc === 0x22 /* " */ || qc === 0x27 /* ' */ || qc === 0x60 /* ` */ ) {
+            this.indexOfNextArgSeparator(pattern, qc);
+            if ( this.argEnd !== len ) {
+                this.quoteEnd = this.argEnd + 1;
+                this.separatorBeg = this.separatorEnd = this.quoteEnd;
+                this.separatorEnd += this.leftWhitespaceCount(pattern.slice(this.quoteEnd));
+                if ( this.separatorEnd === len ) { return this; }
+                if ( pattern.charCodeAt(this.separatorEnd) === this.separatorCode ) {
+                    this.separatorEnd += 1;
+                    return this;
+                }
+            }
+        }
+        this.indexOfNextArgSeparator(pattern, this.separatorCode);
+        this.separatorBeg = this.separatorEnd = this.argEnd;
+        if ( this.separatorBeg < len ) {
+            this.separatorEnd += 1;
+        }
+        this.argEnd -= this.rightWhitespaceCount(pattern.slice(0, this.separatorBeg));
+        this.quoteEnd = this.argEnd;
+        if ( this.mustQuote ) {
+            this.failed = true;
+        }
+        return this;
+    }
+    normalizeArg(s) {
+        switch ( this.actualSeparatorCode ) {
+        case 0x22 /* " */:
+            if ( s.includes('"') === false ) { return; }
+            return s.replace(this.reEscapedDoubleQuote, '$1"');
+        case 0x27 /* ' */:
+            if ( s.includes("'") === false ) { return; }
+            return s.replace(this.reEscapedSingleQuote, "$1'");
+        case 0x60 /* ` */:
+            if ( s.includes('`') === false ) { return; }
+            return s.replace(this.reEscapedBacktick, '$1`');
+        default:
+            break;
+        }
+        if ( s.includes(this.separatorChar) === false ) { return; }
+        return s.replace(this.reEscapedSeparator, this.unescapedSeparator);
+    }
+    leftWhitespaceCount(s) {
+        const match = this.reWhitespaceStart.exec(s);
+        return match === null ? 0 : match[0].length;
+    }
+    rightWhitespaceCount(s) {
+        const match = this.reWhitespaceEnd.exec(s);
+        return match === null ? 0 : match[0].length;
+    }
+    indexOfNextArgSeparator(pattern, separatorCode) {
+        this.argBeg = this.argEnd = separatorCode !== this.separatorCode
+            ? this.quoteBeg + 1
+            : this.quoteBeg;
+        this.transform = false;
+        if ( separatorCode !== this.actualSeparatorCode ) {
+            this.actualSeparatorCode = separatorCode;
+            this.actualSeparatorChar = String.fromCharCode(separatorCode);
+        }
+        while ( this.argEnd < pattern.length ) {
+            const pos = pattern.indexOf(this.actualSeparatorChar, this.argEnd);
+            if ( pos === -1 ) {
+                return (this.argEnd = pattern.length);
+            }
+            if ( this.reOddTrailingEscape.test(pattern.slice(0, pos)) === false ) {
+                return (this.argEnd = pos);
+            }
+            this.transform = true;
+            this.argEnd = pos + 1;
+        }
+    }
+}
+
+/******************************************************************************/
+
 class AstWalker {
     constructor(parser, from = 0) {
         this.parser = parser;
@@ -795,11 +896,8 @@ export class AstFilterParser {
         this.rePatternScriptletJsonArgs = /^\{.*\}$/;
         this.reGoodRegexToken = /[^\x01%0-9A-Za-z][%0-9A-Za-z]{7,}|[^\x01%0-9A-Za-z][%0-9A-Za-z]{1,6}[^\x01%0-9A-Za-z]/;
         this.reBadCSP = /(?:=|;)\s*report-(?:to|uri)\b/;
-        this.reOddTrailingEscape = /(?:^|[^\\])(?:\\\\)*\\$/;
-        this.reUnescapeCommas = /((?:^|[^\\])(?:\\\\)*)\\,/g;
-        this.reUnescapeSingleQuotes = /((?:^|[^\\])(?:\\\\)*)\\'/g;
-        this.reUnescapeDoubleQuotes = /((?:^|[^\\])(?:\\\\)*)\\"/g;
         this.reNoopOption = /^_+$/;
+        this.scriptletArgListParser = new argListParser(',');
     }
 
     parse(raw) {
@@ -1279,7 +1377,7 @@ export class AstFilterParser {
                     realBad = isException === false || isNegated || hasValue;
                     break;
                 case NODE_TYPE_NET_OPTION_NAME_HEADER:
-                    realBad = this.options.filterOnHeaders !== true || isNegated || hasValue === false;
+                    realBad = isNegated || hasValue === false;
                     break;
                 case NODE_TYPE_NET_OPTION_NAME_IMPORTANT:
                     realBad = isException || isNegated || hasValue;
@@ -1315,6 +1413,7 @@ export class AstFilterParser {
                     break;
                 case NODE_TYPE_NET_OPTION_NAME_REDIRECT:
                 case NODE_TYPE_NET_OPTION_NAME_REDIRECTRULE:
+                case NODE_TYPE_NET_OPTION_NAME_URLTRANSFORM:
                     realBad = isNegated || (isException || hasValue) === false ||
                         modifierType !== 0;
                     if ( realBad ) { break; }
@@ -1374,6 +1473,14 @@ export class AstFilterParser {
                 realBad = abstractTypeCount || behaviorTypeCount || unredirectableTypeCount;
                 break;
             }
+            case NODE_TYPE_NET_OPTION_NAME_URLTRANSFORM:
+                realBad = abstractTypeCount || behaviorTypeCount || unredirectableTypeCount ||
+                    this.options.trustedSource !== true;
+                if ( realBad !== true ) {
+                    const path = this.getNetOptionValue(NODE_TYPE_NET_OPTION_NAME_URLTRANSFORM);
+                    realBad = path.charCodeAt(0) !== 0x2F /* / */;
+                }
+                break;
             case NODE_TYPE_NET_OPTION_NAME_REMOVEPARAM:
                 realBad = abstractTypeCount || behaviorTypeCount;
                 break;
@@ -2213,7 +2320,9 @@ export class AstFilterParser {
         const s = this.getNodeString(parent);
         const argsEnd = s.length;
         // token
-        const details = this.parseExtPatternScriptletArg(s, 0);
+        this.scriptletArgListParser.mustQuote = 
+            this.getFlags(AST_FLAG_EXT_SCRIPTLET_ADG) !== 0;
+        const details = this.scriptletArgListParser.nextArg(s, 0);
         if ( details.argBeg > 0 ) {
             next = this.allocTypedNode(
                 NODE_TYPE_EXT_DECORATION,
@@ -2272,7 +2381,7 @@ export class AstFilterParser {
         let decorationBeg = 0;
         let i = 0;
         for (;;) {
-            const details = this.parseExtPatternScriptletArg(s, i);
+            const details = this.scriptletArgListParser.nextArg(s, i);
             if ( decorationBeg < details.argBeg ) {
                 next = this.allocTypedNode(
                     NODE_TYPE_EXT_DECORATION,
@@ -2288,10 +2397,10 @@ export class AstFilterParser {
                 parentBeg + details.argEnd
             );
             if ( details.transform ) {
-                this.setNodeTransform(next, this.normalizeScriptletArg(
-                    s.slice(details.argBeg, details.argEnd),
-                    details.separatorCode
-                ));
+                const arg = s.slice(details.argBeg, details.argEnd);
+                this.setNodeTransform(next,
+                    this.scriptletArgListParser.normalizeArg(arg)
+                );
             }
             prev = this.linkRight(prev, next);
             if ( details.failed ) {
@@ -2302,79 +2411,6 @@ export class AstFilterParser {
             i = details.separatorEnd;
         }
         return this.throwHeadNode(head);
-    }
-
-    parseExtPatternScriptletArg(pattern, beg = 0) {
-        if ( this.parseExtPatternScriptletArg.details === undefined ) {
-            this.parseExtPatternScriptletArg.details = {
-                quoteBeg: 0, argBeg: 0, argEnd: 0, quoteEnd: 0,
-                separatorCode: 0, separatorBeg: 0, separatorEnd: 0,
-                transform: false, failed: false,
-            };
-        }
-        const details = this.parseExtPatternScriptletArg.details;
-        const len = pattern.length;
-        details.quoteBeg = beg + this.leftWhitespaceCount(pattern.slice(beg));
-        details.failed = false;
-        const qc = pattern.charCodeAt(details.quoteBeg);
-        if ( qc === 0x22 /* " */ || qc === 0x27 /* ' */ ) {
-            details.separatorCode = qc;
-            details.argBeg = details.argEnd = details.quoteBeg + 1;
-            details.transform = false;
-            this.indexOfNextScriptletArgSeparator(pattern, details);
-            if ( details.argEnd !== len ) {
-                details.quoteEnd = details.argEnd + 1;
-                details.separatorBeg = details.separatorEnd = details.quoteEnd;
-                details.separatorEnd += this.leftWhitespaceCount(pattern.slice(details.quoteEnd));
-                if ( details.separatorEnd === len ) { return details; }
-                if ( pattern.charCodeAt(details.separatorEnd) === 0x2C ) {
-                    details.separatorEnd += 1;
-                    return details;
-                }
-            }
-        }
-        details.separatorCode = 0x2C /* , */;
-        details.argBeg = details.argEnd = details.quoteBeg;
-        details.transform = false;
-        this.indexOfNextScriptletArgSeparator(pattern, details);
-        details.separatorBeg = details.separatorEnd = details.argEnd;
-        if ( details.separatorBeg < len ) {
-            details.separatorEnd += 1;
-        }
-        details.argEnd -= this.rightWhitespaceCount(pattern.slice(0, details.separatorBeg));
-        details.quoteEnd = details.argEnd;
-        if ( this.getFlags(AST_FLAG_EXT_SCRIPTLET_ADG) ) {
-            details.failed = true;
-        }
-        return details;
-    }
-
-    indexOfNextScriptletArgSeparator(pattern, details) {
-        const separatorChar = String.fromCharCode(details.separatorCode);
-        while ( details.argEnd < pattern.length ) {
-            const pos = pattern.indexOf(separatorChar, details.argEnd);
-            if ( pos === -1 ) {
-                return (details.argEnd = pattern.length);
-            }
-            if ( this.reOddTrailingEscape.test(pattern.slice(0, pos)) === false ) {
-                return (details.argEnd = pos);
-            }
-            details.transform = true;
-            details.argEnd = pos + 1;
-        }
-    }
-
-    normalizeScriptletArg(arg, separatorCode) {
-        if ( separatorCode === 0x22 /* " */ ) {
-            if ( arg.includes('"') === false ) { return; }
-            return arg.replace(this.reUnescapeDoubleQuotes, '$1"');
-        }
-        if ( separatorCode === 0x27 /* ' */ ) {
-            if ( arg.includes("'") === false ) { return; }
-            return arg.replace(this.reUnescapeSingleQuotes, "$1'");
-        }
-        if ( arg.includes(',') === false ) { return; }
-        return arg.replace(this.reUnescapeCommas, '$1,');
     }
 
     getScriptletArgs() {
@@ -2973,6 +3009,7 @@ export const netOptionTokenDescriptors = new Map([
     [ 'shide', { } ],
     /* synonym */ [ 'specifichide', { } ],
     [ 'to', { mustAssign: true } ],
+    [ 'urltransform', { mustAssign: true } ],
     [ 'xhr', { canNegate: true } ],
     /* synonym */ [ 'xmlhttprequest', { canNegate: true } ],
     [ 'webrtc', { } ],

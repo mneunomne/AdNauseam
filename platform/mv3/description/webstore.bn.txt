@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-
-uBO Lite (uBOL) is an experimental *permission-less* MV3-based content blocker.
-=======
 uBO Lite (uBOL) হল একটি *অনুমতি-হীন* MV3-ভিত্তিক কন্টেন্ট ব্লকার।
->>>>>>> upstream1.51.0
 
 পূর্ব নির্ধারিত নিয়ম সেট uBlock অরিজিনের ডিফল্ট ফিল্টারসেটের সাথে মিলে যায়:
 
