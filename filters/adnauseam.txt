@@ -848,3 +848,6 @@ metro.co.uk##body.mol-fe-ab-dialog:style(overflow-y: auto !important;)
 youtube.com,youtubekids.com,youtube-nocookie.com##+js(trusted-replace-fetch-response, /\"adPlacements.*?\"\}\}\}\]\,/, , player?key=)
 youtube.com,youtubekids.com,youtube-nocookie.com##+js(trusted-replace-fetch-response, /\"adSlots.*?\}\]\}\}\]\,/, , player?key=)
 youtube.com,youtubekids.com,youtube-nocookie.com##+js(trusted-replace-fetch-response, /\"playerAds.*?\}\}\]\,/, , player?key=)
+
+# time-time.net https://github.com/dhowe/AdNauseam/issues/2432
+time-time.net##.info-ad-link
