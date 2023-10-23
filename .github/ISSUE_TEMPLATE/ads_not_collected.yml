@@ -1,5 +1,5 @@
 name: Ads Not Collected Report
-description: Report a visible ad that is specific to AdNauseam.
+description: Report an that is hidden but not collected on AdNauseam.
 body:
   - type: markdown
     attributes:
@@ -15,6 +15,10 @@ body:
           required: false
         - label: Video 
           required: false
+        - label: Mid-roll Video Ad 
+          required: false
+        - label: Popup
+          required: false
   - type: textarea
     attributes:
       label: URL(s) where the ads appear.
@@ -29,7 +33,7 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: Screenshot(s) of un-collected ads
+      label: Screenshot(s) of un-collected ads (disable AdNauseam if they are being correctly hidden by AdNauseam)
       description: |
         Screenshot(s) are **MANDATORY** for hard-to-describe visual issues.
         Post **LINKS** instead of inline images for screenshots containing **ADULT MATERIAL**.
