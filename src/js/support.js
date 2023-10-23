@@ -217,6 +217,20 @@ const reportedPage = (( ) => {
         if ( shouldUpdateLists !== null ) {
             dom.body.dataset.shouldUpdateLists = shouldUpdateLists;
         }
+        // adn-specific, block create new report if adn-specific checkbox is not checked
+        dom.cl.add(dom.body, 'adn-unchecked');
+        // add event to checkbox to remove adn-unchecked class
+        dom.on('#isAdnSpecific', 'click', ev => {
+            // check if checkbox is checked
+            if ( ev.target.checked ) {
+                // remove adn-unchecked class
+                dom.cl.remove(dom.body, 'adn-unchecked');
+            } else {
+                // add adn-unchecked class
+                dom.cl.add(dom.body, 'adn-unchecked');
+            }
+        });
+
         dom.cl.add(dom.body, 'filterIssue');
         return {
             hostname: parsedURL.hostname.replace(/^(m|mobile|www)\./, ''),

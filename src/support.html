@@ -75,7 +75,20 @@
             <p data-i18n="supportS6P1S1"></p>
             <button type="button" data-i18n="supportFindSpecificButton">_<span class="hover"></span></button>
         </div>
-        <div class="supportEntry createEntry">
+        <div class="supportEntry"> <!-- adn specific -->
+            <hr>
+            <p data-i18n="supportS6P3S1"></p>
+            <p>
+                <label>
+                    <span class="input checkbox">
+                        <input id="isAdnSpecific" type="checkbox">
+                        <svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg>
+                    </span>
+                    <span data-i18n="supportS6P3S2"></span>
+                </label>
+            </p>
+        </div>
+        <div class="supportEntry createEntry needsAdnCheck">
             <hr>
             <p>
                 <label data-i18n="supportS6URL"></label><br>
@@ -93,17 +106,24 @@
                     <option value="nuisance" data-i18n="supportS6Select1Option2"></option>
                     <option value="breakage" data-i18n="supportS6Select1Option5"></option>
                     <option value="privacy" data-i18n="supportS6Select1Option4"></option>
+                    <option value="adnotcollected" data-i18n="supportS6Select1Option7"></option>
                 </select>
             </p>
             <p>
-                <label><span class="input checkbox"><input id="isNSFW" type="checkbox"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span><span data-i18n="supportS6Checkbox1"></span></label>
+                <label>
+                    <span class="input checkbox">
+                        <input id="isNSFW" type="checkbox">
+                        <svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg>
+                    </span>
+                    <span data-i18n="supportS6Checkbox1"></span>
+                </label>
             </p>
             <button type="button" data-i18n="supportReportSpecificButton" class="preferred">_<span class="hover"></span></button>
         </div>
         <hr>
         <h2 id="showSupportInfo" class="subtil" data-i18n="supportS5H">_<span>&nbsp;&#x25b8;</span></h2>
     </div>
-    <div class="a b c d">
+    <div class="a b c d e">
         <h2 data-i18n="supportS5H"></h2>
         <p data-i18n="supportS5P1">
         <p>
