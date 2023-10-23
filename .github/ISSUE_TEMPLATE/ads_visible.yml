@@ -1,10 +1,16 @@
 name: Ads Visible Report
-description: Report a visible ad that is specific to AdNauseam.
+description: Report an Ad that is going through while AdNauseam is on.
 body:
   - type: markdown
     attributes:
       value: |
         Only submit visible ads strictly for AdNauseam specific cases. 
+  - type: checkboxes
+    attributes:
+      label: This is an AdNauseam-specific issue.
+      options:
+        - label: I tested the same page on *uBlock Origin*, and the ad is not visible.
+          required: true
   - type: checkboxes
     attributes:
       label: I tried to reproduce the issue when...
@@ -15,6 +21,12 @@ body:
           required: true
         - label: using a new, unmodified browser profile.
           required: true
+- type: checkboxes
+  attributes:
+    label: Does Strict-Block mode solves the issue? 
+    options:
+      - label: I tested the same page with Strict-block turned on, and the ad is still visible.
+        required: true
   - type: textarea
     attributes:
       label: URL(s) where the issue occurs.
@@ -25,6 +37,13 @@ body:
         `https://example.com`
         `https://example.org`
         `https://example.net`
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Your location/country.
+      description: |
+        If the issue is website specific, knowing your approximate location will help us to reproduce it.
     validations:
       required: true
   - type: textarea
