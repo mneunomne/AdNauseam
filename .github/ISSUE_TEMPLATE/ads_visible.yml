@@ -21,12 +21,12 @@ body:
           required: true
         - label: using a new, unmodified browser profile.
           required: true
-- type: checkboxes
-  attributes:
-    label: Does Strict-Block mode solves the issue? 
-    options:
-      - label: I tested the same page with Strict-block turned on, and the ad is still visible.
-        required: true
+  - type: checkboxes
+    attributes:
+      label: Does Strict-Block mode solves the issue? 
+      options:
+        - label: I tested the same page with Strict-block turned on, and the ad is still visible.
+          required: true
   - type: textarea
     attributes:
       label: URL(s) where the issue occurs.
