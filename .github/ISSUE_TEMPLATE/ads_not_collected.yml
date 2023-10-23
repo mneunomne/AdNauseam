@@ -2,7 +2,7 @@ name: Ads Not Collected Report
 description: |
   Report a visible ad that is specific to AdNauseam.
 body:
- - type: markdown
+  - type: markdown
     attributes:
       value: |
         Please keep in mind that visible ads in websites such as YouTube, Facebook, Instagram change so often their structure that it is not realistic that we keep updating our parsers specifically for them.

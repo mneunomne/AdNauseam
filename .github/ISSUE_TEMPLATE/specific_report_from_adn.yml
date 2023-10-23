@@ -2,7 +2,7 @@ name: Support Pane Bug Report
 description: |
   Use this template when reporting a filter issue from AdNauseam's popup panel.	
 body:
- - type: checkboxes
+  - type: checkboxes
     attributes:
       label: I tried to reproduce the issue when...
       options:

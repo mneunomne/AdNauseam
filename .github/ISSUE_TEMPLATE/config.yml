@@ -3,6 +3,6 @@ contact_links:
   - name: Discussion Forum
     url: https://github.com/dhowe/AdNauseam/discussions
     about: For questions, suggestion, please open a new discussion, or check the existing ones to avoid repeated ones.
-  - name: Filter List Issues
+  - name: uBlock Origin's uAssets Filter List Issues
     url: https://github.com/uBlockOrigin/uAssets/issues
-    about: Strictly for **NON-ADNAUSEAM-SPECIFIC**
+    about: Strictly for NOT ADNAUSEAM SPECIFIC. Make sure you test with uBlock Origin before and follow the ticket guidelines.
