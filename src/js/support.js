@@ -222,13 +222,8 @@ const reportedPage = (( ) => {
         // add event to checkbox to remove adn-unchecked class
         dom.on('#isAdnSpecific', 'click', ev => {
             // check if checkbox is checked
-            if ( ev.target.checked ) {
-                // remove adn-unchecked class
-                dom.cl.remove(dom.body, 'adn-unchecked');
-            } else {
-                // add adn-unchecked class
-                dom.cl.add(dom.body, 'adn-unchecked');
-            }
+            if ( ev.target.checked ) { dom.cl.remove(dom.body, 'adn-unchecked');
+            } else { dom.cl.add(dom.body, 'adn-unchecked'); }
         });
 
         dom.cl.add(dom.body, 'filterIssue');
@@ -246,8 +241,7 @@ function reportSpecificFilterType() {
 }
 
 function reportSpecificFilterIssue() {
-    const githubURL = new URL('https://github.com/dhowe/AdNauseam/issues/new'); // ADN
-    /* adn - no need for this
+    const githubURL = new URL('https://github.com/dhowe/AdNauseam/issues/new?template=specific_report_from_adn.yml'); // ADN
     const issueType = reportSpecificFilterType();
     let title = `${reportedPage.hostname}: ${issueType}`;
     if ( qs$('#isNSFW').checked ) {
@@ -260,7 +254,6 @@ function reportSpecificFilterIssue() {
     );
     githubURL.searchParams.set('category', issueType);
     githubURL.searchParams.set('configuration', configToMarkdown(true));
-    */ // end of adn
     vAPI.messaging.send('default', {
         what: 'gotoURL',
         details: { url: githubURL.href, select: true, index: -1 },
