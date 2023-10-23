@@ -2,7 +2,7 @@ name: Ads Visible Report
 description: |
   Report a visible ad that is specific to AdNauseam.
 body:
- - type: markdown
+  - type: markdown
     attributes:
       value: |
         Only submit visible ads strictly for AdNauseam specific cases. 
