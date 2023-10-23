@@ -1,5 +1,5 @@
 name: Ads Not Collected Report
-description: Report an that is hidden but not collected on AdNauseam.
+description: Report an Ad that is hidden but not collected on AdNauseam.
 body:
   - type: markdown
     attributes:
@@ -35,7 +35,6 @@ body:
     attributes:
       label: Screenshot(s) of un-collected ads (disable AdNauseam if they are being correctly hidden by AdNauseam)
       description: |
-        Screenshot(s) are **MANDATORY** for hard-to-describe visual issues.
         Post **LINKS** instead of inline images for screenshots containing **ADULT MATERIAL**.
     validations:
       required: true
