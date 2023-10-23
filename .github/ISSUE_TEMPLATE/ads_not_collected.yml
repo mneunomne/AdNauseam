@@ -1,21 +1,20 @@
 name: Ads Not Collected Report
-description: |
-  Report a visible ad that is specific to AdNauseam.
+description: Report a visible ad that is specific to AdNauseam.
 body:
   - type: markdown
     attributes:
       value: |
         Please keep in mind that visible ads in websites such as YouTube, Facebook, Instagram change so often their structure that it is not realistic that we keep updating our parsers specifically for them.
   - type: checkboxes
-  attributes:
-    label: What type of Ad is not being collected
-    options:
-      - label: Image
-        required: false
-      - label: Text
-        required: false
-      - label: Video 
-        required: false
+    attributes:
+      label: What type of Ad is not being collected
+      options:
+        - label: Image
+          required: false
+        - label: Text
+          required: false
+        - label: Video 
+          required: false
   - type: textarea
     attributes:
       label: URL(s) where the ads appear.
@@ -29,10 +28,10 @@ body:
     validations:
       required: true
   - type: textarea
-  attributes:
-    label: Screenshot(s) of un-collected ads
-    description: |
-      Screenshot(s) are **MANDATORY** for hard-to-describe visual issues.
-      Post **LINKS** instead of inline images for screenshots containing **ADULT MATERIAL**.
-  validations:
-    required: true
+    attributes:
+      label: Screenshot(s) of un-collected ads
+      description: |
+        Screenshot(s) are **MANDATORY** for hard-to-describe visual issues.
+        Post **LINKS** instead of inline images for screenshots containing **ADULT MATERIAL**.
+    validations:
+      required: true
