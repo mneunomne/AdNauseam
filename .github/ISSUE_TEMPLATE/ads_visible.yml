@@ -1,6 +1,5 @@
 name: Ads Visible Report
-description: |
-  Report a visible ad that is specific to AdNauseam.
+description: Report a visible ad that is specific to AdNauseam.
 body:
   - type: markdown
     attributes:
@@ -29,13 +28,13 @@ body:
     validations:
       required: true
   - type: textarea
-  attributes:
-    label: Screenshot(s)
-    description: |
-      Screenshot(s) are **MANDATORY** for hard-to-describe visual issues.
-      Post **LINKS** instead of inline images for screenshots containing **ADULT MATERIAL**.
-  validations:
-    required: false
+    attributes:
+      label: Screenshot(s)
+      description: |
+        Screenshot(s) are **MANDATORY** for hard-to-describe visual issues.
+        Post **LINKS** instead of inline images for screenshots containing **ADULT MATERIAL**.
+    validations:
+      required: false
   - type: textarea
     id: configuration
     attributes:
