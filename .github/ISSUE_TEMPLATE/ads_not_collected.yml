@@ -19,6 +19,7 @@ body:
           required: false
         - label: Popup
           required: false
+
   - type: textarea
     attributes:
       label: URL(s) where the ads appear.
@@ -31,6 +32,15 @@ body:
         `https://example.net`
     validations:
       required: true
+      
+  - type: textarea
+    attributes:
+      label: Your location/country.
+      description: |
+        If the issue is website specific, knowing your approximate location will help us to reproduce it.
+    validations:
+      required: true
+
   - type: textarea
     attributes:
       label: Screenshot(s) of un-collected ads (disable AdNauseam if they are being correctly hidden by AdNauseam)
