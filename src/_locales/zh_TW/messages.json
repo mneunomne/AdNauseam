@@ -531,13 +531,17 @@
     "message": "每行一個過濾規則。規則可以單純是主機名稱，或是與 EasyList 相容的過濾規則。以 <code>!</code> 開頭的行將被忽略。",
     "description": "Short information about how to create custom filters"
   },
+  "1pTrustWarning": {
+    "message": "請勿添加未信任來源的過濾規則。",
+    "description": "Warning against copy-pasting filters from random sources"
+  },
   "1pImport": {
-    "message": "匯入並加入",
-    "description": "English: Import and append"
+    "message": "匯入並加入…",
+    "description": "Button in the 'My filters' pane"
   },
   "1pExport": {
-    "message": "匯出",
-    "description": "English: Export"
+    "message": "匯出…",
+    "description": "Button in the 'My filters' pane"
   },
   "1pExportFilename": {
     "message": "my-ublock-static-filters_{{datetime}}.txt",
@@ -581,7 +585,7 @@
   },
   "rulesExport": {
     "message": "匯出至檔案…",
-    "description": ""
+    "description": "Button in the 'My rules' pane"
   },
   "rulesDefaultFileName": {
     "message": "my-ublock-dynamic-rules_{{datetime}}.txt",
@@ -616,12 +620,12 @@
     "description": "A concise description of the 'Trusted sites' pane."
   },
   "whitelistImport": {
-    "message": "匯入並加入",
-    "description": "English: Import and append"
+    "message": "匯入並加入…",
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExport": {
-    "message": "匯出",
-    "description": "English: Export"
+    "message": "匯出…",
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExportFilename": {
     "message": "my-ublock-trusted-sites_{{datetime}}.txt",
@@ -1048,7 +1052,7 @@
     "description": "Shown in the About pane"
   },
   "aboutBackupDataButton": {
-    "message": "備份到檔案…",
+    "message": "備份至檔案…",
     "description": "Text for button to create a backup of all settings"
   },
   "aboutBackupFilename": {

@@ -66,9 +66,19 @@ const scriptletFilteringEngine = {
 const contentScriptRegisterer = new (class {
     constructor() {
         this.hostnameToDetails = new Map();
+        if ( browser.contentScripts === undefined ) { return; }
+        µb.onEvent('filteringBehaviorChanged', ev => {
+            const details = ev.detail;
+            if ( details instanceof Object ) {
+                if ( details.direction > 0 ) { return; }
+                if ( details.hostname ) { return this.flush(details.hostname); }
+            }
+            this.reset();
+        });
     }
     register(hostname, code) {
         if ( browser.contentScripts === undefined ) { return false; }
+        if ( hostname === '' ) { return false; }
         const details = this.hostnameToDetails.get(hostname);
         if ( details !== undefined ) {
             if ( code === details.code ) {
@@ -85,6 +95,8 @@ const contentScriptRegisterer = new (class {
             runAt: 'document_start',
         }).then(handle => {
             this.hostnameToDetails.set(hostname, { handle, code });
+        }).catch(( ) => {
+            this.hostnameToDetails.delete(hostname);
         });
         this.hostnameToDetails.set(hostname, { handle: promise, code });
         return false;
@@ -95,6 +107,15 @@ const contentScriptRegisterer = new (class {
         if ( details === undefined ) { return; }
         this.hostnameToDetails.delete(hostname);
         this.unregisterHandle(details.handle);
+    }
+    flush(hostname) {
+        if ( hostname === '*' ) { return this.reset(); }
+        for ( const hn of this.hostnameToDetails.keys() ) {
+            if ( hn.endsWith(hostname) === false ) { continue; }
+            const pos = hn.length - hostname.length;
+            if ( pos !== 0 && hn.charCodeAt(pos-1) !== 0x2E /* . */ ) { continue; }
+            this.unregister(hn);
+        }
     }
     reset() {
         if ( this.hostnameToDetails.size === 0 ) { return; }
