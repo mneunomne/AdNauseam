@@ -291,6 +291,7 @@ const nodeFromURL = function(parent, url, re, type) {
             case 'other':
             case 'script':
             case 'xhr':
+            case 'advisit': // adn
                 href = `code-viewer.html?url=${encodeURIComponent(href)}`;
                 break;
             default:
@@ -765,6 +766,13 @@ const viewPort = (( ) => {
         const div = dom.clone(vwLogEntryTemplate);
         const divcl = div.classList;
         let span;
+
+        // Type
+        if ( details.type !== undefined ) {
+            if ( details.type === 'advisit' ) {
+                dom.attr(div, 'data-advisit', 'advisit');
+            }
+        }
 
         // Realm
         if ( details.realm !== undefined ) {
