@@ -60,8 +60,11 @@ function safeSelf() {
         'addEventListener': self.EventTarget.prototype.addEventListener,
         'removeEventListener': self.EventTarget.prototype.removeEventListener,
         'fetch': self.fetch,
-        'JSON_parse': self.JSON.parse.bind(self.JSON),
-        'JSON_stringify': self.JSON.stringify.bind(self.JSON),
+        'JSON': self.JSON,
+        'JSON_parseFn': self.JSON.parse,
+        'JSON_stringifyFn': self.JSON.stringify,
+        'JSON_parse': (...args) => safe.JSON_parseFn.call(safe.JSON, ...args),
+        'JSON_stringify': (...args) => safe.JSON_stringifyFn.call(safe.JSON, ...args),
         'log': console.log.bind(console),
         uboLog(...args) {
             if ( scriptletGlobals.has('canDebug') === false ) { return; }
@@ -106,10 +109,7 @@ function safeSelf() {
             const match = /^\/(.+)\/([gimsu]*)$/.exec(pattern);
             if ( match === null ) {
                 const reStr = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                if ( verbatim ) {
-                    return new RegExp(`^${reStr}$`, flags);
-                }
-                return new RegExp(reStr, flags);
+                return new RegExp(verbatim ? `^${reStr}$` : reStr, flags);
             }
             try {
                 return new RegExp(match[1], match[2] || flags);
@@ -633,6 +633,7 @@ builtinScriptlets.push({
     fn: objectPruneFn,
     dependencies: [
         'matches-stack-trace.fn',
+        'object-find-owner.fn',
         'safe-self.fn',
         'should-log.fn',
     ],
@@ -665,50 +666,10 @@ function objectPruneFn(
             return;
         }
     }
-    if ( objectPruneFn.findOwner === undefined ) {
-        objectPruneFn.findOwner = (root, path, prune = false) => {
-            let owner = root;
-            let chain = path;
-            for (;;) {
-                if ( typeof owner !== 'object' || owner === null  ) { return false; }
-                const pos = chain.indexOf('.');
-                if ( pos === -1 ) {
-                    if ( prune === false ) {
-                        return owner.hasOwnProperty(chain);
-                    }
-                    let modified = false;
-                    if ( chain === '*' ) {
-                        for ( const key in owner ) {
-                            if ( owner.hasOwnProperty(key) === false ) { continue; }
-                            delete owner[key];
-                            modified = true;
-                        }
-                    } else if ( owner.hasOwnProperty(chain) ) {
-                        delete owner[chain];
-                        modified = true;
-                    }
-                    return modified;
-                }
-                const prop = chain.slice(0, pos);
-                if (
-                    prop === '[]' && Array.isArray(owner) ||
-                    prop === '*' && owner instanceof Object
-                ) {
-                    const next = chain.slice(pos + 1);
-                    let found = false;
-                    for ( const key of Object.keys(owner) ) {
-                        found = objectPruneFn.findOwner(owner[key], next, prune) || found;
-                    }
-                    return found;
-                }
-                if ( owner.hasOwnProperty(prop) === false ) { return false; }
-                owner = owner[prop];
-                chain = chain.slice(pos + 1);
-            }
-        };
+    if ( objectPruneFn.mustProcess === undefined ) {
         objectPruneFn.mustProcess = (root, needlePaths) => {
             for ( const needlePath of needlePaths ) {
-                if ( objectPruneFn.findOwner(root, needlePath) === false ) {
+                if ( objectFindOwnerFn(root, needlePath) === false ) {
                     return false;
                 }
             }
@@ -727,7 +688,7 @@ function objectPruneFn(
     let outcome = 'nomatch';
     if ( objectPruneFn.mustProcess(obj, needlePaths) ) {
         for ( const path of prunePaths ) {
-            if ( objectPruneFn.findOwner(obj, path, true) ) {
+            if ( objectFindOwnerFn(obj, path, true) ) {
                 outcome = 'match';
             }
         }
@@ -741,27 +702,81 @@ function objectPruneFn(
 /******************************************************************************/
 
 builtinScriptlets.push({
-    name: 'set-cookie-helper.fn',
-    fn: setCookieHelper,
+    name: 'object-find-owner.fn',
+    fn: objectFindOwnerFn,
 });
-function setCookieHelper(
+function objectFindOwnerFn(
+    root,
+    path,
+    prune = false
+) {
+    let owner = root;
+    let chain = path;
+    for (;;) {
+        if ( typeof owner !== 'object' || owner === null  ) { return false; }
+        const pos = chain.indexOf('.');
+        if ( pos === -1 ) {
+            if ( prune === false ) {
+                return owner.hasOwnProperty(chain);
+            }
+            let modified = false;
+            if ( chain === '*' ) {
+                for ( const key in owner ) {
+                    if ( owner.hasOwnProperty(key) === false ) { continue; }
+                    delete owner[key];
+                    modified = true;
+                }
+            } else if ( owner.hasOwnProperty(chain) ) {
+                delete owner[chain];
+                modified = true;
+            }
+            return modified;
+        }
+        const prop = chain.slice(0, pos);
+        if (
+            prop === '[]' && Array.isArray(owner) ||
+            prop === '*' && owner instanceof Object
+        ) {
+            const next = chain.slice(pos + 1);
+            let found = false;
+            for ( const key of Object.keys(owner) ) {
+                found = objectFindOwnerFn(owner[key], next, prune) || found;
+            }
+            return found;
+        }
+        if ( owner.hasOwnProperty(prop) === false ) { return false; }
+        owner = owner[prop];
+        chain = chain.slice(pos + 1);
+    }
+    return true;
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'set-cookie.fn',
+    fn: setCookieFn,
+});
+function setCookieFn(
+    trusted = false,
     name = '',
     value = '',
     expires = '',
     path = '',
     options = {},
 ) {
-    const cookieExists = (name, value) => {
-        return document.cookie.split(/\s*;\s*/).some(s => {
+    const getCookieValue = name => {
+        for ( const s of document.cookie.split(/\s*;\s*/) ) {
             const pos = s.indexOf('=');
-            if ( pos === -1 ) { return false; }
-            if ( s.slice(0, pos) !== name ) { return false; }
-            if ( s.slice(pos+1) !== value ) { return false; }
-            return true;
-        });
+            if ( pos === -1 ) { continue; }
+            if ( s.slice(0, pos) !== name ) { continue; }
+            return s.slice(pos+1);
+        }
     };
 
-    if ( options.reload && cookieExists(name, value) ) { return; }
+    const cookieBefore = getCookieValue(name);
+    if ( cookieBefore !== undefined && options.dontOverwrite ) { return; }
+    if ( cookieBefore === value && options.reload ) { return; }
 
     const cookieParts = [ name, '=', value ];
     if ( expires !== '' ) {
@@ -774,9 +789,20 @@ function setCookieHelper(
     if ( path === '/' ) {
         cookieParts.push('; path=/');
     }
-    document.cookie = cookieParts.join('');
 
-    if ( options.reload && cookieExists(name, value) ) {
+    if ( trusted ) {
+        if ( options.domain ) {
+            cookieParts.push(`; domain=${options.domain}`);
+        }
+        cookieParts.push('; Secure');
+    }
+
+    try {
+        document.cookie = cookieParts.join('');
+    } catch(_) {
+    }
+
+    if ( options.reload && getCookieValue(name) === value ) {
         window.location.reload();
     }
 }
@@ -784,10 +810,13 @@ function setCookieHelper(
 /******************************************************************************/
 
 builtinScriptlets.push({
-    name: 'set-local-storage-item-core.fn',
-    fn: setLocalStorageItemCore,
+    name: 'set-local-storage-item.fn',
+    fn: setLocalStorageItemFn,
+    dependencies: [
+        'safe-self.fn',
+    ],
 });
-function setLocalStorageItemCore(
+function setLocalStorageItemFn(
     which = 'local',
     trusted = false,
     key = '',
@@ -799,6 +828,7 @@ function setLocalStorageItemCore(
         '',
         'undefined', 'null',
         'false', 'true',
+        'on', 'off',
         'yes', 'no',
         '{}', '[]', '""',
         '$remove$',
@@ -821,11 +851,20 @@ function setLocalStorageItemCore(
     }
 
     try {
-        const storage = `${which}Storage`;
+        const storage = self[`${which}Storage`];
         if ( value === '$remove$' ) {
-            self[storage].removeItem(key);
+            const safe = safeSelf();
+            const pattern = safe.patternToRegex(key, undefined, true );
+            const toRemove = [];
+            for ( let i = 0, n = storage.length; i < n; i++ ) {
+                const key = storage.key(i);
+                if ( pattern.test(key) ) { toRemove.push(key); }
+            }
+            for ( const key of toRemove ) {
+                storage.removeItem(key);
+            }
         } else {
-            self[storage].setItem(key, `${value}`);
+            storage.setItem(key, `${value}`);
         }
     } catch(ex) {
     }
@@ -1342,7 +1381,7 @@ function addEventListenerDefuser(
 ) {
     const safe = safeSelf();
     const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
-    const reType = safe.patternToRegex(type);
+    const reType = safe.patternToRegex(type, undefined, true);
     const rePattern = safe.patternToRegex(pattern);
     const log = shouldLog(extraArgs);
     const debug = shouldDebug(extraArgs);
@@ -1414,42 +1453,6 @@ function jsonPrune(
                 extraArgs
            );
            return objAfter || objBefore;
-        },
-    });
-}
-
-/******************************************************************************/
-
-builtinScriptlets.push({
-    name: 'json-prune-stringify.js',
-    fn: jsonPruneStringify,
-    dependencies: [
-        'object-prune.fn',
-        'safe-self.fn',
-    ],
-});
-function jsonPruneStringify(
-    rawPrunePaths = '',
-    rawNeedlePaths = '',
-    stackNeedle = ''
-) {
-    const safe = safeSelf();
-    const stackNeedleDetails = safe.initPattern(stackNeedle, { canNegate: true });
-    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
-    JSON.stringify = new Proxy(JSON.stringify, {
-        apply: function(target, thisArg, args) {
-            const objBefore = args[0];
-            if ( objBefore instanceof Object ) {
-                const objAfter = objectPruneFn(
-                    objBefore,
-                    rawPrunePaths,
-                    rawNeedlePaths,
-                    stackNeedleDetails,
-                    extraArgs
-               );
-               args[0] = objAfter || objBefore;
-            }
-           return Reflect.apply(target, thisArg, args);
         },
     });
 }
@@ -3361,7 +3364,7 @@ builtinScriptlets.push({
     world: 'ISOLATED',
     dependencies: [
         'safe-self.fn',
-        'set-cookie-helper.fn',
+        'set-cookie.fn',
     ],
 });
 function setCookie(
@@ -3373,11 +3376,17 @@ function setCookie(
     name = encodeURIComponent(name);
 
     const validValues = [
-        'true', 'false',
-        'yes', 'y', 'no', 'n',
-        'ok',
         'accept', 'reject',
+        'accepted', 'rejected', 'notaccepted',
         'allow', 'deny',
+        'allowed', 'disallow',
+        'enable', 'disable',
+        'enabled', 'disabled',
+        'ok',
+        'on', 'off',
+        'true', 'false',
+        'y', 'n',
+        'yes', 'no',
     ];
     if ( validValues.includes(value.toLowerCase()) === false ) {
         if ( /^\d+$/.test(value) === false ) { return; }
@@ -3386,7 +3395,8 @@ function setCookie(
     }
     value = encodeURIComponent(value);
 
-    setCookieHelper(
+    setCookieFn(
+        false,
         name,
         value,
         '',
@@ -3426,11 +3436,11 @@ builtinScriptlets.push({
     fn: setLocalStorageItem,
     world: 'ISOLATED',
     dependencies: [
-        'set-local-storage-item-core.fn',
+        'set-local-storage-item.fn',
     ],
 });
 function setLocalStorageItem(key = '', value = '') {
-    setLocalStorageItemCore('local', false, key, value);
+    setLocalStorageItemFn('local', false, key, value);
 }
 
 builtinScriptlets.push({
@@ -3438,11 +3448,11 @@ builtinScriptlets.push({
     fn: setSessionStorageItem,
     world: 'ISOLATED',
     dependencies: [
-        'set-local-storage-item-core.fn',
+        'set-local-storage-item.fn',
     ],
 });
 function setSessionStorageItem(key = '', value = '') {
-    setLocalStorageItemCore('session', false, key, value);
+    setLocalStorageItemFn('session', false, key, value);
 }
 
 /*******************************************************************************
@@ -3745,7 +3755,7 @@ builtinScriptlets.push({
     world: 'ISOLATED',
     dependencies: [
         'safe-self.fn',
-        'set-cookie-helper.fn',
+        'set-cookie.fn',
     ],
 });
 function trustedSetCookie(
@@ -3777,7 +3787,8 @@ function trustedSetCookie(
         expires = time.toUTCString();
     }
 
-    setCookieHelper(
+    setCookieFn(
+        true,
         name,
         value,
         expires,
@@ -3817,11 +3828,11 @@ builtinScriptlets.push({
     fn: trustedSetLocalStorageItem,
     world: 'ISOLATED',
     dependencies: [
-        'set-local-storage-item-core.fn',
+        'set-local-storage-item.fn',
     ],
 });
 function trustedSetLocalStorageItem(key = '', value = '') {
-    setLocalStorageItemCore('local', true, key, value);
+    setLocalStorageItemFn('local', true, key, value);
 }
 
 /*******************************************************************************
@@ -4056,6 +4067,130 @@ function trustedClickElement(
     };
 
     runAtHtmlElementFn(process);
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'trusted-prune-inbound-object.js',
+    requiresTrust: true,
+    fn: trustedPruneInboundObject,
+    dependencies: [
+        'object-find-owner.fn',
+        'object-prune.fn',
+        'safe-self.fn',
+    ],
+});
+function trustedPruneInboundObject(
+    entryPoint = '',
+    argPos = '',
+    rawPrunePaths = '',
+    rawNeedlePaths = ''
+) {
+    if ( entryPoint === '' ) { return; }
+    let context = globalThis;
+    let prop = entryPoint;
+    for (;;) {
+        const pos = prop.indexOf('.');
+        if ( pos === -1 ) { break; }
+        context = context[prop.slice(0, pos)];
+        if ( context instanceof Object === false ) { return; }
+        prop = prop.slice(pos+1);
+    }
+    if ( typeof context[prop] !== 'function' ) { return; }
+    const argIndex = parseInt(argPos);
+    if ( isNaN(argIndex) ) { return; }
+    if ( argIndex < 1 ) { return; }
+    const safe = safeSelf();
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 4);
+    const needlePaths = [];
+    if ( rawPrunePaths !== '' ) {
+        needlePaths.push(...rawPrunePaths.split(/ +/));
+    }
+    if ( rawNeedlePaths !== '' ) {
+        needlePaths.push(...rawNeedlePaths.split(/ +/));
+    }
+    const mustProcess = root => {
+        for ( const needlePath of needlePaths ) {
+            if ( objectFindOwnerFn(root, needlePath) === false ) {
+                return false;
+            }
+        }
+        return true;
+    };
+    context[prop] = new Proxy(context[prop], {
+        apply: function(target, thisArg, args) {
+            const targetArg = argIndex <= args.length
+                ? args[argIndex-1]
+                : undefined;
+            if ( targetArg instanceof Object && mustProcess(targetArg) ) {
+                let objBefore = targetArg;
+                if ( extraArgs.dontOverwrite ) {
+                    try {
+                        objBefore = safe.JSON_parse(safe.JSON_stringify(targetArg));
+                    } catch(_) {
+                        objBefore = undefined;
+                    }
+                }
+                if ( objBefore !== undefined ) {
+                    const objAfter = objectPruneFn(
+                        objBefore,
+                        rawPrunePaths,
+                        rawNeedlePaths,
+                        { matchAll: true },
+                        extraArgs
+                    );
+                    args[argIndex-1] = objAfter || objBefore;
+                }
+            }
+            return Reflect.apply(target, thisArg, args);
+        },
+    });
+}
+
+/******************************************************************************/
+
+builtinScriptlets.push({
+    name: 'trusted-prune-outbound-object.js',
+    requiresTrust: true,
+    fn: trustedPruneOutboundObject,
+    dependencies: [
+        'object-prune.fn',
+        'safe-self.fn',
+    ],
+});
+function trustedPruneOutboundObject(
+    entryPoint = '',
+    rawPrunePaths = '',
+    rawNeedlePaths = ''
+) {
+    if ( entryPoint === '' ) { return; }
+    let context = globalThis;
+    let prop = entryPoint;
+    for (;;) {
+        const pos = prop.indexOf('.');
+        if ( pos === -1 ) { break; }
+        context = context[prop.slice(0, pos)];
+        if ( context instanceof Object === false ) { return; }
+        prop = prop.slice(pos+1);
+    }
+    if ( typeof context[prop] !== 'function' ) { return; }
+    const safe = safeSelf();
+    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
+    context[prop] = new Proxy(context[prop], {
+        apply: function(target, thisArg, args) {
+            const objBefore = Reflect.apply(target, thisArg, args);
+            if ( objBefore instanceof Object === false ) { return objBefore; }
+            const objAfter = objectPruneFn(
+                objBefore,
+                rawPrunePaths,
+                rawNeedlePaths,
+                { matchAll: true },
+                extraArgs
+            );
+            return objAfter || objBefore;
+        },
+    });
 }
 
 /******************************************************************************/

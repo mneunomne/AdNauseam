@@ -531,13 +531,17 @@
     "message": "Ένα φίλτρο ανά γραμμή. Φίλτρο μπορεί να είναι ένα απλό όνομα κεντρικού υπολογιστή (hostname) ή ένα, συμβατό με το Adblock Plus, φίλτρο. Γραμμές με το πρόθεμα &lsquo;!&rsquo; θα παραβλέπονται.",
     "description": "Short information about how to create custom filters"
   },
+  "1pTrustWarning": {
+    "message": "Μην προσθέτετε φίλτρα από μη αξιόπιστες πηγές.",
+    "description": "Warning against copy-pasting filters from random sources"
+  },
   "1pImport": {
     "message": "Εισαγωγή και προσάρτηση",
-    "description": "English: Import and append"
+    "description": "Button in the 'My filters' pane"
   },
   "1pExport": {
     "message": "Εξαγωγή",
-    "description": "English: Export"
+    "description": "Button in the 'My filters' pane"
   },
   "1pExportFilename": {
     "message": "τα-στατικά-ublock-φίλτρα-μου_{{datetime}}.txt",
@@ -576,12 +580,12 @@
     "description": "Will discard manually-edited content and exit manual-edit mode"
   },
   "rulesImport": {
-    "message": "Εισαγωγή από αρχείο...",
+    "message": "Εισαγωγή από αρχείο…",
     "description": ""
   },
   "rulesExport": {
     "message": "Εξαγωγή σε αρχείο",
-    "description": ""
+    "description": "Button in the 'My rules' pane"
   },
   "rulesDefaultFileName": {
     "message": "οι-δυναμικοί-ublock-κανόνες-μου_{{datetime}}.txt",
@@ -617,11 +621,11 @@
   },
   "whitelistImport": {
     "message": "Εισαγωγή και προσάρτηση",
-    "description": "English: Import and append"
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExport": {
     "message": "Εξαγωγή",
-    "description": "English: Export"
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExportFilename": {
     "message": "ublock-έμπιστες-τοποθεσίες_{{datetime}}.txt",

@@ -428,7 +428,7 @@
     "description": "Appears aside each filter list in the _3rd-party filters_ pane"
   },
   "3pAutoUpdatePrompt1": {
-    "message": "Auto-update filter lists",
+    "message": "Mesa a jorn auto de las listas",
     "description": "A checkbox in the _3rd-party filters_ pane"
   },
   "3pUpdateNow": {
@@ -468,7 +468,7 @@
     "description": "English: Apply changes"
   },
   "3pGroupDefault": {
-    "message": "Built-in",
+    "message": "Integrats",
     "description": "Filter lists section name"
   },
   "3pGroupAds": {
@@ -531,13 +531,17 @@
     "message": "One filter per line. A filter can be a plain hostname, or an EasyList-compatible filter. Lines prefixed with <code>!</code> will be ignored.",
     "description": "Short information about how to create custom filters"
   },
+  "1pTrustWarning": {
+    "message": "Do not add filters from untrusted sources.",
+    "description": "Warning against copy-pasting filters from random sources"
+  },
   "1pImport": {
     "message": "Importar e apondre",
-    "description": "English: Import and append"
+    "description": "Button in the 'My filters' pane"
   },
   "1pExport": {
     "message": "Exportar",
-    "description": "English: Export"
+    "description": "Button in the 'My filters' pane"
   },
   "1pExportFilename": {
     "message": "mos-filtres-estatics-ublock_{{datetime}}.txt",
@@ -580,8 +584,8 @@
     "description": ""
   },
   "rulesExport": {
-    "message": "Export to file",
-    "description": ""
+    "message": "Export to file…",
+    "description": "Button in the 'My rules' pane"
   },
   "rulesDefaultFileName": {
     "message": "my-ublock-dynamic-rules_{{datetime}}.txt",
@@ -616,12 +620,12 @@
     "description": "A concise description of the 'Trusted sites' pane."
   },
   "whitelistImport": {
-    "message": "Import and append",
-    "description": "English: Import and append"
+    "message": "Import and append…",
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExport": {
     "message": "Exportar",
-    "description": "English: Export"
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExportFilename": {
     "message": "my-ublock-trusted-sites_{{datetime}}.txt",
@@ -924,7 +928,7 @@
     "description": "Third paragraph of 'Filter issues' section in Support pane"
   },
   "supportS4H": {
-    "message": "Bug report",
+    "message": "Senhalament d’avarias",
     "description": "Header of 'Bug report' section in Support pane"
   },
   "supportS4P1": {

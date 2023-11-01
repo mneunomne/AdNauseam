@@ -36,16 +36,16 @@ mkdir -p $DES/thirdparties/easylist
 cp $ASSETS_PROD/thirdparties/easylist.txt $DES/thirdparties/easylist/
 cp $ASSETS_PROD/thirdparties/easyprivacy.txt $DES/thirdparties/easylist/
 
-cp -R ./thirdparties/www.eff.org                                 $DES/thirdparties/ # ADN
-
-# mkdir $DES/ublock
-cp $ASSETS_PROD/filters/* $DES/ublock/
-
-# Optional filter lists: do not include in package
-rm $DES/ublock/annoyances.txt
-rm $DES/ublock/lan-block.txt
-rm $DES/ublock/ubol-filters.txt
+# ADN
+cp -R ./thirdparties/www.eff.org                                 $DES/thirdparties/
 
 # ADN
-cp -R ./filters/adnauseam.txt                                    $DES/ublock/
+cp -R ./filters/adnauseam.txt                                    $DES/ublock/adnauseam.txt
 
+mkdir $DES/ublock
+cp $ASSETS_PROD/filters/badlists.txt $DES/ublock/badlists.txt
+cp $ASSETS_PROD/filters/badware.min.txt $DES/ublock/badware.min.txt
+cp $ASSETS_PROD/filters/filters.min.txt $DES/ublock/filters.min.txt
+cp $ASSETS_PROD/filters/privacy.min.txt $DES/ublock/privacy.min.txt
+cp $ASSETS_PROD/filters/quick-fixes.min.txt $DES/ublock/quick-fixes.min.txt
+cp $ASSETS_PROD/filters/unbreak.min.txt $DES/ublock/unbreak.min.txt

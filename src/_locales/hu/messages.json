@@ -531,13 +531,17 @@
     "message": "Soronként egy szűrő. A szűrő lehet egy hostnév, vagy egy Adblock Plus kompatibilis szűrő.\nA <code>!</code> kezdetű sorok figyelmen kívül maradnak.",
     "description": "Short information about how to create custom filters"
   },
+  "1pTrustWarning": {
+    "message": "Do not add filters from untrusted sources.",
+    "description": "Warning against copy-pasting filters from random sources"
+  },
   "1pImport": {
     "message": "Importál és hozzáad",
-    "description": "English: Import and append"
+    "description": "Button in the 'My filters' pane"
   },
   "1pExport": {
     "message": "Exportál",
-    "description": "English: Export"
+    "description": "Button in the 'My filters' pane"
   },
   "1pExportFilename": {
     "message": "ublock-statikus-szabalyaim_{{datetime}}.txt",
@@ -580,8 +584,8 @@
     "description": ""
   },
   "rulesExport": {
-    "message": "Exportálás fájlba",
-    "description": ""
+    "message": "Exportálás fájlba…",
+    "description": "Button in the 'My rules' pane"
   },
   "rulesDefaultFileName": {
     "message": "ublock-dinamikus-szabalyaim_{{datetime}}.txt",
@@ -617,11 +621,11 @@
   },
   "whitelistImport": {
     "message": "Importál és hozzáad",
-    "description": "English: Import and append"
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExport": {
     "message": "Exportál",
-    "description": "English: Export"
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExportFilename": {
     "message": "ublock-feherlistam_{{datetime}}.txt",

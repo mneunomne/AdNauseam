@@ -84,6 +84,7 @@ const hiddenSettingsDefault = {
     selfieAfter: 2,
     strictBlockingBypassDuration: 120,
     toolbarWarningTimeout: 60,
+    trustedListPrefixes: 'ublock-',
     uiPopupConfig: 'unset',
     uiStyles: 'unset',
     updateAssetBypassBrowserCache: false,
@@ -92,6 +93,11 @@ const hiddenSettingsDefault = {
     costPerClick: 1.03, // Adn https://github.com/dhowe/AdNauseam/issues/2131
     internalLinkDomains: internalLinkDomainsDefault.join(','), // Adn
 };
+
+if ( vAPI.webextFlavor.soup.has('devbuild') ) {
+    hiddenSettingsDefault.consoleLogLevel = 'info';
+    hiddenSettingsDefault.trustedListPrefixes += ' user-';
+}
 
 const userSettingsDefault = {
 
@@ -325,6 +331,7 @@ const µBlock = {  // jshint ignore:line
 
     liveBlockingProfiles: [],
     blockingProfileColorCache: new Map(),
+    parsedTrustedListPrefixes: [],
     uiAccentStylesheet: '',
 };
 

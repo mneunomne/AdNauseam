@@ -531,13 +531,17 @@
     "message": "Одно правило на строку. Правилом может быть имя сайта, или EasyList-совместимый фильтр. Строки, начинающиеся с <code>!</code>, будут проигнорированы.",
     "description": "Short information about how to create custom filters"
   },
+  "1pTrustWarning": {
+    "message": "Не добавляйте фильтры из ненадёжных источников.",
+    "description": "Warning against copy-pasting filters from random sources"
+  },
   "1pImport": {
-    "message": "Импортировать и добавить",
-    "description": "English: Import and append"
+    "message": "Импортировать и добавить…",
+    "description": "Button in the 'My filters' pane"
   },
   "1pExport": {
-    "message": "Экспортировать",
-    "description": "English: Export"
+    "message": "Экспортировать…",
+    "description": "Button in the 'My filters' pane"
   },
   "1pExportFilename": {
     "message": "my-ublock-static-filters_{{datetime}}.txt",
@@ -580,8 +584,8 @@
     "description": ""
   },
   "rulesExport": {
-    "message": "Экспорт в файл...",
-    "description": ""
+    "message": "Экспортировать в файл…",
+    "description": "Button in the 'My rules' pane"
   },
   "rulesDefaultFileName": {
     "message": "my-ublock-dynamic-rules_{{datetime}}.txt",
@@ -616,12 +620,12 @@
     "description": "A concise description of the 'Trusted sites' pane."
   },
   "whitelistImport": {
-    "message": "Импортировать и добавить",
-    "description": "English: Import and append"
+    "message": "Импортировать и добавить…",
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExport": {
-    "message": "Экспортировать",
-    "description": "English: Export"
+    "message": "Экспортировать…",
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExportFilename": {
     "message": "my-ublock-trusted-sites_{{datetime}}.txt",

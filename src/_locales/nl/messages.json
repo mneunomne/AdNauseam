@@ -531,13 +531,17 @@
     "message": "Eén filter per regel. Een filter kan een gewone hostnaam of een EasyList-compatibel filter zijn. Regels beginnend met <code>!</code> worden genegeerd.",
     "description": "Short information about how to create custom filters"
   },
+  "1pTrustWarning": {
+    "message": "Voeg geen filters van niet-vertrouwde bronnen toe.",
+    "description": "Warning against copy-pasting filters from random sources"
+  },
   "1pImport": {
     "message": "Importeren en toevoegen…",
-    "description": "English: Import and append"
+    "description": "Button in the 'My filters' pane"
   },
   "1pExport": {
     "message": "Exporteren…",
-    "description": "English: Export"
+    "description": "Button in the 'My filters' pane"
   },
   "1pExportFilename": {
     "message": "mijn-ublock-statische-filters_{{datetime}}.txt",
@@ -581,7 +585,7 @@
   },
   "rulesExport": {
     "message": "Exporteren naar bestand…",
-    "description": ""
+    "description": "Button in the 'My rules' pane"
   },
   "rulesDefaultFileName": {
     "message": "mijn-ublock-dynamische-regels_{{datetime}}.txt",
@@ -617,11 +621,11 @@
   },
   "whitelistImport": {
     "message": "Importeren en toevoegen…",
-    "description": "English: Import and append"
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExport": {
     "message": "Exporteren…",
-    "description": "English: Export"
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExportFilename": {
     "message": "mijn-ublock-vertrouwde-websites_{{datetime}}.txt",

@@ -531,13 +531,17 @@
     "message": "Ett filter per linje. Et filter kan være et vanlig vertsnavn eller et EasyList-kompatibelt filter. Linjer med prefikset <code>!</code> blir ignorert.",
     "description": "Short information about how to create custom filters"
   },
+  "1pTrustWarning": {
+    "message": "Ikke legg til filtre fra ikke-betrodde kilder.",
+    "description": "Warning against copy-pasting filters from random sources"
+  },
   "1pImport": {
-    "message": "Importer og legg til",
-    "description": "English: Import and append"
+    "message": "Importer og legg til…",
+    "description": "Button in the 'My filters' pane"
   },
   "1pExport": {
-    "message": "Eksporter",
-    "description": "English: Export"
+    "message": "Eksporter…",
+    "description": "Button in the 'My filters' pane"
   },
   "1pExportFilename": {
     "message": "mine-ublock-statiske-filtre_{{datetime}}.txt",
@@ -576,12 +580,12 @@
     "description": "Will discard manually-edited content and exit manual-edit mode"
   },
   "rulesImport": {
-    "message": "Importer fra fil",
+    "message": "Importer fra fil…",
     "description": ""
   },
   "rulesExport": {
-    "message": "Eksporter til fil",
-    "description": ""
+    "message": "Eksporter til fil…",
+    "description": "Button in the 'My rules' pane"
   },
   "rulesDefaultFileName": {
     "message": "mine-ublock-dynamiske-regler_{{datetime}}.txt",
@@ -616,12 +620,12 @@
     "description": "A concise description of the 'Trusted sites' pane."
   },
   "whitelistImport": {
-    "message": "Importer og legg til",
-    "description": "English: Import and append"
+    "message": "Importer og legg til…",
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExport": {
-    "message": "Eksporter",
-    "description": "English: Export"
+    "message": "Eksporter…",
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExportFilename": {
     "message": "mine-ublock-betrodde-sider_{{datetime}}.txt",

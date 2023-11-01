@@ -531,13 +531,17 @@
     "message": "प्रति ओळ एक फिल्टर. फिल्टर एक साधे होस्ट नावाचा असू शकतो, किंवा एक अद्ब्लोक प्लस सुसंगत फिल्टर असू शकतो. ओळी सह प्रिफिक्स &lsquo;!&rsquo; कढे दुर्लक्ष केले जाईल.",
     "description": "Short information about how to create custom filters"
   },
+  "1pTrustWarning": {
+    "message": "Do not add filters from untrusted sources.",
+    "description": "Warning against copy-pasting filters from random sources"
+  },
   "1pImport": {
     "message": "आयात आणि समावेश करा",
-    "description": "English: Import and append"
+    "description": "Button in the 'My filters' pane"
   },
   "1pExport": {
     "message": "निर्यात करा",
-    "description": "English: Export"
+    "description": "Button in the 'My filters' pane"
   },
   "1pExportFilename": {
     "message": "my-ublock-static-filters_{{datetime}}.txt",
@@ -580,8 +584,8 @@
     "description": ""
   },
   "rulesExport": {
-    "message": "Export to file",
-    "description": ""
+    "message": "Export to file…",
+    "description": "Button in the 'My rules' pane"
   },
   "rulesDefaultFileName": {
     "message": "my-ublock-dynamic-rules_{{datetime}}.txt",
@@ -617,11 +621,11 @@
   },
   "whitelistImport": {
     "message": "आयात आणि समावेश करा",
-    "description": "English: Import and append"
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExport": {
     "message": "निर्यात करा",
-    "description": "English: Export"
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExportFilename": {
     "message": "my-ublock-trusted-sites_{{datetime}}.txt",

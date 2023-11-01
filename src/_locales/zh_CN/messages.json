@@ -531,13 +531,17 @@
     "message": "一行一条过滤规则。每条规则可以是一个普通的主机名或者是一条与 EasyList 兼容的过滤规则。以 <code>!</code> 开头的行将被忽略。",
     "description": "Short information about how to create custom filters"
   },
+  "1pTrustWarning": {
+    "message": "请勿添加未信任来源的过滤规则。",
+    "description": "Warning against copy-pasting filters from random sources"
+  },
   "1pImport": {
-    "message": "导入并添加",
-    "description": "English: Import and append"
+    "message": "导入并添加…",
+    "description": "Button in the 'My filters' pane"
   },
   "1pExport": {
-    "message": "导出",
-    "description": "English: Export"
+    "message": "导出…",
+    "description": "Button in the 'My filters' pane"
   },
   "1pExportFilename": {
     "message": "my-ublock-static-filters_{{datetime}}.txt",
@@ -580,8 +584,8 @@
     "description": ""
   },
   "rulesExport": {
-    "message": "导出到文件",
-    "description": ""
+    "message": "导出到文件...",
+    "description": "Button in the 'My rules' pane"
   },
   "rulesDefaultFileName": {
     "message": "my-ublock-dynamic-rules_{{datetime}}.txt",
@@ -616,12 +620,12 @@
     "description": "A concise description of the 'Trusted sites' pane."
   },
   "whitelistImport": {
-    "message": "导入并添加",
-    "description": "English: Import and append"
+    "message": "导入并添加…",
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExport": {
-    "message": "导出",
-    "description": "English: Export"
+    "message": "导出…",
+    "description": "Button in the 'Trusted sites' pane"
   },
   "whitelistExportFilename": {
     "message": "my-ublock-trusted-sites_{{datetime}}.txt",
