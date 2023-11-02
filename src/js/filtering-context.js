@@ -56,6 +56,7 @@ const    XMLHTTPREQUEST = 1 << 13;
 const       INLINE_FONT = 1 << 14;
 const     INLINE_SCRIPT = 1 << 15;
 const             OTHER = 1 << 16;
+const           ADVISIT = 1 << 17; // ADN
 const         FRAME_ANY = MAIN_FRAME | SUB_FRAME;
 const          FONT_ANY = FONT | INLINE_FONT;
 const        INLINE_ANY = INLINE_FONT | INLINE_SCRIPT;
@@ -82,6 +83,7 @@ const typeStrToIntMap = {
        'inline-font': INLINE_FONT,
      'inline-script': INLINE_SCRIPT,
              'other': OTHER,
+           'advisit': ADVISIT,
 };
 
 const    METHOD_NONE = 0;

@@ -601,7 +601,12 @@ const onBeforeBehindTheSceneRequest = function (fctxt) {
     onBeforeBehindTheSceneRequest.journalAddRequest(fctxt, result);
 
     if (logger.enabled) {
-        fctxt.setRealm('network').toLogger();
+        const ad = adnauseam.lookupAd(fctxt.url, fctxt.id);
+        if (ad) {
+            fctxt.setRealm('network').setType('advisit').toLogger();
+        } else {
+            fctxt.setRealm('network').toLogger();
+        }
     }
 
     // Redirected
