@@ -361,7 +361,12 @@
           banner = $find(div, '#banner'),
           title = $find(div,'#title');
 
-     src = div.style.cssText.match(/url\((.*?)\)/)[1];
+     src = div.style.cssText.match(/url\((.*?)\)/)
+     if (src && src.length > 1) {
+      src = src[1]
+     } else {
+      return
+    }
      var parsed = src.replace(/\\/g,"");
 
      if (banner.length) {
