@@ -226,7 +226,6 @@ const µBlock = {  // jshint ignore:line
     */
     netStrictBlockListDefault: [
         'facebook.com',
-        'gmail.com',
         'instagram.com',
         'open.spotify.com'
     ],
