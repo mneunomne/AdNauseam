@@ -614,7 +614,8 @@ import uDom from './uDom.js';
   }
 
   const hideRefreshNotification = function () {
-    document.querySelector('#RefreshTab').classList.add('hide');
+    let refreshTab = document.querySelector('#RefreshTab')
+    if (refreshTab) refreshTab.classList.add('hide')
     adjustBlockHeight();
   }
 
@@ -653,7 +654,10 @@ import uDom from './uDom.js';
 
   // when changing "page" and "domain" scope from the popup menu on the "disable button" 
   const onChangeDisabledScope = function (evt) {
-    var scope = uDom(".disable_type_radio:checked") ? uDom(".disable_type_radio:checked").val() : ''
+    // check if url is domain home
+    let url = new URL(popupData.pageURL)
+    let isDomainHome = url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/index.php'
+    var scope = uDom(".disable_type_radio:checked") && !isDomainHome ? uDom(".disable_type_radio:checked").val() : ''
     // first remove previous whichever previous scope from whitelist 
     vAPI.messaging.send(
       'adnauseam', {
@@ -688,11 +692,13 @@ import uDom from './uDom.js';
       return;
     }
     uDom('#main').toggleClass('disabled', !state)
+    let url = new URL(popupData.pageURL)
+    let isDomainHome = url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/index.php'
     vAPI.messaging.send(
       'adnauseam', {
       what: 'toggleEnabled',
       url: popupData.pageURL,
-      scope: evt.altKey || evt.metaKey ? 'page' : '',
+      scope: (evt.altKey || evt.metaKey) && !isDomainHome ? 'page' : '',
       state: state,
       tabId: popupData.tabId
     });
