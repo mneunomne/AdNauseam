@@ -614,7 +614,8 @@ import uDom from './uDom.js';
   }
 
   const hideRefreshNotification = function () {
-    document.querySelector('#RefreshTab').classList.add('hide');
+    let refreshTab = document.querySelector('#RefreshTab')
+    if (refreshTab) refreshTab.classList.add('hide')
     adjustBlockHeight();
   }
 
