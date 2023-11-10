@@ -1,6 +1,6 @@
 name: Support Pane Bug Report
 description: |
-  Use this template when reporting an issue with AdNauseam's popup panel.	
+  Use this template when reporting an issue with AdNauseam's popup panel	
 body:
   - type: checkboxes
     attributes:
