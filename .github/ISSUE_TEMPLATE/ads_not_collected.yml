@@ -1,10 +1,10 @@
 name: Ads Not Collected Report
-description: Report an Ad that is hidden but not collected on AdNauseam.
+description: Report an Ad that is hidden but not collected with AdNauseam
 body:
   - type: markdown
     attributes:
       value: |
-        Please keep in mind that visible ads in websites such as YouTube, Facebook, Instagram change so often their structure that it is not realistic that we keep updating our parsers specifically for them.
+        Please keep in mind that ads on websites such as YouTube, Facebook and Instagram change their structure so frequently that it is not always possible to keep our parsers up-to-date.
   - type: checkboxes
     attributes:
       label: What type of Ad is not being collected
@@ -43,7 +43,7 @@ body:
 
   - type: textarea
     attributes:
-      label: Screenshot(s) of un-collected ads (disable AdNauseam if they are being correctly hidden by AdNauseam)
+      label: Screenshot(s) of uncollected ads (disable AdNauseam if they are being correctly hidden by AdNauseam)
       description: |
         Post **LINKS** instead of inline images for screenshots containing **ADULT MATERIAL**.
     validations:
