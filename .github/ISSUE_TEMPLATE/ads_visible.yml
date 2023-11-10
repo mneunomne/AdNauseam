@@ -1,5 +1,5 @@
 name: Ads Visible Report
-description: Report an Ad that is going through while AdNauseam is on.
+description: Report a visible Ad while AdNauseam is enabled.
 body:
   - type: markdown
     attributes:
@@ -9,23 +9,23 @@ body:
     attributes:
       label: This is an AdNauseam-specific issue.
       options:
-        - label: I tested the same page on *uBlock Origin*, and the ad is not visible.
+        - label: I have tested the same page on *uBlock Origin*, and the Ad is not visible.
           required: true
   - type: checkboxes
     attributes:
-      label: I tried to reproduce the issue when...
+      label: I have tried to reproduce the issue when...
       options:
-        - label: AdNauseam is the only extension.
+        - label: AdNauseam is the only extension
           required: true
-        - label: AdNauseam uses default lists and settings.
+        - label: AdNauseam uses default lists and setting.
           required: true
-        - label: using a new, unmodified browser profile.
+        - label: Using a new, unmodified browser profile
           required: true
   - type: checkboxes
     attributes:
       label: Does Strict-Block mode solves the issue? 
       options:
-        - label: I tested the same page with Strict-block turned on, and the ad is still visible.
+        - label: I have tested the same page with Strict-Block enabled, and the Ad is still visible.
           required: true
   - type: textarea
     attributes:
