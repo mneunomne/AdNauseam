@@ -854,3 +854,6 @@ time-time.net##.info-ad-link
 
 # https://www.ekapija.com https://github.com/dhowe/AdNauseam/issues/2447
 www.ekapija.com##div:has(> div[id^="adocean"])
+
+# unbreak milanuncios.com page https://github.com/dhowe/AdNauseam/issues/2452
+milanuncios.com#@#*[class*="Advert"]
