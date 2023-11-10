@@ -1,15 +1,15 @@
 name: AdNauseam Bug Report
-description: Report a bug in one of AdNauseam's functionalies.
+description: Report a bug for AdNauseam
 body:
   - type: checkboxes
     attributes:
       label: I tried to reproduce the issue when...
       options:
-        - label: AdNauseam is the only extension.
+        - label: AdNauseam is the only extension
           required: true
-        - label: AdNauseam uses default lists and settings.
+        - label: AdNauseam uses default lists and settings
           required: true
-        - label: using a new, unmodified browser profile.
+        - label: Using a new, unmodified browser profile
           required: true
 
   - type: textarea
@@ -45,11 +45,11 @@ body:
     attributes:
       label: Steps to Reproduce
       description: |
-        Provide as much detail as possible. We must be able to reproduce to investigate.
+        Provide as much detail as possible - we must be able to reproduce the issue to investigate.
       placeholder: |
         1. [First Step]
         2. [Second Step]
-        3. [and so on...]
+        3. [And so on...]
     validations:
       required: false
 
