@@ -43,7 +43,7 @@ body:
 
   - type: textarea
     attributes:
-      label: Screenshot(s) of uncollected ads (disable AdNauseam if they are being correctly hidden by AdNauseam)
+      label: Screenshot(s) of uncollected ads (disable AdNauseam if they are being correctly hidden)
       description: |
         Post **LINKS** instead of inline images for screenshots containing **ADULT MATERIAL**.
     validations:
