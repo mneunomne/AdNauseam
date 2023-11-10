@@ -4,7 +4,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Only submit visible ads strictly for AdNauseam specific cases. 
+        Only submit visible Ad tickets for AdNauseam-specific cases. 
   - type: checkboxes
     attributes:
       label: This is an AdNauseam-specific issue.
