@@ -1057,7 +1057,7 @@ async function getRemote(assetKey, options = {}) {
         // ADN: If we've loaded a DNT list, we need to parse it
         if (dnt.isDoNotTrackUrl(assetKey)) {
             dnt.processEntries(result.content);
-        }BlockImportant
+        }
 
         if ( assetDetails.content === 'filters' ) {
             const metadata = extractMetadataFromList(result.content, [
