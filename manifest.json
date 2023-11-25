@@ -30,30 +30,48 @@
   },
   "content_scripts": [
     {
-    "matches": [
-      "http://*/*",
-      "https://*/*"
-    ],
-    "js": [
-      "js/vapi.js",
-      "js/vapi-client.js",
-      "js/adn/textads.js",
-      "js/adn/parser.js",
-      "js/contentscript.js"
-    ],
-    "run_at": "document_start",
-    "all_frames": true,
-    "match_about_blank": true
-  }, {
-    "matches": [
-      "http://*/*",
-      "https://*/*"
-    ],
-    "js": [
-      "js/scriptlets/subscriber.js"
-    ],
-    "run_at": "document_idle",
-    "all_frames": false
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "js/vapi.js",
+        "js/vapi-client.js",
+        "js/adn/textads.js",
+        "js/adn/parser.js",
+        "js/contentscript.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true
+    },
+    {
+      "matches": [
+        "https://easylist.to/*",
+        "https://*.fanboy.co.nz/*",
+        "https://filterlists.com/*",
+        "https://forums.lanik.us/*",
+        "https://github.com/*",
+        "https://*.github.io/*",
+        "https://*.letsblock.it/*"
+      ],
+      "js": [
+        "/js/scriptlets/subscriber.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "https://github.com/uBlockOrigin/*",
+        "https://ublockorigin.github.io/*",
+        "https://github.com/dhowe/AdNauseam/*"
+      ],
+      "js": [
+        "/js/scriptlets/updater.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
     }
   ],
   "content_security_policy": "script-src 'self'; object-src 'self'",
