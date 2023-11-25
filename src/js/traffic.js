@@ -709,19 +709,19 @@ const adnOnHeadersRecieved = function (details) {
     //if (typeof modifiedHeadersForAdVisits != "boolean") return { responseHeaders: modifiedHeadersForAdVisits }
 
     // 2: ublock filtering for the following request types:
-    let headers;
+    let responseHeaders;
     const ublock_filtering_types = ['main_frame', 'sub_frame', 'image', 'media', 'xmlhttprequest']; // where does this comes from?
     if (ublock_filtering_types.indexOf(details.type) > -1) {
-        headers = onHeadersReceived(details); // return headers (if modified) or undefined
+        responseHeaders = onHeadersReceived(details); // return headers (if modified) or undefined
     }
     // has ublock modified the headers?
-    let changedByUBlock = typeof headers !== 'undefined';
-    headers = headers || details.responseHeaders
+    let changedByUBlock = typeof responseHeaders !== 'undefined';
+    responseHeaders = responseHeaders || { responseHeaders: details.responseHeaders }
 
     // if ublock says 'cancel', no need to check adn rules
-    if (headers.cancel === true) {
-        logNetEvent('[CANCEL]', 'uBlock', 'type: '+details.type, JSON.stringify(headers));
-        return { responseHeaders: headers };
+    if (responseHeaders.cancel === true) {
+        logNetEvent('[CANCEL]', 'uBlock', 'type: '+details.type, JSON.stringify(responseHeaders));
+        return responseHeaders;
     }
 
     // 3: Check for AdNauseam-allowed rule (if so, block incoming cookies)
@@ -729,9 +729,9 @@ const adnOnHeadersRecieved = function (details) {
     const pageStore = µb.pageStoreFromTabId(fctxt.tabId);
     // this function not only checks if it an Adn-allow but also blocks the cookies from the request if thats the case
     // to block the cookie, it changes the `headers` object removing the cookie from it
-    const changedHeadersForAdnAllowed = (typeof pageStore !== 'undefined' && pageStore !== null) && adnauseam.checkAllowedException(headers, details.url, pageStore.rawURL); 
+    const changedHeadersForAdnAllowed = (typeof pageStore !== 'undefined' && pageStore !== null) && adnauseam.checkAllowedException(responseHeaders, details.url, pageStore.rawURL); 
     // if the header was changed either by uBlock or Adnauseam, return it as responseHeaders
-    if (changedByUBlock || changedHeadersForAdnAllowed) return { responseHeaders: headers } // DH: fix for #1013
+    if (changedByUBlock || changedHeadersForAdnAllowed) return responseHeaders // DH: fix for #1013
 }
 
 const onHeadersReceived = function(details) {
@@ -819,6 +819,7 @@ const onHeadersReceived = function(details) {
     if (injectCSP(fctxt, pageStore, responseHeaders) === true) {
         modifiedHeaders = true;
     }
+
     if ( injectPP(fctxt, pageStore, responseHeaders) === true ) {
         modifiedHeaders = true;
     }
