@@ -1,5 +1,5 @@
 <!-- [![Build Status](https://travis-ci.org/dhowe/AdNauseam.svg)](https://travis-ci.org/dhowe/AdNauseam) -->
-![version](https://badgen.net/amo/v/adnauseam) ![stars](https://badgen.net/amo/stars/adnauseam) <a href="https://www.gnu.org/licenses/gpl-3.0.en.html"><img src="https://img.shields.io/badge/license-GPL-orange.svg" alt="gpl license"></a>  ![ratings](https://badgen.net/amo/rating/adnauseam) [![Gitter](https://badges.gitter.im/dhowe/AdNauseam.svg)](https://gitter.im/dhowe/AdNauseam?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![open-collective](https://opencollective.com/adnauseam/tiers/badge.svg)](https://opencollective.com/adnauseam#category-CONTRIBUTE)
+![version](https://badgen.net/amo/v/adnauseam) ![stars](https://badgen.net/amo/stars/adnauseam) <a href="https://www.gnu.org/licenses/gpl-3.0.en.html"><img src="https://img.shields.io/badge/license-GPL-orange.svg" alt="gpl license"></a>  ![ratings](https://badgen.net/amo/rating/adnauseam) [![open-collective](https://opencollective.com/adnauseam/tiers/badge.svg)](https://opencollective.com/adnauseam#category-CONTRIBUTE)
 
 ***
 
