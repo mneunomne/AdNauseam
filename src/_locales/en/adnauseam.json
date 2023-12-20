@@ -115,6 +115,10 @@
     "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
     "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on" 
   },
+  "adnNewerVersionAvailableNotification": {
+    "message": "A newer version of AdNauseam is available",
+    "description": "English: Notifications -> A newer version of AdNauseam is available"
+  },
   "adnTarget": {
     "message": "TARGET",
     "description": "English: Vault.html -> inspected Ad -> TARGET"
@@ -474,6 +478,10 @@
    "3pPageUpdate":{
     "message":"Update",
     "description":"English: update"
+  },
+  "adnUpdateButton": {
+    "message": "Update",
+    "description": "English: update"
   },
   "whitelistPageName": {
     "message": "Trusted sites",
