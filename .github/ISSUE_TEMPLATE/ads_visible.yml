@@ -21,6 +21,8 @@ body:
           required: true
         - label: Using a new, unmodified browser profile
           required: true
+        - label: All filter lists are updated
+          required: true
   - type: checkboxes
     attributes:
       label: Does Strict-Block mode solves the issue? 
