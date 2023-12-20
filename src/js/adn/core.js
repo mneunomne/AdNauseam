@@ -1939,6 +1939,10 @@ const adnauseam = (function () {
   const verifyVersion = exports.verifyVersion = async function () {
     const version = vAPI.app.version;
     console.log("current version: " + version);
+    if (version.includes('b')) {
+      console.log("beta version, don't check for updates");
+      return;
+    }
     // run get request on /repos/dhowe/AdNauseam/releases
     const response = await fetch("https://api.github.com/repos/dhowe/AdNauseam/releases");
     // validate
@@ -1950,19 +1954,18 @@ const adnauseam = (function () {
     const latestRelease = releases[0];
     const latestVersion = latestRelease.tag_name.replace('v', '');
     console.log("latest version: " + latestVersion);
+    
     // compare versions
     if (version < latestVersion) {
       // if browser is chrome
-      if (vAPI.webextFlavor.soup.has('chromium') && !vAPI.webextFlavor.soup.has('edger')) {
+      console.log("vAPI.webextFlavor.soup", vAPI.webextFlavor.soup)
+      if (vAPI.webextFlavor.soup.has('chromium') && !vAPI.webextFlavor.soup.has('edge')) {
         // show notification
         const modified = addNotification(notifications, NewerVersionAvailable);
         modified && sendNotifications(notifications);
         // open chrome webstore
         // vAPI.tabs.open({ url: "https://chrome.google.com/webstore/detail/adnauseam/obdkhmpfckondpndnmahlekdlpiinaha" });
       }
-
-
-
     }
   };
 

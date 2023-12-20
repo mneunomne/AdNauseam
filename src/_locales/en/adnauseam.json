@@ -479,6 +479,10 @@
     "message":"Update",
     "description":"English: update"
   },
+  "adnUpdateButton": {
+    "message": "Update",
+    "description": "English: update"
+  },
   "whitelistPageName": {
     "message": "Trusted sites",
     "description": "appears as tab name in dashboard"

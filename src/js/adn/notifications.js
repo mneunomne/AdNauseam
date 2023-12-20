@@ -173,6 +173,10 @@ const openSettings = function() {
   openPage('/dashboard.html#options.html');
 }
 
+const openLatestRelease = function() {
+  openPage('https://github.com/dhowe/AdNauseam/releases/latest');
+}
+
 const reloadOptions = function() {
   browser.tabs.query({}, (tabs) => {
     tabs.filter(t => t.url.endsWith('options.html'))
@@ -358,12 +362,10 @@ ReloadTab.func = reloadNotificationAction.bind(ReloadTab);
 export const NewerVersionAvailable = new Notification({
   name: 'NewVersionAvailable',
   text: 'adnNewerVersionAvailableNotification',
-  button: undefined,
-  link: 'https://github.com/dhowe/AdNauseam/releases/latest',
+  button: 'adnUpdateButton',
   type: WARNING
 });
-ReloadTab.func = reloadNotificationAction.bind(ReloadTab);
-
+NewerVersionAvailable.func = openLatestRelease.bind(NewerVersionAvailable);
 
 export const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyList, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode, ShowAdsDebug, ReloadTab, NewerVersionAvailable];
 
