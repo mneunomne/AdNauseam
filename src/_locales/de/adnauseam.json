@@ -112,8 +112,12 @@
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
   "adnNotificationShowAdsDebug": {
-    "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
+    "message": "Die erweiterte Einstellung \"Werbung Debug anzeigen\" ist eingeschaltet",
     "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
+  },
+  "adnNewerVersionAvailableNotification": {
+    "message": "A newer version of AdNauseam is available",
+    "description": "English: Notifications -> A newer version of AdNauseam is available"
   },
   "adnTarget": {
     "message": "Ziel",
@@ -502,5 +506,25 @@
   "settingsStrictBlockingMode": {
     "message": "Strikte Blocking Modus aktivieren",
     "description": "English: Activate Strict-Blocking Mode"
+  },
+  "adnRefreshButton": {
+    "message": "Aktualisieren",
+    "description": "English: refresh page from menu notification button"
+  },
+  "adnRefreshNotification": {
+    "message": "Änderungen auf der aktuellen Seite anwenden",
+    "description": "English: refresh page from menu notification"
+  },
+  "supportS6P3S1": {
+    "message": "Stellen Sie sicher, dass dieses Problem <b>AdNauseam-spezifische</b> ist.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P3S2": {
+    "message": "Ich habe die gleiche Webseite auf <a url='https://github.com/gorhill/uBlock'>#uBO#</a> getestet und bestätige, dass dieses Problem <b>AdNauseam-specific</b> ist.",
+    "description": "A checkbox in the filter issue reporter section"
+  },
+  "supportS6Select1Option7": {
+    "message": "Werbungen nicht gesammelt",
+    "description": "Ads are present on page but none are collected"
   }
 }

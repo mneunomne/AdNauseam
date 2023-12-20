@@ -112,8 +112,12 @@
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
   "adnNotificationShowAdsDebug": {
-    "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
+    "message": "অ্যাডভান্সড সেটিং \"শো এডস ডিবাগ\" চালু আছে",
     "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
+  },
+  "adnNewerVersionAvailableNotification": {
+    "message": "A newer version of AdNauseam is available",
+    "description": "English: Notifications -> A newer version of AdNauseam is available"
   },
   "adnTarget": {
     "message": "লক্ষ্য",
@@ -168,7 +172,7 @@
     "description": "appears in ADN vault, above ad slider"
   },
   "topAdnetworks": {
-    "message": "Top Ad Networks",
+    "message": "শীর্ষস্থানীয় বিজ্ঞাপন নেটওয়ার্কসমূহ",
     "description": "appears in ADN vault/My Statistics"
   },
   "topSites": {
@@ -192,11 +196,11 @@
     "description": "shown in menu when only 'recent' Ads are shown"
   },
   "adnThisPageStrictBlocked": {
-    "message": "{{domain}} is currently strict-blocked.",
+    "message": "এই {{domain}} কঠোরভাবে ব্লক করা আছে",
     "description": "shown in menu when the current page is strict-blocked"
   },
   "adnStrictBlockListDescription": {
-    "message": "The strict-block list serves to help the users to strict-block specific domains or pages more easily.",
+    "message": "কঠোর-ব্লক তালিকা ব্যবহারকারীদের নির্দিষ্ট ডোমেন বা পৃষ্ঠাগুলিকে আরও সহজে কঠোরভাবে ব্লক করতে সহায়তা করে।",
     "description": "Description on the strict-block list tab, which is found on the dashboard"
   },
   "adnExportedAdsFilename": {
@@ -216,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "This action will permanently remove all ads with load image error. Make sure your internet is connected, otherwise all your ads will be deleted.",
+    "message": "এই ক্রিয়াটি সব লোড ইমেজ এরর এর বিজ্ঞাপন স্থায়ীভাবে মুছে ফেলবে. আপনার ইন্টারনেট সংযুক্ত আছে তা নিশ্চিত করুন, নয়ত আপনার সমস্ত বিজ্ঞাপন মুছে ফেলা হবে",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -280,7 +284,7 @@
     "description": "Activate Strict-Block -> appears in ADN popup menu three state button"
   },
   "adnMenuDisableScopeDomain": {
-    "message": "on {{domain}}",
+    "message": "এই {{domain}} এ",
     "description": "Disable AdNaueam Block On this Domain -> Popup option that appears inside ADN menu"
   },
   "adnMenuDisableScopePage": {
@@ -356,7 +360,7 @@
     "description": "appears on vault page"
   },
   "adnPurgeDeadAds": {
-    "message": "Purge Dead Ads",
+    "message": "মৃত বিজ্ঞাপন পরিষ্কার করুন",
     "description": "appears on vault page"
   },
   "adnVaultFound": {
@@ -480,7 +484,7 @@
     "description": "appears as tab name in dashboard"
   },
   "strictBlockListPageName": {
-    "message": "Strict-Block List",
+    "message": "কঠোরভাবে ব্লক করা তালিকা",
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
@@ -492,7 +496,7 @@
     "description": "English:Disable warnings"
   },
   "showAdsDebugPrompt": {
-    "message": "Show ads for ad-collection debugging",
+    "message": "বিজ্ঞাপন কালেকশন ডিবাগিংয়ের এর জন্য বিজ্ঞাপন দেখান",
     "description": "English: Show ads for ad-collection debugging"
   },
   "removeAdsInPrivate": {
@@ -500,7 +504,27 @@
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Activate Strict-Blocking Mode",
+    "message": "কঠোর ব্লকিং মোড চালু করুন",
     "description": "English: Activate Strict-Blocking Mode"
+  },
+  "adnRefreshButton": {
+    "message": "Refresh",
+    "description": "English: refresh page from menu notification button"
+  },
+  "adnRefreshNotification": {
+    "message": "Apply changes on current page",
+    "description": "English: refresh page from menu notification"
+  },
+  "supportS6P3S1": {
+    "message": "Make sure this issue is <b>AdNauseam-specific</b>.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportS6P3S2": {
+    "message": "I have tested the same web-page on <a url='https://github.com/gorhill/uBlock'>#uBO#</a> and confirm this issue is <b>AdNauseam-specific</b>.",
+    "description": "A checkbox in the filter issue reporter section"
+  },
+  "supportS6Select1Option7": {
+    "message": "Ads not collected",
+    "description": "Ads are present on page but none are collected"
   }
 }
