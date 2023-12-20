@@ -354,8 +354,18 @@ export const ReloadTab = new Notification({
 });
 ReloadTab.func = reloadNotificationAction.bind(ReloadTab);
 
+// https://github.com/dhowe/AdNauseam/issues/2488
+export const NewerVersionAvailable = new Notification({
+  name: 'NewVersionAvailable',
+  text: 'adnNewerVersionAvailableNotification',
+  button: undefined,
+  link: 'https://github.com/dhowe/AdNauseam/releases/latest',
+  type: WARNING
+});
+ReloadTab.func = reloadNotificationAction.bind(ReloadTab);
 
-export const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyList, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode, ShowAdsDebug, ReloadTab];
+
+export const Notifications = [AdBlockerEnabled, HidingDisabled, ClickingDisabled, BlockingDisabled, EasyList, AdNauseamTxt, DNTAllowed, DNTHideNotClick, DNTClickNotHide, DNTNotify, FirefoxSetting, OperaSetting, PrivacyMode, ShowAdsDebug, ReloadTab, NewerVersionAvailable];
 
 /**************************** exports *********************************/
 
