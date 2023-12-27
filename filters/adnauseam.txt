@@ -533,9 +533,6 @@ gfp_video_ads/
 # functionalclam.com
 ||functionalclam.com^$third-party
 
-# pinterest
-pinterest.*##div:nth-of-type(2) > div:nth-of-type(2) > div
-
 # Blocking rules below here
 ||images.sohu.com/bill/s2015/jscript/lib/sjs/matrix/ad/form/bigView.js^$important
 ||teads.tv^$important,third-party,domain=mingpao.com
