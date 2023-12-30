@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock Origin - a browser extension to block requests.
+    uBlock Origin - a comprehensive, efficient content blocker
     Copyright (C) 2014-present Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -23,14 +23,15 @@
 
 /******************************************************************************/
 
-import contextMenu from './contextmenu.js';
-import cosmeticFilteringEngine from './cosmetic-filtering.js';
 import io from './assets.js';
 import µb from './background.js';
-import { hostnameFromURI } from './uri-utils.js';
+import { broadcast, filteringBehaviorChanged, onBroadcast } from './broadcast.js';
+import contextMenu from './contextmenu.js';
+import cosmeticFilteringEngine from './cosmetic-filtering.js';
 import { redirectEngine } from './redirect-engine.js';
 import adnauseam from './adn/core.js'
 import dnt from './adn/dnt.js';
+import { hostnameFromURI } from './uri-utils.js';
 
 import {
     permanentFirewall,
@@ -156,7 +157,7 @@ const matchBucket = function(url, hostname, bucket, start) {
         }
         bucket.push(directive);
         this.saveWhitelist();
-        µb.filteringBehaviorChanged({ hostname: targetHostname });
+        filteringBehaviorChanged({ hostname: targetHostname });
         return true;
     }
 
@@ -197,7 +198,7 @@ const matchBucket = function(url, hostname, bucket, start) {
         }
     }
     this.saveWhitelist();
-    µb.filteringBehaviorChanged({ direction: 1 });
+    filteringBehaviorChanged({ direction: 1 });
     return true;
 };
 
@@ -504,7 +505,7 @@ const matchBucket = function(url, hostname, bucket, start) {
         }
         break;
     case 'autoUpdate':
-        this.scheduleAssetUpdater(value ? 7 * 60 * 1000 : 0);
+        this.scheduleAssetUpdater({ updateDelay: value ? 2000 : 0 });
         break;
     case 'cnameUncloakEnabled':
         if ( vAPI.net.canUncloakCnames === true ) {
@@ -621,7 +622,7 @@ const matchBucket = function(url, hostname, bucket, start) {
         adnauseam.verifySetting(ShowAdsDebug, hs.showAdsDebug);
     }
     /* end of adn */
-    this.fireEvent('hiddenSettingsChanged');
+    broadcast({ what: 'hiddenSettingsChanged' });
 };
 
 /******************************************************************************/
@@ -722,7 +723,7 @@ const matchBucket = function(url, hostname, bucket, start) {
     cosmeticFilteringEngine.removeFromSelectorCache(srcHostname, 'net');
 
     // Flush caches
-    µb.filteringBehaviorChanged({
+    filteringBehaviorChanged({
         direction: action === 1 ? 1 : 0,
         hostname: srcHostname,
     });
@@ -811,7 +812,7 @@ const matchBucket = function(url, hostname, bucket, start) {
         switch ( details.name ) {
             case 'no-scripting':
             case 'no-remote-fonts':
-                µb.filteringBehaviorChanged({
+                filteringBehaviorChanged({
                     direction: details.state ? 1 : 0,
                     hostname: details.hostname,
                 });
@@ -875,7 +876,10 @@ const matchBucket = function(url, hostname, bucket, start) {
 
     parse();
 
-    µb.onEvent('hiddenSettingsChanged', ( ) => { parse(); });
+    onBroadcast(msg => {
+        if ( msg.what !== 'hiddenSettingsChanged' ) { return; }
+        parse();
+    });
 }
 
 /******************************************************************************/

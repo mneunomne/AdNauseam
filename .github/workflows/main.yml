@@ -48,23 +48,7 @@ jobs:
           release_name: ${{ steps.release_info.outputs.VERSION }}
           draft: true
           prerelease: true
-<<<<<<< HEAD
-      - name: Setup Chrome
-        id: setup-chrome
-        uses: browser-actions/setup-chrome@v1
-      - name: Setup firefox
-        id: setup-firefox
-        uses: browser-actions/setup-firefox@v1
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install web-ext
-        run: |
-          npm install --global web-ext
-=======
           body_path: release.body.txt
->>>>>>> upstream1.54.0
       - name: Build MV2 packages
         run: |
           tools/make-artifacts.sh

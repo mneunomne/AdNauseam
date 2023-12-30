@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock Origin - a browser extension to block requests.
+    uBlock Origin - a comprehensive, efficient content blocker
     Copyright (C) 2014-present Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -71,7 +71,7 @@ const keyvalStore = typeof vAPI !== 'undefined'
 // ||||+---------------- bit   12: removeparam filters
 // |||+----------------- bit   13: csp filters
 // ||+------------------ bit   14: permissions filters
-// |+------------------- bit   15: urltransform filters
+// |+------------------- bit   15: uritransform filters
 // +-------------------- bit   16: replace filters
 // TODO: bit 11-16 can be converted into 3-bit value, as these options are not
 //       meant to be combined.
@@ -217,7 +217,7 @@ const modifierTypeFromName = new Map([
     [ 'removeparam', MODIFIER_TYPE_REMOVEPARAM ],
     [ 'csp', MODIFIER_TYPE_CSP ],
     [ 'permissions', MODIFIER_TYPE_PERMISSIONS ],
-    [ 'urltransform', MODIFIER_TYPE_URLTRANSFORM ],
+    [ 'uritransform', MODIFIER_TYPE_URLTRANSFORM ],
     [ 'replace', MODIFIER_TYPE_REPLACE ],
 ]);
 
@@ -227,7 +227,7 @@ const modifierNameFromType = new Map([
     [ MODIFIER_TYPE_REMOVEPARAM, 'removeparam' ],
     [ MODIFIER_TYPE_CSP, 'csp' ],
     [ MODIFIER_TYPE_PERMISSIONS, 'permissions' ],
-    [ MODIFIER_TYPE_URLTRANSFORM, 'urltransform' ],
+    [ MODIFIER_TYPE_URLTRANSFORM, 'uritransform' ],
     [ MODIFIER_TYPE_REPLACE, 'replace' ],
 ]);
 
@@ -1925,18 +1925,22 @@ class FilterFromDomainMissSet extends FilterFromDomainHitSet {
         return super.match(idata) === false;
     }
 
-    static logData(idata, details) {
-        details.fromDomains.push('~' + this.getDomainOpt(idata).replace(/\|/g, '|~'));
-    }
-
     static get dnrConditionName() {
         return 'excludedInitiatorDomains';
+    }
+
+    static logData(idata, details) {
+        details.fromDomains.push('~' + this.getDomainOpt(idata).replace(/\|/g, '|~'));
     }
 }
 
 class FilterFromRegexHit extends FilterDomainRegexHit {
     static getMatchTarget() {
         return $docHostname;
+    }
+
+    static get dnrConditionName() {
+        return 'initiatorDomains';
     }
 
     static logData(idata, details) {
@@ -1947,6 +1951,10 @@ class FilterFromRegexHit extends FilterDomainRegexHit {
 class FilterFromRegexMiss extends FilterFromRegexHit {
     static match(idata) {
         return super.match(idata) === false;
+    }
+
+    static get dnrConditionName() {
+        return 'excludedInitiatorDomains';
     }
 
     static logData(idata, details) {
@@ -2064,6 +2072,10 @@ class FilterToRegexHit extends FilterDomainRegexHit {
         return $requestHostname;
     }
 
+    static get dnrConditionName() {
+        return 'requestDomains';
+    }
+
     static logData(idata, details) {
         details.toDomains.push(`${this.getDomainOpt(idata)}`);
     }
@@ -2072,6 +2084,10 @@ class FilterToRegexHit extends FilterDomainRegexHit {
 class FilterToRegexMiss extends FilterToRegexHit {
     static match(idata) {
         return super.match(idata) === false;
+    }
+
+    static get dnrConditionName() {
+        return 'excludedRequestDomains';
     }
 
     static logData(idata, details) {
@@ -4362,7 +4378,7 @@ FilterContainer.prototype.dnrFromCompiled = function(op, context, ...args) {
         [ REMOVEPARAM_REALM, 'removeparam' ],
         [ CSP_REALM, 'csp' ],
         [ PERMISSIONS_REALM, 'permissions' ],
-        [ URLTRANSFORM_REALM, 'urltransform' ],
+        [ URLTRANSFORM_REALM, 'uritransform' ],
     ]);
     const partyness = new Map([
         [ ANYPARTY_REALM, '' ],
@@ -4430,34 +4446,38 @@ FilterContainer.prototype.dnrFromCompiled = function(op, context, ...args) {
         }
     }
 
-    // Detect and attempt salvage of rules with entity-based hostnames.
+    // Detect and attempt salvage of rules with entity-based hostnames and/or
+    // regex-based domains.
+    const isUnsupportedDomain = hn => hn.endsWith('.*') || hn.startsWith('/');
     for ( const rule of ruleset ) {
         if ( rule.condition === undefined ) { continue; }
-        if (
-            Array.isArray(rule.condition.initiatorDomains) &&
-            rule.condition.initiatorDomains.some(hn => hn.endsWith('.*'))
-        ) {
-            const domains = rule.condition.initiatorDomains.filter(
-                hn => hn.endsWith('.*') === false
-            );
-            if ( domains.length === 0 ) {
-                dnrAddRuleError(rule, `Can't salvage rule with only entity-based domain= option: ${rule.condition.initiatorDomains.join('|')}`);
-            } else {
-                dnrAddRuleWarning(rule, `Salvaged rule by ignoring ${rule.condition.initiatorDomains.length - domains.length} entity-based domain= option: ${rule.condition.initiatorDomains.join('|')}`);
-                rule.condition.initiatorDomains = domains;
+        for ( const prop of [ 'Initiator', 'Request' ] ) {
+            const hitProp = `${prop.toLowerCase()}Domains`;
+            if ( Array.isArray(rule.condition[hitProp]) ) {
+                if ( rule.condition[hitProp].some(hn => isUnsupportedDomain(hn)) ) {
+                    const domains = rule.condition[hitProp].filter(
+                        hn => isUnsupportedDomain(hn) === false 
+                    );
+                    if ( domains.length === 0 ) {
+                        dnrAddRuleError(rule, `Can't salvage rule with unsupported domain= option: ${rule.condition[hitProp].join('|')}`);
+                    } else {
+                        dnrAddRuleWarning(rule, `Salvaged rule by ignoring ${rule.condition[hitProp].length - domains.length} unsupported domain= option: ${rule.condition[hitProp].join('|')}`);
+                        rule.condition[hitProp] = domains;
+                    }
+                }
             }
-        }
-        if (
-            Array.isArray(rule.condition.excludedInitiatorDomains) &&
-            rule.condition.excludedInitiatorDomains.some(hn => hn.endsWith('.*'))
-        ) {
-            const domains = rule.condition.excludedInitiatorDomains.filter(
-                hn => hn.endsWith('.*') === false
-            );
-            rule.condition.excludedInitiatorDomains =
-                domains.length !== 0
-                    ? domains
-                    : undefined;
+            const missProp = `excluded${prop}Domains`;
+            if ( Array.isArray(rule.condition[missProp]) ) {
+                if ( rule.condition[missProp].some(hn => isUnsupportedDomain(hn)) ) {
+                    const domains = rule.condition[missProp].filter(
+                        hn => isUnsupportedDomain(hn) === false
+                    );
+                    rule.condition[missProp] =
+                        domains.length !== 0
+                            ? domains
+                            : undefined;
+                }
+            }
         }
     }
 
@@ -4550,7 +4570,7 @@ FilterContainer.prototype.dnrFromCompiled = function(op, context, ...args) {
                 dnrAddRuleError(rule, `Unsupported removeparam exception: ${rule.__modifierValue}`);
             }
             break;
-        case 'urltransform': {
+        case 'uritransform': {
             const path = rule.__modifierValue;
             let priority = rule.priority || 1;
             if ( rule.__modifierAction !== ALLOW_REALM ) {
@@ -5362,7 +5382,7 @@ FilterContainer.prototype.redirectRequest = function(redirectEngine, fctxt) {
 };
 
 FilterContainer.prototype.transformRequest = function(fctxt) {
-    const directives = this.matchAndFetchModifiers(fctxt, 'urltransform');
+    const directives = this.matchAndFetchModifiers(fctxt, 'uritransform');
     if ( directives === undefined ) { return; }
     const directive = directives[directives.length-1];
     if ( (directive.bits & ALLOW_REALM) !== 0 ) { return directives; }
@@ -5649,7 +5669,7 @@ FilterContainer.prototype.dump = function() {
         [ REMOVEPARAM_REALM, 'removeparam' ],
         [ CSP_REALM, 'csp' ],
         [ PERMISSIONS_REALM, 'permissions' ],
-        [ URLTRANSFORM_REALM, 'urltransform' ],
+        [ URLTRANSFORM_REALM, 'uritransform' ],
         [ REPLACE_REALM, 'replace' ],
     ]);
     const partyness = new Map([

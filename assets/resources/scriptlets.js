@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock Origin - a browser extension to block requests.
+    uBlock Origin - a comprehensive, efficient content blocker
     Copyright (C) 2019-present Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -52,6 +52,8 @@ function safeSelf() {
         'Function_toStringFn': self.Function.prototype.toString,
         'Function_toString': thisArg => safe.Function_toStringFn.call(thisArg),
         'Math_floor': Math.floor,
+        'Math_max': Math.max,
+        'Math_min': Math.min,
         'Math_random': Math.random,
         'Object_defineProperty': Object.defineProperty.bind(Object),
         'RegExp': self.RegExp,
@@ -85,7 +87,6 @@ function safeSelf() {
             const match = /^\/(.+)\/([gimsu]*)$/.exec(pattern);
             if ( match !== null ) {
                 return {
-                    pattern,
                     re: new this.RegExp(
                         match[1],
                         match[2] || options.flags
@@ -93,18 +94,23 @@ function safeSelf() {
                     expect,
                 };
             }
-            return {
-                pattern,
-                re: new this.RegExp(pattern.replace(
-                    /[.*+?^${}()|[\]\\]/g, '\\$&'),
-                    options.flags
-                ),
-                expect,
-            };
+            if ( options.flags !== undefined ) {
+                return {
+                    re: new this.RegExp(pattern.replace(
+                        /[.*+?^${}()|[\]\\]/g, '\\$&'),
+                        options.flags
+                    ),
+                    expect,
+                };
+            }
+            return { pattern, expect };
         },
         testPattern(details, haystack) {
             if ( details.matchAll ) { return true; }
-            return this.RegExp_test.call(details.re, haystack) === details.expect;
+            if ( details.re ) {
+                return this.RegExp_test.call(details.re, haystack) === details.expect;
+            }
+            return haystack.includes(details.pattern) === details.expect;
         },
         patternToRegex(pattern, flags = undefined, verbatim = false) {
             if ( pattern === '' ) { return /^/; }
@@ -238,6 +244,64 @@ function runAtHtmlElementFn(fn) {
         fn();
     });
     observer.observe(document, { childList: true });
+}
+
+/******************************************************************************/
+
+// Reference:
+// https://github.com/AdguardTeam/Scriptlets/blob/master/wiki/about-scriptlets.md#prevent-xhr
+
+builtinScriptlets.push({
+    name: 'generate-content.fn',
+    fn: generateContentFn,
+    dependencies: [
+        'safe-self.fn',
+    ],
+});
+function generateContentFn(directive) {
+    const safe = safeSelf();
+    const randomize = len => {
+        const chunks = [];
+        let textSize = 0;
+        do {
+            const s = safe.Math_random().toString(36).slice(2);
+            chunks.push(s);
+            textSize += s.length;
+        }
+        while ( textSize < len );
+        return chunks.join(' ').slice(0, len);
+    };
+    if ( directive === 'true' ) {
+        return Promise.resolve(randomize(10));
+    }
+    if ( directive.startsWith('length:') ) {
+        const match = /^length:(\d+)(?:-(\d+))?$/.exec(directive);
+        if ( match ) {
+            const min = parseInt(match[1], 10);
+            const extent = safe.Math_max(parseInt(match[2], 10) || 0, min) - min;
+            const len = safe.Math_min(min + extent * safe.Math_random(), 500000);
+            return Promise.resolve(randomize(len | 0));
+        }
+    }
+    if ( directive.startsWith('war:') && scriptletGlobals.has('warOrigin') ) {
+        return new Promise(resolve => {
+            const warOrigin = scriptletGlobals.get('warOrigin');
+            const warName = directive.slice(4);
+            const fullpath = [ warOrigin, '/', warName ];
+            const warSecret = scriptletGlobals.get('warSecret');
+            if ( warSecret !== undefined ) {
+                fullpath.push('?secret=', warSecret);
+            }
+            const warXHR = new safe.XMLHttpRequest();
+            warXHR.responseType = 'text';
+            warXHR.onloadend = ev => {
+                resolve(ev.target.responseText || '');
+            };
+            warXHR.open('GET', fullpath.join(''));
+            warXHR.send();
+        });
+    }
+    return Promise.resolve('');
 }
 
 /******************************************************************************/
@@ -898,7 +962,7 @@ builtinScriptlets.push({
 });
 function matchesStackTrace(
     needleDetails,
-    logLevel = 0
+    logLevel = ''
 ) {
     const safe = safeSelf();
     const exceptionToken = getExceptionToken();
@@ -929,11 +993,12 @@ function matchesStackTrace(
     }
     lines[0] = `stackDepth:${lines.length-1}`;
     const stack = lines.join('\t');
-    const r = safe.testPattern(needleDetails, stack);
+    const r = needleDetails.matchAll !== true &&
+        safe.testPattern(needleDetails, stack);
     if (
-        logLevel === 1 ||
-        logLevel === 2 && r ||
-        logLevel === 3 && !r
+        logLevel === 'all' ||
+        logLevel === 'match' && r ||
+        logLevel === 'nomatch' && !r
     ) {
         safe.uboLog(stack.replace(/\t/g, '\n'));
     }
@@ -1331,6 +1396,7 @@ function abortOnStackTrace(
     const safe = safeSelf();
     const needleDetails = safe.initPattern(needle, { canNegate: true });
     const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
+    if ( needle === '' ) { extraArgs.log = 'all'; }
     const makeProxy = function(owner, chain) {
         const pos = chain.indexOf('.');
         if ( pos === -1 ) {
@@ -1757,16 +1823,18 @@ builtinScriptlets.push({
     ],
     fn: noFetchIf,
     dependencies: [
+        'generate-content.fn',
         'safe-self.fn',
     ],
 });
 function noFetchIf(
-    arg1 = '',
+    propsToMatch = '',
+    directive = ''
 ) {
-    if ( typeof arg1 !== 'string' ) { return; }
+    if ( typeof propsToMatch !== 'string' ) { return; }
     const safe = safeSelf();
     const needles = [];
-    for ( const condition of arg1.split(/\s+/) ) {
+    for ( const condition of propsToMatch.split(/\s+/) ) {
         if ( condition === '' ) { continue; }
         const pos = condition.indexOf(':');
         let key, value;
@@ -1782,14 +1850,11 @@ function noFetchIf(
     const log = needles.length === 0 ? console.log.bind(console) : undefined;
     self.fetch = new Proxy(self.fetch, {
         apply: function(target, thisArg, args) {
+            const details = args[0] instanceof self.Request
+                ? args[0]
+                : Object.assign({ url: args[0] }, args[1]);
             let proceed = true;
             try {
-                let details;
-                if ( args[0] instanceof self.Request ) {
-                    details = args[0];
-                } else {
-                    details = Object.assign({ url: args[0] }, args[1]);
-                }
                 const props = new Map();
                 for ( const prop in details ) {
                     let v = details[prop];
@@ -1818,9 +1883,21 @@ function noFetchIf(
                 }
             } catch(ex) {
             }
-            return proceed
-                ? Reflect.apply(target, thisArg, args)
-                : Promise.resolve(new Response());
+            if ( proceed ) {
+                return Reflect.apply(target, thisArg, args);
+            }
+            return generateContentFn(directive).then(text => {
+                const response = new Response(text, {
+                    statusText: 'OK',
+                    headers: {
+                        'Content-Length': text.length,
+                    }
+                });
+                Object.defineProperty(response, 'url', {
+                    value: details.url
+                });
+                return response;
+            });
         }
     });
 }
@@ -2259,6 +2336,7 @@ builtinScriptlets.push({
     ],
     fn: noXhrIf,
     dependencies: [
+        'generate-content.fn',
         'match-object-properties.fn',
         'parse-properties-to-match.fn',
         'safe-self.fn',
@@ -2269,40 +2347,14 @@ function noXhrIf(
     directive = ''
 ) {
     if ( typeof propsToMatch !== 'string' ) { return; }
-    const safe = safeSelf();
     const xhrInstances = new WeakMap();
     const propNeedles = parsePropertiesToMatch(propsToMatch, 'url');
     const log = propNeedles.size === 0 ? console.log.bind(console) : undefined;
     const warOrigin = scriptletGlobals.get('warOrigin');
-    const generateRandomString = len => {
-            let s = '';
-            do { s += safe.Math_random().toString(36).slice(2); }
-            while ( s.length < 10 );
-            return s.slice(0, len);
-    };
-    const generateContent = async directive => {
-        if ( directive === 'true' ) {
-            return generateRandomString(10);
-        }
-        if ( directive.startsWith('war:') ) {
-            if ( warOrigin === undefined ) { return ''; }
-            return new Promise(resolve => {
-                const warName = directive.slice(4);
-                const fullpath = [ warOrigin, '/', warName ];
-                const warSecret = scriptletGlobals.get('warSecret');
-                if ( warSecret !== undefined ) {
-                    fullpath.push('?secret=', warSecret);
-                }
-                const warXHR = new safe.XMLHttpRequest();
-                warXHR.responseType = 'text';
-                warXHR.onloadend = ev => {
-                    resolve(ev.target.responseText || '');
-                };
-                warXHR.open('GET', fullpath.join(''));
-                warXHR.send();
-            });
-        }
-        return '';
+    const headers = {
+        'date': '',
+        'content-type': '',
+        'content-length': '',
     };
     self.XMLHttpRequest = class extends self.XMLHttpRequest {
         open(method, url, ...args) {
@@ -2310,6 +2362,7 @@ function noXhrIf(
                 log(`uBO: xhr.open(${method}, ${url}, ${args.join(', ')})`);
                 return super.open(method, url, ...args);
             }
+            xhrInstances.delete(this);
             if ( warOrigin !== undefined && url.startsWith(warOrigin) ) {
                 return super.open(method, url, ...args);
             }
@@ -2317,6 +2370,7 @@ function noXhrIf(
             if ( matchObjectProperties(propNeedles, haystack) ) {
                 xhrInstances.set(this, haystack);
             }
+            haystack.headers = Object.assign({}, headers);
             return super.open(method, url, ...args);
         }
         send(...args) {
@@ -2324,6 +2378,7 @@ function noXhrIf(
             if ( haystack === undefined ) {
                 return super.send(...args);
             }
+            haystack.headers['date'] = (new Date()).toUTCString();
             let promise = Promise.resolve({
                 xhr: this,
                 directive,
@@ -2338,52 +2393,80 @@ function noXhrIf(
                 },
             });
             switch ( this.responseType ) {
-                case 'arraybuffer':
-                    promise = promise.then(details => {
-                        details.props.response.value = new ArrayBuffer(0);
+            case 'arraybuffer':
+                promise = promise.then(details => {
+                    details.props.response.value = new ArrayBuffer(0);
+                    return details;
+                });
+                haystack.headers['content-type'] = 'application/octet-stream';
+                break;
+            case 'blob':
+                promise = promise.then(details => {
+                    details.props.response.value = new Blob([]);
+                    return details;
+                });
+                haystack.headers['content-type'] = 'application/octet-stream';
+                break;
+            case 'document': {
+                promise = promise.then(details => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString('', 'text/html');
+                    details.props.response.value = doc;
+                    details.props.responseXML.value = doc;
+                    return details;
+                });
+                haystack.headers['content-type'] = 'text/html';
+                break;
+            }
+            case 'json':
+                promise = promise.then(details => {
+                    details.props.response.value = {};
+                    details.props.responseText.value = '{}';
+                    return details;
+                });
+                haystack.headers['content-type'] = 'application/json';
+                break;
+            default:
+                if ( directive === '' ) { break; }
+                promise = promise.then(details => {
+                    return generateContentFn(details.directive).then(text => {
+                        details.props.response.value = text;
+                        details.props.responseText.value = text;
                         return details;
                     });
-                    break;
-                case 'blob':
-                    promise = promise.then(details => {
-                        details.props.response.value = new Blob([]);
-                        return details;
-                    });
-                    break;
-                case 'document': {
-                    promise = promise.then(details => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString('', 'text/html');
-                        details.props.response.value = doc;
-                        details.props.responseXML.value = doc;
-                        return details;
-                    });
-                    break;
-                }
-                case 'json':
-                    promise = promise.then(details => {
-                        details.props.response.value = {};
-                        details.props.responseText.value = '{}';
-                        return details;
-                    });
-                    break;
-                default:
-                    if ( directive === '' ) { break; }
-                    promise = promise.then(details => {
-                        return generateContent(details.directive).then(text => {
-                            details.props.response.value = text;
-                            details.props.responseText.value = text;
-                            return details;
-                        });
-                    });
-                    break;
+                });
+                haystack.headers['content-type'] = 'text/plain';
+                break;
             }
             promise.then(details => {
+                haystack.headers['content-length'] = `${details.props.response.value}`.length;
                 Object.defineProperties(details.xhr, details.props);
                 details.xhr.dispatchEvent(new Event('readystatechange'));
                 details.xhr.dispatchEvent(new Event('load'));
                 details.xhr.dispatchEvent(new Event('loadend'));
             });
+        }
+        getResponseHeader(headerName) {
+            const haystack = xhrInstances.get(this);
+            if ( haystack === undefined || this.readyState < this.HEADERS_RECEIVED ) {
+                return super.getResponseHeader(headerName);
+            }
+            const value = haystack.headers[headerName.toLowerCase()];
+            if ( value !== undefined && value !== '' ) { return value; }
+            return null;
+        }
+        getAllResponseHeaders() {
+            const haystack = xhrInstances.get(this);
+            if ( haystack === undefined || this.readyState < this.HEADERS_RECEIVED ) {
+                return super.getAllResponseHeaders();
+            }
+            const out = [];
+            for ( const [ name, value ] of Object.entries(haystack.headers) ) {
+                if ( !value ) { continue; }
+                out.push(`${name}: ${value}`);
+            }
+            if ( out.length !== 0 ) { out.push(''); }
+            return out.join('\r\n');
         }
     };
 }
@@ -2894,6 +2977,9 @@ function xmlPrune(
                     type === '' && thisArg.responseXML instanceof XMLDocument
                 ) {
                     pruneFromDoc(thisArg.responseXML);
+                    const serializer = new XMLSerializer();
+                    const textout = serializer.serializeToString(thisArg.responseXML);
+                    Object.defineProperty(thisArg, 'responseText', { value: textout });
                     return;
                 }
                 if (
@@ -4036,10 +4122,21 @@ function trustedClickElement(
         ? ((...args) => { safe.uboLog(...args); })
         : (( ) => { });
 
+    const querySelectorEx = (selector, context = document) => {
+        const pos = selector.indexOf(' >>> ');
+        if ( pos === -1 ) { return context.querySelector(selector); }
+        const outside = selector.slice(0, pos).trim();
+        const inside = selector.slice(pos + 5).trim();
+        const elem = context.querySelector(outside);
+        if ( elem === null ) { return null; }
+        const shadowRoot = elem.shadowRoot;
+        return shadowRoot && querySelectorEx(inside, shadowRoot);
+    };
+
     const selectorList = selectors.split(/\s*,\s*/)
         .filter(s => {
             try {
-                void document.querySelector(s);
+                void querySelectorEx(s);
             } catch(_) {
                 return false;
             }
@@ -4113,7 +4210,7 @@ function trustedClickElement(
         if ( Date.now() < tnext ) { return next(); }
         const selector = selectorList.shift();
         if ( selector === undefined ) { return terminate(); }
-        const elem = document.querySelector(selector);
+        const elem = querySelectorEx(selector);
         if ( elem === null ) {
             selectorList.unshift(selector);
             return next(true);

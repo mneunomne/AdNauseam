@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock Origin - a browser extension to block requests.
+    uBlock Origin - a comprehensive, efficient content blocker
     Copyright (C) 2014-present Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -19,8 +19,6 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* globals WebAssembly */
-
 'use strict';
 
 /******************************************************************************/
@@ -28,8 +26,9 @@
 import publicSuffixList from '../lib/publicsuffixlist/publicsuffixlist.js';
 import punycode from '../lib/punycode.js';
 
-import cosmeticFilteringEngine from './cosmetic-filtering.js';
 import io from './assets.js';
+import { broadcast, filteringBehaviorChanged, onBroadcast } from './broadcast.js';
+import cosmeticFilteringEngine from './cosmetic-filtering.js';
 import logger from './logger.js';
 import lz4Codec from './lz4.js';
 import staticExtFilteringEngine from './static-ext-filtering.js';
@@ -110,9 +109,9 @@ import {
     };
 
     const saveTimer = vAPI.defer.create(shouldSave);
-    const saveDelay = { min: 4 };
+    const saveDelay = { sec: 23 };
 
-    saveTimer.on(saveDelay);
+    saveTimer.onidle(saveDelay);
 
     µb.saveLocalSettings = function() {
         localSettingsLastSaved = Date.now();
@@ -244,7 +243,7 @@ import {
         if ( typeof hs[key] !== typeof hsDefault[key] ) { continue; }
         this.hiddenSettings[key] = hs[key];
     }
-    this.fireEvent('hiddenSettingsChanged');
+    broadcast({ what: 'hiddenSettingsChanged' });
 };
 
 // Note: Save only the settings which values differ from the default ones.
@@ -260,7 +259,8 @@ import {
     });
 };
 
-µb.onEvent('hiddenSettingsChanged', ( ) => {
+onBroadcast(msg => {
+    if ( msg.what !== 'hiddenSettingsChanged' ) { return; }
     const µbhs = µb.hiddenSettings;
     ubologSet(µbhs.consoleLogLevel === 'info');
     vAPI.net.setOptions({
@@ -405,7 +405,8 @@ import {
     return false;
 };
 
-µb.onEvent('hiddenSettingsChanged', ( ) => {
+onBroadcast(msg => {
+    if ( msg.what !== 'hiddenSettingsChanged' ) { return; }
     µb.parsedTrustedListPrefixes = [];
 });
 
@@ -628,9 +629,8 @@ import {
 
     // https://www.reddit.com/r/uBlockOrigin/comments/cj7g7m/
     // https://www.reddit.com/r/uBlockOrigin/comments/cnq0bi/
-    µb.filteringBehaviorChanged();
-
-    vAPI.messaging.broadcast({ what: 'userFiltersUpdated' });
+    filteringBehaviorChanged();
+    broadcast({ what: 'userFiltersUpdated' });
 };
 
 µb.createUserFilters = function(details) {
@@ -649,6 +649,7 @@ import {
     for ( const key in lists ) {
         if ( lists.hasOwnProperty(key) === false ) { continue; }
         const list = lists[key];
+        if ( list.content !== 'filters' ) { continue; }
         if ( list.off !== true ) {
             selectedListKeys.push(key);
             continue;
@@ -871,7 +872,7 @@ import {
         staticExtFilteringEngine.freeze();
         redirectEngine.freeze();
         vAPI.net.unsuspend();
-        µb.filteringBehaviorChanged();
+        filteringBehaviorChanged();
 
         vAPI.storage.set({ 'availableFilterLists': µb.availableFilterLists });
 
@@ -881,7 +882,7 @@ import {
             text: 'Reloading all filter lists: done'
         });
 
-        vAPI.messaging.broadcast({
+        broadcast({
             what: 'staticFilteringDataChanged',
             parseCosmeticFilters: µb.userSettings.parseAllABPHideFilters,
             ignoreGenericCosmeticFilters: µb.userSettings.ignoreGenericCosmeticFilters,
@@ -1311,6 +1312,8 @@ import {
     //   memory usage at selfie-load time. For some reasons.
 
     const create = async function() {
+        vAPI.alarms.clear('createSelfie');
+        createTimer.off();
         if ( µb.inMemoryFilters.length !== 0 ) { return; }
         if ( Object.keys(µb.availableFilterLists).length === 0 ) { return; }
         await Promise.all([
@@ -1384,10 +1387,22 @@ import {
             io.remove(/^selfie\//);
             µb.selfieIsInvalid = true;
         }
+        if ( µb.wakeupReason === 'createSelfie' ) {
+            µb.wakeupReason = '';
+            return createTimer.offon({ sec: 27 });
+        }
+        vAPI.alarms.create('createSelfie', {
+            delayInMinutes: µb.hiddenSettings.selfieAfter
+        });
         createTimer.offon({ min: µb.hiddenSettings.selfieAfter });
     };
 
     const createTimer = vAPI.defer.create(create);
+
+    vAPI.alarms.onAlarm.addListener(alarm => {
+        if ( alarm.name !== 'createSelfie') { return; }
+        µb.wakeupReason = 'createSelfie';
+    });
 
     µb.selfieManager = { load, destroy };
 }
@@ -1570,16 +1585,27 @@ import {
 
     const launchTimer = vAPI.defer.create(fetchDelay => {
         next = 0;
-        io.updateStart({ delay: fetchDelay, auto: true });
+        io.updateStart({ fetchDelay, auto: true });
     });
 
-    µb.scheduleAssetUpdater = async function(updateDelay) {
+    µb.scheduleAssetUpdater = async function(details = {}) {
         launchTimer.off();
 
-        if ( updateDelay === 0 ) {
+        if ( details.now ) {
             next = 0;
+            io.updateStart(details);
             return;
         }
+
+        if ( µb.userSettings.autoUpdate === false ) {
+            if ( Boolean(details.updateDelay) === false ) {
+                next = 0;
+                return;
+            }
+        }
+
+        let updateDelay = details.updateDelay ||
+            this.hiddenSettings.autoUpdatePeriod * 3600000;
 
         const now = Date.now();
         let needEmergencyUpdate = false;
@@ -1679,10 +1705,10 @@ import {
         } else if ( details.assetKey === 'ublock-badlists' ) {
             this.badLists = new Map();
         }
-        vAPI.messaging.broadcast({
+        broadcast({
             what: 'assetUpdated',
             key: details.assetKey,
-            cached: cached
+            cached,
         });
 
         // https://github.com/gorhill/uBlock/issues/2585
@@ -1694,10 +1720,10 @@ import {
 
     // Update failed.
     if ( topic === 'asset-update-failed' ) {
-        vAPI.messaging.broadcast({
+        broadcast({
             what: 'assetUpdated',
             key: details.assetKey,
-            failed: true
+            failed: true,
         });
         return;
     }
@@ -1714,14 +1740,8 @@ import {
             }
             this.loadFilterLists();
         }
-        if ( this.userSettings.autoUpdate ) {
-            this.scheduleAssetUpdater(
-                this.hiddenSettings.autoUpdatePeriod * 3600000 || 25200000
-            );
-        } else {
-            this.scheduleAssetUpdater(0);
-        }
-        vAPI.messaging.broadcast({
+        this.scheduleAssetUpdater();
+        broadcast({
             what: 'assetsUpdated',
             assetKeys: details.assetKeys
         });

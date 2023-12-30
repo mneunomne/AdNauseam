@@ -26,6 +26,7 @@
 import µb from '../background.js';
 import staticFilteringReverseLookup from '../reverselookup.js';
 import staticNetFilteringEngine from '../static-net-filtering.js'
+import { broadcast, filteringBehaviorChanged, onBroadcast } from '../broadcast.js';
 
 import dnt from './dnt.js'
 
@@ -438,7 +439,7 @@ const adnauseam = (function () {
         if (ad.title === 'Pending') ad.title = 'Failed';
       }
 
-      vAPI.messaging.broadcast({
+      broadcast({
         what: 'adVisited',
         ad: ad
       });
@@ -452,7 +453,7 @@ const adnauseam = (function () {
   /* send to vault/menu/dashboard if open */
   const sendNotifications = function (notes) {
 
-    vAPI.messaging.broadcast({
+    broadcast({
       what: 'notifications',
       notifications: notes
       // TODO: do we need to make these cloneable ? see #1163
@@ -514,7 +515,7 @@ const adnauseam = (function () {
       }
       // else warn('Null tab in click animation: ', tab); // not a problem
 
-      vAPI.messaging.broadcast({
+      broadcast({
         what: 'adVisited',
         ad: ad
       });
@@ -631,7 +632,7 @@ const adnauseam = (function () {
     const url = ad && ad.targetUrl, now = markActivity();
 
     // tell menu/vault we have a new attempt
-    vAPI.messaging.broadcast({
+    broadcast({
       what: 'adAttempt',
       ad: ad
     });
@@ -1867,7 +1868,7 @@ const adnauseam = (function () {
 
     log('ADSET #' + request.gid + '\n', data);
 
-    vAPI.messaging.broadcast({
+    broadcast({
       what: 'logJSON',
       data: data
     });
@@ -2253,7 +2254,7 @@ const adnauseam = (function () {
   
   // ADN broadcast change of "disable warning" to all tabs
   exports.setWarningDisabled = function () {
-    vAPI.messaging.broadcast({
+    broadcast({
       what: µb.userSettings.disableWarnings ? 'hideNotifications' : 'showNotifications',
     });
     return µb.userSettings.disableWarnings;

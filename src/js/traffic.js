@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock Origin - a browser extension to block requests.
+    uBlock Origin - a comprehensive, efficient content blocker
     Copyright (C) 2014-present Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -945,6 +945,7 @@ const bodyFilterer = (( ) => {
         'application/vnd.api+json',
         'application/vnd.apple.mpegurl',
         'application/vnd.apple.mpegurl.audio',
+        'application/x-javascript',
         'application/x-mpegurl',
         'application/xhtml+xml',
         'application/xml',

@@ -35,6 +35,7 @@
     <div id="domInspector" class="inspector hCompact">
         <div class="permatoolbar">
             <div>
+                <button class="iconified notext vExpandToggler"><span class="fa-icon">double-angle-up</span><span class="hover"></span></button>
                 <button class="iconified notext vCompactToggler"><span class="fa-icon">double-angle-up</span><span class="hover"></span></button>
                 <button class="iconified notext hCompactToggler"><span class="fa-icon">double-angle-left</span><span class="hover"></span></button>
                 <button class="iconified notext revert disabled"><span class="fa-icon">eraser</span><span class="hover"></span></button>
@@ -55,7 +56,7 @@
                 <span id="filterExprGroup">
                     <button id="filterButton" class="iconified notext" data-i18n-title="loggerRowFiltererButtonTip"><span class="fa-icon">filter</span><span class="hover"></span></button>
                     <span id="filterInput">
-                        <input type="search" placeholder="logFilterPrompt">
+                        <input type="search" placeholder="logFilterPrompt" spellcheck="false">
                         <span id="filterExprButton" class="button fa-icon expanded" data-i18n-title="loggerRowFiltererBuiltinTip">angle-up</span>
                         <div id="filterExprPicker">
                             <div>
@@ -243,7 +244,6 @@
 <script src="js/vapi.js"></script>
 <script src="js/vapi-common.js"></script>
 <script src="js/vapi-client.js"></script>
-<script src="js/vapi-client-extra.js"></script>
 <script src="js/theme.js" type="module"></script>
 <script src="js/i18n.js" type="module"></script>
 <script src="js/logger-ui.js" type="module"></script>
