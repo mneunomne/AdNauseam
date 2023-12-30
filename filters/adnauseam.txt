@@ -854,3 +854,6 @@ www.ekapija.com##div:has(> div[id^="adocean"])
 
 # unbreak milanuncios.com page https://github.com/dhowe/AdNauseam/issues/2452
 milanuncios.com#@#*[class*="Advert"]
+
+# anime2you.de https://github.com/dhowe/AdNauseam/issues/2487
+||ads.viralize.tv/$domain=www.anime2you.de,important
