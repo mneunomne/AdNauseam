@@ -31,7 +31,7 @@ let broadcastChannel;
 
 export function broadcast(message) {
     if ( broadcastChannel === undefined ) {
-        broadcastChannel = new self.BroadcastChannel('ADN'); // AdNauseam change (uBO -> ADN)
+        broadcastChannel = new self.BroadcastChannel('uBO'); // AdNauseam change (uBO -> ADN)
     }
     broadcastChannel.postMessage(message);
 }
@@ -54,7 +54,7 @@ export async function broadcastToAll(message) {
 /******************************************************************************/
 
 export function onBroadcast(listener) {
-    const bc = new self.BroadcastChannel('ADN'); // AdNauseam change (uBO -> ADN)
+    const bc = new self.BroadcastChannel('uBO'); // AdNauseam change (uBO -> ADN)
     bc.onmessage = ev => listener(ev.data || {});
     return bc;
 }

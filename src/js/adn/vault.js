@@ -24,6 +24,7 @@
 import { i18n$ } from "../i18n.js";
 import uDom from './uDom.js';
 import { renderNotifications } from './notifications.js';
+import { broadcast, onBroadcast } from '../broadcast.js';
 
 import {
   byField,
@@ -79,7 +80,7 @@ var transitionTimeout = null
 let gAds, gAdSets, gMin, gMax, gSliderRight, gSliderLeft, settings;
 let lastAdDetectedTime, waitingAds = []; // stateful
 
-vAPI.broadcastListener.add(request => {
+onBroadcast(request => {
   //console.log("GOT BROADCAST", request);
   switch (request.what) {
     case 'adAttempt':

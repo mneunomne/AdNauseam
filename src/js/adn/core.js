@@ -26,7 +26,7 @@
 import µb from '../background.js';
 import staticFilteringReverseLookup from '../reverselookup.js';
 import staticNetFilteringEngine from '../static-net-filtering.js'
-import { broadcast, filteringBehaviorChanged, onBroadcast } from '../broadcast.js';
+import { broadcast } from '../broadcast.js';
 
 import dnt from './dnt.js'
 

@@ -28,6 +28,7 @@ import { renderNotifications, ReloadTab, addNotification } from './notifications
 import { setCost, targetDomain, decodeEntities, isNonLatin, isCyrillic } from './adn-utils.js';
 import { dom } from '../dom.js';
 import uDom from './uDom.js';
+import { broadcast, onBroadcast } from '../broadcast.js';
 
 (function () {
 
@@ -54,7 +55,7 @@ import uDom from './uDom.js';
     }
   }, 10)
 
-  vAPI.broadcastListener.add(request => {
+  onBroadcast(request => {
 
     switch (request.what) {
 

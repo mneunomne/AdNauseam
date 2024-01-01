@@ -23,6 +23,7 @@
 
 import { renderNotifications } from './adn/notifications.js'
 import { dom, qs$ } from './dom.js';
+import { onBroadcast } from './broadcast.js';
 
 /******************************************************************************/
 
@@ -114,7 +115,7 @@ if ( self.location.hash.slice(1) === 'no-dashboard.html' ) {
 }
 
 /// ADN notification to appear on dashboard
-vAPI.broadcastListener.add(request => {
+onBroadcast(request => {
     switch (request.what) {
         case 'notifications':
             renderNotifications(request.notifications, "dashboard");
