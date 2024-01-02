@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock Origin - a browser extension to block requests.
+    uBlock Origin - a comprehensive, efficient content blocker
     Copyright (C) 2014-2015 The uBlock Origin authors
     Copyright (C) 2014-present Raymond Hill
 
@@ -88,26 +88,83 @@ vAPI.app = {
     },
 };
 
-/******************************************************************************/
-/******************************************************************************/
+/*******************************************************************************
+ * 
+ * https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/storage/session
+ * 
+ * Session (in-memory) storage is promise-based in all browsers, no need for
+ * a webext polyfill. However, not all browsers supports it in MV2.
+ * 
+ * */
+
+vAPI.sessionStorage = {
+    get() {
+        return Promise.resolve({});
+    },
+    set() {
+        return Promise.resolve();
+    },
+    remove() {
+        return Promise.resolve();
+    },
+    clear() {
+        return Promise.resolve();
+    },
+    implemented: false,
+};
+
+/*******************************************************************************
+ * 
+ * Data written to and read from storage.local will be mirrored to in-memory
+ * storage.session.
+ * 
+ * Data read from storage.local will be first fetched from storage.session,
+ * then if not available, read from storage.local.
+ * 
+ * */
 
 vAPI.storage = {
-    get(...args) {
-        return webext.storage.local.get(...args).catch(reason => {
-            console.log(reason);
+    get(key, ...args) {
+        if ( vAPI.sessionStorage.implemented !== true ) {
+            return webext.storage.local.get(key, ...args).catch(reason => {
+                console.log(reason);
+            });
+        }
+        return vAPI.sessionStorage.get(key, ...args).then(bin => {
+            const size = Object.keys(bin).length;
+            if ( size === 1 && typeof key === 'string' && bin[key] === null ) {
+                return {};
+            }
+            if ( size !== 0 ) { return bin; }
+            return webext.storage.local.get(key, ...args).then(bin => {
+                if ( bin instanceof Object === false ) { return bin; }
+                // Mirror empty result as null value in order to prevent
+                // from falling back to storage.local when there is no need.
+                const tomirror = Object.assign({}, bin);
+                if ( typeof key === 'string' && Object.keys(bin).length === 0 ) {
+                    Object.assign(tomirror, { [key]: null });
+                }
+                vAPI.sessionStorage.set(tomirror);
+                return bin;
+            }).catch(reason => {
+                console.log(reason);
+            });
         });
     },
     set(...args) {
+        vAPI.sessionStorage.set(...args);
         return webext.storage.local.set(...args).catch(reason => {
             console.log(reason);
         });
     },
     remove(...args) {
+        vAPI.sessionStorage.remove(...args);
         return webext.storage.local.remove(...args).catch(reason => {
             console.log(reason);
         });
     },
     clear(...args) {
+        vAPI.sessionStorage.clear(...args);
         return webext.storage.local.clear(...args).catch(reason => {
             console.log(reason);
         });
@@ -1018,52 +1075,6 @@ vAPI.messaging = {
         const tabId = portDetails.tabId;
         const msg = request.msg;
         switch ( msg.what ) {
-        case 'connectionAccepted':
-        case 'connectionRefused': {
-            const toPort = this.ports.get(msg.fromToken);
-            if ( toPort !== undefined ) {
-                msg.tabId = tabId;
-                toPort.port.postMessage(request);
-            } else {
-                msg.what = 'connectionBroken';
-                port.postMessage(request);
-            }
-            break;
-        }
-        case 'connectionRequested':
-            msg.tabId = tabId;
-            for ( const { port: toPort } of this.ports.values() ) {
-                if ( toPort === port ) { continue; }
-                try {
-                    toPort.postMessage(request);
-                } catch (ex) {
-                    this.onPortDisconnect(toPort);
-                }
-            }
-            break;
-        case 'connectionBroken':
-        case 'connectionCheck':
-        case 'connectionMessage': {
-            const toPort = this.ports.get(
-                port.name === msg.fromToken ? msg.toToken : msg.fromToken
-            );
-            if ( toPort !== undefined ) {
-                msg.tabId = tabId;
-                toPort.port.postMessage(request);
-            } else {
-                msg.what = 'connectionBroken';
-                port.postMessage(request);
-            }
-            break;
-        }
-        case 'extendClient':
-            vAPI.tabs.executeScript(tabId, {
-                file: '/js/vapi-client-extra.js',
-                frameId: portDetails.frameId,
-            }).then(( ) => {
-                callback();
-            });
-            break;
         case 'localStorage': {
             if ( portDetails.privileged !== true ) { break; }
             const args = msg.args || [];
@@ -1210,16 +1221,15 @@ vAPI.messaging = {
     const shortSecrets = [];
     let lastShortSecretTime = 0;
 
-    // Long secrets are meant to be used multiple times, but for at most a few
-    // minutes. The realm is one value out of 36^18 = over 10^28 values.
-    const longSecrets = [ '', '' ];
-    let lastLongSecretTimeSlice = 0;
+    // Long secrets are valid until revoked or uBO restarts. The realm is one
+    // value out of 36^18 = over 10^28 values.
+    const longSecrets = new Set();
 
     const guard = details => {
         const match = reSecret.exec(details.url);
         if ( match === null ) { return { cancel: true }; }
         const secret = match[1];
-        if ( longSecrets.includes(secret) ) { return; }
+        if ( longSecrets.has(secret) ) { return; }
         const pos = shortSecrets.indexOf(secret);
         if ( pos === -1 ) { return { cancel: true }; }
         shortSecrets.splice(pos, 1);
@@ -1247,14 +1257,13 @@ vAPI.messaging = {
             shortSecrets.push(secret);
             return secret;
         },
-        long: ( ) => {
-            const timeSlice = Date.now() >>> 19; // Changes every ~9 minutes
-            if ( timeSlice !== lastLongSecretTimeSlice ) {
-                longSecrets[1] = longSecrets[0];
-                longSecrets[0] = `${generateSecret()}${generateSecret()}${generateSecret()}`;
-                lastLongSecretTimeSlice = timeSlice;
+        long: previous => {
+            if ( previous !== undefined ) {
+                longSecrets.delete(previous);
             }
-            return longSecrets[0];
+            const secret = `${generateSecret()}${generateSecret()}${generateSecret()}`;
+            longSecrets.add(secret);
+            return secret;
         },
     };
 }
@@ -1585,14 +1594,14 @@ vAPI.adminStorage = (( ) => {
             store = await webext.storage.managed.get();
         } catch(ex) {
         }
-        webext.storage.local.set({ cachedManagedStorage: store || {} });
+        vAPI.storage.set({ cachedManagedStorage: store || {} });
     };
 
     return {
         get: async function(key) {
             let bin;
             try {
-                bin = await webext.storage.local.get('cachedManagedStorage') || {};
+                bin = await vAPI.storage.get('cachedManagedStorage') || {};
                 if ( Object.keys(bin).length === 0 ) {
                     bin = await webext.storage.managed.get() || {};
                 } else {
@@ -1640,7 +1649,7 @@ vAPI.localStorage = {
     start: async function() {
         if ( this.cache instanceof Promise ) { return this.cache; }
         if ( this.cache instanceof Object ) { return this.cache; }
-        this.cache = webext.storage.local.get('localStorage').then(bin => {
+        this.cache = vAPI.storage.get('localStorage').then(bin => {
             this.cache = bin instanceof Object &&
                 bin.localStorage instanceof Object
                     ? bin.localStorage
@@ -1650,7 +1659,7 @@ vAPI.localStorage = {
     },
     clear: function() {
         this.cache = {};
-        return webext.storage.local.set({ localStorage: this.cache });
+        return vAPI.storage.set({ localStorage: this.cache });
     },
     getItem: function(key) {
         if ( this.cache instanceof Object === false ) {
@@ -1672,7 +1681,7 @@ vAPI.localStorage = {
         await this.start();
         if ( value === this.cache[key] ) { return; }
         this.cache[key] = value;
-        return webext.storage.local.set({ localStorage: this.cache });
+        return vAPI.storage.set({ localStorage: this.cache });
     },
     cache: undefined,
 };
@@ -1933,5 +1942,19 @@ vAPI.getAddonInfo = function (callback) { // ADN
     });
   }
 }
+
+/******************************************************************************/
+/******************************************************************************/
+
+vAPI.alarms = browser.alarms || {
+    create() {
+    },
+    clear() {
+    },
+    onAlarm: {
+        addListener() {
+        }
+    }
+};
 
 /******************************************************************************/

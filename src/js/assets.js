@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock Origin - a browser extension to block requests.
+    uBlock Origin - a comprehensive, efficient content blocker
     Copyright (C) 2014-present Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -23,13 +23,14 @@
 
 /******************************************************************************/
 
-import cacheStorage from './cachestorage.js';
-import logger from './logger.js';
 import µb from './background.js';
 import adnauseam from './adn/core.js'
 import dnt from './adn/dnt.js'
+import { broadcast } from './broadcast.js';
+import cacheStorage from './cachestorage.js';
 import { ubolog } from './console.js';
 import { i18n$ } from './i18n.js';
+import logger from './logger.js';
 import * as sfp from './static-filtering-parser.js';
 import { orphanizeString, } from './text-utils.js';
 
@@ -40,6 +41,7 @@ const reIsUserAsset = /^user-/;
 const errorCantConnectTo = i18n$('errorCantConnectTo');
 const MS_PER_HOUR = 60 * 60 * 1000;
 const MS_PER_DAY = 24 * MS_PER_HOUR;
+const MINUTES_PER_DAY = 24 * 60;
 const EXPIRES_DEFAULT = 7;
 
 const assets = {};
@@ -54,7 +56,7 @@ const stringIsNotEmpty = s => typeof s === 'string' && s !== '';
 
 const parseExpires = s => {
     const matches = s.match(/(\d+)\s*([dhm]?)/i);
-    if ( matches === null ) { return 0; }
+    if ( matches === null ) { return; }
     let updateAfter = parseInt(matches[1], 10);
     if ( matches[2] === 'h' ) {
         updateAfter = Math.max(updateAfter, 4) / 24;
@@ -95,31 +97,11 @@ const extractMetadataFromList = (content, fields) => {
 assets.extractMetadataFromList = extractMetadataFromList;
 
 const resourceTimeFromXhr = xhr => {
-    try {
-        // First lookup timestamp from content
-        let assetTime = 0;
-        if ( typeof xhr.response === 'string' ) {
-            const metadata = extractMetadataFromList(xhr.response, [
-                'Last-Modified'
-            ]);
-            assetTime = metadata.lastModified || 0;
-        }
-        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Age
-        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date
-        let networkTime = 0;
-        if ( assetTime === 0 ) {
-            const age = parseInt(xhr.getResponseHeader('Age'), 10);
-            if ( isNaN(age) === false ) {
-                const time = (new Date(xhr.getResponseHeader('Date'))).getTime();
-                if ( isNaN(time) === false ) {
-                    networkTime = time - age * 1000;
-                }
-            }
-        }
-        return Math.max(assetTime, networkTime, 0);
-    } catch(_) {
-    }
-    return 0;
+    if ( typeof xhr.response !== 'string' ) {  return 0; }
+    const metadata = extractMetadataFromList(xhr.response, [
+        'Last-Modified'
+    ]);
+    return metadata.lastModified || 0;
 };
 
 const resourceTimeFromParts = (parts, time) => {
@@ -176,6 +158,23 @@ const isDiffUpdatableAsset = content => {
         data.diffPath.startsWith('%') === false;
 };
 
+const computedPatchUpdateTime = assetKey => {
+    const entry = assetCacheRegistry[assetKey];
+    if ( entry === undefined ) { return 0; }
+    if ( typeof entry.diffPath !== 'string' ) { return 0; }
+    if ( typeof entry.diffExpires !== 'number' ) { return 0; }
+    const match = /(\d+)\.(\d+)\.(\d+)\.(\d+)/.exec(entry.diffPath);
+    if ( match === null ) { return getWriteTime(); }
+    const date = new Date();
+    date.setUTCFullYear(
+        parseInt(match[1], 10),
+        parseInt(match[2], 10) - 1,
+        parseInt(match[3], 10)
+    );
+    date.setUTCHours(0, parseInt(match[4], 10) + entry.diffExpires * MINUTES_PER_DAY, 0, 0);
+    return date.getTime();
+};
+
 /******************************************************************************/
 
 // favorLocal: avoid making network requests whenever possible
@@ -199,14 +198,14 @@ const getContentURLs = (assetKey, options = {}) => {
             return 0;
         });
     }
-    if ( Array.isArray(entry.cdnURLs) ) {
+    if ( options.favorOrigin !== true && Array.isArray(entry.cdnURLs) ) {
         const cdnURLs = entry.cdnURLs.slice();
         for ( let i = 0, n = cdnURLs.length; i < n; i++ ) {
             const j = Math.floor(Math.random() * n);
             if ( j === i ) { continue; }
             [ cdnURLs[j], cdnURLs[i] ] = [ cdnURLs[i], cdnURLs[j] ];
         }
-        if ( options.favorLocal || options.favorOrigin ) {
+        if ( options.favorLocal ) {
             contentURLs.push(...cdnURLs);
         } else {
             contentURLs.unshift(...cdnURLs);
@@ -990,6 +989,17 @@ assets.get = async function(assetKey, options = {}) {
                 silent: options.silent === true,
             });
             registerAssetSource(assetKey, { error: undefined });
+            if ( assetDetails.content === 'filters' ) {
+                const metadata = extractMetadataFromList(details.content, [
+                    'Last-Modified',
+                    'Expires',
+                    'Diff-Name',
+                    'Diff-Path',
+                    'Diff-Expires',
+                ]);
+                metadata.diffUpdated = undefined;
+                assetCacheSetDetails(assetKey, metadata);
+            }
         }
         return reportBack(details.content, contentURL);
     }
@@ -1044,8 +1054,10 @@ async function getRemote(assetKey, options = {}) {
         error = undefined;
 
         // If fetched resource is older than cached one, ignore
-        stale = resourceIsStale(result, cacheDetails);
-        if ( stale ) { continue; }
+        if ( options.favorOrigin !== true ) {
+            stale = resourceIsStale(result, cacheDetails);
+            if ( stale ) { continue; }
+        }
 
         // Success
         assetCacheWrite(assetKey, {
@@ -1067,6 +1079,7 @@ async function getRemote(assetKey, options = {}) {
                 'Diff-Path',
                 'Diff-Expires',
             ]);
+            metadata.diffUpdated = undefined;
             assetCacheSetDetails(assetKey, metadata);
         }
 
@@ -1123,6 +1136,9 @@ assets.metadata = async function() {
             const obsoleteAfter = cacheEntry.writeTime + getUpdateAfterTime(assetKey);
             assetEntry.obsolete = obsoleteAfter < now;
             assetEntry.remoteURL = cacheEntry.remoteURL;
+            if ( cacheEntry.diffUpdated ) {
+                assetEntry.diffUpdated = cacheEntry.diffUpdated;
+            }
         } else if (
             assetEntry.contentURL &&
             assetEntry.contentURL.length !== 0
@@ -1164,7 +1180,7 @@ assets.getUpdateAges = async function(conditions = {}) {
         out.push({
             assetKey,
             age,
-            ageNormalized: age / getUpdateAfterTime(assetKey),
+            ageNormalized: age / Math.max(1, getUpdateAfterTime(assetKey)),
         });
     }
     return out;
@@ -1199,8 +1215,20 @@ const getAssetDiffDetails = assetKey => {
     out.writeTime = cacheEntry.writeTime;
     const assetEntry = assetSourceRegistry[assetKey];
     if ( assetEntry === undefined ) { return; }
-    if ( Array.isArray(assetEntry.cdnURLs) === false ) { return; }
-    out.cdnURLs = assetEntry.cdnURLs.slice();
+    if ( assetEntry.content !== 'filters' ) { return; }
+    if ( Array.isArray(assetEntry.cdnURLs) ) {
+        out.cdnURLs = assetEntry.cdnURLs.slice();
+    } else if ( reIsExternalPath.test(assetKey) ) {
+        out.cdnURLs = [ assetKey ];
+    } else if ( typeof assetEntry.contentURL === 'string' ) {
+        out.cdnURLs = [ assetEntry.contentURL ];
+    } else if ( Array.isArray(assetEntry.contentURL) ) {
+        out.cdnURLs = assetEntry.contentURL.slice(0).filter(url =>
+            reIsExternalPath.test(url)
+        );
+    }
+    if ( Array.isArray(out.cdnURLs) === false ) { return; }
+    if ( out.cdnURLs.length === 0 ) { return; }
     return out;
 };
 
@@ -1216,12 +1244,13 @@ async function diffUpdater() {
         const assetDetails = getAssetDiffDetails(assetKey);
         if ( assetDetails === undefined ) { continue; }
         assetDetails.what = 'update';
-        if ( (getWriteTime(assetKey) + assetDetails.diffExpires) > now ) {
-            assetDetails.fetch = false;
-            toSoftUpdate.push(assetDetails);
-        } else {
+        const computedUpdateTime = computedPatchUpdateTime(assetKey);
+        if ( computedUpdateTime !== 0 && computedUpdateTime <= now ) {
             assetDetails.fetch = true;
             toHardUpdate.push(assetDetails);
+        } else {
+            assetDetails.fetch = false;
+            toSoftUpdate.push(assetDetails);
         }
     }
     if ( toHardUpdate.length === 0 ) { return; }
@@ -1245,7 +1274,7 @@ async function diffUpdater() {
             assetCacheSetDetails(data.assetKey, metadata);
         };
         bc.onmessage = ev => {
-            const data = ev.data;
+            const data = ev.data || {};
             if ( data.what === 'ready' ) {
                 ubolog('Diff updater: hard updating', toHardUpdate.map(v => v.assetKey).join());
                 while ( toHardUpdate.length !== 0 ) {
@@ -1283,6 +1312,7 @@ async function diffUpdater() {
                     content: data.text,
                     resourceTime: metadata.lastModified || 0,
                 });
+                metadata.diffUpdated = true;
                 assetCacheSetDetails(data.assetKey, metadata);
                 updaterUpdated.push(data.assetKey);
             } else if ( data.error ) {
@@ -1290,7 +1320,7 @@ async function diffUpdater() {
             } else if ( data.status === 'nopatch-yet' || data.status === 'nodiff' ) {
                 ubolog(`Diff updater: skip update of ${data.assetKey} using ${data.patchPath}\n\treason: ${data.status}`);
                 assetCacheSetDetails(data.assetKey, { writeTime: data.writeTime });
-                vAPI.messaging.broadcast({
+                broadcast({
                     what: 'assetUpdated',
                     key: data.assetKey,
                     cached: true,
@@ -1426,8 +1456,8 @@ function updateDone() {
 
 assets.updateStart = function(details) {
     const oldUpdateDelay = updaterAssetDelay;
-    const newUpdateDelay = typeof details.delay === 'number'
-        ? details.delay
+    const newUpdateDelay = typeof details.fetchDelay === 'number'
+        ? details.fetchDelay
         : updaterAssetDelayDefault;
     updaterAssetDelay = Math.min(oldUpdateDelay, newUpdateDelay);
     updaterAuto = details.auto === true;

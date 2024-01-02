@@ -108,6 +108,7 @@
     "open_in_tab": true
   },
   "permissions": [
+    "alarms",
     "dns",
     "menus",
     "privacy",

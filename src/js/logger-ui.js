@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock Origin - a browser extension to block requests.
+    uBlock Origin - a comprehensive, efficient content blocker
     Copyright (C) 2015-present Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -689,7 +689,7 @@ const viewPort = (( ) => {
             `  width: calc(calc(100% - ${reservedWidth}px) * ${cellWidths[COLUMN_FILTER]});`,
             '}',
             `#vwContent .logEntry > div.messageRealm > span:nth-of-type(${COLUMN_MESSAGE+1}) {`,
-            `  width: calc(100% - ${cellWidths[COLUMN_MESSAGE]}px);`,
+            `  width: calc(100% - ${cellWidths[COLUMN_TIMESTAMP]}px);`,
             '}',
             `#vwContent .logEntry > div > span:nth-of-type(${COLUMN_RESULT+1}) {`,
             `  width: ${cellWidths[COLUMN_RESULT]}px;`,
@@ -1001,7 +1001,7 @@ const viewPort = (( ) => {
 const updateCurrentTabTitle = (( ) => {
     const i18nCurrentTab = i18n$('loggerCurrentTab');
 
-    return function() {
+    return ( ) => {
         const select = qs$('#pageSelector');
         if ( select.value !== '_' || activeTabId === 0 ) { return; }
         const opt0 = qs$(select, '[value="_"]');
@@ -1062,8 +1062,7 @@ const synchronizeTabIds = function(newTabIds) {
         return newTabIds.get(a).localeCompare(newTabIds.get(b));
     });
     let j = 3;
-    for ( let i = 0; i < tabIds.length; i++ ) {
-        const tabId = tabIds[i];
+    for ( const tabId of tabIds ) {
         if ( tabId <= 0 ) { continue; }
         if ( j === select.options.length ) {
             select.appendChild(document.createElement('option'));
@@ -2301,6 +2300,23 @@ const rowFilterer = (( ) => {
     dom.on('#filterExprPicker', 'click', '[data-filtex]', ev => {
         dom.cl.toggle(ev.target, 'on');
         builtinFilterExpression();
+    });
+    dom.on('#filterInput > input', 'drop', ev => {
+        const dropItem = item => {
+            if ( item.kind !== 'string' ) { return false; }
+            if ( item.type !== 'text/plain' ) { return false; }
+            item.getAsString(s => {
+                qs$('#filterInput > input').value = s;
+                parseInput();
+                filterAll();
+            });
+            return true;
+        };
+        for ( const item of ev.dataTransfer.items ) {
+            if ( dropItem(item) === false ) { continue; }
+            ev.preventDefault();
+            break;
+        }
     });
 
     // https://github.com/gorhill/uBlock/issues/404
