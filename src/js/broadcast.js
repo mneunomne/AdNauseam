@@ -23,6 +23,8 @@
 
 'use strict';
 
+import { makeCloneable } from './adn/adn-utils.js'; // ADN
+
 /******************************************************************************/
 
 // Broadcast a message to all uBO contexts
@@ -30,6 +32,9 @@
 let broadcastChannel;
 
 export function broadcast(message) {
+    if (message.what === 'notifications') { // ADN
+        makeCloneable(message.notifications); // #1163
+    }
     if ( broadcastChannel === undefined ) {
         broadcastChannel = new self.BroadcastChannel('uBO'); // AdNauseam change (uBO -> ADN)
     }
