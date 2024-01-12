@@ -656,7 +656,7 @@ const selectFilterLists = async ( ) => {
 
 const buttonApplyHandler = async ( ) => {
     await selectFilterLists();
-    messaging.send('adnauseam', { what: 'verifyLists' });
+    vAPI.messaging.send('adnauseam', { what: 'verifyLists' });
     dom.cl.add(dom.body, 'working');
     dom.cl.remove('#lists .listEntry.stickied', 'stickied');
     renderWidgets();
