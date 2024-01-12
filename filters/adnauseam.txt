@@ -864,3 +864,6 @@ bluemedialink.online###ads-right iframe
 
 # anime2you.de https://github.com/dhowe/AdNauseam/issues/2487
 ||ads.viralize.tv/$domain=www.anime2you.de,important
+
+# fix adn detection in dailymotion
+dailymotion.com#@#.ad_box
