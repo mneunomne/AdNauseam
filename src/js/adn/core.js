@@ -1945,15 +1945,13 @@ const adnauseam = (function () {
       //return;
     //}
     // run get request on /repos/dhowe/AdNauseam/releases
-    const response = await fetch("https://api.github.com/repos/dhowe/AdNauseam/releases");
+    const response = await fetch("https://api.github.com/repos/dhowe/AdNauseam/releases/latest");
     // validate
     if (!response.ok) {
       //throw new Error(`HTTP error! status: ${response.status}`);
     }
     // parse response
-    const releases = await response.json();
-    const filteredReleases = releases.filter(release => !release.prerelease);
-    const latestRelease = filteredReleases[0];
+    const latestRelease = await response.json();
     console.log("latestRelease", latestRelease)
     const latestVersion = latestRelease.tag_name.replace('v', '');
     console.log("latest version: " + latestVersion);
