@@ -12,7 +12,7 @@ case "$(uname -sr)" in
   Darwin*)
     echo 'Mac OS X'
     CHROME=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
-    FIREFOX=/Applications/Firefox.app/Contents/MacOS/firefox-bin
+    FIREFOX=/Applications/Firefox.app/Contents/MacOS/firefox
     OPERA=/Applications/Opera.app/Contents/MacOS/Opera 
     ;;
   Linux*)
@@ -126,7 +126,7 @@ fi
 if [ $DO_FIREFOX = true ]
 then
   printf '\n%s' "*** Target -> "
-  command "${FIREFOX}" -v || { echo >&2 "Firefox is not installed."; exit 1; }
+  # command "${FIREFOX}" -v || { echo >&2 "Firefox is not installed."; exit 1; }
   ./tools/make-firefox.sh all
   web-ext build -s ${DES}/adnauseam.firefox -a ${ARTS}
   mv ${ARTS}/adnauseam-${VERSION}.zip ${ARTS}/adnauseam-${VERSION}.firefox.zip
