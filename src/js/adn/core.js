@@ -1940,10 +1940,10 @@ const adnauseam = (function () {
   const verifyVersion = exports.verifyVersion = async function () {
     const version = vAPI.app.version;
     console.log("current version: " + version);
-    if (version.includes('b')) {
-      console.log("beta version, don't check for updates");
-      return;
-    }
+    //if (version.includes('b')) {
+      //console.log("beta version, don't check for updates");
+      //return;
+    //}
     // run get request on /repos/dhowe/AdNauseam/releases
     const response = await fetch("https://api.github.com/repos/dhowe/AdNauseam/releases");
     // validate
@@ -1952,7 +1952,9 @@ const adnauseam = (function () {
     }
     // parse response
     const releases = await response.json();
-    const latestRelease = releases[0];
+    const filteredReleases = releases.filter(release => !release.prerelease);
+    const latestRelease = filteredReleases[0];
+    console.log("latestRelease", latestRelease)
     const latestVersion = latestRelease.tag_name.replace('v', '');
     console.log("latest version: " + latestVersion);
     
