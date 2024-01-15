@@ -1243,7 +1243,7 @@ const adnauseam = (function () {
    *
    *  3) whether the request is strictBlocked (iff strictBlocking is enabled)
    *      if so, return true;
-   *      A) If global Strict Block is enabled
+   *      A) If global Strict Block is enabled OR the request is blocked by net rules.
    *      B) If request domain/page is in the StrictBlockList
    *
    *  4) check if any list it was found on allows blocks
