@@ -867,3 +867,22 @@ bluemedialink.online###ads-right iframe
 
 # fix adn detection in dailymotion
 dailymotion.com#@#.ad_box
+
+# websites from https://github.com/dhowe/AdNauseam/issues/2508 
+
+# https://ls1tech.com
+ls1tech.com###IL_SR_AD_AREA
+ls1tech.com###primis_container_div
+ls1tech.com##.insearch1.IL_BASE
+ls1tech.com##.insearch2.IL_BASE
+# https://www.thirdgen.org
+www.thirdgen.org###IL_SR_AD_AREA
+www.thirdgen.org###d_IL_INSEARCH > div.IL_BASE
+www.thirdgen.org###primis_container_div
+www.thirdgen.org##.kskddisable.insearch1.IL_BASE
+www.thirdgen.org##.kskddisable.insearch2.IL_BASE
+# https://www.camaroz28.com
+www.camaroz28.com###d_IL_INSEARCH > div.kskddisable.IL_BASE
+www.camaroz28.com##.kskddisable.insearch1.IL_BASE
+www.camaroz28.com##.kskddisable.insearch2.IL_BASE
+www.camaroz28.com###primis_container_div
