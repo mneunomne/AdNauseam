@@ -868,6 +868,17 @@ bluemedialink.online###ads-right iframe
 # fix adn detection in dailymotion
 dailymotion.com#@#.ad_box
 
+# fix ads on vietnamese news websites https://github.com/dhowe/AdNauseam/issues/2512
+
+# https://kienthuc.net.vn
+kienthuc.net.vn##.aanetwork-pto-box-bg
+kienthuc.net.vn##.aanetwork-type-pto.aanetwork-ads-box
+kienthuc.net.vn###bannerRightTop300x250
+kienthuc.net.vn##.aanetwork-ads-box
+# https://tuoitre.vn
+tuoitre.vn###LeaderBoardTop
+tuoitre.vn##[src*="/cmsads/"]
+
 # websites from https://github.com/dhowe/AdNauseam/issues/2508 
 
 # https://ls1tech.com
