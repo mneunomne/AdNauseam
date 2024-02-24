@@ -137,7 +137,6 @@ export const FilteringContext = class {
         }
         this.tstamp = 0;
         this.realm = '';
-        this.id = undefined;
         this.method = 0;
         this.itype = NO_TYPE;
         this.stype = undefined;
@@ -177,7 +176,6 @@ export const FilteringContext = class {
 
     fromFilteringContext(other) {
         this.realm = other.realm;
-        this.id = other.id;
         this.type = other.type;
         this.method = other.method;
         this.url = other.url;
