@@ -897,3 +897,7 @@ www.camaroz28.com###d_IL_INSEARCH > div.kskddisable.IL_BASE
 www.camaroz28.com##.kskddisable.insearch1.IL_BASE
 www.camaroz28.com##.kskddisable.insearch2.IL_BASE
 www.camaroz28.com###primis_container_div
+
+# reinteractive.com https://github.com/dhowe/AdNauseam/issues/2511
+reinteractive.com##.container-navigation > div.row > .top-menu-banner.container-m
+
