@@ -46,6 +46,9 @@
     },
     "toggle-cosmetic-filtering": {
       "description": "__MSG_toggleCosmeticFiltering__"
+    },
+    "toggle-javascript": {
+      "description": "__MSG_toggleJavascript__"
     }
   },
   "content_scripts": [

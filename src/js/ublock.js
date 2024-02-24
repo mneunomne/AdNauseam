@@ -157,7 +157,7 @@ const matchBucket = function(url, hostname, bucket, start) {
         }
         bucket.push(directive);
         this.saveWhitelist();
-        filteringBehaviorChanged({ hostname: targetHostname });
+        filteringBehaviorChanged({ hostname: targetHostname, direction: -1 });
         return true;
     }
 

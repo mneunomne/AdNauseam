@@ -414,6 +414,7 @@ const popupDataFromTabId = function(tabId, tabTitle) {
         godMode: µbhs.filterAuthorMode,
         netFilteringSwitch: false,
         strictBlocked: false,
+        userFiltersAreEnabled: µb.userFiltersAreEnabled(),
         rawURL: tabContext.rawURL,
         pageURL: tabContext.normalURL,
         pageHostname: rootHostname,
@@ -762,14 +763,14 @@ const retrieveContentScriptParameters = async function(sender, request) {
     // https://github.com/uBlockOrigin/uBlock-issues/issues/688#issuecomment-748179731
     //   For non-network URIs, scriptlet injection is deferred to here. The
     //   effective URL is available here in `request.url`.
-    if ( logger.enabled || request.needScriptlets ) {
-        const scriptletDetails = scriptletFilteringEngine.injectNow(request);
+    if ( logger.enabled ) {
+        const scriptletDetails = scriptletFilteringEngine.retrieve(request);
         if ( scriptletDetails !== undefined ) {
             scriptletFilteringEngine.toLogger(request, scriptletDetails);
-            if ( request.needScriptlets ) {
-                response.scriptletDetails = scriptletDetails;
-            }
         }
+    }
+    if ( request.needScriptlets ) {
+        scriptletFilteringEngine.injectNow(request);
     }
 
     // https://github.com/NanoMeow/QuickReports/issues/6#issuecomment-414516623
@@ -840,6 +841,17 @@ const onMessage = function(request, sender, callback) {
     case 'maybeGoodPopup':
         µb.maybeGoodPopup.tabId = sender.tabId;
         µb.maybeGoodPopup.url = request.url;
+        break;
+
+    case 'messageToLogger':
+        if ( logger.enabled !== true ) { break; }
+        logger.writeOne({
+            tabId: sender.tabId,
+            realm: 'message',
+            type: request.type || 'info',
+            keywords: [ 'scriptlet' ],
+            text: request.text,
+        });
         break;
 
     case 'shouldRenderNoscriptTags':
