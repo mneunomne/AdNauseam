@@ -634,6 +634,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
         break;
       case 'active':
         toggleStrictAlert(popupData.pageURL, false)
+        uDom("#on_domain").prop('checked', true);
         toggleEnabled(evt, true)
         if (initialButtonState === 'strict') {
           updateRefreshNotification(currentNotifications)
@@ -657,14 +658,14 @@ import { broadcast, onBroadcast } from '../broadcast.js';
   const onChangeDisabledScope = function (evt) {
     // check if url is domain home
     let url = new URL(popupData.pageURL)
-    let isDomainHome = url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/index.php'
-    var scope = uDom(".disable_type_radio:checked") && !isDomainHome ? uDom(".disable_type_radio:checked").val() : ''
+    // let isDomainHome = url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/index.php'
+    var scope = uDom(".disable_type_radio:checked") ? uDom(".disable_type_radio:checked").val() : ''
     // first remove previous whichever previous scope from whitelist 
     vAPI.messaging.send(
       'adnauseam', {
       what: 'toggleEnabled',
       url: popupData.pageURL,
-      scope: scope,
+      scope: scope == '' ? 'page' : '', // remove the inverted scope
       state: true,
       tabId: popupData.tabId
     }).then(() => {
@@ -699,7 +700,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
       'adnauseam', {
       what: 'toggleEnabled',
       url: popupData.pageURL,
-      scope: (evt.altKey || evt.metaKey) && !isDomainHome ? 'page' : '',
+      scope: '',
       state: state,
       tabId: popupData.tabId
     });
@@ -716,6 +717,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
   }
 
   const closePopup = function () {
+    uDom("#disable").removeClass("popup_open")
     uDom(".popup_arrow").removeClass("open")
     uDom(".inner-popup_wrapper").addClass("hidden")
     document.removeEventListener('click', onAnyClickAfterOpen)
@@ -724,6 +726,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
   }
 
   const openPopup = function () {
+    uDom("#disable").addClass("popup_open")
     uDom(".popup_arrow").addClass("open")
     uDom(".inner-popup_wrapper").removeClass("hidden");
     document.addEventListener('click', onAnyClickAfterOpen)

@@ -764,6 +764,10 @@ body.en .btn_radio_label {
   opacity: 1;
 }
 
+#disable:not(.popup_open):checked + .btn_radio_label .popup_arrow {
+  opacity: 0;
+} 
+
 #on_domain-lbl {
   text-align: center;
 }

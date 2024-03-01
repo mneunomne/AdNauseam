@@ -2375,7 +2375,10 @@ const adnauseam = (function () {
 
     if (typeof adnauseam[request.what] === 'function') {
 
-      request.url && (request.url = trimChar(request.url, '/')); // no trailing slash
+      if (request.what !== 'toggleEnabled') { // fix for https://github.com/dhowe/AdNauseam/issues/2516
+        // Why do we do this?
+        request.url && (request.url = trimChar(request.url, '/')); // no trailing slash
+      }
       callback(adnauseam[request.what](request, pageStore, tabId, frameId));
       adnauseam.markUserAction(); // assume user-initiated and thus no longer 'idle'
 
