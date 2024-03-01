@@ -700,7 +700,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
       'adnauseam', {
       what: 'toggleEnabled',
       url: popupData.pageURL,
-      scope: isDomainHome ? '' : 'page',
+      scope: '',
       state: state,
       tabId: popupData.tabId
     });
