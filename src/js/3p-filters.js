@@ -674,7 +674,7 @@ const buttonUpdateAdNauseam = async function() {
      dom.cl.add(adnauseamEntry, 'obsolete');
      dom.cl.remove(adnauseamEntry, 'cached');
      setTimeout(function(){
-        messaging.send('dashboard', { what: 'forceUpdateAdnauseam' });
+        vAPI.messaging.send('dashboard', { what: 'forceUpdateAdnauseam' });
      },200);
 };
 
