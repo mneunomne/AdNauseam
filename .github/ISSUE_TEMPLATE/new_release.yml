@@ -1,6 +1,14 @@
 name: Ads Visible Report
 description: Report a visible Ad while AdNauseam is enabled.
 body:
+  - type: textarea
+    attributes:
+      label: Version
+    placeholder: |
+        `v1.0.0`
+    validations:
+      required: true
+
   - type: markdown
     attributes:
       value: |
