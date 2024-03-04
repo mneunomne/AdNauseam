@@ -1,6 +1,10 @@
 name: New Release Checklist
 title: "Release Checklist vX.X.X"
 description: "Checklist before for each non-beta AdNauseam release"
+labels: ["Documentation"]
+assignees:
+  - mneunomne
+  - dhowe
 body:
   - type: input
     attributes:
