@@ -4,8 +4,6 @@ body:
   - type: textarea
     attributes:
       label: Version
-    placeholder: |
-        `v1.0.0`
     validations:
       required: true
 
