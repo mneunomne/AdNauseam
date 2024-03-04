@@ -1,4 +1,4 @@
-name: Ads Visible Report
+name: New Version
 description: Report a visible Ad while AdNauseam is enabled.
 body:
   - type: textarea
@@ -10,8 +10,6 @@ body:
   - type: markdown
     attributes:
       value: |
-        # vX.X.X
-
         ## Testing
         
         - [ ] Release latest release candidate version (vX.X.XbX) on Github. 
