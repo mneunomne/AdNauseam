@@ -1,0 +1,23 @@
+# vX.X.X
+
+## Testing
+
+- [ ] Release latest release candidate version (vX.X.XbX) on Github. 
+- [ ] Validade the [full tests](https://github.com/dhowe/AdNauseam/wiki/Testing-New-Release-Candidates)
+
+## Release
+
+- [ ] Release lastest version on Github
+- [ ] Check if https://adnauseam.io is linking to the correct latest version.
+
+## Upload 
+
+- [ ] Upload on Mozilla Firefox Extension store
+- [ ] Upload on Opera Extension store
+- [ ] Upload on Edge Extension store (only @dhowe can do that for now)
+
+## Approval
+
+- [ ] Approved on Mozilla Firefox Extension store
+- [ ] Approved on Opera Extension store
+- [ ] Approved on Edge Extension store
