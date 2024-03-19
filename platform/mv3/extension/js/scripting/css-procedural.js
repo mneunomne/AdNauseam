@@ -108,6 +108,9 @@ const uBOL_injectCSS = (css, count = 10) => {
         count -= 1;
         if ( count === 0 ) { return; }
         uBOL_injectCSS(css, count - 1);
+        chrome.runtime.sendMessage({ what: 'adDetected', type: "procedural", data: {css} }, function(response) {
+            console.log('Data received from storage:', response);
+        });
     });
 };
 

@@ -133,6 +133,7 @@ const uBOL_processNodes = ( ) => {
     const nodes = [];
     const deadline = t0 + maxSurveyTimeSlice;
     for (;;) {
+        //console.log("nodes", nodes, browser.storage)
         pendingNodes.next(nodes);
         if ( nodes.length === 0 ) { break; }
         for ( const node of nodes ) {
@@ -162,6 +163,18 @@ const uBOL_processNodes = ( ) => {
     if ( styleSheetTimer !== undefined ) { return; }
     styleSheetTimer = self.requestAnimationFrame(( ) => {
         styleSheetTimer = undefined;
+        console.log("document", document)
+        for ( const selectorList of styleSheetSelectors ) {
+            var node = document.querySelector(selectorList);
+            console.log("node", node)
+            if (node) {
+                var img_src = node?.querySelector("img[src]").src
+                chrome.runtime.sendMessage({ what: 'adDetected', type: "generic", data: img_src }, function(response) {
+                    console.log('Data received from storage:', response);
+                });
+            }
+            //
+        }
         uBOL_injectCSS(`${styleSheetSelectors.join(',')}{display:none!important;}`);
         styleSheetSelectors.length = 0;
     });

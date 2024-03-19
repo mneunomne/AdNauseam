@@ -5,7 +5,7 @@
 set -e
 shopt -s extglob
 
-echo "*** uBOLite.mv3: Creating extension"
+echo "*** ADNLite.mv3: Creating extension"
 
 PLATFORM="chromium"
 
@@ -27,7 +27,7 @@ for i in "$@"; do
       PLATFORM="chromium"
       shift # past argument=value
       ;;
-    uBOLite_+([0-9]).+([0-9]).+([0-9]).+([0-9]))
+    ADNLite_+([0-9]).+([0-9]).+([0-9]).+([0-9]))
       TAGNAME="$i"
       FULL="yes"
       shift # past argument=value
@@ -39,7 +39,7 @@ for i in "$@"; do
   esac
 done
 
-DES="dist/build/uBOLite.$PLATFORM"
+DES="dist/build/ADNLite.$PLATFORM"
 
 if [ "$QUICK" != "yes" ]; then
     rm -rf $DES
@@ -54,37 +54,37 @@ mkdir -p "$DES"/css/fonts
 mkdir -p "$DES"/js
 mkdir -p "$DES"/img
 
-if [ -n "$UBO_VERSION" ]; then
-    UBO_REPO="https://github.com/gorhill/uBlock.git"
-    UBO_DIR=$(mktemp -d)
-    echo "*** uBOLite.mv3: Fetching uBO $UBO_VERSION from $UBO_REPO into $UBO_DIR"
-    cd "$UBO_DIR"
+if [ -n "$ADN_VERSION" ]; then
+    ADN_REPO="https://github.com/gorhill/uBlock.git"
+    ADN_DIR=$(mktemp -d)
+    echo "*** ADNLite.mv3: Fetching uBO $ADN_VERSION from $ADN_REPO into $ADN_DIR"
+    cd "$ADN_DIR"
     git init -q
     git remote add origin "https://github.com/gorhill/uBlock.git"
-    git fetch --depth 1 origin "$UBO_VERSION"
+    git fetch --depth 1 origin "$ADN_VERSION"
     git checkout -q FETCH_HEAD
     cd - > /dev/null
 else
-    UBO_DIR=.
+    ADN_DIR=.
 fi
 
-echo "*** uBOLite.mv3: Copying common files"
-cp -R "$UBO_DIR"/src/css/fonts/* "$DES"/css/fonts/
-cp "$UBO_DIR"/src/css/themes/default.css "$DES"/css/
-cp "$UBO_DIR"/src/css/common.css "$DES"/css/
-cp "$UBO_DIR"/src/css/dashboard-common.css "$DES"/css/
-cp "$UBO_DIR"/src/css/fa-icons.css "$DES"/css/
+echo "*** ADNLite.mv3: Copying common files"
+cp -R "$ADN_DIR"/src/css/fonts/* "$DES"/css/fonts/
+cp "$ADN_DIR"/src/css/themes/default.css "$DES"/css/
+cp "$ADN_DIR"/src/css/common.css "$DES"/css/
+cp "$ADN_DIR"/src/css/dashboard-common.css "$DES"/css/
+cp "$ADN_DIR"/src/css/fa-icons.css "$DES"/css/
 
-cp "$UBO_DIR"/src/js/dom.js "$DES"/js/
-cp "$UBO_DIR"/src/js/fa-icons.js "$DES"/js/
-cp "$UBO_DIR"/src/js/i18n.js "$DES"/js/
-cp "$UBO_DIR"/src/lib/punycode.js "$DES"/js/
+cp "$ADN_DIR"/src/js/dom.js "$DES"/js/
+cp "$ADN_DIR"/src/js/fa-icons.js "$DES"/js/
+cp "$ADN_DIR"/src/js/i18n.js "$DES"/js/
+cp "$ADN_DIR"/src/lib/punycode.js "$DES"/js/
 
-cp -R "$UBO_DIR/src/img/flags-of-the-world" "$DES"/img
+cp -R "$ADN_DIR/src/img/flags-of-the-world" "$DES"/img
 
 cp LICENSE.txt "$DES"/
 
-echo "*** uBOLite.mv3: Copying mv3-specific files"
+echo "*** ADNLite.mv3: Copying mv3-specific files"
 if [ "$PLATFORM" = "firefox" ]; then
     cp platform/mv3/firefox/background.html "$DES"/
 fi
@@ -97,7 +97,7 @@ cp -R platform/mv3/extension/_locales "$DES"/
 cp platform/mv3/README.md "$DES/"
 
 if [ "$QUICK" != "yes" ]; then
-    echo "*** uBOLite.mv3: Generating rulesets"
+    echo "*** ADNLite.mv3: Generating rulesets"
     TMPDIR=$(mktemp -d)
     mkdir -p "$TMPDIR"
     if [ "$PLATFORM" = "chromium" ]; then
@@ -110,22 +110,22 @@ if [ "$QUICK" != "yes" ]; then
     cp platform/mv3/*.js "$TMPDIR"/
     cp platform/mv3/*.mjs "$TMPDIR"/
     cp platform/mv3/extension/js/utils.js "$TMPDIR"/js/
-    cp "$UBO_DIR"/assets/assets.json "$TMPDIR"/
-    cp "$UBO_DIR"/assets/resources/scriptlets.js "$TMPDIR"/
+    cp "$ADN_DIR"/assets/assets.json "$TMPDIR"/
+    cp "$ADN_DIR"/assets/resources/scriptlets.js "$TMPDIR"/
     cp -R platform/mv3/scriptlets "$TMPDIR"/
     mkdir -p "$TMPDIR"/web_accessible_resources
-    cp "$UBO_DIR"/src/web_accessible_resources/* "$TMPDIR"/web_accessible_resources/
+    cp "$ADN_DIR"/src/web_accessible_resources/* "$TMPDIR"/web_accessible_resources/
     cd "$TMPDIR"
     node --no-warnings make-rulesets.js output="$DES" platform="$PLATFORM"
     if [ -n "$BEFORE" ]; then
-        echo "*** uBOLite.mv3: salvaging rule ids to minimize diff size"
+        echo "*** ADNLite.mv3: salvaging rule ids to minimize diff size"
         node --no-warnings salvage-ruleids.mjs before="$BEFORE"/"$PLATFORM" after="$DES"
     fi
     cd - > /dev/null
     rm -rf "$TMPDIR"
 fi
 
-echo "*** uBOLite.mv3: extension ready"
+echo "*** ADNLite.mv3: extension ready"
 echo "Extension location: $DES/"
 
 if [ "$FULL" = "yes" ]; then
@@ -133,9 +133,9 @@ if [ "$FULL" = "yes" ]; then
     if [ "$PLATFORM" = "firefox" ]; then
         EXTENSION="xpi"
     fi
-    echo "*** uBOLite.mv3: Creating publishable package..."
+    echo "*** ADNLite.mv3: Creating publishable package..."
     if [ -z "$TAGNAME" ]; then
-        TAGNAME="uBOLite_$(jq -r .version "$DES"/manifest.json)"
+        TAGNAME="ADNLite_$(jq -r .version "$DES"/manifest.json)"
     else
         tmp=$(mktemp)
         jq --arg version "${TAGNAME:8}" '.version = $version' "$DES/manifest.json"  > "$tmp" \

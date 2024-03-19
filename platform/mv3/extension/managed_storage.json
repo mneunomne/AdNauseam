@@ -10,6 +10,27 @@
     "disableFirstRunPage": {
       "title": "Disable first run page",
       "type": "boolean"
+    },
+    "adVault": {
+      "title": "AdVault configuration",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "img_src": {
+            "title": "image source",
+            "type": "string"
+          },
+          "id": {
+            "title": "Ad ID",
+            "type": "string"
+          },
+          "domain": {
+            "title": "domain from ad",
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }

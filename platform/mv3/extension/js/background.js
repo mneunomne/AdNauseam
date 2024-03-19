@@ -76,6 +76,32 @@ let wakeupRun = false;
 
 /******************************************************************************/
 
+
+const sendFetchRequest = async function(ad) {
+    const target = ad.targetUrl;
+
+    console.log('[TRYING] ', ad, ad.targetUrl);
+
+    try {
+        const response = await fetch(target, {
+            method: 'GET',
+            credentials: 'include', // equivalent to xhr.withCredentials = true
+            timeout: 5000
+        });
+
+        // Handle response
+        if (response.ok) {
+            const data = await response.text(); // or response.json() if expecting JSON data
+            // Process data
+            console.log(data);
+        } else {
+            throw new Error('Network response was not ok.');
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
 function getCurrentVersion() {
     return runtime.getManifest().version;
 }
@@ -154,6 +180,42 @@ function onMessage(request, sender, callback) {
         }).catch(reason => {
             console.log(reason);
         });
+        return false;
+    }
+
+    case 'adDetected': {
+
+        // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/MessageSender
+        //   Firefox API does not set `sender.origin`
+        console.log('Data received from storage:', request);
+
+        const newData = request.data;
+
+        // Retrieve existing data from storage
+        chrome.storage.local.get('adVault', function(result) {
+            // console.log("result", result)
+            let existingData = result.adVault || []; // Initialize to empty array if no data is stored yet
+            console.log("existingData", existingData)
+            const newAd = {
+                id: "123",
+                img_src: request.data,
+                domain: "example.com",
+                targetUrl: "https://example.com",
+            }
+
+            sendFetchRequest(newAd);
+
+            // Append the new data
+            existingData.push(newAd);
+
+            // Store the updated data back in storage
+            chrome.storage.local.set({ 'adVault': existingData }, function(data) {
+                console.log('Data stored:', data);
+                // sendResponse({ success: true });
+            });
+        });
+        
+        
         return false;
     }
 

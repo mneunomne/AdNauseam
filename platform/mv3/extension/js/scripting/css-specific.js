@@ -108,6 +108,9 @@ if ( selectors.length === 0 ) { return; }
         count -= 1;
         if ( count === 0 ) { return; }
         uBOL_injectCSS(css, count - 1);
+        chrome.runtime.sendMessage({ what: 'adDetected', type: "specific", data: {css} }, function(response) {
+            console.log('Data received from storage:', response);
+        });
     });
 })(`${selectors.join(',')}{display:none!important;}`);
 
