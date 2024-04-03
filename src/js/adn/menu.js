@@ -140,7 +140,8 @@ import { broadcast, onBroadcast } from '../broadcast.js';
         currentNotifications = data.notifications
         renderNotifications(data.notifications)
         adjustBlockHeight(data.disableWarnings)
-        initialButtonState = getIsDisabled() ? 'disabled' : getIsStrictBlocked() ? 'strict' : 'active';
+        initialButtonState = getIsDisabled() ? 'disable' : getIsStrictBlocked() ? 'strict' : 'active';
+        updateLabels(initialButtonState)
         // set button state
         if (getIsDisabled()) {
           // disabled 
@@ -623,6 +624,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
   // on change state of toggle button
   const onChangeState = function (evt) {
     updatedButtonState = this.value;
+    updateLabels(this.value)
     switch (this.value) {
       case 'strict':
         onClickStrict();
@@ -630,7 +632,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
           updateRefreshNotification(currentNotifications)
         } else {
           hideRefreshNotification()
-        }
+        }        
         break;
       case 'active':
         toggleStrictAlert(popupData.pageURL, false)
@@ -650,6 +652,23 @@ import { broadcast, onBroadcast } from '../broadcast.js';
         hideRefreshNotification()
         break;
       default:
+        break;
+    }
+  }
+
+  const updateLabels = function (val) {
+    switch (val) {
+      case 'strict':
+          uDom("#active-lbl").text('activate')
+          uDom("#disable-lbl  .btn_radio_label-text").text('disable')
+        break;
+        case 'active':
+          uDom("#active-lbl").text('active')
+          uDom("#disable-lbl  .btn_radio_label-text").text('disable')
+        break;
+      case 'disable':
+          uDom("#active-lbl").text('activate')
+          uDom("#disable-lbl  .btn_radio_label-text").text('disabled')
         break;
     }
   }
