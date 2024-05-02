@@ -144,7 +144,7 @@
     "description": "This describes the 'complete' filtering mode"
   },
   "noFilteringModeDescription": {
-      "message": "List of hostnames for which no filtering will take place",
+      "message": "List of hostnames for which no filtering will take place.",
       "description": "A short description for the editable field which lists trusted sites"
   },
   "behaviorSectionLabel": {
@@ -153,6 +153,10 @@
   },
   "autoReloadLabel": {
     "message": "Automatically reload page when changing filtering mode",
+    "description": "Label for a checkbox in the options page"
+  },
+  "showBlockedCountLabel": {
+    "message": "Show the number of blocked requests on the toolbar icon",
     "description": "Label for a checkbox in the options page"
   }
 }

@@ -592,6 +592,16 @@ button.error{
     }
 body {
     font: 14px sans-serif;
+    background-color: var(--surface-1);
+    border: 0;
+    box-sizing: border-box;
+    color: var(--ink-1);
+        fill: var(--ink-1);
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
     }
 code, .code {
     background-color: var(--button-surface);
@@ -1030,6 +1040,24 @@ label:hover .radio > input[type="radio"]:not(:checked) + svg > circle {
 
 select {
     padding: 2px;
+    }
+
+.searchfield {
+    align-items: center;
+    column-gap: var(--default-gap-xxsmall);
+    display: inline-flex;
+    position: relative;
+    }
+.searchfield .fa-icon {
+    color: var(--ink-4);
+        fill: var(--ink-4);
+    font-size: 1em !important;
+    left: 2px;
+    position: absolute;
+    transform: none;
+    }
+.searchfield input:not(:placeholder-shown) ~ .fa-icon {
+    display: none;
     }
 
 .hidden {

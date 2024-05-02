@@ -848,7 +848,7 @@ const onHeadersReceived = function(details) {
     }
 };
 
-const reMediaContentTypes = /^(?:audio|image|video)\//;
+const reMediaContentTypes = /^(?:audio|image|video)\/|(?:\/ogg)$/;
 
 /******************************************************************************/
 
@@ -1007,7 +1007,7 @@ const bodyFilterer = (( ) => {
             /* t */ if ( bytes[i+6] !== 0x74 ) { continue; }
             break;
         }
-        if ( (i - 40) >= 65536 ) { return; }
+        if ( (i + 40) >= 65536 ) { return; }
         i += 8;
         // find first alpha character
         let j = -1;
@@ -1085,13 +1085,17 @@ const bodyFilterer = (( ) => {
         }
         if (this.status !== 'finishedtransferringdata') { return; }
 
-        // If encoding is still unknown, try to extract from stream data
+        // If encoding is still unknown, try to extract from stream data.
+        // Just assume utf-8 if ultimately no encoding can be looked up.
         if ( session.charset === undefined ) {
             const charsetFound = charsetFromStream(session.buffer);
-            if ( charsetFound === undefined ) { return streamClose(session); }
-            const charsetUsed = textEncode.normalizeCharset(charsetFound);
-            if ( charsetUsed === undefined ) { return streamClose(session); }
-            session.charset = charsetUsed;
+            if ( charsetFound !== undefined ) {
+                const charsetUsed = textEncode.normalizeCharset(charsetFound);
+                if ( charsetUsed === undefined ) { return streamClose(session); }
+                session.charset = charsetUsed;
+            } else {
+                session.charset = 'utf-8';
+            }
         }
 
         while ( session.jobs.length !== 0 ) {

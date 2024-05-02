@@ -144,7 +144,7 @@
     "description": "This describes the 'complete' filtering mode"
   },
   "noFilteringModeDescription": {
-    "message": "Liste des noms de domaine pour lesquels aucun filtrage n'aura lieu",
+    "message": "Liste des noms de domaine qu'uBO Lite ne devra pas filtrer",
     "description": "A short description for the editable field which lists trusted sites"
   },
   "behaviorSectionLabel": {
@@ -153,6 +153,10 @@
   },
   "autoReloadLabel": {
     "message": "Recharger automatiquement la page lors du changement de mode de filtrage",
+    "description": "Label for a checkbox in the options page"
+  },
+  "showBlockedCountLabel": {
+    "message": "Afficher le nombre de requêtes bloquées sur l'icône",
     "description": "Label for a checkbox in the options page"
   }
 }
