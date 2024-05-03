@@ -19,19 +19,13 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-'use strict';
-
 /******************************************************************************/
 
-import contextMenu from './contextmenu.js';
-import logger from './logger.js';
-import staticNetFilteringEngine from './static-net-filtering.js';
-import µb from './background.js';
-import webext from './webext.js';
-import { orphanizeString } from './text-utils.js';
-import { redirectEngine } from './redirect-engine.js';
-import adnauseam from './adn/core.js' // ADN
-import dnt from './adn/dnt.js'; // ADN
+import {
+    domainFromHostname,
+    hostnameFromURI,
+    isNetworkURI,
+} from './uri-utils.js';
 
 import {
     sessionFirewall,
@@ -39,11 +33,16 @@ import {
     sessionURLFiltering,
 } from './filtering-engines.js';
 
-import {
-    domainFromHostname,
-    hostnameFromURI,
-    isNetworkURI,
-} from './uri-utils.js';
+import contextMenu from './contextmenu.js';
+import logger from './logger.js';
+import { orphanizeString } from './text-utils.js';
+import { redirectEngine } from './redirect-engine.js';
+import staticNetFilteringEngine from './static-net-filtering.js';
+import webext from './webext.js';
+import µb from './background.js';
+
+import adnauseam from './adn/core.js' // ADN
+import dnt from './adn/dnt.js'; // ADN
 
 /*******************************************************************************
 
@@ -381,11 +380,13 @@ const PageStore = class {
 
         // If we are navigating from-to same site, remember whether large
         // media elements were temporarily allowed.
-        if (
-            typeof this.allowLargeMediaElementsUntil !== 'number' ||
-            tabContext.rootHostname !== this.tabHostname
-        ) {
-            this.allowLargeMediaElementsUntil = Date.now();
+        const now = Date.now();
+        if ( typeof this.allowLargeMediaElementsUntil !== 'number' ) {
+            this.allowLargeMediaElementsUntil = now;
+        } else if ( tabContext.rootHostname !== this.tabHostname ) {
+            if ( this.tabHostname.endsWith('about-scheme') === false ) {
+                this.allowLargeMediaElementsUntil = now;
+            }
         }
 
         this.tabHostname = tabContext.rootHostname;
@@ -749,10 +750,8 @@ const PageStore = class {
                 aggregateAllowed += 1;
             }
         }
-        if ( aggregateAllowed !== 0 || aggregateBlocked !== 0 ) {
-            µb.localSettings.blockedRequestCount += aggregateBlocked;
-            µb.localSettings.allowedRequestCount += aggregateAllowed;
-            µb.localSettingsLastModified = now;
+        if ( aggregateAllowed || aggregateBlocked ) {
+            µb.incrementRequestStats(aggregateBlocked, aggregateAllowed);
         }
         journal.length = 0;
     }

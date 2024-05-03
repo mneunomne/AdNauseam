@@ -144,7 +144,7 @@
     "description": "This describes the 'complete' filtering mode"
   },
   "noFilteringModeDescription": {
-    "message": "Lista de nomes de anfitriões para os quais não será efetuada qualquer filtragem",
+    "message": "Lista de nomes de anfitriões para os quais não será efetuada qualquer filtragem.",
     "description": "A short description for the editable field which lists trusted sites"
   },
   "behaviorSectionLabel": {
@@ -153,6 +153,10 @@
   },
   "autoReloadLabel": {
     "message": "Recarrega automaticamente a página ao mudar o modo de filtragem",
+    "description": "Label for a checkbox in the options page"
+  },
+  "showBlockedCountLabel": {
+    "message": "Mostra o número de pedidos bloqueados no ícone da barra de ferramentas",
     "description": "Label for a checkbox in the options page"
   }
 }

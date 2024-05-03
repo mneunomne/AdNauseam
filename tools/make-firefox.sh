@@ -6,8 +6,8 @@ echo "*** AdNauseam.firefox: Creating web store package"
 
 BLDIR=dist/build
 DES="$BLDIR"/adnauseam.firefox
-rm -rf $DES
-mkdir -p $DES/webextension
+mkdir -p $DES
+rm -rf $DES/*
 
 VERSION=`jq .version manifest.json` # top-level adnauseam manifest
 

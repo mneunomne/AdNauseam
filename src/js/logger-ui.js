@@ -1374,9 +1374,7 @@ dom.on(document, 'keydown', ev => {
             if ( reSchemeOnly.test(value) ) {
                 value = `|${value}`;
             } else {
-                if ( value.endsWith('/') ) {
-                    value += '*';
-                } else if ( /[/?]/.test(value) === false ) {
+                if ( /[/?]/.test(value) === false ) {
                     value += '^';
                 }
                 value = `||${value}`;
@@ -1448,7 +1446,8 @@ dom.on(document, 'keydown', ev => {
         // Create static filter
         if ( target.id === 'createStaticFilter' ) {
             ev.stopPropagation();
-            const value = staticFilterNode().value;
+            const value = staticFilterNode().value
+                .replace(/^((?:@@)?\/.+\/)(\$|$)/, '$1*$2');
             // Avoid duplicates
             if ( createdStaticFilters.hasOwnProperty(value) ) { return; }
             createdStaticFilters[value] = true;
@@ -2061,8 +2060,12 @@ dom.on(document, 'keydown', ev => {
     };
 
     const toggleOn = async function(ev) {
-        targetRow = ev.target.closest('.canDetails');
-        if ( targetRow === null ) { return; }
+        const clickedRow = ev.target.closest('.canDetails');
+        if ( clickedRow === null ) { return; }
+        if ( clickedRow === targetRow ) {
+            return toggleOff();
+        }
+        targetRow = clickedRow;
         ev.stopPropagation();
         targetTabId = tabIdFromAttribute(targetRow);
         targetType = targetRow.children[COLUMN_TYPE].textContent.trim() || '';

@@ -19,15 +19,7 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* globals browser */
-
-'use strict';
-
 /******************************************************************************/
-
-import logger from './logger.js';
-import { FilteringContext } from './filtering-context.js';
-import { ubologSet } from './console.js';
 
 import {
     domainFromHostname,
@@ -36,6 +28,9 @@ import {
 } from './uri-utils.js';
 
 import { internalLinkDomainsDefault } from './adn/adn-utils.js'; // adn 
+import { FilteringContext } from './filtering-context.js';
+import logger from './logger.js';
+import { ubologSet } from './console.js';
 
 /******************************************************************************/
 
@@ -51,13 +46,14 @@ const hiddenSettingsDefault = {
     allowGenericProceduralFilters: false,
     assetFetchTimeout: 30,
     autoCommentFilterTemplate: '{{date}} {{origin}}',
-    autoUpdateAssetFetchPeriod: 15,
-    autoUpdateDelayAfterLaunch: 105,
+    autoUpdateAssetFetchPeriod: 5,
+    autoUpdateDelayAfterLaunch: 37,
     autoUpdatePeriod: 1,
     benchmarkDatasetURL: 'unset',
     blockingProfiles: '11111/#F00 11010/#C0F 11001/#00F 00001',
-    cacheStorageAPI: 'unset',
     cacheStorageCompression: true,
+    cacheStorageCompressionThreshold: 65536,
+    cacheStorageMultithread: 2,
     cacheControlForFirefox1376932: 'no-cache, no-store, must-revalidate',
     cloudStorageCompression: true,
     cnameIgnoreList: 'unset',
@@ -80,10 +76,12 @@ const hiddenSettingsDefault = {
     modifyWebextFlavor: 'unset',
     popupFontSize: 'unset',
     popupPanelDisabledSections: 0,
-    popupPanelLockedSections: 0,
     popupPanelHeightMode: 0,
+    popupPanelLockedSections: 0,
+    popupPanelOrientation: 'unset',
     requestJournalProcessPeriod: 1000,
-    selfieAfter: 2,
+    requestStatsDisabled: false,
+    selfieDelayInSeconds: 53,
     strictBlockingBypassDuration: 120,
     toolbarWarningTimeout: 60,
     trustedListPrefixes: 'ublock-',
@@ -98,7 +96,7 @@ const hiddenSettingsDefault = {
 
 if ( vAPI.webextFlavor.soup.has('devbuild') ) {
     hiddenSettingsDefault.consoleLogLevel = 'info';
-    hiddenSettingsDefault.trustedListPrefixes += ' user-';
+    hiddenSettingsDefault.cacheStorageAPI = 'unset';
     ubologSet(true);
 }
 
@@ -154,6 +152,7 @@ const userSettingsDefault = {
     showIconBadge: true,
     suspendUntilListsAreLoaded: vAPI.Net.canSuspend(),
     tooltipsDisabled: false,
+    userFiltersTrusted: false,
     webrtcIPAddressHidden: false,
 };
 
@@ -188,7 +187,7 @@ if ( vAPI.webextFlavor.soup.has('firefox') ) {
 }
 
 const µBlock = {  // jshint ignore:line
-    wakeupReason: '',
+    alarmQueue: [],
 
     userSettingsDefault,
     userSettings: Object.assign({}, userSettingsDefault),
@@ -212,14 +211,8 @@ const µBlock = {  // jshint ignore:line
     netWhitelist: new Map(),
     netWhitelistModifyTime: 0,
     netWhitelistDefault: [
-        'about-scheme',
         'chrome-extension-scheme',
-        'chrome-scheme',
-        'edge-scheme',
         'moz-extension-scheme',
-        'opera-scheme',
-        'vivaldi-scheme',
-        'wyciwyg-scheme',   // Firefox's "What-You-Cache-Is-What-You-Get"
     ],
 
     // Adn
@@ -238,14 +231,18 @@ const µBlock = {  // jshint ignore:line
     // end of Adn
     localSettings: {
         blockedRequestCount: 0,
-        allowedRequestCount: 0,
+        allowedRequestCount: 0
     },
-    localSettingsLastModified: 0,
+    
+    requestStats: {
+        blockedCount: 0,
+        allowedCount: 0,
+    },
 
     // Read-only
     systemSettings: {
         compiledMagic: 57,  // Increase when compiled format changes
-        selfieMagic: 57,    // Increase when selfie format changes
+        selfieMagic: 58,    // Increase when selfie format changes
     },
 
     // https://github.com/uBlockOrigin/uBlock-issues/issues/759#issuecomment-546654501

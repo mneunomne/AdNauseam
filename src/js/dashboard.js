@@ -38,7 +38,7 @@ const resizeFrame = function() {
     );
 };
 
-const discardUnsavedData = function(synchronous = false) {
+function discardUnsavedData(synchronous = false) {
     const paneFrame = qs$('#iframe');
     const paneWindow = paneFrame.contentWindow;
     if (
@@ -79,9 +79,9 @@ const discardUnsavedData = function(synchronous = false) {
 
         dom.on(document, 'click', onClick, true);
     });
-};
+}
 
-const loadDashboardPanel = function(pane, first) {
+function loadDashboardPanel(pane, first) {
     const tabButton = qs$(`[data-pane="${pane}"]`);
     if ( tabButton === null || dom.cl.has(tabButton, 'selected') ) { return; }
     const loadPane = ( ) => {
@@ -89,8 +89,12 @@ const loadDashboardPanel = function(pane, first) {
         dom.cl.remove('.tabButton.selected', 'selected');
         dom.cl.add(tabButton, 'selected');
         tabButton.scrollIntoView();
-        qs$('#iframe').contentWindow.location.replace(pane);
+        const iframe = qs$('#iframe');
+        iframe.contentWindow.location.replace(pane);
         if ( pane !== 'no-dashboard.html' ) {
+            iframe.addEventListener('load', ( ) => {
+                qs$('.wikilink').href = iframe.contentWindow.wikilink || '';
+            }, { once: true });
             vAPI.localStorage.setItem('dashboardLastVisitedPane', pane);
         }
     };
@@ -104,11 +108,11 @@ const loadDashboardPanel = function(pane, first) {
         if ( status === false ) { return; }
         loadPane();
     });
-};
+}
 
-const onTabClickHandler = function(ev) {
+function onTabClickHandler(ev) {
     loadDashboardPanel(dom.attr(ev.target, 'data-pane'));
-};
+}
 
 if ( self.location.hash.slice(1) === 'no-dashboard.html' ) {
     dom.cl.add(dom.body, 'noDashboard');
