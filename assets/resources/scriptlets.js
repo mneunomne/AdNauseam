@@ -75,11 +75,11 @@ function safeSelf() {
         'log': console.log.bind(console),
         // Properties
         logLevel: 0,
-        // Methods
+        // Methods;
         makeLogPrefix(...args) {
             return this.sendToLogger && `[${args.join(' \u205D ')}]` || '';
         },
-        uboLog(...args) {
+        adnlog(...args) {
             if ( this.sendToLogger === undefined ) { return; }
             if ( args === undefined || args[0] === '' ) { return; }
             return this.sendToLogger('info', ...args);
@@ -429,7 +429,7 @@ function abortCurrentScriptCore(
             return;
         }
         if ( safe.logLevel > 1 && context !== '' ) {
-            safe.uboLog(logPrefix, `Matched src\n${e.src}`);
+            safe.adnlog(logPrefix, `Matched src\n${e.src}`);
         }
         const scriptText = getScriptText(e);
         if ( reNeedle.test(scriptText) === false ) {
@@ -438,11 +438,11 @@ function abortCurrentScriptCore(
             return;
         }
         if ( safe.logLevel > 1 ) {
-            safe.uboLog(logPrefix, `Matched text\n${scriptText}`);
+            safe.adnlog(logPrefix, `Matched text\n${scriptText}`);
         }
         // eslint-disable-next-line no-debugger
         if ( debug === 'match' || debug === 'all' ) { debugger; }
-        safe.uboLog(logPrefix, 'Aborted');
+        safe.adnlog(logPrefix, 'Aborted');
         throw new ReferenceError(exceptionToken);
     };
     // eslint-disable-next-line no-debugger
@@ -593,7 +593,7 @@ function setConstantFn(
                 (normalValue !== undefined && normalValue !== null) &&
                 (typeof v !== typeof normalValue);
             if ( aborted ) {
-                safe.uboLog(logPrefix, `Aborted because value set to ${v}`);
+                safe.adnlog(logPrefix, `Aborted because value set to ${v}`);
             }
             return aborted;
         };
@@ -628,7 +628,7 @@ function setConstantFn(
                         handler.setter(a);
                     }
                 });
-                safe.uboLog(logPrefix, 'Trap installed');
+                safe.adnlog(logPrefix, 'Trap installed');
             } catch(ex) {
                 safe.uboErr(logPrefix, ex);
             }
@@ -647,7 +647,7 @@ function setConstantFn(
                         if ( document.currentScript === thisScript ) {
                             return this.v;
                         }
-                        safe.uboLog(logPrefix, 'Property read');
+                        safe.adnlog(logPrefix, 'Property read');
                         return normalValue;
                     },
                     setter: function(a) {
@@ -715,7 +715,7 @@ function replaceNodeTextFn(
         }
         observer.disconnect();
         if ( safe.logLevel > 1 ) {
-            safe.uboLog(logPrefix, 'Quitting');
+            safe.adnlog(logPrefix, 'Quitting');
         }
     };
     let sedCount = extraArgs.sedCount || 0;
@@ -731,9 +731,9 @@ function replaceNodeTextFn(
             : replacement;
         node.textContent = after;
         if ( safe.logLevel > 1 ) {
-            safe.uboLog(logPrefix, `Text before:\n${before.trim()}`);
+            safe.adnlog(logPrefix, `Text before:\n${before.trim()}`);
         }
-        safe.uboLog(logPrefix, `Text after:\n${after.trim()}`);
+        safe.adnlog(logPrefix, `Text after:\n${after.trim()}`);
         return sedCount === 0 || (sedCount -= 1) !== 0;
     };
     const handleMutations = mutations => {
@@ -761,7 +761,7 @@ function replaceNodeTextFn(
             if ( handleNode(node) ) { continue; }
             stop(); break;
         }
-        safe.uboLog(logPrefix, `${count} nodes present before installing mutation observer`);
+        safe.adnlog(logPrefix, `${count} nodes present before installing mutation observer`);
     }
     if ( extraArgs.stay ) { return; }
     runAt(( ) => {
@@ -1138,7 +1138,7 @@ function matchesStackTrace(
         logLevel === 'match' && r ||
         logLevel === 'nomatch' && !r
     ) {
-        safe.uboLog(stack.replace(/\t/g, '\n'));
+        safe.adnlog(stack.replace(/\t/g, '\n'));
     }
     return r;
 }
@@ -1252,14 +1252,14 @@ function jsonPruneFetchResponseFn(
         }
         if ( logall === false && outcome === 'nomatch' ) { return fetchPromise; }
         if ( safe.logLevel > 1 && outcome !== 'nomatch' && propNeedles.size !== 0 ) {
-            safe.uboLog(logPrefix, `Matched optional "propsToMatch"\n${extraArgs.propsToMatch}`);
+            safe.adnlog(logPrefix, `Matched optional "propsToMatch"\n${extraArgs.propsToMatch}`);
         }
         return fetchPromise.then(responseBefore => {
             const response = responseBefore.clone();
             return response.json().then(objBefore => {
                 if ( typeof objBefore !== 'object' ) { return responseBefore; }
                 if ( logall ) {
-                    safe.uboLog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
+                    safe.adnlog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
                     return responseBefore;
                 }
                 const objAfter = objectPruneFn(
@@ -1270,7 +1270,7 @@ function jsonPruneFetchResponseFn(
                     extraArgs
                 );
                 if ( typeof objAfter !== 'object' ) { return responseBefore; }
-                safe.uboLog(logPrefix, 'Pruned');
+                safe.adnlog(logPrefix, 'Pruned');
                 const responseAfter = Response.json(objAfter, {
                     status: responseBefore.status,
                     statusText: responseBefore.statusText,
@@ -1344,7 +1344,7 @@ function replaceFetchResponseFn(
             }
             if ( outcome === 'nomatch' ) { return fetchPromise; }
             if ( safe.logLevel > 1 ) {
-                safe.uboLog(logPrefix, `Matched "propsToMatch"\n${propsToMatch}`);
+                safe.adnlog(logPrefix, `Matched "propsToMatch"\n${propsToMatch}`);
             }
             return fetchPromise.then(responseBefore => {
                 const response = responseBefore.clone();
@@ -1352,7 +1352,7 @@ function replaceFetchResponseFn(
                     const textAfter = textBefore.replace(rePattern, replacement);
                     const outcome = textAfter !== textBefore ? 'match' : 'nomatch';
                     if ( outcome === 'nomatch' ) { return responseBefore; }
-                    safe.uboLog(logPrefix, 'Replaced');
+                    safe.adnlog(logPrefix, 'Replaced');
                     const responseAfter = new Response(textAfter, {
                         status: responseBefore.status,
                         statusText: responseBefore.statusText,
@@ -1460,7 +1460,7 @@ function abortOnPropertyRead(
     const logPrefix = safe.makeLogPrefix('abort-on-property-read', chain);
     const exceptionToken = getExceptionToken();
     const abort = function() {
-        safe.uboLog(logPrefix, 'Aborted');
+        safe.adnlog(logPrefix, 'Aborted');
         throw new ReferenceError(exceptionToken);
     };
     const makeProxy = function(owner, chain) {
@@ -1530,7 +1530,7 @@ function abortOnPropertyWrite(
     delete owner[prop];
     Object.defineProperty(owner, prop, {
         set: function() {
-            safe.uboLog(logPrefix, 'Aborted');
+            safe.adnlog(logPrefix, 'Aborted');
             throw new ReferenceError(exceptionToken);
         }
     });
@@ -1682,9 +1682,9 @@ function addEventListenerDefuser(
                 } catch(ex) {
                 }
                 if ( type === '' && pattern === '' ) {
-                    safe.uboLog(logPrefix, `Called: ${t}\n${h}\n${elementDetails(thisArg)}`);
+                    safe.adnlog(logPrefix, `Called: ${t}\n${h}\n${elementDetails(thisArg)}`);
                 } else if ( shouldPrevent(thisArg, t, h) ) {
-                    return safe.uboLog(logPrefix, `Prevented: ${t}\n${h}\n${elementDetails(thisArg)}`);
+                    return safe.adnlog(logPrefix, `Prevented: ${t}\n${h}\n${elementDetails(thisArg)}`);
                 }
                 return Reflect.apply(target, thisArg, args);
             },
@@ -1728,7 +1728,7 @@ function jsonPrune(
         apply: function(target, thisArg, args) {
             const objBefore = Reflect.apply(target, thisArg, args);
             if ( rawPrunePaths === '' ) {
-                safe.uboLog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
+                safe.adnlog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
             }
             const objAfter = objectPruneFn(
                 objBefore,
@@ -1738,9 +1738,9 @@ function jsonPrune(
                 extraArgs
             );
             if ( objAfter === undefined ) { return objBefore; }
-            safe.uboLog(logPrefix, 'Pruned');
+            safe.adnlog(logPrefix, 'Pruned');
             if ( safe.logLevel > 1 ) {
-                safe.uboLog(logPrefix, `After pruning:\n${safe.JSON_stringify(objAfter, null, 2)}`);
+                safe.adnlog(logPrefix, `After pruning:\n${safe.JSON_stringify(objAfter, null, 2)}`);
             }
             return objAfter;
         },
@@ -1799,7 +1799,7 @@ function jsonPruneXhrResponse(
             }
             if ( outcome === 'match' ) {
                 if ( safe.logLevel > 1 ) {
-                    safe.uboLog(logPrefix, `Matched optional "propsToMatch", "${extraArgs.propsToMatch}"`);
+                    safe.adnlog(logPrefix, `Matched optional "propsToMatch", "${extraArgs.propsToMatch}"`);
                 }
                 xhrInstances.set(this, xhrDetails);
             }
@@ -1845,7 +1845,7 @@ function jsonPruneXhrResponse(
                 outerResponse = typeof innerResponse === 'string'
                     ? safe.JSON_stringify(objAfter)
                     : objAfter;
-                safe.uboLog(logPrefix, 'Pruned');
+                safe.adnlog(logPrefix, 'Pruned');
             } else {
                 outerResponse = innerResponse;
             }
@@ -2074,7 +2074,7 @@ function noFetchIf(
                 }
                 if ( propsToMatch === '' && responseBody === '' ) {
                     const out = Array.from(props).map(a => `${a[0]}:${a[1]}`);
-                    safe.uboLog(logPrefix, `Called: ${out.join('\n')}`);
+                    safe.adnlog(logPrefix, `Called: ${out.join('\n')}`);
                     return Reflect.apply(target, thisArg, args);
                 }
                 proceed = needles.length === 0;
@@ -2104,7 +2104,7 @@ function noFetchIf(
                 }
             }
             return generateContentFn(responseBody).then(text => {
-                safe.uboLog(logPrefix, `Prevented with response "${text}"`);
+                safe.adnlog(logPrefix, `Prevented with response "${text}"`);
                 const response = new Response(text, {
                     statusText: 'OK',
                     headers: {
@@ -2149,7 +2149,7 @@ function preventRefresh(
     const defuse = ( ) => {
         const meta = document.querySelector('meta[http-equiv="refresh" i][content]');
         if ( meta === null ) { return; }
-        safe.uboLog(logPrefix, `Prevented "${meta.textContent}"`);
+        safe.adnlog(logPrefix, `Prevented "${meta.textContent}"`);
         const s = arg1 === ''
             ? meta.getAttribute('content')
             : arg1;
@@ -2396,7 +2396,7 @@ function noSetIntervalIf(
                 : String(args[0]);
             const b = args[1];
             if ( needle === '' && delay === undefined ) {
-                safe.uboLog(logPrefix, `Called:\n${a}\n${b}`);
+                safe.adnlog(logPrefix, `Called:\n${a}\n${b}`);
                 return Reflect.apply(target, thisArg, args);
             }
             let defuse;
@@ -2408,7 +2408,7 @@ function noSetIntervalIf(
             }
             if ( defuse ) {
                 args[0] = function(){};
-                safe.uboLog(logPrefix, `Prevented:\n${a}\n${b}`);
+                safe.adnlog(logPrefix, `Prevented:\n${a}\n${b}`);
             }
             return Reflect.apply(target, thisArg, args);
         },
@@ -2459,7 +2459,7 @@ function noSetTimeoutIf(
                 : String(args[0]);
             const b = args[1];
             if ( needle === '' && delay === undefined ) {
-                safe.uboLog(logPrefix, `Called:\n${a}\n${b}`);
+                safe.adnlog(logPrefix, `Called:\n${a}\n${b}`);
                 return Reflect.apply(target, thisArg, args);
             }
             let defuse;
@@ -2471,7 +2471,7 @@ function noSetTimeoutIf(
             }
             if ( defuse ) {
                 args[0] = function(){};
-                safe.uboLog(logPrefix, `Prevented:\n${a}\n${b}`);
+                safe.adnlog(logPrefix, `Prevented:\n${a}\n${b}`);
             }
             return Reflect.apply(target, thisArg, args);
         },
@@ -2534,7 +2534,7 @@ function webrtcIf(
         new Proxy(peerConnectionProto.createDataChannel, {
             apply: function(target, thisArg, args) {
                 if ( isGoodConfig(target, args[1]) === false ) {
-                    log('uBO:', args[1]);
+                    log('ADN:', args[1]);
                     return Reflect.apply(target, thisArg, args.slice(0, 1));
                 }
                 return Reflect.apply(target, thisArg, args);
@@ -2544,7 +2544,7 @@ function webrtcIf(
         new Proxy(peerConnectionCtor, {
             construct: function(target, args) {
                 if ( isGoodConfig(target, args[0]) === false ) {
-                    log('uBO:', args[0]);
+                    log('ADN:', args[0]);
                     return Reflect.construct(target);
                 }
                 return Reflect.construct(target, args);
@@ -2590,7 +2590,7 @@ function noXhrIf(
             }
             const haystack = { method, url };
             if ( propsToMatch === '' && directive === '' ) {
-                safe.uboLog(logPrefix, `Called: ${safe.JSON_stringify(haystack, null, 2)}`);
+                safe.adnlog(logPrefix, `Called: ${safe.JSON_stringify(haystack, null, 2)}`);
                 return super.open(method, url, ...args);
             }
             if ( matchObjectProperties(propNeedles, haystack) ) {
@@ -2670,7 +2670,7 @@ function noXhrIf(
                 details.xhr.dispatchEvent(new Event('readystatechange'));
                 details.xhr.dispatchEvent(new Event('load'));
                 details.xhr.dispatchEvent(new Event('loadend'));
-                safe.uboLog(logPrefix, `Prevented with response:\n${details.xhr.response}`);
+                safe.adnlog(logPrefix, `Prevented with response:\n${details.xhr.response}`);
             });
         }
         getResponseHeader(headerName) {
@@ -2744,11 +2744,11 @@ function noWindowOpenIf(
             const haystack = args.join(' ');
             if ( rePattern.test(haystack) !== targetMatchResult ) {
                 if ( safe.logLevel > 1 ) {
-                    safe.uboLog(logPrefix, `Allowed (${args.join(', ')})`);
+                    safe.adnlog(logPrefix, `Allowed (${args.join(', ')})`);
                 }
                 return Reflect.apply(target, thisArg, args);
             }
-            safe.uboLog(logPrefix, `Prevented (${args.join(', ')})`);
+            safe.adnlog(logPrefix, `Prevented (${args.join(', ')})`);
             if ( autoRemoveAfter < 0 ) { return null; }
             const decoyElem = decoy === 'obj'
                 ? createDecoy('object', 'data', ...args)
@@ -2773,11 +2773,11 @@ function noWindowOpenIf(
             if ( safe.logLevel !== 0 ) {
                 popup = new Proxy(popup, {
                     get: function(target, prop) {
-                        safe.uboLog(logPrefix, 'window.open / get', prop, '===', target[prop]);
+                        safe.adnlog(logPrefix, 'window.open / get', prop, '===', target[prop]);
                         return Reflect.get(...arguments);
                     },
                     set: function(target, prop, value) {
-                        safe.uboLog(logPrefix, 'window.open / set', prop, '=', value);
+                        safe.adnlog(logPrefix, 'window.open / set', prop, '=', value);
                         return Reflect.set(...arguments);
                     },
                 });
@@ -3100,18 +3100,18 @@ function xmlPrune(
             }
             if ( extraArgs.logdoc ) {
                 const serializer = new XMLSerializer();
-                safe.uboLog(logPrefix, `Document is\n\t${serializer.serializeToString(xmlDoc)}`);
+                safe.adnlog(logPrefix, `Document is\n\t${serializer.serializeToString(xmlDoc)}`);
             }
             const items = queryAll(xmlDoc, selector);
             if ( items.length === 0 ) { return xmlDoc; }
-            safe.uboLog(logPrefix, `Removing ${items.length} items`);
+            safe.adnlog(logPrefix, `Removing ${items.length} items`);
             for ( const item of items ) {
                 if ( item.nodeType === 1 ) {
                     item.remove();
                 } else if ( item.nodeType === 2 ) {
                     item.ownerElement.removeAttribute(item.nodeName);
                 }
-                safe.uboLog(logPrefix, `${item.constructor.name}.${item.nodeName} removed`);
+                safe.adnlog(logPrefix, `${item.constructor.name}.${item.nodeName} removed`);
             }
         } catch(ex) {
             safe.uboErr(logPrefix, `Error: ${ex}`);
@@ -3331,7 +3331,7 @@ function m3uPrune(
                     });
                     if ( toLog.length !== 0 ) {
                         toLog.unshift(logPrefix);
-                        safe.uboLog(toLog.join('\n'));
+                        safe.adnlog(toLog.join('\n'));
                     }
                     return response;
                 })
@@ -3354,7 +3354,7 @@ function m3uPrune(
                 Object.defineProperty(thisArg, 'responseText', { value: textout });
                 if ( toLog.length !== 0 ) {
                     toLog.unshift(logPrefix);
-                    safe.uboLog(toLog.join('\n'));
+                    safe.adnlog(toLog.join('\n'));
                 }
             });
             return Reflect.apply(target, thisArg, args);
@@ -3473,7 +3473,7 @@ function hrefSanitizer(
             if ( hrefAfter === href ) { continue; }
             elem.setAttribute('href', hrefAfter);
             const count = sanitizeCopycats(href, hrefAfter);
-            safe.uboLog(logPrefix, `Sanitized ${count+1} links to\n${hrefAfter}`);
+            safe.adnlog(logPrefix, `Sanitized ${count+1} links to\n${hrefAfter}`);
         }
         return true;
     };
@@ -3597,7 +3597,7 @@ function spoofCSS(
         const shouldSpoof = propToValueMap.has(normalProp);
         const value = shouldSpoof ? propToValueMap.get(normalProp) : real;
         if ( shouldSpoof ) {
-            safe.uboLog(logPrefix, `Spoofing ${prop} to ${value}`);
+            safe.adnlog(logPrefix, `Spoofing ${prop} to ${value}`);
         }
         return value;
     };
@@ -3756,7 +3756,7 @@ function setCookie(
     );
 
     if ( done ) {
-        safe.uboLog(logPrefix, 'Done');
+        safe.adnlog(logPrefix, 'Done');
     }
 }
 
@@ -3894,7 +3894,7 @@ function setAttr(
                 if ( attr.toLowerCase() in elem ) { continue; }
             }
             elem.setAttribute(attr, after);
-            safe.uboLog(logPrefix, `${attr}="${after}"`);
+            safe.adnlog(logPrefix, `${attr}="${after}"`);
         }
         return true;
     };
@@ -4042,10 +4042,10 @@ function removeCacheStorageItem(
             if ( requestPattern === '' ) {
                 cacheStorage.delete(cacheName).then(result => {
                     if ( safe.logLevel > 1 ) {
-                        safe.uboLog(logPrefix, `Deleting ${cacheName}`);
+                        safe.adnlog(logPrefix, `Deleting ${cacheName}`);
                     }
                     if ( result !== true ) { return; }
-                    safe.uboLog(logPrefix, `Deleted ${cacheName}: ${result}`);
+                    safe.adnlog(logPrefix, `Deleted ${cacheName}: ${result}`);
                 });
                 continue;
             }
@@ -4054,11 +4054,11 @@ function removeCacheStorageItem(
                     for ( const request of requests ) {
                         if ( reRequest.test(request.url) === false ) { continue; }
                         if ( safe.logLevel > 1 ) {
-                            safe.uboLog(logPrefix, `Deleting ${cacheName}/${request.url}`);
+                            safe.adnlog(logPrefix, `Deleting ${cacheName}/${request.url}`);
                         }
                         cache.delete(request).then(result => {
                             if ( result !== true ) { return; }
-                            safe.uboLog(logPrefix, `Deleted ${cacheName}/${request.url}: ${result}`);
+                            safe.adnlog(logPrefix, `Deleted ${cacheName}/${request.url}: ${result}`);
                         });
                     }
                 });
@@ -4215,7 +4215,7 @@ function trustedSetCookie(
     );
 
     if ( done ) {
-        safe.uboLog(logPrefix, 'Done');
+        safe.adnlog(logPrefix, 'Done');
     }
 }
 
@@ -4332,7 +4332,7 @@ function trustedReplaceXhrResponse(
             }
             if ( outcome === 'match' ) {
                 if ( safe.logLevel > 1 ) {
-                    safe.uboLog(logPrefix, `Matched "propsToMatch"`);
+                    safe.adnlog(logPrefix, `Matched "propsToMatch"`);
                 }
                 xhrInstances.set(outerXhr, xhrDetails);
             }
@@ -4360,7 +4360,7 @@ function trustedReplaceXhrResponse(
             const textBefore = innerResponse;
             const textAfter = textBefore.replace(rePattern, replacement);
             if ( textAfter !== textBefore ) {
-                safe.uboLog(logPrefix, 'Match');
+                safe.adnlog(logPrefix, 'Match');
             }
             return (xhrDetails.response = textAfter);
         }
@@ -4482,12 +4482,12 @@ function trustedClickElement(
 
     const next = notFound => {
         if ( selectorList.length === 0 ) {
-            safe.uboLog(logPrefix, 'Completed');
+            safe.adnlog(logPrefix, 'Completed');
             return terminate();
         }
         const tnow = Date.now();
         if ( tnow >= tbye ) {
-            safe.uboLog(logPrefix, 'Timed out');
+            safe.adnlog(logPrefix, 'Timed out');
             return terminate();
         }
         if ( notFound ) { observe(); }
@@ -4496,7 +4496,7 @@ function trustedClickElement(
             next.timer = undefined;
             process();
         }, delay);
-        safe.uboLog(logPrefix, `Waiting for ${selectorList[0]}...`);
+        safe.adnlog(logPrefix, `Waiting for ${selectorList[0]}...`);
     };
     next.stop = ( ) => {
         if ( next.timer === undefined ) { return; }
@@ -4540,7 +4540,7 @@ function trustedClickElement(
             selectorList.unshift(selector);
             return next(true);
         }
-        safe.uboLog(logPrefix, `Clicked ${selector}`);
+        safe.adnlog(logPrefix, `Clicked ${selector}`);
         elem.click();
         tnext += clickDelay;
         next();
@@ -4696,7 +4696,7 @@ function trustedReplaceArgument(
         const argBefore = arglist[argpos];
         if ( reCondition.test(argBefore) === false ) { return reflector(...args); }
         arglist[argpos] = normalValue;
-        safe.uboLog(logPrefix, `Replaced argument:\nBefore: ${JSON.stringify(argBefore)}\nAfter: ${normalValue}`);
+        safe.adnlog(logPrefix, `Replaced argument:\nBefore: ${JSON.stringify(argBefore)}\nAfter: ${normalValue}`);
         return reflector(...args);
     });
 }

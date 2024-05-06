@@ -30,7 +30,7 @@ import {
 import { internalLinkDomainsDefault } from './adn/adn-utils.js'; // adn 
 import { FilteringContext } from './filtering-context.js';
 import logger from './logger.js';
-import { ubologSet } from './console.js';
+import { adnlogSet } from './console.js';
 
 /******************************************************************************/
 
@@ -97,7 +97,7 @@ const hiddenSettingsDefault = {
 if ( vAPI.webextFlavor.soup.has('devbuild') ) {
     hiddenSettingsDefault.consoleLogLevel = 'info';
     hiddenSettingsDefault.cacheStorageAPI = 'unset';
-    ubologSet(true);
+    adnlogSet(true);
 }
 
 const userSettingsDefault = {

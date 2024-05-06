@@ -29,7 +29,7 @@
 /******************************************************************************/
 
 import webext from './webext.js';
-import { ubolog } from './console.js';
+import { adnlog } from './console.js';
 import { makeCloneable } from './adn/adn-utils.js';
 
 /******************************************************************************/
@@ -1179,7 +1179,7 @@ vAPI.messaging = {
         }
 
         // Auxiliary process to main process: no handler
-        ubolog(
+        adnlog(
             `vAPI.messaging.onPortMessage > unhandled request: ${JSON.stringify(request.msg)}`,
             request
         );
