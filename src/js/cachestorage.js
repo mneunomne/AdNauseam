@@ -28,7 +28,7 @@
 import lz4Codec from './lz4.js';
 import webext from './webext.js';
 import µb from './background.js';
-import { ubolog } from './console.js';
+import { adnlog } from './console.js';
 import * as s14e from './s14e-serializer.js';
 
 /******************************************************************************/
@@ -117,7 +117,7 @@ const cacheStorage = (( ) => {
                 }
                 return Promise.all(promises).then(( ) => outbin);
             }).catch(reason => {
-                ubolog(reason);
+                adnlog(reason);
             });
         },
 
@@ -146,21 +146,21 @@ const cacheStorage = (( ) => {
             await Promise.all(promises);
             cacheAPIs[fastCache].set(rawbin, serializedbin);
             return extensionStorage.set(serializedbin).catch(reason => {
-                ubolog(reason);
+                adnlog(reason);
             });
         },
 
         remove(...args) {
             cacheAPIs[fastCache].remove(...args);
             return extensionStorage.remove(...args).catch(reason => {
-                ubolog(reason);
+                adnlog(reason);
             });
         },
 
         clear(...args) {
             cacheAPIs[fastCache].clear(...args);
             return extensionStorage.clear(...args).catch(reason => {
-                ubolog(reason);
+                adnlog(reason);
             });
         },
 
@@ -179,7 +179,7 @@ const cacheStorage = (( ) => {
     if ( extensionStorage.getBytesInUse instanceof Function ) {
         api.getBytesInUse = function(...args) {
             return extensionStorage.getBytesInUse(...args).catch(reason => {
-                ubolog(reason);
+                adnlog(reason);
             });
         };
     }
@@ -205,13 +205,13 @@ const cacheAPI = (( ) => {
         if ( cacheStoragePromise !== undefined ) { return cacheStoragePromise; }
         cacheStoragePromise = new Promise(resolve => {
             if ( typeof caches !== 'object' || caches === null ) {
-                ubolog('CacheStorage API not available');
+                adnlog('CacheStorage API not available');
                 resolve(null);
                 return;
             }
             resolve(caches.open(STORAGE_NAME));
         }).catch(reason => {
-            ubolog(reason);
+            adnlog(reason);
             return null;
         });
         return cacheStoragePromise;
@@ -248,7 +248,7 @@ const cacheAPI = (( ) => {
             if ( text === undefined ) { return; }
             return { key, text };
         }).catch(reason => {
-            ubolog(reason);
+            adnlog(reason);
         });
     };
 
@@ -269,7 +269,7 @@ const cacheAPI = (( ) => {
             }
             return bin;
         }).catch(reason => {
-            ubolog(reason);
+            adnlog(reason);
         });
     };
 
@@ -281,7 +281,7 @@ const cacheAPI = (( ) => {
         return cache
             .put(keyToURL(key), new Response(blob))
             .catch(reason => {
-                ubolog(reason);
+                adnlog(reason);
             });
     };
 
@@ -289,7 +289,7 @@ const cacheAPI = (( ) => {
         const cache = await getAPI();
         if ( cache === null ) { return; }
         return cache.delete(keyToURL(key)).catch(reason => {
-            ubolog(reason);
+            adnlog(reason);
         });
     };
 
@@ -357,7 +357,7 @@ const cacheAPI = (( ) => {
         async clear() {
             if ( typeof caches !== 'object' || caches === null ) { return; }
             return globalThis.caches.delete(STORAGE_NAME).catch(reason => {
-                ubolog(reason);
+                adnlog(reason);
             });
         },
         
@@ -396,7 +396,7 @@ const memoryStorage = (( ) => {
             return sessionStorage.get(...args).then(bin => {
                 return bin;
             }).catch(reason => {
-                ubolog(reason);
+                adnlog(reason);
             });
         },
 
@@ -414,19 +414,19 @@ const memoryStorage = (( ) => {
             const bin = shouldCache(serializedbin);
             if ( bin === undefined ) { return; }
             return sessionStorage.set(bin).catch(reason => {
-                ubolog(reason);
+                adnlog(reason);
             });
         },
 
         remove(...args) {
             return sessionStorage.remove(...args).catch(reason => {
-                ubolog(reason);
+                adnlog(reason);
             });
         },
 
         clear(...args) {
             return sessionStorage.clear(...args).catch(reason => {
-                ubolog(reason);
+                adnlog(reason);
             });
         },
 
@@ -467,7 +467,7 @@ const idbStorage = (( ) => {
             };
             req.onerror = req.onblocked = ( ) => {
                 if ( resolve === undefined ) { return; }
-                ubolog(req.error);
+                adnlog(req.error);
                 resolve(null);
                 resolve = undefined;
             };
@@ -477,7 +477,7 @@ const idbStorage = (( ) => {
                 resolve = undefined;
             });
         }).catch(reason => {
-            ubolog(`idbStorage() / getDb() failed: ${reason}`);
+            adnlog(`idbStorage() / getDb() failed: ${reason}`);
             return null;
         });
         return dbPromise;
@@ -541,7 +541,7 @@ const idbStorage = (( ) => {
                 cursor.continue();
             };
         }).catch(reason => {
-            ubolog(`idbStorage() / getAllEntries() failed: ${reason}`);
+            adnlog(`idbStorage() / getAllEntries() failed: ${reason}`);
             return [];
         });
     };
@@ -567,7 +567,7 @@ const idbStorage = (( ) => {
                 cursor.continue();
             };
         }).catch(reason => {
-            ubolog(`idbStorage() / getAllKeys() failed: ${reason}`);
+            adnlog(`idbStorage() / getAllKeys() failed: ${reason}`);
             return [];
         });
     };
@@ -601,7 +601,7 @@ const idbStorage = (( ) => {
                 req.onerror = ( ) => { };
             }
         }).catch(reason => {
-            ubolog(`idbStorage() / getEntries() failed: ${reason}`);
+            adnlog(`idbStorage() / getEntries() failed: ${reason}`);
             return [];
         });
     };
@@ -636,7 +636,7 @@ const idbStorage = (( ) => {
                 table.put(entry);
             }
         }).catch(reason => {
-            ubolog(`idbStorage() / setEntries() failed: ${reason}`);
+            adnlog(`idbStorage() / setEntries() failed: ${reason}`);
         });
     };
 
@@ -657,7 +657,7 @@ const idbStorage = (( ) => {
                 table.delete(key);
             }
         }).catch(reason => {
-            ubolog(`idbStorage() / deleteEntries() failed: ${reason}`);
+            adnlog(`idbStorage() / deleteEntries() failed: ${reason}`);
         });
     };
 
@@ -700,7 +700,7 @@ const idbStorage = (( ) => {
                 db.close();
                 indexedDB.deleteDatabase(STORAGE_NAME);
             }).catch(reason => {
-                ubolog(`idbStorage.clear() failed: ${reason}`);
+                adnlog(`idbStorage.clear() failed: ${reason}`);
             });
         },
 
