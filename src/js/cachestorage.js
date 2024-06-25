@@ -19,22 +19,20 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global indexedDB */
-
-'use strict';
-
 /******************************************************************************/
 
-import lz4Codec from './lz4.js';
+import * as s14e from './s14e-serializer.js';
+
+import { ubolog } from './console.js';
 import webext from './webext.js';
 import µb from './background.js';
 import { adnlog } from './console.js';
-import * as s14e from './s14e-serializer.js';
 
 /******************************************************************************/
 
 const STORAGE_NAME = 'uBlock0CacheStorage';
 const extensionStorage = webext.storage.local;
+const pendingWrite = new Map();
 
 const keysFromGetArg = arg => {
     if ( arg === null || arg === undefined ) { return []; }
@@ -47,6 +45,10 @@ const keysFromGetArg = arg => {
 
 let fastCache = 'indexedDB';
 
+// https://eslint.org/docs/latest/rules/no-prototype-builtins
+const hasOwnProperty = (o, p) =>
+    Object.prototype.hasOwnProperty.call(o, p);
+
 /*******************************************************************************
  * 
  * Extension storage
@@ -57,15 +59,25 @@ let fastCache = 'indexedDB';
 
 const cacheStorage = (( ) => {
 
-    const exGet = (api, wanted, outbin) => {
-        return api.get(wanted).then(inbin => {
+    const exGet = async (api, wanted, outbin) => {
+        ubolog('cacheStorage.get:', api.name || 'storage.local', wanted.join());
+        const missing = [];
+        for ( const key of wanted ) {
+            if ( pendingWrite.has(key) ) {
+                outbin[key] = pendingWrite.get(key);
+            } else {
+                missing.push(key);
+            }
+        }
+        if ( missing.length === 0 ) { return; }
+        return api.get(missing).then(inbin => {
             inbin = inbin || {};
             const found = Object.keys(inbin);
             Object.assign(outbin, inbin);
             if ( found.length === wanted.length ) { return; }
             const missing = [];
             for ( const key of wanted ) {
-                if ( outbin.hasOwnProperty(key) ) { continue; }
+                if ( hasOwnProperty(outbin, key) ) { continue; }
                 missing.push(key);
             }
             return missing;
@@ -107,7 +119,7 @@ const cacheStorage = (( ) => {
                 if ( argbin instanceof Object === false ) { return; }
                 if ( Array.isArray(argbin) ) { return; }
                 for ( const key of wanted ) {
-                    if ( argbin.hasOwnProperty(key) === false ) { continue; }
+                    if ( hasOwnProperty(argbin, key) === false ) { continue; }
                     outbin[key] = argbin[key];
                 }
             }).then(( ) => {
@@ -138,16 +150,27 @@ const cacheStorage = (( ) => {
         async set(rawbin) {
             const keys = Object.keys(rawbin);
             if ( keys.length === 0 ) { return; }
-            const serializedbin = {};
-            const promises = [];
+            ubolog('cacheStorage.set:', keys.join());
             for ( const key of keys ) {
-                promises.push(compress(serializedbin, key, rawbin[key]));
+                pendingWrite.set(key, rawbin[key]);
             }
-            await Promise.all(promises);
-            cacheAPIs[fastCache].set(rawbin, serializedbin);
-            return extensionStorage.set(serializedbin).catch(reason => {
+            try {
+                const serializedbin = {};
+                const promises = [];
+                for ( const key of keys ) {
+                    promises.push(compress(serializedbin, key, rawbin[key]));
+                }
+                await Promise.all(promises);
+                await Promise.all([
+                    cacheAPIs[fastCache].set(rawbin, serializedbin),
+                    extensionStorage.set(serializedbin),
+                ]);
+            } catch(reason) {
                 adnlog(reason);
-            });
+            }
+            for ( const key of keys ) {
+                pendingWrite.delete(key);
+            }
         },
 
         remove(...args) {
@@ -165,7 +188,7 @@ const cacheStorage = (( ) => {
         },
 
         select(api) {
-            if ( cacheAPIs.hasOwnProperty(api) === false ) { return fastCache; }
+            if ( hasOwnProperty(cacheAPIs, api) === false ) { return fastCache; }
             fastCache = api;
             for ( const k of Object.keys(cacheAPIs) ) {
                 if ( k === api ) { continue; }
@@ -294,6 +317,7 @@ const cacheAPI = (( ) => {
     };
 
     return {
+        name: 'cacheAPI',
         async get(arg) {
             const keys = keysFromGetArg(arg);
             if ( keys === undefined ) { return; }
@@ -392,6 +416,7 @@ const memoryStorage = (( ) => {
     };
 
     return {
+        name: 'memoryStorage',
         get(...args) {
             return sessionStorage.get(...args).then(bin => {
                 return bin;
@@ -485,35 +510,9 @@ const idbStorage = (( ) => {
 
     // Cache API is subject to quota so we will use it only for what is key
     // performance-wise
-    const shouldCache = bin => {
-        const out = {};
-        for ( const key of Object.keys(bin) ) {
-            if ( key.startsWith('cache/' ) ) {
-                if ( /^cache\/(compiled|selfie)\//.test(key) === false ) { continue; }
-            }
-            out[key] = bin[key];
-        }
-        if ( Object.keys(out).length === 0 ) { return; }
-        return out;
-    };
-
-    const fromBlob = data => {
-        if ( data instanceof Blob === false ) {
-            return Promise.resolve(data);
-        }
-        return new Promise(resolve => {
-            const blobReader = new FileReader();
-            blobReader.onloadend = ev => {
-                resolve(new Uint8Array(ev.target.result));
-            };
-            blobReader.readAsArrayBuffer(data);
-        });
-    };
-
-    const decompress = (key, value) => {
-        return lz4Codec.decode(value, fromBlob).then(value => {
-            return { key, value };
-        });
+    const shouldCache = key => {
+        if ( key.startsWith('cache/') === false ) { return true; }
+        return /^cache\/(compiled|selfie)\//.test(key);
     };
 
     const getAllEntries = async function() {
@@ -533,9 +532,7 @@ const idbStorage = (( ) => {
                 const cursor = ev.target && ev.target.result;
                 if ( !cursor ) { return; }
                 const { key, value } = cursor.value;
-                if ( value instanceof Blob ) {
-                    entries.push(decompress(key, value));
-                } else {
+                if ( value instanceof Blob === false ) {
                     entries.push({ key, value });
                 }
                 cursor.continue();
@@ -582,16 +579,13 @@ const idbStorage = (( ) => {
                 if ( typeof result !== 'object' ) { return; }
                 if ( result === null ) { return; }
                 const { key, value } = result;
-                if ( value instanceof Blob ) {
-                    entries.push(decompress(key, value));
-                } else {
-                    entries.push({ key, value });
-                }
+                if ( value instanceof Blob ) { return; }
+                entries.push({ key, value });
             };
             const transaction = db.transaction(STORAGE_NAME, 'readonly');
             transaction.oncomplete =
             transaction.onerror =
-                transaction.onabort = ( ) => {
+            transaction.onabort = ( ) => {
                 resolve(Promise.all(entries));
             };
             const table = transaction.objectStore(STORAGE_NAME);
@@ -662,27 +656,39 @@ const idbStorage = (( ) => {
     };
 
     return {
+        name: 'idbStorage',
         async get(argbin) {
             const keys = keysFromGetArg(argbin);
             if ( keys === undefined ) { return; }
             if ( keys.length === 0 ) { return getAll(); }
             const entries = await getEntries(keys);
             const outbin = {};
+            const toRemove = [];
             for ( const { key, value } of entries ) {
+                if ( shouldCache(key) === false ) {
+                    toRemove.push(key);
+                    continue;
+                }
                 outbin[key] = value;
             }
             if ( argbin instanceof Object && Array.isArray(argbin) === false ) {
                 for ( const key of keys ) {
-                    if ( outbin.hasOwnProperty(key) ) { continue; }
+                    if ( hasOwnProperty(outbin, key) ) { continue; }
                     outbin[key] = argbin[key];
                 }
+            }
+            if ( toRemove.length !== 0 ) {
+                deleteEntries(toRemove);
             }
             return outbin;
         },
 
         async set(rawbin) {
-            const bin = shouldCache(rawbin);
-            if ( bin === undefined ) { return; }
+            const bin = {};
+            for ( const key of Object.keys(rawbin) ) {
+                if ( shouldCache(key) === false ) { continue; }
+                bin[key] = rawbin[key];
+            }
             return setEntries(bin);
         },
 
@@ -695,7 +701,7 @@ const idbStorage = (( ) => {
         },
 
         clear() {
-             return getDb().then(db => {
+            return getDb().then(db => {
                 if ( db === null ) { return; }
                 db.close();
                 indexedDB.deleteDatabase(STORAGE_NAME);

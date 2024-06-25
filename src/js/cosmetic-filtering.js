@@ -19,15 +19,12 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-'use strict';
-
 /******************************************************************************/
-
-import logger from './logger.js';
-import µb from './background.js';
 
 import { MRUCache } from './mrucache.js';
 import { StaticExtFilteringHostnameDB } from './static-ext-filtering-db.js';
+import logger from './logger.js';
+import µb from './background.js';
 import adnauseam from './adn/core.js'
 
 /******************************************************************************/
@@ -193,8 +190,10 @@ const hashFromStr = (type, s) => {
 //   It's an uncommon case, so it's best to unescape only when needed.
 
 const keyFromSelector = selector => {
+    let matches = reSimplestSelector.exec(selector);
+    if ( matches !== null ) { return matches[0]; }
     let key = '';
-    let matches = rePlainSelector.exec(selector);
+    matches = rePlainSelector.exec(selector);
     if ( matches !== null ) {
         key = matches[0];
     } else {
@@ -202,6 +201,7 @@ const keyFromSelector = selector => {
         if ( matches === null ) { return; }
         key = matches[1] || matches[2];
     }
+    if ( selector.includes(',') ) { return; }
     if ( key.includes('\\') === false ) { return key; }
     matches = rePlainSelectorEscaped.exec(selector);
     if ( matches === null ) { return; }
@@ -224,8 +224,9 @@ const keyFromSelector = selector => {
     }
 };
 
+const reSimplestSelector = /^[#.][\w-]+$/;
 const rePlainSelector = /^[#.][\w\\-]+/;
-const rePlainSelectorEx = /^[^#.\[(]+([#.][\w-]+)|([#.][\w-]+)$/;
+const rePlainSelectorEx = /^[^#.[(]+([#.][\w-]+)|([#.][\w-]+)$/;
 const rePlainSelectorEscaped = /^[#.](?:\\[0-9A-Fa-f]+ |\\.|\w|-)+/;
 const reEscapeSequence = /\\([0-9A-Fa-f]+ |.)/g;
 

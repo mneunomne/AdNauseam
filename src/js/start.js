@@ -46,7 +46,6 @@ import cacheStorage from './cachestorage.js';
 import { adnlog } from './console.js';
 import adnauseam from './adn/core.js'
 import contextMenu from './contextmenu.js';
-import lz4Codec from './lz4.js';
 import { redirectEngine } from './redirect-engine.js';
 import staticFilteringReverseLookup from './reverselookup.js';
 import staticExtFilteringEngine from './static-ext-filtering.js';
@@ -529,13 +528,6 @@ await initializeTabs();
 
 // Start network observers.
 webRequest.start();
-
-// Ensure that the resources allocated for decompression purpose (likely
-// large buffers) are garbage-collectable immediately after launch.
-// Otherwise I have observed that it may take quite a while before the
-// garbage collection of these resources kicks in. Relinquishing as soon
-// as possible ensure minimal memory usage baseline.
-lz4Codec.relinquish();
 
 // Force an update of the context menu according to the currently
 // active tab.
