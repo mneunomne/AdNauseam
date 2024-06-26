@@ -40,7 +40,8 @@ body.notReady {
 }
 #dashboard-nav > span {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     }
 #dashboard-nav-widgets span {
     align-items: center;
@@ -181,15 +182,6 @@ body.noDashboard #dashboard-nav {
     border-bottom-color: var(--dashboard-tab-hover-border);
     }
 
-:root.mobile #dashboard-nav > span {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-    }
-:root.mobile #dashboard-nav::-webkit-scrollbar {
-  display: none;
-    }
 :root.mobile #dashboard-nav .logo {
     display: none;
     }

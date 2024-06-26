@@ -14,8 +14,10 @@ rules:
       - ignoredNodes:
         - Program > IfStatement > BlockStatement
         - Program > ExpressionStatement > CallExpression > ArrowFunctionExpression > BlockStatement
+        - Program > ExpressionStatement > CallExpression > FunctionExpression > BlockStatement
         - CallExpression > MemberExpression
-        - ArrayExpression > Literal
+        - ArrayExpression > *
+        - ObjectExpression > *
     no-control-regex: off
     no-empty: off
     sort-imports: warn

@@ -22,10 +22,6 @@
 
 // For background page
 
-/* globals browser */
-
-'use strict';
-
 /******************************************************************************/
 
 import webext from './webext.js';
@@ -47,6 +43,9 @@ if ( vAPI.canWASM === false ) {
 }
 
 vAPI.supportsUserStylesheets = vAPI.webextFlavor.soup.has('user_stylesheet');
+
+const hasOwnProperty = (o, p) =>
+    Object.prototype.hasOwnProperty.call(o, p);
 
 /******************************************************************************/
 
@@ -192,9 +191,9 @@ vAPI.browserSettings = (( ) => {
 
         set: function(details) {
             for ( const setting in details ) {
-                if ( details.hasOwnProperty(setting) === false ) { continue; }
+                if ( hasOwnProperty(details, setting) === false ) { continue; }
                 switch ( setting ) {
-                case 'prefetching':
+                case 'prefetching': {
                     const enabled = !!details[setting];
                     if ( enabled ) {
                         bp.network.networkPredictionEnabled.clear({
@@ -210,9 +209,9 @@ vAPI.browserSettings = (( ) => {
                         vAPI.prefetching(enabled);
                     }
                     break;
-
-                case 'hyperlinkAuditing':
-                    if ( !!details[setting] ) {
+                }
+                case 'hyperlinkAuditing': {
+                    if ( details[setting] ) {
                         bp.websites.hyperlinkAuditingEnabled.clear({
                             scope: 'regular',
                         });
@@ -223,7 +222,7 @@ vAPI.browserSettings = (( ) => {
                         });
                     }
                     break;
-
+                }
                 case 'webrtcIPAddress': {
                     // https://github.com/uBlockOrigin/uBlock-issues/issues/1928
                     // https://www.reddit.com/r/uBlockOrigin/comments/sl7p74/
@@ -315,7 +314,7 @@ vAPI.Tabs = class {
             }
             this.onRemovedHandler(tabId, details);
         });
-     }
+    }
 
     async executeScript(...args) {
         let result;
@@ -897,8 +896,8 @@ if ( webext.browserAction instanceof Object ) {
         const hasUnprocessedRequest = vAPI.net && vAPI.net.hasUnprocessedRequest(tabId);
         const { parts, state } = details;
         const { badge, color } = hasUnprocessedRequest
-                ? { badge: '!', color: '#FC0' }
-                : details;
+            ? { badge: '!', color: '#FC0' }
+            : details;
 
         if ( browserAction.setIcon !== undefined ) {
             if ( parts === undefined || (parts & 0b0001) !== 0 ) {
@@ -1075,7 +1074,7 @@ vAPI.messaging = {
             });
             break;
         }
-        case 'userCSS':
+        case 'userCSS': {
             if ( tabId === undefined ) { break; }
             const promises = [];
             if ( msg.add ) {
@@ -1104,6 +1103,9 @@ vAPI.messaging = {
             Promise.all(promises).then(( ) => {
                 callback();
             });
+            break;
+        }
+        default:
             break;
         }
     },
@@ -1263,7 +1265,7 @@ vAPI.Net = class {
         {
             const wrrt = browser.webRequest.ResourceType;
             for ( const typeKey in wrrt ) {
-                if ( wrrt.hasOwnProperty(typeKey) ) {
+                if ( hasOwnProperty(wrrt, typeKey) ) {
                     this.validTypes.add(wrrt[typeKey]);
                 }
             }
@@ -1637,10 +1639,7 @@ vAPI.localStorage = {
         if ( this.cache instanceof Promise ) { return this.cache; }
         if ( this.cache instanceof Object ) { return this.cache; }
         this.cache = vAPI.storage.get('localStorage').then(bin => {
-            this.cache = bin instanceof Object &&
-                bin.localStorage instanceof Object
-                    ? bin.localStorage
-                    : {};
+            this.cache = bin && bin.localStorage || {};
         });
         return this.cache;
     },
