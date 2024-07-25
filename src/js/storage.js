@@ -1034,12 +1034,12 @@ onBroadcast(msg => {
         adnlog('loadFilterLists() Start');
         t0 = Date.now();
         loadedListKeys.length = 0;
-        loadingPromise = Promise.all([
-            this.getAvailableLists().then(lists => onFilterListsReady(lists)),
-            this.loadRedirectResources().then(( ) => {
-                adnlog(`loadFilterLists() Redirects/scriptlets ready at ${elapsed()}`);
-            }),
-        ]).then(( ) => {
+        loadingPromise = this.loadRedirectResources().then(( ) => {
+            adnlog(`loadFilterLists() Redirects/scriptlets ready at ${elapsed()}`);
+            return this.getAvailableLists();
+        }).then(lists => {
+            return onFilterListsReady(lists)
+        }).then(( ) => {
             onDone();
         });
         return loadingPromise;
