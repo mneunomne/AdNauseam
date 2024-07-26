@@ -23,7 +23,6 @@
 
 import * as s14e from './s14e-serializer.js';
 
-import { ubolog } from './console.js';
 import webext from './webext.js';
 import µb from './background.js';
 import { adnlog } from './console.js';
@@ -60,7 +59,7 @@ const hasOwnProperty = (o, p) =>
 const cacheStorage = (( ) => {
 
     const exGet = async (api, wanted, outbin) => {
-        ubolog('cacheStorage.get:', api.name || 'storage.local', wanted.join());
+        adnlog('cacheStorage.get:', api.name || 'storage.local', wanted.join());
         const missing = [];
         for ( const key of wanted ) {
             if ( pendingWrite.has(key) ) {
@@ -150,7 +149,7 @@ const cacheStorage = (( ) => {
         async set(rawbin) {
             const keys = Object.keys(rawbin);
             if ( keys.length === 0 ) { return; }
-            ubolog('cacheStorage.set:', keys.join());
+            adnlog('cacheStorage.set:', keys.join());
             for ( const key of keys ) {
                 pendingWrite.set(key, rawbin[key]);
             }
