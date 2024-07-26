@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock Origin Lite - a comprehensive, MV3-compliant content blocker
+    AdNauseam Lite - a comprehensive, MV3-compliant content blocker
     Copyright (C) 2022-present Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -276,7 +276,7 @@ function registerProcedural(context) {
         allFrames: true,
         matches,
         excludeMatches,
-        runAt: 'document_end',
+        runAt: 'document_start',
     };
 
     // register
