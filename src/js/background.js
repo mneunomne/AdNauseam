@@ -119,6 +119,7 @@ const userSettingsDefault = {
     removeAdsInPrivate: true,
     strictBlockingMode: false,
     disableWarnings: false,
+    blurCollectedAds: false,
 
     clickOnlyWhenIdleFor: 0,
     noIncomingCookies: true,

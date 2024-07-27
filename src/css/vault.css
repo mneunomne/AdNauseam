@@ -802,6 +802,14 @@ div.bullets { display: none; } /* hide by default */
 	pointer-events: none;
 }
 
+#stage.blur .ad img {
+	filter: blur(5px);
+}
+
+#stage.blur .ad img:hover {
+	filter: blur(0px);
+}
+
 .ad img.white-bg {
 	background: white;
 }
@@ -1044,28 +1052,33 @@ div.bullets { display: none; } /* hide by default */
 }
 
 .item:hover img,
-.item:focus img{
+.item:focus img {
+	filter: blur(0px) !important;
+}
+
+.item:hover .ad,
+.item:focus .ad{
 	opacity: 1;
 	border: 3px solid #A020F0;
 	margin: -3px;
 	border-radius: 3px;
 }
-.item.visited:hover img {
+.item.visited:hover .ad {
 	border-color: var(--adn-purple);
 	border-radius: 3px;
 }
 
-.item.pending:hover img {
+.item.pending:hover .ad {
 	border: 3px solid var(--adn-blue);
 	border-radius: 3px;
 }
 
-.item.failed:hover img {
+.item.failed:hover .ad {
 	border-color: #B80606;
 	border-radius: 3px;
 }
 
-.item.dnt-allowed:hover img {
+.item.dnt-allowed:hover .ad {
 	border-color: #96B96B;
 	border-radius: 3px;
 }

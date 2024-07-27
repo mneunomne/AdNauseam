@@ -173,6 +173,19 @@ const renderAds = function (json) {
     }
     adjustHeight();
   })
+
+  vAPI.messaging.send(
+    'adnauseam', {
+    what: 'getBlurCollectedAds'
+  }
+  ).then(blurCollectedAds => {
+    console.log("blurCollectedAds", blurCollectedAds)
+    if (blurCollectedAds) {
+      uDom("#stage").addClass('blur');
+    } else {
+      uDom("#stage").removeClass('blur');
+    }
+  })
 };
 
 const autoUpdateVault = function () {

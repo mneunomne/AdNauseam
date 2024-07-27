@@ -137,6 +137,13 @@ import { broadcast, onBroadcast } from '../broadcast.js';
         'adnauseam', {
         what: 'getNotifications'
       }).then((data) => {
+        // https://github.com/dhowe/AdNauseam/issues/2455
+        if (data.blurCollectedAds) {
+          // add class to #ad-list-items
+          uDom('#ad-list-items').addClass('blur');
+        } else {
+          uDom('#ad-list-items').removeClass('blur');
+        }
         currentNotifications = data.notifications
         renderNotifications(data.notifications)
         adjustBlockHeight(data.disableWarnings)
@@ -287,6 +294,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
     let $img;
     let $a;
     let $span;
+    let $span_container;
     let $status;
 
     const $li = uDom(document.createElement('li'))
@@ -299,6 +307,9 @@ import { broadcast, onBroadcast } from '../broadcast.js';
 
     $span = uDom(document.createElement('span')).addClass('thumb');
     $span.appendTo($a);
+
+    $span_container = uDom(document.createElement('span')).addClass('thumb-container');
+    $span_container.appendTo($span);
 
     appendAdStatus(ad, $a);
 
@@ -321,7 +332,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
       $img.off("error");
     });
 
-    $img.appendTo($span);
+    $img.appendTo($span_container);
 
     uDom(document.createElement('span'))
       .addClass('title')
