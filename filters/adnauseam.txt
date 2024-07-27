@@ -896,6 +896,11 @@ www.camaroz28.com###primis_container_div
 # reinteractive.com https://github.com/dhowe/AdNauseam/issues/2511
 reinteractive.com##.container-navigation > div.row > .top-menu-banner.container-m
 
+# https://ww8.gogoanimes.org/ #2541
+||d11hjbdxxtogg5.cloudfront.net^$script,important
+||getrunkhomuto.info^$subdocument,important
+||roastoup.com^$xhr,important
+
 # bunkr https://github.com/dhowe/AdNauseam/issues/2547
 bunkr-albums.io##center:has(script[src^="//bullionglidingscuttle.com"])
 bunkr-albums.io##center:has(script[src^="//endowmentoverhangutmost"])
