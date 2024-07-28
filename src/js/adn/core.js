@@ -2282,9 +2282,15 @@ const adnauseam = (function () {
     };
   };
 
-  // check if "disable warning" optnion is enabled or not 
+  // check if "disable warning" option is enabled or not 
   exports.getWarningDisabled = function () {
     return µb.userSettings.disableWarnings;
+  };
+  
+  
+  // check if "blur collected ads" options is enabled or not 
+  exports.getBlurCollectedAds = function () {
+    return µb.userSettings.blurCollectedAds;
   };
   
   // ADN broadcast change of "disable warning" to all tabs
@@ -2295,12 +2301,12 @@ const adnauseam = (function () {
     return µb.userSettings.disableWarnings;
   };
 
-  
 
   exports.getNotifications = function () {
     return {
       notifications:notifications,
-      disableWarnings:µb.userSettings.disableWarnings
+      disableWarnings:µb.userSettings.disableWarnings,
+      blurCollectedAds: µb.userSettings.blurCollectedAds
     };
   };
 

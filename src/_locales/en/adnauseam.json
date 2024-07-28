@@ -499,6 +499,10 @@
     "message": "Disable warnings",
     "description": "English:Disable warnings"
   },
+  "blurCollectedAds": {
+    "message": "Blur Collected ads",
+    "description": "English: Blur Collected ads"
+  },
   "showAdsDebugPrompt": {
     "message": "Show ads for ad-collection debugging",
     "description": "English: Show ads for ad-collection debugging"
