@@ -1,5 +1,5 @@
 {
-  "version": "3.21.5.3",
+  "version": "3.22.0",
   "key": "ilkggpgmkemaniponkfgnkonpajankkm",
   "author": "Daniel C. Howe",
   "background": {
@@ -9,7 +9,7 @@
   "browser_action": {
     "default_icon": {
       "16": "img/icon_16.png",
-      "32": "img/icon-32.png"
+      "32": "img/icon_32.png"
     },
     "default_title": "AdNauseam",
     "default_popup": "menu.html"

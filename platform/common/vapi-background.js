@@ -935,9 +935,9 @@ if ( webext.browserAction instanceof Object ) {
         if ( browserAction.setIcon === undefined ) { return; }
         browserAction.setIcon({
             path: {
-                '16': `img/icon-16.png`, //'16': `img/icon_16${flavor}.png`, // Adn
-                '32': `img/icon-32.png`, //'32': `img/icon_32${flavor}.png`, // Adn
-                '64': `img/icon-64.png`,
+                '16': `img/icon_16.png`, //'16': `img/icon_16${flavor}.png`, // Adn
+                '32': `img/icon_32.png`, //'32': `img/icon_32${flavor}.png`, // Adn
+                '64': `img/icon_64.png`,
             }
         });
         browserAction.setBadgeText({ text });
