@@ -36,15 +36,15 @@
     "description": "Message asking user to confirm reset"
   },
   "adnFirstRunHideAllAdsDescription": {
-    "message": "आपके चयनित <span> फ़िल्टर सूचियों </span> में विज्ञापनों को छुपाएं",
+    "message": "आपके चयनित <span> फ़िल्टर सूचियों <\/span> में विज्ञापनों को छुपाएं",
     "description": "English: Firstrun.html -> Hide Ads in your selected filter lists"
   },
   "adnFirstRunClickingAdsDescription": {
-    "message": "आपके <span> फ़िल्टर सूचियों </span> के माध्यम से मिले विज्ञापन पर विज़िट्स रजिस्टर करें",
+    "message": "आपके <span> फ़िल्टर सूचियों <\/span> के माध्यम से मिले विज्ञापन पर विज़िट्स रजिस्टर करें",
     "description": "English: Firstrun.html -> Register visits on Ads found via your filter lists"
   },
   "adnFirstRunBlockingMalwareDescription": {
-    "message": "ट्रैकर्स और अन्य मैलवेयर ब्लॉक करें (<span>अनुकूलित करें</span>)",
+    "message": "ट्रैकर्स और अन्य मैलवेयर ब्लॉक करें (<span>अनुकूलित करें<\/span>)",
     "description": "English: Firstrun.html -> Block trackers and other malware (customize)"
   },
   "adnNotificationReactivate": {
@@ -96,19 +96,19 @@
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
-    "message": "यह पृष्ठ <b> ट्रैक न करें </b> का सम्मान करता है, विज्ञापनों की अनुमति है",
+    "message": "यह पृष्ठ <b> ट्रैक न करें <\/b> का सम्मान करता है, विज्ञापनों की अनुमति है",
     "description": "English: Notifications -> This page respects Do Not Track, Ads are allowed."
   },
   "adnNotificationDNTHidingNotClicking": {
-    "message": "यह पृष्ठ <b> ट्रैक न करें </b> का सम्मान करता है, क्लिक नहीं छिपाना",
+    "message": "यह पृष्ठ <b> ट्रैक न करें <\/b> का सम्मान करता है, क्लिक नहीं छिपाना",
     "description": "English: Notifications -> This page respects Do Not Track, hiding not clicking."
   },
   "adnNotificationDNTClickingNotHiding": {
-    "message": "यह पृष्ठ <b> ट्रैक न करें </b> का सम्मान करता है, छुपना नहीं क्लिक करना",
+    "message": "यह पृष्ठ <b> ट्रैक न करें <\/b> का सम्मान करता है, छुपना नहीं क्लिक करना",
     "description": "English: Notifications -> This page respects Do Not Track, clicking not hiding."
   },
   "adnNotificationDNTJustSoYouKnow": {
-    "message": "यह पृष्ठ <b> ट्रैक न करें </b> का सम्मान करता है, बस आपकी जानकारी के लिए",
+    "message": "यह पृष्ठ <b> ट्रैक न करें <\/b> का सम्मान करता है, बस आपकी जानकारी के लिए",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
   "adnNotificationShowAdsDebug": {
@@ -157,7 +157,7 @@
   },
   "adnPausedOnPage": {
     "message": "AdNauseam इस पृष्ठ पर रुका हुआ है",
-    "description": "English: Menu->display when paused on page/site"
+    "description": "English: Menu->display when paused on page\/site"
   },
   "adnNotHiding": {
     "message": "AdNauseam फिलहाल विज्ञापन नहीं छुपा रहे हैं",
@@ -173,23 +173,23 @@
   },
   "topAdnetworks": {
     "message": "Top Ad Networks",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "topSites": {
     "message": "Top Sites",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adTypes": {
     "message": "Ad Types",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adTypesImageAds": {
     "message": "Image Ads",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adTypesTextAds": {
     "message": "Text Ads",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adnShowingRecentAds": {
     "message": "इस पृष्ठ पर कोई विज्ञापन संग्रहीत नहीं है (हाल ही में दिखाए जा रहे)",
@@ -479,6 +479,10 @@
     "message": "अपडेट करें",
     "description": "English: update"
   },
+  "adnUpdateButton": {
+    "message": "Update",
+    "description": "English: update"
+  },
   "whitelistPageName": {
     "message": "श्वेतसूचियाँ",
     "description": "appears as tab name in dashboard"
@@ -494,6 +498,10 @@
   "disableWarnings": {
     "message": "Disable warnings",
     "description": "English:Disable warnings"
+  },
+  "blurCollectedAds": {
+    "message": "Blur Collected ads",
+    "description": "English: Blur Collected ads"
   },
   "showAdsDebugPrompt": {
     "message": "Show ads for ad-collection debugging",
@@ -516,11 +524,11 @@
     "description": "English: refresh page from menu notification"
   },
   "supportS6P3S1": {
-    "message": "Make sure this issue is <b>AdNauseam-specific</b>.",
+    "message": "Make sure this issue is <b>AdNauseam-specific<\/b>.",
     "description": "A paragraph in the filter issue reporter section"
   },
   "supportS6P3S2": {
-    "message": "I have tested the same web-page on <a url='https://github.com/gorhill/uBlock'>#uBO#</a> and confirm this issue is <b>AdNauseam-specific</b>.",
+    "message": "I have tested the same web-page on <a url='https:\/\/github.com\/gorhill\/uBlock'>#uBO#<\/a> and confirm this issue is <b>AdNauseam-specific<\/b>.",
     "description": "A checkbox in the filter issue reporter section"
   },
   "supportS6Select1Option7": {
