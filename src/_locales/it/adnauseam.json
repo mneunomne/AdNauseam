@@ -36,15 +36,15 @@
     "description": "Message asking user to confirm reset"
   },
   "adnFirstRunHideAllAdsDescription": {
-    "message": "Nascondi le pubblicità presenti nelle <span>liste selezionate</span>",
+    "message": "Nascondi le pubblicità presenti nelle <span>liste selezionate<\/span>",
     "description": "English: Firstrun.html -> Hide Ads in your selected filter lists"
   },
   "adnFirstRunClickingAdsDescription": {
-    "message": "Registro delle visite delle pubblicità trovate attraverso i tuoi <span>elenchi filtri</span>",
+    "message": "Registro delle visite delle pubblicità trovate attraverso i tuoi <span>elenchi filtri<\/span>",
     "description": "English: Firstrun.html -> Register visits on Ads found via your filter lists"
   },
   "adnFirstRunBlockingMalwareDescription": {
-    "message": "Blocca tracker e altri malware (<span>personalizza</span>)",
+    "message": "Blocca tracker e altri malware (<span>personalizza<\/span>)",
     "description": "English: Firstrun.html -> Block trackers and other malware (customize)"
   },
   "adnNotificationReactivate": {
@@ -96,19 +96,19 @@
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
-    "message": "Questa pagina rispetta l'intestazione <b>Do Not Track</b>, le pubblicità sono permesse.",
+    "message": "Questa pagina rispetta l'intestazione <b>Do Not Track<\/b>, le pubblicità sono permesse.",
     "description": "English: Notifications -> This page respects Do Not Track, Ads are allowed."
   },
   "adnNotificationDNTHidingNotClicking": {
-    "message": "Questa pagina rispetta l'intestazione <b>Do Not Track</b>, le pubblicità verranno nascoste ma non cliccate.",
+    "message": "Questa pagina rispetta l'intestazione <b>Do Not Track<\/b>, le pubblicità verranno nascoste ma non cliccate.",
     "description": "English: Notifications -> This page respects Do Not Track, hiding not clicking."
   },
   "adnNotificationDNTClickingNotHiding": {
-    "message": "Questa pagina rispetta l'intestazione <b>Do Not Track</b>, le pubblicità verranno cliccate ma non nascoste",
+    "message": "Questa pagina rispetta l'intestazione <b>Do Not Track<\/b>, le pubblicità verranno cliccate ma non nascoste",
     "description": "English: Notifications -> This page respects Do Not Track, clicking not hiding."
   },
   "adnNotificationDNTJustSoYouKnow": {
-    "message": "Giusto perchè tu lo sappia, questa pagina rispetta l'intestazione <b>Do Not Track</b>.",
+    "message": "Giusto perchè tu lo sappia, questa pagina rispetta l'intestazione <b>Do Not Track<\/b>.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
   "adnNotificationShowAdsDebug": {
@@ -116,7 +116,7 @@
     "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
   },
   "adnNewerVersionAvailableNotification": {
-    "message": "A newer version of AdNauseam is available",
+    "message": "È disponibile una nuova versione di AdNauseam",
     "description": "English: Notifications -> A newer version of AdNauseam is available"
   },
   "adnTarget": {
@@ -157,7 +157,7 @@
   },
   "adnPausedOnPage": {
     "message": "AdNauseam è disattivato su questa pagina",
-    "description": "English: Menu->display when paused on page/site"
+    "description": "English: Menu->display when paused on page\/site"
   },
   "adnNotHiding": {
     "message": "Al momento AdNauseam non sta nascondendo le pubblicità",
@@ -173,23 +173,23 @@
   },
   "topAdnetworks": {
     "message": "Principali reti pubblicitarie",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "topSites": {
     "message": "Siti migliori",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adTypes": {
     "message": "Tipologia Annuncio",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adTypesImageAds": {
     "message": "Annunci Immagine",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adTypesTextAds": {
     "message": "Annunci Testo",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adnShowingRecentAds": {
     "message": "Nessuna pubblicità raccolta in questa pagina (recenti)",
@@ -479,6 +479,10 @@
     "message": "Aggiorna",
     "description": "English: update"
   },
+  "adnUpdateButton": {
+    "message": "Update",
+    "description": "English: update"
+  },
   "whitelistPageName": {
     "message": "Whitelist",
     "description": "appears as tab name in dashboard"
@@ -495,6 +499,10 @@
     "message": "Disabilita avvisi",
     "description": "English:Disable warnings"
   },
+  "blurCollectedAds": {
+    "message": "Blur Collected ads",
+    "description": "English: Blur Collected ads"
+  },
   "showAdsDebugPrompt": {
     "message": "Mostra pubblicità per il debug della collezione pubblicitaria",
     "description": "English: Show ads for ad-collection debugging"
@@ -508,23 +516,23 @@
     "description": "English: Activate Strict-Blocking Mode"
   },
   "adnRefreshButton": {
-    "message": "Refresh",
+    "message": "Aggiorna",
     "description": "English: refresh page from menu notification button"
   },
   "adnRefreshNotification": {
-    "message": "Apply changes on current page",
+    "message": "Applica le modifiche alla pagina corrente",
     "description": "English: refresh page from menu notification"
   },
   "supportS6P3S1": {
-    "message": "Make sure this issue is <b>AdNauseam-specific</b>.",
+    "message": "Assicurati che questo problema sia <b>specifico-AdNauseam<\/b>.",
     "description": "A paragraph in the filter issue reporter section"
   },
   "supportS6P3S2": {
-    "message": "I have tested the same web-page on <a url='https://github.com/gorhill/uBlock'>#uBO#</a> and confirm this issue is <b>AdNauseam-specific</b>.",
+    "message": "Ho testato la stessa pagina web su <a url='https:\/\/github.com\/gorhill\/uBlock'>#uBO#<\/a> e confermo che questo problema è <b>specifico-AdNauseam<\/b>.",
     "description": "A checkbox in the filter issue reporter section"
   },
   "supportS6Select1Option7": {
-    "message": "Ads not collected",
+    "message": "Annunci non raccolti",
     "description": "Ads are present on page but none are collected"
   }
 }

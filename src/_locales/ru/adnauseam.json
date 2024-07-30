@@ -36,15 +36,15 @@
     "description": "Message asking user to confirm reset"
   },
   "adnFirstRunHideAllAdsDescription": {
-    "message": "Скрыть рекламу в выбранных <span>списках фильтров</span>",
+    "message": "Скрыть рекламу в выбранных <span>списках фильтров<\/span>",
     "description": "English: Firstrun.html -> Hide Ads in your selected filter lists"
   },
   "adnFirstRunClickingAdsDescription": {
-    "message": "Регистрировать посещения рекламы в выбранных <span>списках фильтров</span>",
+    "message": "Регистрировать посещения рекламы в выбранных <span>списках фильтров<\/span>",
     "description": "English: Firstrun.html -> Register visits on Ads found via your filter lists"
   },
   "adnFirstRunBlockingMalwareDescription": {
-    "message": "Блокировать трекеры и других вредоносы (<span>настроить</span>)",
+    "message": "Блокировать трекеры и других вредоносы (<span>настроить<\/span>)",
     "description": "English: Firstrun.html -> Block trackers and other malware (customize)"
   },
   "adnNotificationReactivate": {
@@ -96,27 +96,27 @@
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
   "adnNotificationDNTAllowed": {
-    "message": "Страница поддерживает <b>Do Not Track</b>, реклама разрешена.",
+    "message": "Страница поддерживает <b>Do Not Track<\/b>, реклама разрешена.",
     "description": "English: Notifications -> This page respects Do Not Track, Ads are allowed."
   },
   "adnNotificationDNTHidingNotClicking": {
-    "message": "Страница поддерживает <b>Do Not Track</b>, реклама скрыта, но не прокликана.",
+    "message": "Страница поддерживает <b>Do Not Track<\/b>, реклама скрыта, но не прокликана.",
     "description": "English: Notifications -> This page respects Do Not Track, hiding not clicking."
   },
   "adnNotificationDNTClickingNotHiding": {
-    "message": "Страница поддерживает <b>Do Not Track</b>, реклама прокликана, но не скрыта",
+    "message": "Страница поддерживает <b>Do Not Track<\/b>, реклама прокликана, но не скрыта",
     "description": "English: Notifications -> This page respects Do Not Track, clicking not hiding."
   },
   "adnNotificationDNTJustSoYouKnow": {
-    "message": "Страница поддерживает <b>Do Not Track</b>, просто чтобы вы знали.",
+    "message": "Страница поддерживает <b>Do Not Track<\/b>, просто чтобы вы знали.",
     "description": "English: Notifications -> This page respects Do Not Track, just so you know."
   },
   "adnNotificationShowAdsDebug": {
-    "message": "Включена расширенная настройка \"Показывать отладку\"",
+    "message": "Расширенная настройка \"Отладка рекламы\" включена",
     "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
   },
   "adnNewerVersionAvailableNotification": {
-    "message": "A newer version of AdNauseam is available",
+    "message": "Доступна новая версия AdNauseam",
     "description": "English: Notifications -> A newer version of AdNauseam is available"
   },
   "adnTarget": {
@@ -157,7 +157,7 @@
   },
   "adnPausedOnPage": {
     "message": "AdNauseam приостановлен на этой странице",
-    "description": "English: Menu->display when paused on page/site"
+    "description": "English: Menu->display when paused on page\/site"
   },
   "adnNotHiding": {
     "message": "AdNauseam сейчас не скрывает рекламу",
@@ -173,23 +173,23 @@
   },
   "topAdnetworks": {
     "message": "Популярные рекламные сети",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "topSites": {
     "message": "Популярные сайты",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adTypes": {
     "message": "Типы рекламы",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adTypesImageAds": {
     "message": "Графические объявления",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adTypesTextAds": {
     "message": "Текстовые объявления",
-    "description": "appears in ADN vault/My Statistics"
+    "description": "appears in ADN vault\/My Statistics"
   },
   "adnShowingRecentAds": {
     "message": "Не найдено рекламы на этой странице (показана недавняя)",
@@ -220,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "Это действие окончательно удалит всю рекламу с ошибкой загрузки изображения. Убедитесь, что интернет подключен, в противном случае вся реклама будет удалена.",
+    "message": "Это действие окончательно удалит всю рекламу с ошибкой загрузки изображения. Убедитесь, что интернет подключен, иначе вся ваша реклама будет удалена.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -479,6 +479,10 @@
     "message": "Обновить",
     "description": "English: update"
   },
+  "adnUpdateButton": {
+    "message": "Update",
+    "description": "English: update"
+  },
   "whitelistPageName": {
     "message": "Белые списки",
     "description": "appears as tab name in dashboard"
@@ -495,6 +499,10 @@
     "message": "Отключить предупреждения",
     "description": "English:Disable warnings"
   },
+  "blurCollectedAds": {
+    "message": "Blur Collected ads",
+    "description": "English: Blur Collected ads"
+  },
   "showAdsDebugPrompt": {
     "message": "Показывать рекламу для отладки сбора рекламы",
     "description": "English: Show ads for ad-collection debugging"
@@ -508,23 +516,23 @@
     "description": "English: Activate Strict-Blocking Mode"
   },
   "adnRefreshButton": {
-    "message": "Refresh",
+    "message": "Обновить",
     "description": "English: refresh page from menu notification button"
   },
   "adnRefreshNotification": {
-    "message": "Apply changes on current page",
+    "message": "Применить изменения на текущей странице",
     "description": "English: refresh page from menu notification"
   },
   "supportS6P3S1": {
-    "message": "Make sure this issue is <b>AdNauseam-specific</b>.",
+    "message": "Убедитесь, что проблема именно в <b>AdNauseam<\/b>.",
     "description": "A paragraph in the filter issue reporter section"
   },
   "supportS6P3S2": {
-    "message": "I have tested the same web-page on <a url='https://github.com/gorhill/uBlock'>#uBO#</a> and confirm this issue is <b>AdNauseam-specific</b>.",
+    "message": "Я проверил эту же страницу с <a url='https:\/\/github.com\/gorhill\/uBlock'>#uBO#<\/a>, и убедился, что проблема именно в <b>AdNauseam<\/b>.",
     "description": "A checkbox in the filter issue reporter section"
   },
   "supportS6Select1Option7": {
-    "message": "Ads not collected",
+    "message": "Реклама не была собрана",
     "description": "Ads are present on page but none are collected"
   }
 }
