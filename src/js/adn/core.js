@@ -1952,10 +1952,7 @@ const adnauseam = (function () {
     }
     // parse response
     const latestRelease = await response.json();
-    console.log("latestRelease", latestRelease)
-    const latestVersion = latestRelease.tag_name.replace('v', '');
-    console.log("latest version: " + latestVersion);
-    
+    const latestVersion = latestRelease.tag_name.replace('v', '');    
     // compare versions
     if (version < latestVersion) {
       // if browser is chrome
