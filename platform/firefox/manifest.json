@@ -11,9 +11,9 @@
     "browser_style": false,
     "default_area": "navbar",
     "default_icon": {
-      "16": "img/icon-16.png",
-      "32": "img/icon-32.png",
-      "64": "img/icon-64.png"
+      "16": "img/icon_16.png",
+      "32": "img/icon_32.png",
+      "64": "img/icon_64.png"
     },
     "default_title": "AdNauseam",
     "default_popup": "menu.html"
@@ -100,8 +100,8 @@
   "default_locale": "en",
   "description": "__MSG_extShortDesc__",
   "icons": {
-    "48": "img/icon-48.png",
-    "96": "img/icon-96.png"
+    "48": "img/icon_48.png",
+    "96": "img/icon_96.png"
   },
   "manifest_version": 2,
   "name": "AdNauseam",
