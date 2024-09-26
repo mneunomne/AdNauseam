@@ -147,6 +147,10 @@
     "message": "Filtrorik ezarriko ez zaien zerbitzarien izenak",
     "description": "A short description for the editable field which lists trusted sites"
   },
+  "noFilteringModePlaceholder": {
+    "message": "[zerbitzari izenak bakarrik]\nadibidea.eus\nexample.com\ngames.example",
+    "description": "Default text for in edit field"
+  },
   "behaviorSectionLabel": {
     "message": "portaera or jokaera",
     "description": "The header text for the 'Behavior' section"

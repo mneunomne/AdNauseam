@@ -56,6 +56,9 @@ To create a log of net requests
 /******************************************************************************/
 
 const NetFilteringResultCache = class {
+    shelfLife = 15000;
+    extensionOriginURL = vAPI.getURL('/');
+
     constructor() {
         this.pruneTimer = vAPI.defer.create(( ) => {
             this.prune();
@@ -175,9 +178,6 @@ const NetFilteringResultCache = class {
     }
 };
 
-NetFilteringResultCache.prototype.shelfLife = 15000;
-NetFilteringResultCache.prototype.extensionOriginURL = vAPI.getURL('/');
-
 /******************************************************************************/
 
 // Frame stores are used solely to associate a URL with a frame id.
@@ -277,17 +277,15 @@ const FrameStore = class {
     }
 
     static factory(frameURL, parentId = -1) {
-        const entry = FrameStore.junkyard.pop();
-        if ( entry === undefined ) {
-            return new FrameStore(frameURL, parentId);
+        const FS = FrameStore;
+        if ( FS.junkyard.length !== 0 ) {
+            return FS.junkyard.pop().init(frameURL, parentId);
         }
-        return entry.init(frameURL, parentId);
+        return new FS(frameURL, parentId);
     }
+    static junkyard = [];
+    static junkyardMax = 50;
 };
-
-// To mitigate memory churning
-FrameStore.junkyard = [];
-FrameStore.junkyardMax = 50;
 
 /******************************************************************************/
 
@@ -315,18 +313,25 @@ const HostnameDetails = class {
     }
     init(hostname) {
         this.hostname = hostname;
+        this.cname = vAPI.net.canonicalNameFromHostname(hostname);
         this.counts.reset();
+        return this;
     }
     dispose() {
-        this.hostname = '';
-        if ( HostnameDetails.junkyard.length < HostnameDetails.junkyardMax ) {
-            HostnameDetails.junkyard.push(this);
-        }
+        const HD = HostnameDetails;
+        if ( HD.junkyard.length >= HD.junkyardMax ) { return; }
+        HD.junkyard.push(this);
     }
+    static factory(hostname) {
+        const HD = HostnameDetails;
+        if ( HD.junkyard.length !== 0 ) {
+            return HD.junkyard.pop().init(hostname);
+        }
+        return new HD(hostname);
+    }
+    static junkyard = [];
+    static junkyardMax = 100;
 };
-
-HostnameDetails.junkyard = [];
-HostnameDetails.junkyardMax = 100;
 
 const HostnameDetailsMap = class extends Map {
     reset() {
@@ -633,7 +638,7 @@ const PageStore = class {
         ) {
             this.hostnameDetailsMap.set(
                 this.tabHostname,
-                new HostnameDetails(this.tabHostname)
+                HostnameDetails.factory(this.tabHostname)
             );
         }
         return this.hostnameDetailsMap;
@@ -711,7 +716,7 @@ const PageStore = class {
             const hostname = journal[i+0];
             let hnDetails = this.hostnameDetailsMap.get(hostname);
             if ( hnDetails === undefined ) {
-                hnDetails = new HostnameDetails(hostname);
+                hnDetails = HostnameDetails.factory(hostname);
                 this.hostnameDetailsMap.set(hostname, hnDetails);
                 this.contentLastModified = now;
             }
@@ -972,24 +977,32 @@ const PageStore = class {
     }
 
     redirectNonBlockedRequest(fctxt) {
-        const transformDirectives = staticNetFilteringEngine.transformRequest(fctxt);
-        const pruneDirectives = fctxt.redirectURL === undefined &&
-            staticNetFilteringEngine.hasQuery(fctxt) &&
-            staticNetFilteringEngine.filterQuery(fctxt) ||
-            undefined;
-        if ( transformDirectives === undefined && pruneDirectives === undefined ) { return; }
+        const directives = [];
+        staticNetFilteringEngine.transformRequest(fctxt, directives);
+        if ( staticNetFilteringEngine.hasQuery(fctxt) ) {
+            staticNetFilteringEngine.filterQuery(fctxt, directives);
+        }
+        if ( directives.length === 0 ) { return; }
         if ( logger.enabled !== true ) { return; }
-        if ( transformDirectives !== undefined ) {
-            fctxt.pushFilters(transformDirectives.map(a => a.logData()));
-        }
-        if ( pruneDirectives !== undefined ) {
-            fctxt.pushFilters(pruneDirectives.map(a => a.logData()));
-        }
+        fctxt.pushFilters(directives.map(a => a.logData()));
         if ( fctxt.redirectURL === undefined ) { return; }
         fctxt.pushFilter({
             source: 'redirect',
             raw: fctxt.redirectURL
         });
+    }
+
+    skipMainDocument(fctxt) {
+        const directives = staticNetFilteringEngine.urlSkip(fctxt);
+        if ( directives === undefined ) { return; }
+        if ( logger.enabled !== true ) { return; }
+        fctxt.pushFilters(directives.map(a => a.logData()));
+        if ( fctxt.redirectURL !== undefined ) {
+            fctxt.pushFilter({
+                source: 'redirect',
+                raw: fctxt.redirectURL
+            });
+        }
     }
 
     filterCSPReport(fctxt) {

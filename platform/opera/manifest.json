@@ -89,7 +89,7 @@
       "all_frames": false
     }
   ],
-  "minimum_opera_version": "60.0",
+  "minimum_opera_version": "67.0",
   "incognito": "split",
   "options_page": "dashboard.html",
   "permissions": [
