@@ -4,6 +4,7 @@ artifacts
 *.bak
 *-bak
 *.pem
+__pycache__/
 /dist/build/
 /bin/build/
 /tmp/

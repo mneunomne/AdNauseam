@@ -548,11 +548,11 @@
     "description": "Label for the checkbox use to trust the content of 'My filters' list"
   },
   "1pImport": {
-    "message": "Увези и додај",
+    "message": "Увези и додај…",
     "description": "Button in the 'My filters' pane"
   },
   "1pExport": {
-    "message": "Извези",
+    "message": "Извези…",
     "description": "Button in the 'My filters' pane"
   },
   "1pExportFilename": {
@@ -1009,6 +1009,10 @@
   },
   "supportS6Select1Option6": {
     "message": "\nОтвара нежељене картице или прозоре",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option7": {
+    "message": "Leads to badware, phishing",
     "description": "An entry in the widget used to select the type of issue"
   },
   "supportS6Checkbox1": {

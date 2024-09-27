@@ -375,20 +375,23 @@ const onBeforeRootFrameRequest = function (fctxt) {
         pageStore.journalAddRequest(fctxt, result);
     }
 
-    if (logger.enabled) {
-        fctxt.setFilter(logData);
+    if ( logger.enabled ) {
+        fctxt.setRealm('network').setFilter(logData);
     }
 
     // https://github.com/uBlockOrigin/uBlock-issues/issues/760
     //   Redirect non-blocked request?
-    if ( result !== 1 && trusted === false && pageStore !== null ) {
-        // Q: fctxt is often undefined here, but we've already referenced its type and tabId ??
-        logRedirect(fctxt, 'beforeRequest.non-blocked'); // ADN: redirect unblocked
-        pageStore.redirectNonBlockedRequest(fctxt);
+    if ( trusted === false && pageStore !== null ) {
+        if ( result !== 1 ) {
+            pageStore.redirectNonBlockedRequest(fctxt);
+						// adn Q: fctxt is often undefined here, but we've already referenced its type and tabId ??
+						logRedirect(fctxt, 'beforeRequest.non-blocked'); // ADN: redirect unblocked
+        }
+        pageStore.skipMainDocument(fctxt);
     }
 
-    if (logger.enabled) {
-        fctxt.setRealm('network').toLogger();
+    if ( logger.enabled ) {
+        fctxt.toLogger();
     }
 
     // Redirected
@@ -938,6 +941,7 @@ const bodyFilterer = (( ) => {
     const sessions = new Map();
     const reContentTypeCharset = /charset=['"]?([^'" ]+)/i;
     const otherValidMimes = new Set([
+        'application/dash+xml',
         'application/javascript',
         'application/json',
         'application/mpegurl',

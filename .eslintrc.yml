@@ -12,9 +12,11 @@ rules:
       - error
       - 4
       - ignoredNodes:
-        - Program > IfStatement > BlockStatement
+        - Program > BlockStatement
         - Program > ExpressionStatement > CallExpression > ArrowFunctionExpression > BlockStatement
         - Program > ExpressionStatement > CallExpression > FunctionExpression > BlockStatement
+        - Program > IfStatement > BlockStatement
+        - Program > VariableDeclaration > VariableDeclarator > CallExpression > ArrowFunctionExpression > BlockStatement
         - CallExpression > MemberExpression
         - ArrayExpression > *
         - ObjectExpression > *

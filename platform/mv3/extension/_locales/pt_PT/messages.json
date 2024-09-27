@@ -4,7 +4,7 @@
     "description": "extension name."
   },
   "extShortDesc": {
-    "message": "Um bloqueador de conteúdo sem permissões. Bloqueia anúncios, rastreadores, mineradores de criptomoedas e muito mais, imediatamente após a instalação.",
+    "message": "Um bloqueador de conteúdo sem permissões. Bloqueia anúncios, rastreadores e muito mais, imediatamente após a instalação.",
     "description": "this will be in the Chrome web store: must be 132 characters or less"
   },
   "perRulesetStats": {
@@ -144,8 +144,12 @@
     "description": "This describes the 'complete' filtering mode"
   },
   "noFilteringModeDescription": {
-    "message": "Lista de nomes de anfitriões para os quais não será efetuada qualquer filtragem.",
+    "message": "Lista de nomes de websites para os quais não será efetuada qualquer filtragem.",
     "description": "A short description for the editable field which lists trusted sites"
+  },
+  "noFilteringModePlaceholder": {
+    "message": "[apenas nomes de anfitriões]\nexemplo.com\njogos.exemplo\n...",
+    "description": "Default text for in edit field"
   },
   "behaviorSectionLabel": {
     "message": "Comportamento",
