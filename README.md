@@ -21,6 +21,7 @@
 
 <p align="center">
 <a href="https://github.com/dhowe/AdNauseam/wiki/Install-AdNauseam-on-Chrome-Without-Google's-Permission">Instructions on how to install AdNauseam in <b>Google Chrome</b></a>
+<!--<sub><a href="https://github.com/uBlockOrigin/uBlock-issues/wiki/About-Google-Chrome's-%22This-extension-may-soon-no-longer-be-supported%22"><b>IMPORTANT</b>: About Google Chrome's "This extension may soon no longer be supported"</a></sub>-->
 </p>
 
 ***
