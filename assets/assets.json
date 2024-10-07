@@ -51,6 +51,17 @@
 		],
 		"supportURL": "https://www.eff.org/dnt-policy"
 	},
+	"huge-ai-blocklist": {
+		"content": "filters",
+		"title": "Huge AI Blocklist",
+		"group": "annoyances",
+		"tags": "annoyances",
+		"off": true,
+		"contentURL": [
+			"https://raw.githubusercontent.com/laylavish/uBlockOrigin-HUGE-AI-Blocklist/main/list.txt"
+		],
+		"supportURL": "https://github.com/laylavish/uBlockOrigin-HUGE-AI-Blocklist"
+	},
 	"ublock-badlists": {
 		"content": "internal",
 		"updateAfter": 29,
