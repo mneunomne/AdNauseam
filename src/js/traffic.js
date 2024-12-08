@@ -384,10 +384,10 @@ const onBeforeRootFrameRequest = function (fctxt) {
     if ( trusted === false && pageStore !== null ) {
         if ( result !== 1 ) {
             pageStore.redirectNonBlockedRequest(fctxt);
-						// adn Q: fctxt is often undefined here, but we've already referenced its type and tabId ??
-						logRedirect(fctxt, 'beforeRequest.non-blocked'); // ADN: redirect unblocked
+            logRedirect(fctxt, 'beforeRequest.non-blocked'); // ADN: redirect unblocked
+        } else {
+            pageStore.skipMainDocument(fctxt, true);
         }
-        pageStore.skipMainDocument(fctxt);
     }
 
     if ( logger.enabled ) {
@@ -406,16 +406,20 @@ const onBeforeRootFrameRequest = function (fctxt) {
     if (result !== 1) { return; }
 
     // No log data means no strict blocking (because we need to report why
-    // the blocking occurs.
-    if (logData === undefined) { return; }
+    // the blocking occurs
+    if ( logData === undefined  ) { return; }
 
     // Blocked
 
+    // Find out the URL navigated to should the document not be strict-blocked
+    pageStore.skipMainDocument(fctxt, false);
+
     const query = encodeURIComponent(JSON.stringify({
         url: requestURL,
-        hn: requestHostname,
         dn: fctxt.getDomain() || requestHostname,
-        fs: logData.raw
+        fs: logData.raw,
+        hn: requestHostname,
+        to: fctxt.redirectURL || '',
     }));
 
     vAPI.tabs.replace(
@@ -745,7 +749,7 @@ const onHeadersReceived = function(details) {
     }
     if (pageStore.getNetFilteringSwitch(fctxt) === false) { return; }
 
-    if (fctxt.itype === fctxt.IMAGE || fctxt.itype === fctxt.MEDIA) {
+    if ( (fctxt.itype & foilLargeMediaElement.TYPE_BITS) !== 0 ) {
         const result = foilLargeMediaElement(details, fctxt, pageStore);
         if (result !== undefined) { return result; }
     }
@@ -1382,16 +1386,13 @@ const injectPP = function(fctxt, pageStore, responseHeaders) {
 const foilLargeMediaElement = function (details, fctxt, pageStore) {
     if (details.fromCache === true) { return; }
 
-    let size = 0;
-    if (µb.userSettings.largeMediaSize !== 0) {
-        const headers = details.responseHeaders;
-        const i = headerIndexFromName('content-length', headers);
-        if (i === -1) { return; }
-        size = parseInt(headers[i].value, 10) || 0;
-    }
+    onDemandHeaders.setHeaders(details.responseHeaders);
 
-    const result = pageStore.filterLargeMediaElement(fctxt, size);
-    if (result === 0) { return; }
+    const result = pageStore.filterLargeMediaElement(fctxt, onDemandHeaders);
+
+    onDemandHeaders.reset();
+
+    if ( result === 0 ) { return; }
 
     if (logger.enabled) {
         fctxt.setRealm('network').toLogger();
@@ -1400,16 +1401,15 @@ const foilLargeMediaElement = function (details, fctxt, pageStore) {
     return { cancel: true };
 };
 
+foilLargeMediaElement.TYPE_BITS = fc.IMAGE | fc.MEDIA | fc.XMLHTTPREQUEST;
+
 /******************************************************************************/
 
 // Caller must ensure headerName is normalized to lower case.
 
-const headerIndexFromName = function (headerName, headers) {
-    let i = headers.length;
-    while (i--) {
-        if (headers[i].name.toLowerCase() === headerName) {
-            return i;
-        }
+const headerIndexFromName = function(headerName, headers) {
+    for ( let i = 0, n = headers.length; i < n; i++ ) {
+        if ( headers[i].name.toLowerCase() === headerName ) { return i; }
     }
     return -1;
 };
@@ -1419,6 +1419,25 @@ const headerValueFromName = function (headerName, headers) {
     return i !== -1 ? headers[i].value : '';
 };
 
+const onDemandHeaders = {
+    headers: [],
+    get contentLength() {
+        const contentLength = headerValueFromName('content-length', this.headers);
+        if ( contentLength === '' ) { return Number.NaN; }
+        return parseInt(contentLength, 10) || 0;
+    },
+    get contentType() {
+        return headerValueFromName('content-type', this.headers);
+    },
+    setHeaders(headers) {
+        this.headers = headers;
+    },
+    reset() {
+        this.headers = [];
+    }
+};
+
+/******************************************************************************/
 
 const strictBlockBypasser = {
     hostnameToDeadlineMap: new Map(),
