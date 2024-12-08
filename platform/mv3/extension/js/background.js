@@ -38,6 +38,8 @@ import {
 } from './ruleset-manager.js';
 
 import {
+    MODE_BASIC,
+    MODE_OPTIMAL,
     getDefaultFilteringMode,
     getFilteringMode,
     getTrustedSites,
@@ -136,11 +138,41 @@ async function onPermissionsRemoved() {
     const modified = await syncWithBrowserPermissions();
     if ( modified === false ) { return false; }
     const afterMode = await getDefaultFilteringMode();
-    if ( beforeMode > 1 && afterMode <= 1 ) {
+    if ( beforeMode > MODE_BASIC && afterMode <= MODE_BASIC ) {
         updateDynamicRules();
     }
     registerInjectables();
     return true;
+}
+
+/******************************************************************************/
+
+async function gotoURL(url, type) {
+    const pageURL = new URL(url, runtime.getURL('/'));
+    const tabs = await browser.tabs.query({
+        url: pageURL.href,
+        windowType: type !== 'popup' ? 'normal' : 'popup'
+    });
+
+    if ( Array.isArray(tabs) && tabs.length !== 0 ) {
+        const { windowId, id } = tabs[0];
+        return Promise.all([
+            browser.windows.update(windowId, { focused: true }),
+            browser.tabs.update(id, { active: true }),
+        ]);
+    }
+
+    if ( type === 'popup' ) {
+        return windows.create({
+            type: 'popup',
+            url: pageURL.href,
+        });
+    }
+
+    return browser.tabs.create({
+        active: true,
+        url: pageURL.href,
+    });
 }
 
 /******************************************************************************/
@@ -265,6 +297,10 @@ function onMessage(request, sender, callback) {
         return true;
     }
 
+    case 'gotoURL':
+        gotoURL(request.url, request.type);
+        break;
+
     case 'setFilteringMode': {
         getFilteringMode(request.hostname).then(actualLevel => {
             if ( request.level === actualLevel ) { return actualLevel; }
@@ -272,6 +308,13 @@ function onMessage(request, sender, callback) {
         }).then(actualLevel => {
             registerInjectables();
             callback(actualLevel);
+        });
+        return true;
+    }
+
+    case 'getDefaultFilteringMode': {
+        getDefaultFilteringMode().then(level => {
+            callback(level);
         });
         return true;
     }
@@ -379,9 +422,19 @@ async function start() {
     );
 
     if ( firstRun ) {
+        const enableOptimal = await hasOmnipotence();
+        if ( enableOptimal ) {
+            const afterLevel = await setDefaultFilteringMode(MODE_OPTIMAL);
+            if ( afterLevel === MODE_OPTIMAL ) {
+                updateDynamicRules();
+                registerInjectables();
+            }
+        }
         const disableFirstRunPage = await adminRead('disableFirstRunPage');
         if ( disableFirstRunPage !== true ) {
             runtime.openOptionsPage();
+        } else {
+            firstRun = false;
         }
     }
 }
