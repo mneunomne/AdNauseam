@@ -88,7 +88,6 @@ onBroadcast(request => {
       break;
 
     case 'adDetected':
-      console.log('*** New-ad-detected ***', request.ad);
       waitingAds.push(request.ad);
       lastAdDetectedTime = new Date();
       const brush = document.getElementsByClassName('chart-bg')[0];
@@ -96,7 +95,6 @@ onBroadcast(request => {
         sliderPos = gSliderLeft ? parseFloat(/\((.*?),/g.exec(gSliderLeft)[1]) : null;
 
       // only when the slider covers 'now' or when there is no slider (empty vault or one ad)
-      // console.log(w, sliderPos)
       if (w - sliderPos <= 1 || sliderPos == 0) setTimeout(autoUpdateVault, 3000);
 
       //  updateVault() would normally be triggered by the 'adDetected' message (above),
@@ -112,10 +110,12 @@ onBroadcast(request => {
       adjustHeight();
       createSlider();
       break;
+
     case 'hideNotifications':
       uDom('#notifications').addClass("hide");
       adjustHeight();
       break;
+
     case 'showNotifications':
       uDom('#notifications').removeClass("hide");
       adjustHeight();
@@ -158,28 +158,26 @@ const renderAds = function (json) {
         renderNotifications(data.notifications, 'vault');
       adjustHeight();
     })
-  })
+  });
+
   // disable warnings #1910
   // Notifications need to be hidden right away for the correct height to be calculated
   vAPI.messaging.send(
-    'adnauseam', {
-    what: 'getWarningDisabled'
-  }
-  ).then(isDisabled => {
-    if (isDisabled) {
-      uDom("#notifications").addClass('hide');
-    } else {
-      uDom("#notifications").removeClass('hide');
-    }
-    adjustHeight();
-  })
+    'adnauseam', { what: 'getWarningDisabled' })
+    .then(isDisabled => {
+      if (isDisabled) {
+        uDom("#notifications").addClass('hide');
+      } else {
+        uDom("#notifications").removeClass('hide');
+      }
+      adjustHeight();
+    })
 
   vAPI.messaging.send(
     'adnauseam', {
     what: 'getBlurCollectedAds'
-  }
-  ).then(blurCollectedAds => {
-    console.log("blurCollectedAds", blurCollectedAds)
+  }).then(blurCollectedAds => {
+    //console.log("blurCollectedAds", blurCollectedAds);
     if (blurCollectedAds) {
       uDom("#stage").addClass('blur');
     } else {
@@ -1196,7 +1194,8 @@ function storeViewState(focusScale) {
     }, 1000)
 
     // restore zoom scale to userZoomScale
-    dynamicZoom(viewState.zoomScale - viewState.focusScale, { marginLeft: viewState.left, marginTop: viewState.top });
+    dynamicZoom(viewState.zoomScale - viewState.focusScale,
+      { marginLeft: viewState.left, marginTop: viewState.top });
   }
 }
 
@@ -1257,16 +1256,14 @@ function lightboxMode($selected) {
   if ($selected && !$selected.hasClass('inspected')) {
 
     if ($container.hasClass("posTransition")) {
-      return
+      return;
     }
 
     const inspectedGid = parseInt($selected.attr('data-gid'));
-
     selectedAdSet = findAdSetByGid(inspectedGid); // throws
 
     // lazy-create the meta data for the adset (#61)
     if (!$selected.children('div.meta').length) {
-
       appendBulletsTo($selected, selectedAdSet);
     }
 
@@ -1276,14 +1273,12 @@ function lightboxMode($selected) {
 
       $selected.find('span.counter-index').show(); // show index-counter
       bulletIndex($selected, selectedAdSet);
-
       animateInspector($selected);
     }
 
     const next = selectedAdSet.nextPending(); // tell the addon
 
     if (next) {
-
       messager.send('adnauseam', {
         what: 'itemInspected',
         id: next.id
@@ -1291,7 +1286,6 @@ function lightboxMode($selected) {
     }
 
     centerZoom($selected);
-
     $container.addClass('lightbox');
 
   } else if ($container.hasClass('lightbox')) {
@@ -1336,16 +1330,12 @@ function animateInspector($inspected) {
 }
 
 function findAdById(id) {
-  if (gAdSets == undefined || gAdSets == null) return
+  if (gAdSets === undefined || gAdSets === null) return
 
   for (let i = 0, j = gAdSets.length; i < j; i++) {
-
     const childIdx = gAdSets[i].childIdxForId(id);
-
     if (childIdx > -1) {
-
       return {
-
         ad: gAdSets[i].child(childIdx),
         group: gAdSets[i],
         index: childIdx
@@ -1372,9 +1362,9 @@ function findItemDivByGid(gid) {
 function findAdSetByGid(gid) {
 
   for (let i = 0, j = gAdSets.length; i < j; i++) {
-
-    if (gAdSets[i].gid === gid)
+    if (gAdSets[i].gid === gid) {
       return gAdSets[i];
+    }
   }
 
   throw Error('No group for gid: ' + gid);
@@ -1385,14 +1375,15 @@ function zoomIn(immediate) {
   // calculate the suitable zoomIdx by userZoomScale
   const previousState = zoomIdx;
   for (let i = 0; zoomIdx === previousState && i < Zooms.length; i++) {
-
-    if (userZoomScale === Zooms[i])
+    if (userZoomScale === Zooms[i]) {
       zoomIdx = i;
-    else if (userZoomScale < Zooms[i] && userZoomScale > Zooms[i + 1])
+    }
+    else if (userZoomScale < Zooms[i] && userZoomScale > Zooms[i + 1]) {
       zoomIdx = i + 1;
+    }
   }
 
-  (zoomIdx > 0) && setZoom(--zoomIdx, immediate);
+  if (zoomIdx > 0) setZoom(--zoomIdx, immediate);
 }
 
 function zoomOut(immediate) {
@@ -1400,14 +1391,15 @@ function zoomOut(immediate) {
   // calculate the suitable zoomIdx by userZoomScale
   const previousState = zoomIdx;
   for (let i = 0; zoomIdx === previousState && i < Zooms.length - 1; i++) {
-
-    if (userZoomScale === Zooms[i])
+    if (userZoomScale === Zooms[i]) {
       zoomIdx = i;
-    else if (userZoomScale < Zooms[i] && userZoomScale > Zooms[i + 1])
+    }
+    else if (userZoomScale < Zooms[i] && userZoomScale > Zooms[i + 1]) {
       zoomIdx = i;
+    }
   }
 
-  (zoomIdx < Zooms.length - 1) && setZoom(++zoomIdx, immediate);
+  if (zoomIdx < Zooms.length - 1) setZoom(++zoomIdx, immediate);
 }
 
 function setScale(scale, targetPos) {
@@ -1468,8 +1460,6 @@ function dynamicZoom(scaleInterval, targetPos) {
 
 function setZoom(idx, immediate, targetPos) {
 
-  //log('setZoom('+idx+','+(immediate===true)+')');
-
   // Disable transitions
   immediate && $container.addClass('notransition');
 
@@ -1488,32 +1478,23 @@ function setZoom(idx, immediate, targetPos) {
 
 function onscreen($this, winW, winH, scale, percentVisible) {
 
-  const off = $this.offset(), w = $this.width() * scale, h = $this.height() * scale, minX = (-w * (1 - percentVisible)), maxX = (winW - (w * percentVisible)), minY = (-h * (1 - percentVisible)), maxY = (winH - (h * percentVisible));
-
-  // console.log('onscreen() :: trying: '+Zooms[zoomIdx]+"%",$this.attr('data-gid'),off.left, minX, maxX);
-
-  return (!(off.left < minX || off.left > maxX || off.top < minY || off.top > maxY));
+  const off = $this.offset();
+  const w = $this.width() * scale;
+  const h = $this.height() * scale;
+  const minX = (-w * (1 - percentVisible));
+  const minY = (-h * (1 - percentVisible));
+  const maxX = (winW - (w * percentVisible));
+  const maxY = (winH - (h * percentVisible));
+  return !(off.left < minX || off.left > maxX || off.top < minY || off.top > maxY);
 }
 
 function openInNewTab(url) {
-
   window.open(url, '_blank').focus();
-}
-
-function asAdArray(adsets) { // remove
-
-  const ads = [];
-  for (let i = 0, j = adsets.length; i < j; i++) {
-    for (let k = 0, m = adsets[i].children.length; k < m; k++)
-      ads.push(adsets[i].children[k]);
-  }
-  return ads;
 }
 
 function addInterfaceHandlers(ads) {
 
   $('#x-close-button').click(function (e) {
-
     e.preventDefault();
     messager.send('adnauseam', {
       what: 'closeExtPage',
@@ -1528,14 +1509,11 @@ function addInterfaceHandlers(ads) {
   });
 
   $('#logo').click(function (e) {
-
     e.preventDefault();
     openInNewTab('http://adnauseam.io');
   });
 
   $(document).click(function (e) {
-
-
     if (e.which === 1) // Left-button only
       if ($(e.target).parents('.meta-item').length > 0) {
         return
@@ -1544,19 +1522,15 @@ function addInterfaceHandlers(ads) {
   });
 
   $(document).keyup(function (e) {
-
     (e.keyCode === 27) && lightboxMode(false); // esc
     (e.keyCode === 73) && toggleInterface(); // 'i'
     (e.keyCode === 68) && logAdSetInfo(); // 'd'
     (e.keyCode === 80) && repack(); // 'p'
     (e.keyCode === 85) && updateVault(waitingAds, true); // 'u'
-    //console.log(e);
   });
 
   /////////// DRAG-STAGE ///////////
-  let offsetX = 0;
-  let offsetY = 0;
-
+  let offsetX = 0, offsetY = 0;
   container_div.addEventListener('mousedown', mouseDown, false);
   container_div.addEventListener('touchstart', touchStart, false);
   window.addEventListener('touchend', touchEnd, false);
@@ -1616,7 +1590,6 @@ function addInterfaceHandlers(ads) {
 
     container_div.style.marginLeft = (ml += x_change) + 'px';
     container_div.style.marginTop = (mt += y_change) + 'px';
-    // container_div.style.transformOrigin = Math.abs(ml+=x_change) + 'px ' + Math.abs(mt+=y_change) + 'px';
 
     offsetX = e.pageX;
     offsetY = e.pageY;
@@ -1731,42 +1704,30 @@ function addInterfaceHandlers(ads) {
 // Here is where we group individual ads into AdSets, based on their hash,
 // created from the domain it was found on, and its content-data
 // If we get too many cross-domain duplicate images, we may need to revisit
-// -- called just once per layout
+// Note: called just once per layout
 function createAdSets(ads) {
   //console.log('Vault-Slider.createAdSets: ' + ads.length + '/' + gAds.length + ' ads');
-
-  let key;
-
-  let ad;
+  let key, ad;
   const hash = {};
   const adsets = [];
 
   // set hidden val for each ad
   for (let i = 0; i < ads.length; i++) {
-
     ad = ads[i];
-
     key = getHash(ad);
-
     if (!key) continue;
-
     if (!hash[key]) {
-
       // new: add a hash entry
       hash[key] = new AdSet(ad);
       adsets.push(hash[key]);
-
     } else {
-
       // dup: add as child
       hash[key].add(ad);
     }
   }
 
   // sort adset children by foundTs
-
   for (let i = 0; i < adsets.length; i++) {
-
     adsets[i].children.sort(byField('-foundTs'));
   }
 
@@ -1785,11 +1746,8 @@ function repack() {
   showVaultAlert(visible ? false : 'no ads found');
 
   const loader = imagesLoaded($container, function () {
-
     if (visible > 1) {
-
       const p = new Packery('#container', {
-
         centered: {
           y: 10000
         }, // centered at half min-height
@@ -1800,9 +1758,7 @@ function repack() {
       computeZoom($items);
 
     } else if (visible === 1) {
-
       $items.css({ // center single
-
         top: (10000 - $items.height() / 2) + 'px',
         left: (10000 - $items.width() / 2) + 'px'
       });
