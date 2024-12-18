@@ -109,14 +109,14 @@ export const rand = function (min, max) {
 };
 
 export const setCost = function (numVisited) {
-  var constPerClick = 0
+  var costPerClick = 0
   vAPI.messaging.send('dashboard', {what:'getCostPerClick'}).then(response => {
-    constPerClick = response
+    costPerClick = response
     const $west = uDom('#worth-estimate'), $cost = uDom('.cost');
   
     if (numVisited > 0) {
       $cost.removeClass('hidden');
-      $west.text('= $' + (numVisited * constPerClick).toFixed(2));
+      $west.text('= $' + (numVisited * costPerClick).toFixed(2));
     } else {
       $cost.addClass('hidden');
     }

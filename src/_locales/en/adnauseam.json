@@ -31,7 +31,7 @@
     "message": "Block Malware",
     "description": "English: Firstrun.html -> Block Malware"
   },
-  "adnAboutResetDataConfirm" : {
+  "adnAboutResetDataConfirm": {
     "message": "All your settings will be removed, ads in your vault will be deleted, and AdNauseam will restart.\n\nReset AdNauseam to factory settings?",
     "description": "Message asking user to confirm reset"
   },
@@ -71,7 +71,7 @@
     "message": "Activate the EasyList filter",
     "description": "English: Notifications -> Activate the EasyList filter"
   },
-   "adnNotificationActivateAdNauseamList": {
+  "adnNotificationActivateAdNauseamList": {
     "message": "Activate the AdNauseam filter",
     "description": "English: Notifications -> Activate the AdNauseam filter"
   },
@@ -91,7 +91,7 @@
     "message": "The 'Content Blocking' settings in your browser may interfere with AdNauseam!",
     "description": "English: Notifications -> The 'Content Blocking' settings in your browser may interfere with AdNauseam!"
   },
-  "adnNotificationPrivacyMode":{
+  "adnNotificationPrivacyMode": {
     "message": "You have allowed adnauseam to have access to your online activities while private browsing.",
     "description": "English: Notifications -> You have allowed adnauseam to have access to your online activities while private browsing."
   },
@@ -113,7 +113,7 @@
   },
   "adnNotificationShowAdsDebug": {
     "message": "The Advanced Setting \"Show Ads Debug\" is turned on",
-    "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on" 
+    "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
   },
   "adnNewerVersionAvailableNotification": {
     "message": "A newer version of AdNauseam is available",
@@ -220,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "This action will permanently remove all ads with load image error. Make sure your internet is connected, otherwise all your ads will be deleted.",
+    "message": "This action will permanently remove all ads for which the image cannot be loaded. It is a good idea to backup your vault before purging, and also to make sure you have an active internet connection.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -363,6 +363,10 @@
     "message": "Purge Dead Ads",
     "description": "appears on vault page"
   },
+  "adnCaptureVault": {
+    "message": "Capture",
+    "description": "appears on vault page"
+  },
   "adnVaultFound": {
     "message": "{{total}} ads collected",
     "description": "appears on vault page"
@@ -475,9 +479,9 @@
     "message": "Languages",
     "description": "English: Languages"
   },
-   "3pPageUpdate":{
-    "message":"Update",
-    "description":"English: update"
+  "3pPageUpdate": {
+    "message": "Update",
+    "description": "English: update"
   },
   "adnUpdateButton": {
     "message": "Update",

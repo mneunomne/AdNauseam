@@ -166,7 +166,8 @@ vAPI.webextFlavor = {
     soup.add('ipaddress');
 
     // Whether this is a dev build.
-    if ( /^\d+\.\d+\.\d+\D/.test(browser.runtime.getManifest().version) ) {
+    if (browser.runtime.getManifest().version_name === 'portraits') {
+        console.log('AdNauseam: portrait build');
         soup.add('devbuild');
     }
 

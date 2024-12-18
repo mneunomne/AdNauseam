@@ -1574,7 +1574,8 @@ const adnauseam = (function () {
       hidingDisabled: !us.hidingAds || showDnt,
       clickingDisabled: !us.clickingAds,
       textAdsDisabled: !us.parseTextAds,
-      logEvents: us.eventLogging
+      vaultCaptureMode: us.vaultCaptureMode, // for-capture
+      logEvents: us.eventLogging,
     };
   };
 

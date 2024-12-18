@@ -21,10 +21,11 @@
 
 'use strict';
 
-import { i18n$ } from "../i18n.js";
 import uDom from './uDom.js';
+
+import { i18n$ } from "../i18n.js";
+import { onBroadcast } from '../broadcast.js';
 import { renderNotifications } from './notifications.js';
-import { broadcast, onBroadcast } from '../broadcast.js';
 
 import {
   byField,
@@ -45,8 +46,7 @@ import {
 const States = ['pending', 'visited', 'failed', 'dnt-allowed', 'image-error'],
   Zooms = [400, 200, 150, 100, 75, 50, 25, 12.5, 7.5, 5],
   EnableContextMenu = 1,
-  MaxStartNum = 300,
-  MaxPerSet = 9;
+  MaxStartNum = 300;
 
 const margin = {
   top: 50,
@@ -65,11 +65,10 @@ let userZoomScale = Zooms[Zooms.indexOf(100)];
 // determined by zoom in / out buttons
 let zoomIdx = 0;
 
-let zoomStyle, animatorId, resizeId, selectedAdSet;
+let animatorId, resizeId, selectedAdSet;
 let showInterface = true;
 let draggingVault = false;
 let vaultLoading = false;
-let isInspectingAd = false;
 
 const container_div = document.getElementById('container');
 const $container = $('#container')
@@ -139,7 +138,8 @@ function $height(ele) {
 
 const renderAds = function (json) {
 
-  // console.log('renderAds: ', json);
+  console.log('renderAds: ', json);
+
   gAds = json.data; // store
   addInterfaceHandlers();
   settings = json.prefs;
@@ -154,8 +154,9 @@ const renderAds = function (json) {
       'adnauseam', {
       what: 'getNotifications'
     }).then(data => {
-      if (data.notifications && data.notifications.length)
+      if (data.notifications && data.notifications.length) {
         renderNotifications(data.notifications, 'vault');
+      }
       adjustHeight();
     })
   });
@@ -183,7 +184,7 @@ const renderAds = function (json) {
     } else {
       uDom("#stage").removeClass('blur');
     }
-  })
+  });
 };
 
 const autoUpdateVault = function () {
@@ -314,6 +315,10 @@ function parseAd(ad, data) {
 }
 
 function analyze(adsets) {
+  displayStatistics(extractData(adsets));
+}
+
+function extractData(adsets) {
   let data = {
     totalImg: 0,
     totalText: 0,
@@ -338,7 +343,7 @@ function analyze(adsets) {
   data.adNetworks = sortDict(data.adNetworks);
   data.total = data.totalImg + data.totalText;
   //console.log(data);
-  displayStatistics(data);
+  return data;
 }
 
 function displayStatistics(data) {
@@ -933,63 +938,59 @@ function computeStats(adsets) {
   const numVisits = numVisited(gAds);
 
   $('.since').text(i18n$("adnVaultSince").replace('{{datetime}}', sinceTime(adsets)));
-
   $('.clicked').text(i18n$("adnMenuAdsClicked").replace('{{number}}', numVisits));
-
   $('.total').text(i18n$("adnVaultFound").replace('{{total}}', numTotal()));
   $('#detected').text(numFound(adsets));
 
-  if (numTotal() != numFound(adsets))
+  if (numTotal() != numFound(adsets)) {
     $('.showing').show();
-  else
+  }
+  else {
     $('.showing').hide();
+  }
   setCost(numVisits);
 }
 
-function numVisible() {
-  return $('.item').length;
-}
-
 function numVisited(adsets) {
-  //TODO: update after visit
   let numv = 0;
-
-  for (let i = 0, j = adsets && adsets.length; i < j; i++)
+  for (let i = 0, j = adsets && adsets.length; i < j; i++) {
     numv += (adsets[i].visitedTs > 0);
-
+  }
   return numv;
 }
 
 function numFound(adsets) {
-
   let numv = 0;
-
-  for (let i = 0, j = adsets && adsets.length; i < j; i++)
+  for (let i = 0, j = adsets && adsets.length; i < j; i++) {
     numv += (adsets[i].count());
-
+  }
   return numv;
 }
 
 function numTotal() {
-
   return gAds.length;
 }
 
 function sinceTime(adsets) {
-
-  let idx = 0, oldest = +new Date();
-
+  let oldest = +new Date();
   for (let i = 0, j = adsets && adsets.length; i < j; i++) {
-
     const foundTs = adsets[i].child(0).foundTs;
     if (foundTs < oldest) {
-
       oldest = foundTs;
-      idx = i;
     }
   }
-
   return formatDate(oldest);
+}
+
+function untilTime(adsets) {
+  let youngest = 0;
+  for (let i = 0, j = adsets && adsets.length; i < j; i++) {
+    const foundTs = adsets[i].child(0).foundTs;
+    if (foundTs > youngest) {
+      youngest = foundTs;
+    }
+  }
+  return formatDate(youngest);
 }
 
 function formatTargetDate(ad) {
@@ -1200,19 +1201,15 @@ function storeViewState(focusScale) {
 }
 
 function logAdSetInfo() {
-
   if (selectedAdSet) {
-
     console.log("Logging JSON for AdSet #" + selectedAdSet.gid);
-
     messager.send('adnauseam', {
       what: 'logAdSet',
       gid: selectedAdSet.gid,
       ids: selectedAdSet.childIds()
     }).then(data => {
       location.href = "data:text/plain," + encodeURI(data);
-    })
-
+    });
   }
 }
 
@@ -1221,17 +1218,12 @@ const ifs = ['#logo', '#ratio', '#stats', '#svgcon', '#x-close-button', '.zoom',
 function toggleInterface() {
 
   showInterface = !showInterface;
-
   if (!showInterface) {
 
-    $("body").css('background-image', 'none')
-      .css({
-        'background-color': '#fff'
-      });
-
-    ifs.forEach(function (s) {
-      $(s).hide();
-    });
+    $("body")
+      .css('background-image', 'none')
+      .css({ 'background-color': '#fff' });
+    ifs.forEach(s => $(s).hide());
 
     // remove all duplicate classes (TODO: just hide them)
     $(".item").removeClass(function (i, css) {
@@ -1239,15 +1231,10 @@ function toggleInterface() {
     }).addClass('dup-count-1');
 
   } else {
-
-    $("body").css('background-image', 'url(../img/gray_grid.png)')
-      .css({
-        'background-color': '#000'
-      });
-
-    ifs.forEach(function (s) {
-      $(s).show();
-    });
+    $("body")
+      .css('background-image', 'url(../img/gray_grid.png)')
+      .css({ 'background-color': '#000' });
+    ifs.forEach(s => $(s).show());
   }
 }
 
@@ -1969,7 +1956,6 @@ function createSlider(mode) {
       runFilter([gMin, gMax])
       break;
     case "update":
-      // console.log(gMin, new Date())
       const ext = [gMin, new Date()];
       doLayout(runFilter(ext), true)
       break;
@@ -1982,7 +1968,6 @@ function createSlider(mode) {
   // this is called on brushend() and createSlider()
   function runFilter(ext) {
 
-    // console.log('vault.js::runFilter: '+ext[0]+","+ext[1]);
     centerContainer();
     gMin = ext[0], gMax = ext[1];
 
@@ -1991,11 +1976,6 @@ function createSlider(mode) {
 
     // make sure the sliders are always visible
     if (gMax - gMin <= 0) d3.select('.resize').style("display", "block");
-
-    // if (gAdSets != null && gAds.length !== 1 && gMax - gMin < 0) {
-    //   //console.log('vault-slider::ignore-micro: ' + ext[0] + "," + ext[1]);
-    //   return; // gAdSets || (gAdSets = createAdSets(gAds)); // fix for gh #100
-    // }
 
     if (gAds.length >= MaxStartNum) {
       uDom("a[class=showing-help]").text("?")
@@ -2081,6 +2061,50 @@ function createSlider(mode) {
   }
 }
 
+function onCapture() { // save screenshot
+
+  toggleInterface(showInterface = true);
+  browser.tabs.captureVisibleTab(imgUrl => {
+    const saveImageToFile = (image, filename) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(image, 0, 0);
+
+      // Convert canvas to data URL
+      const dataURL = canvas.toDataURL();
+
+      // Create a link element and trigger a download
+      const anchor = document.createElement('a');
+      anchor.href = dataURL;
+      anchor.download = filename;
+      anchor.click();
+    };
+    console.log(gAds, gAdSets, gMin, gMax);
+
+    let meta = extractData(gAds);
+    meta.sinceTime = sinceTime(gAdSets);
+    meta.untilTime = untilTime(gAdSets);
+    meta.minDate = formatDate(gMin);
+    meta.maxDate = formatDate(gMax);
+    meta.clicked = numVisited(gAds);
+    meta.total = numTotal();
+    meta.detected = numFound(gAdSets);
+    meta.cost = '$' + (meta.clicked * 1.03).toFixed(2);
+    console.log(meta);
+
+    const screenshot = new Image();
+    screenshot.src = imgUrl;
+    screenshot.onload = () => {
+      saveImageToFile(screenshot, 'screenshot.png');
+      setTimeout(() => {
+        toggleInterface(showInterface = false);
+      }, 5000);
+    };
+  });
+};
+
 function onPurgeDeadAds() {
   let deadAds = getDeadAds()
   if (deadAds.length > 0) {
@@ -2089,6 +2113,7 @@ function onPurgeDeadAds() {
     console.log("no dead ads to purge")
   }
 }
+
 function getDeadAds() {
   let adsGids = []
   document.querySelectorAll(".image-error").forEach(el => {
@@ -2271,7 +2296,6 @@ AdSet.prototype.groupState = function () {
   }
 
   const failed = this.failedCount();
-
   return failed ? 'failed' : 'pending';
 };
 
@@ -2286,3 +2310,4 @@ $('#import').on('click', startImportFilePicker);
 $('#importFilePicker').on('change', handleImportAds);
 $('#reset').on('click', clearAds);
 $('#purge').on('click', onPurgeDeadAds);
+$('#capture').on('click', onCapture);

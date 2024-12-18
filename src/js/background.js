@@ -36,8 +36,8 @@ import { adnlogSet } from './console.js';
 
 // Not all platforms may have properly declared vAPI.webextFlavor.
 
-if ( vAPI.webextFlavor === undefined ) {
-    vAPI.webextFlavor = { major: 0, soup: new Set([ 'ublock' ]) };
+if (vAPI.webextFlavor === undefined) {
+    vAPI.webextFlavor = { major: 0, soup: new Set(['ublock']) };
 }
 
 /******************************************************************************/
@@ -94,17 +94,11 @@ const hiddenSettingsDefault = {
     internalLinkDomains: internalLinkDomainsDefault.join(','), // Adn
 };
 
-if ( vAPI.webextFlavor.soup.has('devbuild') ) {
-    hiddenSettingsDefault.consoleLogLevel = 'info';
-    hiddenSettingsDefault.cacheStorageAPI = 'unset';
-    adnlogSet(true);
-}
-
 const userSettingsDefault = {
 
     ////////////////// ADN //////////////////
 
-    admap: {},          
+    admap: {},
     dntDomains: [],
     parseTextAds: true,
     eventLogging: false,
@@ -136,6 +130,7 @@ const userSettingsDefault = {
     cnameUncloakEnabled: true,
     collapseBlocked: true,
     colorBlindFriendly: false,
+    vaultCaptureMode: false,
     contextMenuEnabled: true,
     uiAccentCustom: false,
     uiAccentCustom0: '#aca0f7',
@@ -157,14 +152,17 @@ const userSettingsDefault = {
     webrtcIPAddressHidden: false,
 };
 
+if (vAPI.webextFlavor.soup.has('devbuild')) {
+    userSettingsDefault.vaultCaptureMode = true; // for capture
+    hiddenSettingsDefault.consoleLogLevel = 'info';
+    hiddenSettingsDefault.cacheStorageAPI = 'unset';
+    adnlogSet(true);
+}
+
 /* Adn https://github.com/dhowe/AdNauseam/issues/2040 */
 
 const allowAnyBlockOnDomains = ['youtube.com', 'funnyordie.com']; // no dnt in here
-
-const strictBlockDefault = allowAnyBlockOnDomains.map(
-    d => d + ' * * strictBlock'
-)
-
+const strictBlockDefault = allowAnyBlockOnDomains.map(d => d + ' * * strictBlock');
 const dynamicFilteringDefault = [
     'behind-the-scene * * noop',
     'behind-the-scene * image noop',
@@ -177,13 +175,10 @@ const dynamicFilteringDefault = [
 
 /* end of Adn */
 
-const hostnameSwitchesDefault = [
-    'no-large-media: behind-the-scene false',
-];
-
+const hostnameSwitchesDefault = [ 'no-large-media: behind-the-scene false' ];
 
 // https://github.com/LiCybora/NanoDefenderFirefox/issues/196
-if ( vAPI.webextFlavor.soup.has('firefox') ) {
+if (vAPI.webextFlavor.soup.has('firefox')) {
     hostnameSwitchesDefault.push('no-csp-reports: * true');
 }
 
@@ -234,7 +229,7 @@ const µBlock = {  // jshint ignore:line
         blockedRequestCount: 0,
         allowedRequestCount: 0
     },
-    
+
     requestStats: {
         blockedCount: 0,
         allowedCount: 0,
@@ -277,7 +272,7 @@ const µBlock = {  // jshint ignore:line
     // settings. The content of 'assets.json' will also tell which filter
     // lists to enable by default when uBO is first installed.
     assetsBootstrapLocation: undefined,
-    
+
     /*
         ADN - no need for us to use dev assets for dev build, but it is something we can implement later. 
     assetsJsonPath: vAPI.webextFlavor.soup.has('devbuild')
@@ -310,7 +305,7 @@ const µBlock = {  // jshint ignore:line
     storageQuota: vAPI.storage.QUOTA_BYTES,
     storageUsed: 0,
 
-    noopFunc: function(){},
+    noopFunc: function () { },
 
     apiErrorCount: 0,
 
@@ -360,8 +355,8 @@ const µBlock = {  // jshint ignore:line
     }
 
     maybeFromDocumentURL(documentUrl) {
-        if ( documentUrl === undefined ) { return; }
-        if ( documentUrl.startsWith(this.tabOrigin) ) { return; }
+        if (documentUrl === undefined) { return; }
+        if (documentUrl.startsWith(this.tabOrigin)) { return; }
         this.tabOrigin = originFromURI(µBlock.normalizeTabURL(0, documentUrl));
         this.tabHostname = hostnameFromURI(this.tabOrigin);
         this.tabDomain = domainFromHostname(this.tabHostname);
@@ -374,7 +369,7 @@ const µBlock = {  // jshint ignore:line
         const tabId = details.tabId;
         this.type = details.type;
         const isMainFrame = this.itype === this.MAIN_FRAME;
-        if ( isMainFrame && tabId > 0 ) {
+        if (isMainFrame && tabId > 0) {
             µBlock.tabContextManager.push(tabId, details.url);
         }
         this.fromTabId(tabId); // Must be called AFTER tab context management
@@ -385,16 +380,16 @@ const µBlock = {  // jshint ignore:line
         this.aliasURL = details.aliasURL || undefined;
         this.redirectURL = undefined;
         this.filter = undefined;
-        if ( this.itype !== this.SUB_FRAME ) {
+        if (this.itype !== this.SUB_FRAME) {
             this.docId = details.frameId;
             this.frameId = -1;
         } else {
             this.docId = details.parentFrameId;
             this.frameId = details.frameId;
         }
-        if ( this.tabId > 0 ) {
-            if ( this.docId === 0 ) {
-                if ( isMainFrame === false ) {
+        if (this.tabId > 0) {
+            if (this.docId === 0) {
+                if (isMainFrame === false) {
                     this.maybeFromDocumentURL(details.documentUrl);
                 }
                 this.docOrigin = this.tabOrigin;
@@ -402,20 +397,20 @@ const µBlock = {  // jshint ignore:line
                 this.docDomain = this.tabDomain;
                 return this;
             }
-            if ( details.documentUrl !== undefined ) {
+            if (details.documentUrl !== undefined) {
                 this.setDocOriginFromURL(details.documentUrl);
                 return this;
             }
             const pageStore = µBlock.pageStoreFromTabId(this.tabId);
             const docStore = pageStore && pageStore.getFrameStore(this.docId);
-            if ( docStore ) {
+            if (docStore) {
                 this.setDocOriginFromURL(docStore.rawURL);
             } else {
                 this.setDocOrigin(this.tabOrigin);
             }
             return this;
         }
-        if ( details.documentUrl !== undefined ) {
+        if (details.documentUrl !== undefined) {
             const origin = originFromURI(
                 µBlock.normalizeTabURL(0, details.documentUrl)
             );
@@ -430,7 +425,7 @@ const µBlock = {  // jshint ignore:line
     }
 
     getTabOrigin() {
-        if ( this.tabOrigin === undefined ) {
+        if (this.tabOrigin === undefined) {
             const tabContext = µBlock.tabContextManager.mustLookup(this.tabId);
             this.tabOrigin = tabContext.origin;
             this.tabHostname = tabContext.rootHostname;
@@ -457,11 +452,11 @@ const µBlock = {  // jshint ignore:line
             filter: undefined,
         };
         // Many filters may have been applied to the current context
-        if ( Array.isArray(this.filter) === false ) {
+        if (Array.isArray(this.filter) === false) {
             details.filter = this.filter;
             return logger.writeOne(details);
         }
-        for ( const filter of this.filter ) {
+        for (const filter of this.filter) {
             details.filter = filter;
             logger.writeOne(details);
         }
