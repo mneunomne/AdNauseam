@@ -965,8 +965,11 @@ const PageStore = class {
     }
 
     redirectBlockedRequest(fctxt) {
-        const directives = staticNetFilteringEngine.redirectRequest(redirectEngine, fctxt);
-        if ( directives === undefined ) { return; }
+        const directives = staticNetFilteringEngine.redirectRequest(redirectEngine, fctxt) || [];
+        if ( this.urlSkippableResources.has(fctxt.itype) ) {
+            staticNetFilteringEngine.urlSkip(fctxt, true, directives);
+        }
+        if ( directives.length === 0 ) { return; }
         if ( logger.enabled !== true ) { return; }
         fctxt.pushFilters(directives.map(a => a.logData()));
         if ( fctxt.redirectURL === undefined ) { return; }
@@ -982,6 +985,9 @@ const PageStore = class {
         if ( staticNetFilteringEngine.hasQuery(fctxt) ) {
             staticNetFilteringEngine.filterQuery(fctxt, directives);
         }
+        if ( this.urlSkippableResources.has(fctxt.itype) ) {
+            staticNetFilteringEngine.urlSkip(fctxt, false, directives);
+        }
         if ( directives.length === 0 ) { return; }
         if ( logger.enabled !== true ) { return; }
         fctxt.pushFilters(directives.map(a => a.logData()));
@@ -992,8 +998,8 @@ const PageStore = class {
         });
     }
 
-    skipMainDocument(fctxt) {
-        const directives = staticNetFilteringEngine.urlSkip(fctxt);
+    skipMainDocument(fctxt, blocked) {
+        const directives = staticNetFilteringEngine.urlSkip(fctxt, blocked);
         if ( directives === undefined ) { return; }
         if ( logger.enabled !== true ) { return; }
         fctxt.pushFilters(directives.map(a => a.logData()));
@@ -1059,10 +1065,29 @@ const PageStore = class {
     }
 
     // The caller is responsible to check whether filtering is enabled or not.
-    filterLargeMediaElement(fctxt, size) {
+    filterLargeMediaElement(fctxt, headers) {
         fctxt.filter = undefined;
-
-        if ( this.allowLargeMediaElementsUntil === 0 ) {
+        if ( this.allowLargeMediaElementsUntil === 0 ) { return 0; }
+        if ( sessionSwitches.evaluateZ('no-large-media', fctxt.getTabHostname() ) !== true ) {
+            this.allowLargeMediaElementsUntil = 0;
+            return 0;
+        }
+        // XHR-based streaming is never blocked but we want to prevent autoplay
+        if ( fctxt.itype === fctxt.XMLHTTPREQUEST ) {
+            const ctype = headers.contentType;
+            if ( ctype.startsWith('audio/') || ctype.startsWith('video/') ) {
+                this.largeMediaTimer.on(500);
+            }
+            return 0;
+        }
+        if ( Date.now() < this.allowLargeMediaElementsUntil ) {
+            if ( fctxt.itype === fctxt.MEDIA ) {
+                const sources = this.allowLargeMediaElementsRegex instanceof RegExp
+                    ? [ this.allowLargeMediaElementsRegex.source ]
+                    : [];
+                sources.push('^' + µb.escapeRegex(fctxt.url));
+                this.allowLargeMediaElementsRegex = new RegExp(sources.join('|'));
+            }
             return 0;
         }
         // Disregard large media elements previously allowed: for example, to
@@ -1073,34 +1098,18 @@ const PageStore = class {
         ) {
             return 0;
         }
-        if ( Date.now() < this.allowLargeMediaElementsUntil ) {
-            const sources = this.allowLargeMediaElementsRegex instanceof RegExp
-                ? [ this.allowLargeMediaElementsRegex.source ]
-                : [];
-            sources.push('^' + µb.escapeRegex(fctxt.url));
-            this.allowLargeMediaElementsRegex = new RegExp(sources.join('|'));
-            return 0;
+        // Regardless of whether a media is blocked, we want to prevent autoplay
+        if ( fctxt.itype === fctxt.MEDIA ) {
+            this.largeMediaTimer.on(500);
         }
-        if (
-            sessionSwitches.evaluateZ(
-                'no-large-media',
-                fctxt.getTabHostname()
-            ) !== true
-        ) {
-            this.allowLargeMediaElementsUntil = 0;
-            return 0;
-        }
-        if ( (size >>> 10) < µb.userSettings.largeMediaSize ) {
-            return 0;
-        }
-
+        const size = headers.contentLength;
+        if ( isNaN(size) ) { return 0; }
+        if ( (size >>> 10) < µb.userSettings.largeMediaSize ) { return 0; }
         this.largeMediaCount += 1;
         this.largeMediaTimer.on(500);
-
         if ( logger.enabled ) {
             fctxt.filter = sessionSwitches.toLogData();
         }
-
         return 1;
     }
 
@@ -1169,22 +1178,31 @@ const PageStore = class {
         response.blockedResources =
             this.netFilteringCache.lookupAllBlocked(fctxt.getDocHostname());
     }
+
+    cacheableResults = new Set([
+        µb.FilteringContext.SUB_FRAME
+    ]);
+
+    collapsibleResources = new Set([
+        µb.FilteringContext.IMAGE,
+        µb.FilteringContext.MEDIA,
+        µb.FilteringContext.OBJECT,
+        µb.FilteringContext.SUB_FRAME,
+    ]);
+
+    urlSkippableResources = new Set([
+        µb.FilteringContext.IMAGE,
+        µb.FilteringContext.MAIN_FRAME,
+        µb.FilteringContext.MEDIA,
+        µb.FilteringContext.OBJECT,
+        µb.FilteringContext.OTHER,
+        µb.FilteringContext.SUB_FRAME,
+    ]);
+
+    // To mitigate memory churning
+    static junkyard = [];
+    static junkyardMax = 10;
 };
-
-PageStore.prototype.cacheableResults = new Set([
-    µb.FilteringContext.SUB_FRAME,
-]);
-
-PageStore.prototype.collapsibleResources = new Set([
-    µb.FilteringContext.IMAGE,
-    µb.FilteringContext.MEDIA,
-    µb.FilteringContext.OBJECT,
-    µb.FilteringContext.SUB_FRAME,
-]);
-
-// To mitigate memory churning
-PageStore.junkyard = [];
-PageStore.junkyardMax = 10;
 
 /******************************************************************************/
 

@@ -31,6 +31,10 @@
     "message": "필터링 모드",
     "description": "Label in the popup panel for the current filtering mode"
   },
+  "popupTipReport": {
+    "message": "이 사이트의 이슈를 신고하기",
+    "description": "Tooltip used for the 'chat' icon in the panel"
+  },
   "popupTipDashboard": {
     "message": "대시보드 열기",
     "description": "English: Click to open the dashboard"
@@ -99,6 +103,70 @@
     "message": "외부 의존성 (GPLv3 호환):",
     "description": "Shown in the About pane"
   },
+  "supportS6H": {
+    "message": "필터 이슈 신고",
+    "description": "Header of 'Report a filter issue' section in Support pane"
+  },
+  "supportS3P1": {
+    "message": "특정 웹사이트에서 발생하는 필터 이슈를 <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> 이슈 트래커</span>에 신고할 수 있습니다. <u>GitHub 계정이 필요합니다.</u>",
+    "description": "First paragraph of 'Filter issues' section in Support pane"
+  },
+  "supportS6P1S1": {
+    "message": "봉사자들이 중복 신고로 인해 부담을 겪지 않도록, 해당 이슈가 이미 신고되지는 않았는지 확인해주시기 바랍니다.",
+    "description": "A paragraph in the filter issue reporter section"
+  },
+  "supportFindSpecificButton": {
+    "message": "유사한 신고 탐색",
+    "description": "A clickable link in the filter issue reporter section"
+  },
+  "supportS6URL": {
+    "message": "웹페이지 주소:",
+    "description": "Label for the URL of the page"
+  },
+  "supportS6Select1": {
+    "message": "웹페이지가…",
+    "description": "Label for widget to select type of issue"
+  },
+  "supportS6Select1Option0": {
+    "message": "-- 주제 선택 --",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option1": {
+    "message": "광고나 광고 흔적을 보여줍니다",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option2": {
+    "message": "오버레이나 기타 성가신 요소를 보여줍니다",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option3": {
+    "message": "uBO Lite 사용을 감지합니다",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option4": {
+    "message": "개인정보 보호 관련 이슈가 있습니다",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option5": {
+    "message": "uBO Lite를 켜면 깨집니다",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option6": {
+    "message": "원치 않는 탭이나 창을 엽니다",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Select1Option7": {
+    "message": "악성코드, 피싱으로 유도합니다",
+    "description": "An entry in the widget used to select the type of issue"
+  },
+  "supportS6Checkbox1": {
+    "message": "웹페이지를 \"NSFW\" (<a href=\"https://wikipedia.org/wiki/Not_safe_for_work\">“Not Safe For Work”</a>)로 분류",
+    "description": "A checkbox to use for NSFW sites"
+  },
+  "supportReportSpecificButton": {
+    "message": "새 신고 생성",
+    "description": "Text for button which open an external webpage in Support pane"
+  },
   "firstRunSectionLabel": {
     "message": "환영합니다",
     "description": "The header text for the welcome message section"
@@ -148,7 +216,7 @@
     "description": "A short description for the editable field which lists trusted sites"
   },
   "noFilteringModePlaceholder": {
-    "message": "[hostnames only]\nexample.com\ngames.example\n...",
+    "message": "[호스트 이름만 작성]\nexample.com\ngames.example\n...",
     "description": "Default text for in edit field"
   },
   "behaviorSectionLabel": {

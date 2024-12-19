@@ -36,6 +36,8 @@ const isPromise = o => o instanceof Promise;
 const isResolvedObject = o => o instanceof Object &&
     o instanceof Promise === false;
 const reIPv4 = /^\d+\.\d+\.\d+\.\d+$/
+const skipDNS = proxyInfo =>
+    proxyInfo && (proxyInfo.proxyDNS || proxyInfo.type?.charCodeAt(0) === 0x68 /* h */);
 
 /******************************************************************************/
 
@@ -102,7 +104,7 @@ vAPI.Net = class extends vAPI.Net {
 
     normalizeDetails(details) {
         // https://github.com/uBlockOrigin/uBlock-issues/issues/3379
-        if ( details.proxyInfo?.proxyDNS && details.ip === '0.0.0.0' ) {
+        if ( skipDNS(details.proxyInfo) && details.ip === '0.0.0.0' ) {
             details.ip = null;
         }
         const type = details.type;
@@ -110,18 +112,15 @@ vAPI.Net = class extends vAPI.Net {
             details.type = 'image';
             return;
         }
+        if ( type !== 'object' ) { return; }
+        // Try to extract type from response headers if present.
+        if ( details.responseHeaders === undefined ) { return; }
+        const ctype = this.headerValue(details.responseHeaders, 'content-type');
         // https://github.com/uBlockOrigin/uBlock-issues/issues/345
         //   Re-categorize an embedded object as a `sub_frame` if its
         //   content type is that of a HTML document.
-        if ( type === 'object' && Array.isArray(details.responseHeaders) ) {
-            for ( const header of details.responseHeaders ) {
-                if ( header.name.toLowerCase() === 'content-type' ) {
-                    if ( header.value.startsWith('text/html') ) {
-                        details.type = 'sub_frame';
-                    }
-                    break;
-                }
-            }
+        if ( ctype === 'text/html' ) {
+            details.type = 'sub_frame';
         }
     }
 
@@ -185,8 +184,8 @@ vAPI.Net = class extends vAPI.Net {
         if ( isResolvedObject(dnsEntry) ) {
             return this.onAfterDNSResolution(hn, details, dnsEntry);
         }
+        if ( skipDNS(details.proxyInfo) ) { return; }
         if ( this.dnsShouldResolve(hn) === false ) { return; }
-        if ( details.proxyInfo?.proxyDNS ) { return; }
         const promise = dnsEntry || this.dnsResolve(hn, details);
         return promise.then(( ) => this.onAfterDNSResolution(hn, details));
     }

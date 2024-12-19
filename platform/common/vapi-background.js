@@ -1428,6 +1428,14 @@ vAPI.Net = class {
         if ( this.suspendDepth !== 0 ) { return; }
         this.unsuspendAllRequests(discard);
     }
+    headerValue(headers, name) {
+        for ( const header of headers ) {
+            if ( header.name.toLowerCase() === name ) {
+                return header.value.trim();
+            }
+        }
+        return '';
+    }
     static canSuspend() {
         return false;
     }

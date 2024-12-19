@@ -1,3 +1,35 @@
+- [Improve `prevent-refresh` scriptlet](https://github.com/gorhill/uBlock/commit/8884f259c1)
+- [Improve `googlesyndication_adsbygoogle.js` scriptlet](https://github.com/gorhill/uBlock/commit/f645e8f0d2)
+- [Offer ability to skip redirects in strict-blocked page](https://github.com/gorhill/uBlock/commit/20b54185fa)
+- [Add `-blocked` directive to `urlskip=` option](https://github.com/gorhill/uBlock/commit/d04dc4c767)
+- [Add `trusted-set-attr` scriptlet](https://github.com/gorhill/uBlock/commit/11ca4a3923)
+- [Remove `64:ff9b:` as private network block](https://github.com/gorhill/uBlock/commit/2621c908c3)
+- [Ensure `urlskip=` redirects only to `https:`](https://github.com/gorhill/uBlock/commit/32f27c5131)
+- [Add support to `urlskip=` media resources](https://github.com/gorhill/uBlock/commit/ce9fc5dc14)
+- [Add `-uricomponent` to `urlskip=` option](https://github.com/gorhill/uBlock/commit/01eebffc1f)
+- [Add `forbidden`/`forever` as safe cookie values](https://github.com/gorhill/uBlock/commit/4d982d9972) (by @ryanbr)
+- [Add regex extraction transformation step to `urlskip=` option](https://github.com/gorhill/uBlock/commit/c86ed5287b)
+- [Improve `prevent-window-open` scriptlet](https://github.com/gorhill/uBlock/commit/85877b12ed)
+- [Add support to parse Adguard's `[$domain=/.../]` regex-based modifier](https://github.com/gorhill/uBlock/commit/58bfe4c846)
+- [Validate result type of XPath expressions](https://github.com/gorhill/uBlock/commit/c746633693)
+- [Fix npm test suite](https://github.com/gorhill/uBlock/commit/818cb2d801)
+- [Add ability to lookup parameter name in `urlskip=`](https://github.com/gorhill/uBlock/commit/64b2086ba4)
+- [Mind that BroadcastChannel contructor can throw in Firefox](https://github.com/gorhill/uBlock/commit/6d2b3375f8)
+- [Add `trusted-override-element-method` scriptlet](https://github.com/gorhill/uBlock/commit/95b0ce5e3a)
+- [Add `trusted-prevent-dom-bypass` scriptlet](https://github.com/gorhill/uBlock/commit/1abc864742)
+- [Improve `prevent-xhr` scriptlet; add `trusted-prevent-xhr` scriptlet](https://github.com/gorhill/uBlock/commit/fe49ced2ac)
+- [Skip dns resolution when requests are proxied through http](https://github.com/gorhill/uBlock/commit/4305bfbdb1)
+- [Blocking large media elements also prevents autoplay, regardless of size](https://github.com/gorhill/uBlock/commit/73ce4e6bcf)
+- [Do not discard `!#else` block for unknown preprocessor tokens](https://github.com/gorhill/uBlock/commit/6cac645830)
+- [Add ability to decode base64 in `urlskip=`](https://github.com/gorhill/uBlock/commit/e81e70937f)
+- [Fix images not properly downloading on click](https://github.com/gorhill/uBlock/commit/aec0bd39e3)
+
+----------
+
+# 1.60.0
+
+## Fixes / changes
+
 - [Add advanced setting `dnsResolveEnabled`](https://github.com/gorhill/uBlock/commit/760b2ffce6)
 - [Fix contextual menu quirks](https://github.com/gorhill/uBlock/commit/0a6dc47a72)
 - [Fix exception thrown in `spoof-css` in Firefox](https://github.com/gorhill/uBlock/commit/11c3a16036)
