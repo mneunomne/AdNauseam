@@ -108,8 +108,8 @@ if [ "$QUICK" != "yes" ]; then
     cp platform/mv3/*.js "$TMPDIR"/
     cp platform/mv3/*.mjs "$TMPDIR"/
     cp platform/mv3/extension/js/utils.js "$TMPDIR"/js/
-    cp "$UBO_DIR"/assets/assets.json "$TMPDIR"/
-    cp "$UBO_DIR"/assets/resources/*.js "$TMPDIR"/
+    cp "$ADN_DIR"/assets/assets.json "$TMPDIR"/
+    cp "$ADN_DIR"/assets/resources/*.js "$TMPDIR"/
     cp -R platform/mv3/scriptlets "$TMPDIR"/
     mkdir -p "$TMPDIR"/web_accessible_resources
     cp "$ADN_DIR"/src/web_accessible_resources/* "$TMPDIR"/web_accessible_resources/
