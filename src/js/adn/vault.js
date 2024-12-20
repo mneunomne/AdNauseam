@@ -968,7 +968,6 @@ function numTotal() {
 }
 
 function sinceTime(adsets) {
-  console.log('sinceTime');
   let oldest = +new Date();
   for (let i = 0, j = adsets && adsets.length; i < j; i++) {
     let foundTs;
@@ -2102,7 +2101,7 @@ function onCapture() { // save screenshot
       // create a subset of visited ads where foundTs is within the range gMin to gMax
       let subset = gAds.filter(ad => ad.foundTs >= gMin && ad.foundTs <= gMax);
 
-      console.log('subset:', subset.length, gMin, gMax);
+      //console.log('subset:', subset.length, gMin, gMax);
 
       let meta = extractData(subset);
       meta.count = subset.length;
@@ -2112,7 +2111,7 @@ function onCapture() { // save screenshot
       meta.maxDate = gMax ? gMax : untilTime(subset);
       meta.minTs = formatDate(meta.minDate);
       meta.maxTs = formatDate(meta.maxDate);
-      console.log('meta:', meta.minDate, meta.maxDate, meta.minTs, meta.maxTs);
+      //console.log('meta:', meta.minDate, meta.maxDate, meta.minTs, meta.maxTs);
 
       const screenshot = new Image();
       screenshot.src = imgUrl;
