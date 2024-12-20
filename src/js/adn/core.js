@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     AdNauseam - Fight back against advertising surveillance.
-    Copyright (C) 2014-2021 Daniel C. Howe
+    Copyright (C) 2014-2024 Daniel C. Howe
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -1574,8 +1574,8 @@ const adnauseam = (function () {
       hidingDisabled: !us.hidingAds || showDnt,
       clickingDisabled: !us.clickingAds,
       textAdsDisabled: !us.parseTextAds,
-      vaultCaptureMode: us.vaultCaptureMode, // for-capture
       logEvents: us.eventLogging,
+      devMode: us.devMode,
     };
   };
 

@@ -99,6 +99,7 @@ const userSettingsDefault = {
     ////////////////// ADN //////////////////
 
     admap: {},
+    devMode: false,
     dntDomains: [],
     parseTextAds: true,
     eventLogging: false,
@@ -130,7 +131,6 @@ const userSettingsDefault = {
     cnameUncloakEnabled: true,
     collapseBlocked: true,
     colorBlindFriendly: false,
-    vaultCaptureMode: false,
     contextMenuEnabled: true,
     uiAccentCustom: false,
     uiAccentCustom0: '#aca0f7',
@@ -153,7 +153,7 @@ const userSettingsDefault = {
 };
 
 if (vAPI.webextFlavor.soup.has('devbuild')) {
-    userSettingsDefault.vaultCaptureMode = true; // for capture
+    userSettingsDefault.devMode = true; // for capture
     hiddenSettingsDefault.consoleLogLevel = 'info';
     hiddenSettingsDefault.cacheStorageAPI = 'unset';
     adnlogSet(true);

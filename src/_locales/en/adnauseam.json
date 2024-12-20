@@ -365,7 +365,7 @@
   },
   "adnCaptureVault": {
     "message": "Capture",
-    "description": "appears on vault page"
+    "description": "appears on vault page in dev mode"
   },
   "adnVaultFound": {
     "message": "{{total}} ads collected",

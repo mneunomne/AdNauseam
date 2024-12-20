@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     AdNauseam - Fight back against advertising surveillance.
-    Copyright (C) 2014-2021 Daniel C. Howe
+    Copyright (C) 2014-2024 Daniel C. Howe
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -42,6 +42,8 @@ import {
   decodeEntities,
   clearAds
 } from './adn-utils.js';
+
+// note: this code is a mess and needs to be refactored
 
 const States = ['pending', 'visited', 'failed', 'dnt-allowed', 'image-error'],
   Zooms = [400, 200, 150, 100, 75, 50, 25, 12.5, 7.5, 5],
@@ -126,6 +128,8 @@ onBroadcast(request => {
 
 const renderAds = function (json) {
 
+  //console.log("renderAds", json);
+
   gAds = json.data; // store
   addInterfaceHandlers();
   settings = json.prefs;
@@ -171,6 +175,11 @@ const renderAds = function (json) {
       uDom("#stage").removeClass('blur');
     }
   });
+
+  if (settings.devMode) {
+    console.log("devMode: enabling capture button");
+    $('#capture').removeClass('item-hidden');
+  }
 };
 
 const autoUpdateVault = function () {
@@ -2060,8 +2069,8 @@ function onCapture() { // save screenshot
         ctx.drawImage(image, 0, 0);
 
         // create a meta data string and fname for the image
-        let metaText = `Clicked ${meta.clicked} of ${meta.count} ads, from ${meta.minDate} to ${meta.maxDate}, costing ${meta.cost}.`;
-        let metaName = `${meta.clicked}-${meta.count}-${meta.gMin}-${meta.gMax}-${meta.cost.substring(1)}.png`;
+        let metaText = `Clicked ${meta.clicked} of ${meta.count} ads, from ${meta.minDate} to ${meta.maxDate}, costing $${meta.cost}.`;
+        let metaName = `${meta.clicked}-${meta.count}-${meta.gMin}-${meta.gMax}-${meta.cost}.png`;
         console.log('Saving image: ' + metaName);
 
         // write meta data to upper left corner
@@ -2113,12 +2122,10 @@ function onPurgeDeadAds() {
 }
 
 function getDeadAds() {
-  let adsGids = []
-  document.querySelectorAll(".image-error").forEach(el => {
-    adsGids.push(parseInt(el.getAttribute('data-gid')))
-  })
-  let deadAds = gAdSets.filter(adset => adsGids.includes(adset.gid))
-  return deadAds
+  let adsGids = [];
+  document.querySelectorAll(".image-error")
+    .forEach(el => adsGids.push(parseInt(el.getAttribute('data-gid'))));
+  return gAdSets.filter(adset => adsGids.includes(adset.gid))
 }
 
 /********************************************************************/
@@ -2127,7 +2134,6 @@ const TEXT_MINW = 150,
   TEXT_MAXW = 450;
 
 function AdSet(ad) {
-
   this.gid = Math.abs(createGid(ad));
   this.children = [];
   this.index = 0;
@@ -2135,113 +2141,73 @@ function AdSet(ad) {
 }
 
 AdSet.prototype.id = function (i) {
-
   return this.child(i).id;
 };
 
 AdSet.prototype.childIds = function () {
-
   const ids = [];
-
   for (let i = 0, j = this.children.length; i < j; i++) {
-
     this.children[i] && ids.push(this.children[i].id);
   }
-
   return ids;
 };
 
 AdSet.prototype.childIdxForId = function (id) {
-
   for (let i = 0, j = this.children.length; i < j; i++) {
-
-    if (this.children[i].id === id)
-      return i;
+    if (this.children[i].id === id) return i;
   }
-
   return -1;
 };
 
 AdSet.prototype.child = function (i) {
-
   return this.children[(typeof i === 'undefined') ? this.index : i];
 };
 
 AdSet.prototype.state = function (i) {
-
   const ad = this.child(i) || i;
-
   if (!ad) console.warn('invalid index!');
-
-  if (ad.dntAllowed) {
-    return 'dnt-allowed';
-  }
+  if (ad.dntAllowed) return 'dnt-allowed';
 
   // ad should not be 'failed' until 3 failed visits (gh #64)
   if (ad.visitedTs === 0 || (ad.attempts < 3 && ad.visitedTs < 0)) {
     return 'pending';
   }
-
   return ad.visitedTs < 0 ? 'failed' : 'visited';
 };
 
 AdSet.prototype.type = function () {
-
   return this.children[0].contentType; // same-for-all
 };
 
 AdSet.prototype.failedCount = function () {
-
   const containerObj = this;
-
-  return this.children.filter(function (d) {
-
-    return containerObj.state(d) === 'failed';
-
-  }).length;// === containerObj.children.length;
+  return this.children.filter((d) => containerObj.state(d) === 'failed').length;
 };
 
 AdSet.prototype.dntCount = function () {
-
   const containerObj = this;
-
-  return this.children.filter(function (d) {
-
-    return containerObj.state(d) === 'dnt-allowed';
-
-  }).length;// === containerObj.children.length;
+  return this.children.filter((d) => containerObj.state(d) === 'dnt-allowed').length;
 };
 
 AdSet.prototype.visitedCount = function () {
-
-  return this.children.filter(function (d) {
-
-    return d.visitedTs > 0;
-
-  }).length;
+  return this.children.filter((d) => d.visitedTs > 0).length;
 };
 
 AdSet.prototype.nextPending = function () {
-
   const ads = this.children.slice();
   ads.sort(byField('-foundTs'));
-
   for (let i = 0, j = ads.length; i < j; i++) {
-
     if (ads[i].visitedTs === 0) // pending
       return ads[i];
   }
-
   return null;
 };
 
 AdSet.prototype.count = function () {
-
   return this.children.length;
 };
 
 AdSet.prototype.add = function (ad) {
-
   ad && this.children.push(ad);
 };
 
