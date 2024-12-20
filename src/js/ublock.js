@@ -473,7 +473,9 @@ const matchBucket = function(url, hostname, bucket, start) {
         return us;
     }
 
-    if ( typeof name !== 'string' || name === '' ) { return; }
+    if ( typeof name !== 'string' || name === '' ) { 
+      return; 
+    }
 
     if ( value === undefined ) {
         return us[name];
@@ -481,14 +483,14 @@ const matchBucket = function(url, hostname, bucket, start) {
 
     // Pre-change
     switch ( name ) {
-    case 'largeMediaSize':
-        if ( typeof value !== 'number' ) {
-            value = parseInt(value, 10) || 0;
-        }
-        value = Math.ceil(Math.max(value, 0));
-        break;
-    default:
-        break;
+      case 'largeMediaSize':
+          if ( typeof value !== 'number' ) {
+              value = parseInt(value, 10) || 0;
+          }
+          value = Math.ceil(Math.max(value, 0));
+          break;
+      default:
+          break;
     }
 
     // Change -- but only if the user setting actually exists.

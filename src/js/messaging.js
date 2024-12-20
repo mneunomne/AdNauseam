@@ -109,6 +109,9 @@ const getDomainNames = function(targets) {
 };
 
 const onMessage = function(request, sender, callback) {
+  
+  console.log('onMessage', request.what, request, sender);
+  
     // Async
     switch ( request.what ) {
     case 'getAssetContent':

@@ -176,14 +176,13 @@ const renderAds = function (json) {
     }
   });
 
-  if (settings.devMode) {
+  if (settings.devMode || settings.logEvents) {
     console.log("devMode: enabling capture button");
     $('#capture').removeClass('item-hidden');
   }
 };
 
 const autoUpdateVault = function () {
-
   const gap = new Date() - lastAdDetectedTime;
   if (waitingAds != [] && gap >= 3000) {
     updateVault(waitingAds, true);
@@ -987,7 +986,7 @@ function sinceTime(adsets) {
 
 function untilTime(adsets) {
   console.log('untilTime');
-  
+
   let youngest = 0;
   for (let i = 0, j = adsets && adsets.length; i < j; i++) {
     let foundTs;
@@ -2104,15 +2103,13 @@ function onCapture() { // save screenshot
       let subset = gAds.filter(ad => ad.foundTs >= gMin && ad.foundTs <= gMax);
 
       console.log('subset:', subset.length, gMin, gMax);
-      
+
       let meta = extractData(subset);
       meta.count = subset.length;
       meta.clicked = numVisited(subset);
       meta.cost = (meta.clicked * 1.03).toFixed(2);
       meta.minDate = gMin ? gMin : sinceTime(subset);
       meta.maxDate = gMax ? gMax : untilTime(subset);
-      // meta.minTs = new Date(meta.minDate);
-      // meta.maxTs = new Date(meta.maxDate);
       meta.minTs = formatDate(meta.minDate);
       meta.maxTs = formatDate(meta.maxDate);
       console.log('meta:', meta.minDate, meta.maxDate, meta.minTs, meta.maxTs);
