@@ -969,9 +969,15 @@ function numTotal() {
 }
 
 function sinceTime(adsets) {
+  console.log('sinceTime');
   let oldest = +new Date();
   for (let i = 0, j = adsets && adsets.length; i < j; i++) {
-    const foundTs = adsets[i].child(0).foundTs;
+    let foundTs;
+    if (!adsets[i].children) {
+      foundTs = adsets[i].foundTs;
+    } else {
+      foundTs = adsets[i].child(0).foundTs;
+    }
     if (foundTs < oldest) {
       oldest = foundTs;
     }
@@ -980,9 +986,16 @@ function sinceTime(adsets) {
 }
 
 function untilTime(adsets) {
+  console.log('untilTime');
+  
   let youngest = 0;
   for (let i = 0, j = adsets && adsets.length; i < j; i++) {
-    const foundTs = adsets[i].child(0).foundTs;
+    let foundTs;
+    if (!adsets[i].children) {
+      foundTs = adsets[i].foundTs;
+    } else {
+      foundTs = adsets[i].child(0).foundTs;
+    }
     if (foundTs > youngest) {
       youngest = foundTs;
     }
@@ -2070,7 +2083,7 @@ function onCapture() { // save screenshot
 
         // create a meta data string and fname for the image
         let metaText = `Clicked ${meta.clicked} of ${meta.count} ads, from ${meta.minDate} to ${meta.maxDate}, costing $${meta.cost}.`;
-        let metaName = `${meta.clicked}-${meta.count}-${meta.gMin}-${meta.gMax}-${meta.cost}.png`;
+        let metaName = `${meta.clicked}-${meta.count}-${meta.minTs}-${meta.maxTs}-${meta.cost}.png`;
         console.log('Saving image: ' + metaName);
 
         // write meta data to upper left corner
@@ -2090,14 +2103,19 @@ function onCapture() { // save screenshot
       // create a subset of visited ads where foundTs is within the range gMin to gMax
       let subset = gAds.filter(ad => ad.foundTs >= gMin && ad.foundTs <= gMax);
 
+      console.log('subset:', subset.length, gMin, gMax);
+      
       let meta = extractData(subset);
       meta.count = subset.length;
       meta.clicked = numVisited(subset);
       meta.cost = (meta.clicked * 1.03).toFixed(2);
-      meta.gMin = Date.parse(gMin);
-      meta.gMax = Date.parse(gMax);
-      meta.minDate = gMin;
-      meta.maxDate = gMax;
+      meta.minDate = gMin ? gMin : sinceTime(subset);
+      meta.maxDate = gMax ? gMax : untilTime(subset);
+      // meta.minTs = new Date(meta.minDate);
+      // meta.maxTs = new Date(meta.maxDate);
+      meta.minTs = formatDate(meta.minDate);
+      meta.maxTs = formatDate(meta.maxDate);
+      console.log('meta:', meta.minDate, meta.maxDate, meta.minTs, meta.maxTs);
 
       const screenshot = new Image();
       screenshot.src = imgUrl;

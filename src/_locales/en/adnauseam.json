@@ -496,7 +496,7 @@
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Activate debugging mode",
+    "message": "Debug mode",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
