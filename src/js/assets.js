@@ -32,8 +32,6 @@ import { adnlog } from './console.js';
 import { i18n$ } from './i18n.js';
 import logger from './logger.js';
 import { orphanizeString } from './text-utils.js';
-import { adnlog } from './console.js';
-import µb from './background.js';
 
 /******************************************************************************/
 
