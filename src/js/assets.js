@@ -19,7 +19,7 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-'use strict';
+import * as sfp from './static-filtering-parser.js';
 
 /******************************************************************************/
 
@@ -31,8 +31,7 @@ import cacheStorage from './cachestorage.js';
 import { adnlog } from './console.js';
 import { i18n$ } from './i18n.js';
 import logger from './logger.js';
-import * as sfp from './static-filtering-parser.js';
-import { orphanizeString, } from './text-utils.js';
+import { orphanizeString } from './text-utils.js';
 
 /******************************************************************************/
 
@@ -51,6 +50,9 @@ const assets = {};
 let remoteServerFriendly = false;
 
 /******************************************************************************/
+
+const hasOwnProperty = (o, p) =>
+    Object.prototype.hasOwnProperty.call(o, p);
 
 const stringIsNotEmpty = s => typeof s === 'string' && s !== '';
 
@@ -109,8 +111,8 @@ const resourceTimeFromXhr = xhr => {
 
 const resourceTimeFromParts = (parts, time) => {
     const goodParts = parts.filter(part => typeof part === 'object');
-    return goodParts.reduce((acc, part) =>
-        ((part.resourceTime || 0) > acc ? part.resourceTime : acc),
+    return goodParts.reduce(
+        (acc, part) => ((part.resourceTime || 0) > acc ? part.resourceTime : acc),
         time
     );
 };
@@ -248,6 +250,7 @@ const fireNotification = function(topic, details) {
 assets.fetch = function(url, options = {}) {
     return new Promise((resolve, reject) => {
     // Start of executor
+    /* eslint-disable indent */
 
     const timeoutAfter = µb.hiddenSettings.assetFetchTimeout || 30;
     const xhr = new XMLHttpRequest();
@@ -328,6 +331,7 @@ assets.fetch = function(url, options = {}) {
         onErrorEvent.call(xhr);
     }
 
+    /* eslint-enable indent */
     // End of executor
     });
 };
@@ -739,7 +743,7 @@ async function assetCacheRead(assetKey, updateReadTime = false) {
     }
 
     if ( bin instanceof Object === false ) { return reportBack(''); }
-    if ( bin.hasOwnProperty(internalKey) === false ) { return reportBack(''); }
+    if ( hasOwnProperty(bin, internalKey) === false ) { return reportBack(''); }
 
     const entry = assetCacheRegistry[assetKey];
     if ( entry === undefined ) { return reportBack(''); }
@@ -1288,7 +1292,9 @@ async function diffUpdater() {
             if ( data.status === 'needtext' ) {
                 adnlog('Diff updater: need text for', data.assetKey);
                 assetCacheRead(data.assetKey).then(result => {
-                    data.text = result.content;
+                    // https://bugzilla.mozilla.org/show_bug.cgi?id=1929326#c9
+                    //   Must never be set to undefined!
+                    data.text = result.content || '';
                     data.status = undefined;
                     checkAndCorrectDiffPath(data);
                     bc.postMessage(data);

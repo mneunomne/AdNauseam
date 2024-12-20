@@ -22,7 +22,7 @@ body {
 	font-stretch: 47.5%;
 	font-variation-settings: "opsz" 48, "slnt" 0, "GRAD" 0, "XTRA" 468, "YOPQ" 79, "YTAS" 750, "YTDE" -203, "YTFI" 738, "YTLC" 514, "YTUC" 712;
 	z-index: 50;
-	margin-bottom: 30px;
+	margin-bottom: 40px;
 	cursor: default;
 	user-select:none;
 	width:270px;
@@ -329,6 +329,7 @@ div.tooltip {
 	position: relative;
 	display: inline-block;
 	z-index: 100;
+	width: 700px;
 	font-size: 16px;
 	font-family: bebas_neue,roboto_flex,noto_sans,sans-serif;
 	font-stretch: 47.5%;
