@@ -124,21 +124,7 @@ onBroadcast(request => {
 
 /********************************************************************/
 
-function $width(ele) {
-
-  ele = ele ? (ele.length ? ele.nodes[0] : ele) : 0;
-  return ele ? ele.offsetWidth || ele.clientWidth : -1;
-}
-
-function $height(ele) {
-
-  ele = ele ? (ele.length ? ele.nodes[0] : ele) : 0;
-  return ele ? ele.offsetHeight || ele.clientHeight : -1;
-}
-
 const renderAds = function (json) {
-
-  console.log('renderAds: ', json);
 
   gAds = json.data; // store
   addInterfaceHandlers();
@@ -268,7 +254,7 @@ function setCurrent(ad) {
 function doLayout(adsets, update) {
 
   adsets = adsets || [];
-  // console.log('Vault.doLayout: ' + adsets.length + " ad-sets, total=" + numFound(adsets));
+  //console.log('Vault.doLayout: ' + adsets.length + " ad-sets, total=" + numFound(adsets));
   vaultLoading = true;
   if (!update) $('.item').remove();
 
@@ -333,6 +319,7 @@ function extractData(adsets) {
       data = parseAd(ad, data);
     } else {
       //adsets
+      console.log(i + ') multiple');
       for (const key in adsets[i].children) {
         const ad = adsets[i].children[key];
         data = parseAd(ad, data);
@@ -342,6 +329,7 @@ function extractData(adsets) {
   data.sites = sortDict(data.sites);
   data.adNetworks = sortDict(data.adNetworks);
   data.total = data.totalImg + data.totalText;
+
   //console.log(data);
   return data;
 }
@@ -1000,7 +988,9 @@ function formatTargetDate(ad) {
 }
 
 function formatDate(ts) {
-  if (!ts) return settings.clickingDisabled ? i18n$('adnAdClickingStatusSkippedDisabled') : i18n$('adnNotYetVisited');
+  if (!ts) return settings.clickingDisabled ?
+    i18n$('adnAdClickingStatusSkippedDisabled')
+    : i18n$('adnNotYetVisited');
 
   function getLocale() {
     return navigator.languages[0] || navigator.language;
@@ -1012,8 +1002,7 @@ function formatDate(ts) {
     hour: 'numeric', minute: 'numeric'
   };
 
-  const result = typeof Intl === "object" ? new Intl.DateTimeFormat(getLocale(), options).format(date) : date;
-  return result;
+  return typeof Intl === "object" ? new Intl.DateTimeFormat(getLocale(), options).format(date) : date;
 }
 
 function enableLightbox() {
@@ -1802,10 +1791,11 @@ function createSlider(mode) {
   // finding the first and last ad
   const minDate = d3.min(gAds, function (d) {
     return d.foundTs;
-  }),
-    maxDate = d3.max(gAds, function (d) {
-      return d.foundTs;
-    });
+  });
+
+  const maxDate = d3.max(gAds, function (d) {
+    return d.foundTs;
+  });
 
   // mapping the scales
   const xScale = d3.time.scale()
@@ -1938,7 +1928,7 @@ function createSlider(mode) {
   }
 
   // cases:
-  // 1) [default]]reload vault: doLayout, update slider - runFilter()
+  // 1) [default] reload vault: doLayout, update slider - runFilter()
   // 2) "update": updateLayout, same slider
   // 3) "delete": skipLayout, same slider
   // 4) "resize": repack, remap slider
@@ -2028,15 +2018,11 @@ function createSlider(mode) {
 
   function dateFilter(min, max) {
 
-    //log('dateFilter: min='+min+', max='+max);
-
     const filtered = [];
 
     // NOTE: always need to start from full-set (all) here
     for (let i = 0, j = gAds.length; i < j; i++) {
-
       if (!(gAds[i].foundTs < min || gAds[i].foundTs > max)) {
-
         filtered.push(gAds[i]);
       }
     }
@@ -2064,45 +2050,57 @@ function createSlider(mode) {
 function onCapture() { // save screenshot
 
   toggleInterface(showInterface = true);
-  browser.tabs.captureVisibleTab(imgUrl => {
-    const saveImageToFile = (image, filename) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = image.width;
-      canvas.height = image.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(image, 0, 0);
+  setTimeout(() => {
+    browser.tabs.captureVisibleTab(imgUrl => {
+      const saveImageToFile = (image, meta) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0);
 
-      // Convert canvas to data URL
-      const dataURL = canvas.toDataURL();
+        // create a meta data string and fname for the image
+        let metaText = `Clicked ${meta.clicked} of ${meta.count} ads, from ${meta.minDate} to ${meta.maxDate}, costing ${meta.cost}.`;
+        let metaName = `${meta.clicked}-${meta.count}-${meta.gMin}-${meta.gMax}-${meta.cost.substring(1)}.png`;
+        console.log('Saving image: ' + metaName);
 
-      // Create a link element and trigger a download
-      const anchor = document.createElement('a');
-      anchor.href = dataURL;
-      anchor.download = filename;
-      anchor.click();
-    };
-    console.log(gAds, gAdSets, gMin, gMax);
+        // write meta data to upper left corner
+        ctx.fillStyle = 'black';
+        ctx.fillText(metaText, 20, 20);
 
-    let meta = extractData(gAds);
-    meta.sinceTime = sinceTime(gAdSets);
-    meta.untilTime = untilTime(gAdSets);
-    meta.minDate = formatDate(gMin);
-    meta.maxDate = formatDate(gMax);
-    meta.clicked = numVisited(gAds);
-    meta.total = numTotal();
-    meta.detected = numFound(gAdSets);
-    meta.cost = '$' + (meta.clicked * 1.03).toFixed(2);
-    console.log(meta);
+        // Convert canvas to data URL
+        const dataURL = canvas.toDataURL();
 
-    const screenshot = new Image();
-    screenshot.src = imgUrl;
-    screenshot.onload = () => {
-      saveImageToFile(screenshot, 'screenshot.png');
-      setTimeout(() => {
-        toggleInterface(showInterface = false);
-      }, 5000);
-    };
-  });
+        // Create a link element and trigger a download
+        const anchor = document.createElement('a');
+        anchor.href = dataURL;
+        anchor.download = metaName;
+        anchor.click();
+      };
+
+      // create a subset of visited ads where foundTs is within the range gMin to gMax
+      let subset = gAds.filter(ad => ad.foundTs >= gMin && ad.foundTs <= gMax);
+
+      let meta = extractData(subset);
+      meta.count = subset.length;
+      meta.clicked = numVisited(subset);
+      meta.cost = (meta.clicked * 1.03).toFixed(2);
+      meta.gMin = Date.parse(gMin);
+      meta.gMax = Date.parse(gMax);
+      meta.minDate = gMin;
+      meta.maxDate = gMax;
+
+      const screenshot = new Image();
+      screenshot.src = imgUrl;
+      screenshot.onload = () => {
+        saveImageToFile(screenshot, meta);
+        setTimeout(() => {
+          toggleInterface(showInterface = false);
+        }, 5000);
+      };
+
+    });
+  }, 1000);
 };
 
 function onPurgeDeadAds() {
