@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     AdNauseam - Fight back against advertising surveillance.
-    Copyright (C) 2014-2021 Daniel C. Howe
+    Copyright (C) 2014-2024 Daniel C. Howe
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -1574,7 +1574,8 @@ const adnauseam = (function () {
       hidingDisabled: !us.hidingAds || showDnt,
       clickingDisabled: !us.clickingAds,
       textAdsDisabled: !us.parseTextAds,
-      logEvents: us.eventLogging
+      logEvents: us.eventLogging,
+      devMode: us.devMode,
     };
   };
 
@@ -1939,17 +1940,11 @@ const adnauseam = (function () {
 
   const verifyVersion = exports.verifyVersion = async function () {
     const version = vAPI.app.version;
-    console.log("current version: " + version);
-    //if (version.includes('b')) {
-      //console.log("beta version, don't check for updates");
-      //return;
-    //}
     // run get request on /repos/dhowe/AdNauseam/releases
     const response = await fetch("https://api.github.com/repos/dhowe/AdNauseam/releases/latest");
-    // validate
-    if (!response.ok) {
-      //throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    // if (!response.ok) {  // validate
+    //   //throw new Error(`HTTP error! status: ${response.status}`);
+    // }
     // parse response
     const latestRelease = await response.json();
     const latestVersion = latestRelease.tag_name.replace('v', '');    

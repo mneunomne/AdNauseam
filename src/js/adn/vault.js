@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     AdNauseam - Fight back against advertising surveillance.
-    Copyright (C) 2014-2021 Daniel C. Howe
+    Copyright (C) 2014-2024 Daniel C. Howe
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@
 
 'use strict';
 
-import { i18n$ } from "../i18n.js";
 import uDom from './uDom.js';
+
+import { i18n$ } from "../i18n.js";
+import { onBroadcast } from '../broadcast.js';
 import { renderNotifications } from './notifications.js';
-import { broadcast, onBroadcast } from '../broadcast.js';
 
 import {
   byField,
@@ -42,11 +43,12 @@ import {
   clearAds
 } from './adn-utils.js';
 
+// note: this code is a mess and needs to be refactored
+
 const States = ['pending', 'visited', 'failed', 'dnt-allowed', 'image-error'],
   Zooms = [400, 200, 150, 100, 75, 50, 25, 12.5, 7.5, 5],
   EnableContextMenu = 1,
-  MaxStartNum = 300,
-  MaxPerSet = 9;
+  MaxStartNum = 300;
 
 const margin = {
   top: 50,
@@ -65,11 +67,10 @@ let userZoomScale = Zooms[Zooms.indexOf(100)];
 // determined by zoom in / out buttons
 let zoomIdx = 0;
 
-let zoomStyle, animatorId, resizeId, selectedAdSet;
+let animatorId, resizeId, selectedAdSet;
 let showInterface = true;
 let draggingVault = false;
 let vaultLoading = false;
-let isInspectingAd = false;
 
 const container_div = document.getElementById('container');
 const $container = $('#container')
@@ -88,7 +89,6 @@ onBroadcast(request => {
       break;
 
     case 'adDetected':
-      console.log('*** New-ad-detected ***', request.ad);
       waitingAds.push(request.ad);
       lastAdDetectedTime = new Date();
       const brush = document.getElementsByClassName('chart-bg')[0];
@@ -96,7 +96,6 @@ onBroadcast(request => {
         sliderPos = gSliderLeft ? parseFloat(/\((.*?),/g.exec(gSliderLeft)[1]) : null;
 
       // only when the slider covers 'now' or when there is no slider (empty vault or one ad)
-      // console.log(w, sliderPos)
       if (w - sliderPos <= 1 || sliderPos == 0) setTimeout(autoUpdateVault, 3000);
 
       //  updateVault() would normally be triggered by the 'adDetected' message (above),
@@ -112,10 +111,12 @@ onBroadcast(request => {
       adjustHeight();
       createSlider();
       break;
+
     case 'hideNotifications':
       uDom('#notifications').addClass("hide");
       adjustHeight();
       break;
+
     case 'showNotifications':
       uDom('#notifications').removeClass("hide");
       adjustHeight();
@@ -125,21 +126,10 @@ onBroadcast(request => {
 
 /********************************************************************/
 
-function $width(ele) {
-
-  ele = ele ? (ele.length ? ele.nodes[0] : ele) : 0;
-  return ele ? ele.offsetWidth || ele.clientWidth : -1;
-}
-
-function $height(ele) {
-
-  ele = ele ? (ele.length ? ele.nodes[0] : ele) : 0;
-  return ele ? ele.offsetHeight || ele.clientHeight : -1;
-}
-
 const renderAds = function (json) {
 
-  // console.log('renderAds: ', json);
+  //console.log("renderAds", json);
+
   gAds = json.data; // store
   addInterfaceHandlers();
   settings = json.prefs;
@@ -154,42 +144,45 @@ const renderAds = function (json) {
       'adnauseam', {
       what: 'getNotifications'
     }).then(data => {
-      if (data.notifications && data.notifications.length)
+      if (data.notifications && data.notifications.length) {
         renderNotifications(data.notifications, 'vault');
+      }
       adjustHeight();
     })
-  })
+  });
+
   // disable warnings #1910
   // Notifications need to be hidden right away for the correct height to be calculated
   vAPI.messaging.send(
-    'adnauseam', {
-    what: 'getWarningDisabled'
-  }
-  ).then(isDisabled => {
-    if (isDisabled) {
-      uDom("#notifications").addClass('hide');
-    } else {
-      uDom("#notifications").removeClass('hide');
-    }
-    adjustHeight();
-  })
+    'adnauseam', { what: 'getWarningDisabled' })
+    .then(isDisabled => {
+      if (isDisabled) {
+        uDom("#notifications").addClass('hide');
+      } else {
+        uDom("#notifications").removeClass('hide');
+      }
+      adjustHeight();
+    })
 
   vAPI.messaging.send(
     'adnauseam', {
     what: 'getBlurCollectedAds'
-  }
-  ).then(blurCollectedAds => {
-    console.log("blurCollectedAds", blurCollectedAds)
+  }).then(blurCollectedAds => {
+    //console.log("blurCollectedAds", blurCollectedAds);
     if (blurCollectedAds) {
       uDom("#stage").addClass('blur');
     } else {
       uDom("#stage").removeClass('blur');
     }
-  })
+  });
+
+  if (settings.devMode || settings.logEvents) {
+    console.log("devMode: enabling capture button");
+    $('#capture').removeClass('item-hidden');
+  }
 };
 
 const autoUpdateVault = function () {
-
   const gap = new Date() - lastAdDetectedTime;
   if (waitingAds != [] && gap >= 3000) {
     updateVault(waitingAds, true);
@@ -269,7 +262,7 @@ function setCurrent(ad) {
 function doLayout(adsets, update) {
 
   adsets = adsets || [];
-  // console.log('Vault.doLayout: ' + adsets.length + " ad-sets, total=" + numFound(adsets));
+  //console.log('Vault.doLayout: ' + adsets.length + " ad-sets, total=" + numFound(adsets));
   vaultLoading = true;
   if (!update) $('.item').remove();
 
@@ -316,6 +309,10 @@ function parseAd(ad, data) {
 }
 
 function analyze(adsets) {
+  displayStatistics(extractData(adsets));
+}
+
+function extractData(adsets) {
   let data = {
     totalImg: 0,
     totalText: 0,
@@ -330,6 +327,7 @@ function analyze(adsets) {
       data = parseAd(ad, data);
     } else {
       //adsets
+      console.log(i + ') multiple');
       for (const key in adsets[i].children) {
         const ad = adsets[i].children[key];
         data = parseAd(ad, data);
@@ -339,8 +337,9 @@ function analyze(adsets) {
   data.sites = sortDict(data.sites);
   data.adNetworks = sortDict(data.adNetworks);
   data.total = data.totalImg + data.totalText;
+
   //console.log(data);
-  displayStatistics(data);
+  return data;
 }
 
 function displayStatistics(data) {
@@ -935,63 +934,71 @@ function computeStats(adsets) {
   const numVisits = numVisited(gAds);
 
   $('.since').text(i18n$("adnVaultSince").replace('{{datetime}}', sinceTime(adsets)));
-
   $('.clicked').text(i18n$("adnMenuAdsClicked").replace('{{number}}', numVisits));
-
   $('.total').text(i18n$("adnVaultFound").replace('{{total}}', numTotal()));
   $('#detected').text(numFound(adsets));
 
-  if (numTotal() != numFound(adsets))
+  if (numTotal() != numFound(adsets)) {
     $('.showing').show();
-  else
+  }
+  else {
     $('.showing').hide();
+  }
   setCost(numVisits);
 }
 
-function numVisible() {
-  return $('.item').length;
-}
-
 function numVisited(adsets) {
-  //TODO: update after visit
   let numv = 0;
-
-  for (let i = 0, j = adsets && adsets.length; i < j; i++)
+  for (let i = 0, j = adsets && adsets.length; i < j; i++) {
     numv += (adsets[i].visitedTs > 0);
-
+  }
   return numv;
 }
 
 function numFound(adsets) {
-
   let numv = 0;
-
-  for (let i = 0, j = adsets && adsets.length; i < j; i++)
+  for (let i = 0, j = adsets && adsets.length; i < j; i++) {
     numv += (adsets[i].count());
-
+  }
   return numv;
 }
 
 function numTotal() {
-
   return gAds.length;
 }
 
 function sinceTime(adsets) {
-
-  let idx = 0, oldest = +new Date();
-
+  let oldest = +new Date();
   for (let i = 0, j = adsets && adsets.length; i < j; i++) {
-
-    const foundTs = adsets[i].child(0).foundTs;
+    let foundTs;
+    if (!adsets[i].children) {
+      foundTs = adsets[i].foundTs;
+    } else {
+      foundTs = adsets[i].child(0).foundTs;
+    }
     if (foundTs < oldest) {
-
       oldest = foundTs;
-      idx = i;
     }
   }
-
   return formatDate(oldest);
+}
+
+function untilTime(adsets) {
+  console.log('untilTime');
+
+  let youngest = 0;
+  for (let i = 0, j = adsets && adsets.length; i < j; i++) {
+    let foundTs;
+    if (!adsets[i].children) {
+      foundTs = adsets[i].foundTs;
+    } else {
+      foundTs = adsets[i].child(0).foundTs;
+    }
+    if (foundTs > youngest) {
+      youngest = foundTs;
+    }
+  }
+  return formatDate(youngest);
 }
 
 function formatTargetDate(ad) {
@@ -1001,7 +1008,9 @@ function formatTargetDate(ad) {
 }
 
 function formatDate(ts) {
-  if (!ts) return settings.clickingDisabled ? i18n$('adnAdClickingStatusSkippedDisabled') : i18n$('adnNotYetVisited');
+  if (!ts) return settings.clickingDisabled ?
+    i18n$('adnAdClickingStatusSkippedDisabled')
+    : i18n$('adnNotYetVisited');
 
   function getLocale() {
     return navigator.languages[0] || navigator.language;
@@ -1013,8 +1022,7 @@ function formatDate(ts) {
     hour: 'numeric', minute: 'numeric'
   };
 
-  const result = typeof Intl === "object" ? new Intl.DateTimeFormat(getLocale(), options).format(date) : date;
-  return result;
+  return typeof Intl === "object" ? new Intl.DateTimeFormat(getLocale(), options).format(date) : date;
 }
 
 function enableLightbox() {
@@ -1196,24 +1204,21 @@ function storeViewState(focusScale) {
     }, 1000)
 
     // restore zoom scale to userZoomScale
-    dynamicZoom(viewState.zoomScale - viewState.focusScale, { marginLeft: viewState.left, marginTop: viewState.top });
+    dynamicZoom(viewState.zoomScale - viewState.focusScale,
+      { marginLeft: viewState.left, marginTop: viewState.top });
   }
 }
 
 function logAdSetInfo() {
-
   if (selectedAdSet) {
-
     console.log("Logging JSON for AdSet #" + selectedAdSet.gid);
-
     messager.send('adnauseam', {
       what: 'logAdSet',
       gid: selectedAdSet.gid,
       ids: selectedAdSet.childIds()
     }).then(data => {
       location.href = "data:text/plain," + encodeURI(data);
-    })
-
+    });
   }
 }
 
@@ -1222,17 +1227,12 @@ const ifs = ['#logo', '#ratio', '#stats', '#svgcon', '#x-close-button', '.zoom',
 function toggleInterface() {
 
   showInterface = !showInterface;
-
   if (!showInterface) {
 
-    $("body").css('background-image', 'none')
-      .css({
-        'background-color': '#fff'
-      });
-
-    ifs.forEach(function (s) {
-      $(s).hide();
-    });
+    $("body")
+      .css('background-image', 'none')
+      .css({ 'background-color': '#fff' });
+    ifs.forEach(s => $(s).hide());
 
     // remove all duplicate classes (TODO: just hide them)
     $(".item").removeClass(function (i, css) {
@@ -1240,15 +1240,10 @@ function toggleInterface() {
     }).addClass('dup-count-1');
 
   } else {
-
-    $("body").css('background-image', 'url(../img/gray_grid.png)')
-      .css({
-        'background-color': '#000'
-      });
-
-    ifs.forEach(function (s) {
-      $(s).show();
-    });
+    $("body")
+      .css('background-image', 'url(../img/gray_grid.png)')
+      .css({ 'background-color': '#000' });
+    ifs.forEach(s => $(s).show());
   }
 }
 
@@ -1257,16 +1252,14 @@ function lightboxMode($selected) {
   if ($selected && !$selected.hasClass('inspected')) {
 
     if ($container.hasClass("posTransition")) {
-      return
+      return;
     }
 
     const inspectedGid = parseInt($selected.attr('data-gid'));
-
     selectedAdSet = findAdSetByGid(inspectedGid); // throws
 
     // lazy-create the meta data for the adset (#61)
     if (!$selected.children('div.meta').length) {
-
       appendBulletsTo($selected, selectedAdSet);
     }
 
@@ -1276,14 +1269,12 @@ function lightboxMode($selected) {
 
       $selected.find('span.counter-index').show(); // show index-counter
       bulletIndex($selected, selectedAdSet);
-
       animateInspector($selected);
     }
 
     const next = selectedAdSet.nextPending(); // tell the addon
 
     if (next) {
-
       messager.send('adnauseam', {
         what: 'itemInspected',
         id: next.id
@@ -1291,7 +1282,6 @@ function lightboxMode($selected) {
     }
 
     centerZoom($selected);
-
     $container.addClass('lightbox');
 
   } else if ($container.hasClass('lightbox')) {
@@ -1336,16 +1326,12 @@ function animateInspector($inspected) {
 }
 
 function findAdById(id) {
-  if (gAdSets == undefined || gAdSets == null) return
+  if (gAdSets === undefined || gAdSets === null) return
 
   for (let i = 0, j = gAdSets.length; i < j; i++) {
-
     const childIdx = gAdSets[i].childIdxForId(id);
-
     if (childIdx > -1) {
-
       return {
-
         ad: gAdSets[i].child(childIdx),
         group: gAdSets[i],
         index: childIdx
@@ -1372,9 +1358,9 @@ function findItemDivByGid(gid) {
 function findAdSetByGid(gid) {
 
   for (let i = 0, j = gAdSets.length; i < j; i++) {
-
-    if (gAdSets[i].gid === gid)
+    if (gAdSets[i].gid === gid) {
       return gAdSets[i];
+    }
   }
 
   throw Error('No group for gid: ' + gid);
@@ -1385,14 +1371,15 @@ function zoomIn(immediate) {
   // calculate the suitable zoomIdx by userZoomScale
   const previousState = zoomIdx;
   for (let i = 0; zoomIdx === previousState && i < Zooms.length; i++) {
-
-    if (userZoomScale === Zooms[i])
+    if (userZoomScale === Zooms[i]) {
       zoomIdx = i;
-    else if (userZoomScale < Zooms[i] && userZoomScale > Zooms[i + 1])
+    }
+    else if (userZoomScale < Zooms[i] && userZoomScale > Zooms[i + 1]) {
       zoomIdx = i + 1;
+    }
   }
 
-  (zoomIdx > 0) && setZoom(--zoomIdx, immediate);
+  if (zoomIdx > 0) setZoom(--zoomIdx, immediate);
 }
 
 function zoomOut(immediate) {
@@ -1400,14 +1387,15 @@ function zoomOut(immediate) {
   // calculate the suitable zoomIdx by userZoomScale
   const previousState = zoomIdx;
   for (let i = 0; zoomIdx === previousState && i < Zooms.length - 1; i++) {
-
-    if (userZoomScale === Zooms[i])
+    if (userZoomScale === Zooms[i]) {
       zoomIdx = i;
-    else if (userZoomScale < Zooms[i] && userZoomScale > Zooms[i + 1])
+    }
+    else if (userZoomScale < Zooms[i] && userZoomScale > Zooms[i + 1]) {
       zoomIdx = i;
+    }
   }
 
-  (zoomIdx < Zooms.length - 1) && setZoom(++zoomIdx, immediate);
+  if (zoomIdx < Zooms.length - 1) setZoom(++zoomIdx, immediate);
 }
 
 function setScale(scale, targetPos) {
@@ -1468,8 +1456,6 @@ function dynamicZoom(scaleInterval, targetPos) {
 
 function setZoom(idx, immediate, targetPos) {
 
-  //log('setZoom('+idx+','+(immediate===true)+')');
-
   // Disable transitions
   immediate && $container.addClass('notransition');
 
@@ -1488,32 +1474,23 @@ function setZoom(idx, immediate, targetPos) {
 
 function onscreen($this, winW, winH, scale, percentVisible) {
 
-  const off = $this.offset(), w = $this.width() * scale, h = $this.height() * scale, minX = (-w * (1 - percentVisible)), maxX = (winW - (w * percentVisible)), minY = (-h * (1 - percentVisible)), maxY = (winH - (h * percentVisible));
-
-  // console.log('onscreen() :: trying: '+Zooms[zoomIdx]+"%",$this.attr('data-gid'),off.left, minX, maxX);
-
-  return (!(off.left < minX || off.left > maxX || off.top < minY || off.top > maxY));
+  const off = $this.offset();
+  const w = $this.width() * scale;
+  const h = $this.height() * scale;
+  const minX = (-w * (1 - percentVisible));
+  const minY = (-h * (1 - percentVisible));
+  const maxX = (winW - (w * percentVisible));
+  const maxY = (winH - (h * percentVisible));
+  return !(off.left < minX || off.left > maxX || off.top < minY || off.top > maxY);
 }
 
 function openInNewTab(url) {
-
   window.open(url, '_blank').focus();
-}
-
-function asAdArray(adsets) { // remove
-
-  const ads = [];
-  for (let i = 0, j = adsets.length; i < j; i++) {
-    for (let k = 0, m = adsets[i].children.length; k < m; k++)
-      ads.push(adsets[i].children[k]);
-  }
-  return ads;
 }
 
 function addInterfaceHandlers(ads) {
 
   $('#x-close-button').click(function (e) {
-
     e.preventDefault();
     messager.send('adnauseam', {
       what: 'closeExtPage',
@@ -1528,14 +1505,11 @@ function addInterfaceHandlers(ads) {
   });
 
   $('#logo').click(function (e) {
-
     e.preventDefault();
     openInNewTab('http://adnauseam.io');
   });
 
   $(document).click(function (e) {
-
-
     if (e.which === 1) // Left-button only
       if ($(e.target).parents('.meta-item').length > 0) {
         return
@@ -1544,19 +1518,15 @@ function addInterfaceHandlers(ads) {
   });
 
   $(document).keyup(function (e) {
-
     (e.keyCode === 27) && lightboxMode(false); // esc
     (e.keyCode === 73) && toggleInterface(); // 'i'
     (e.keyCode === 68) && logAdSetInfo(); // 'd'
     (e.keyCode === 80) && repack(); // 'p'
     (e.keyCode === 85) && updateVault(waitingAds, true); // 'u'
-    //console.log(e);
   });
 
   /////////// DRAG-STAGE ///////////
-  let offsetX = 0;
-  let offsetY = 0;
-
+  let offsetX = 0, offsetY = 0;
   container_div.addEventListener('mousedown', mouseDown, false);
   container_div.addEventListener('touchstart', touchStart, false);
   window.addEventListener('touchend', touchEnd, false);
@@ -1616,7 +1586,6 @@ function addInterfaceHandlers(ads) {
 
     container_div.style.marginLeft = (ml += x_change) + 'px';
     container_div.style.marginTop = (mt += y_change) + 'px';
-    // container_div.style.transformOrigin = Math.abs(ml+=x_change) + 'px ' + Math.abs(mt+=y_change) + 'px';
 
     offsetX = e.pageX;
     offsetY = e.pageY;
@@ -1731,42 +1700,30 @@ function addInterfaceHandlers(ads) {
 // Here is where we group individual ads into AdSets, based on their hash,
 // created from the domain it was found on, and its content-data
 // If we get too many cross-domain duplicate images, we may need to revisit
-// -- called just once per layout
+// Note: called just once per layout
 function createAdSets(ads) {
   //console.log('Vault-Slider.createAdSets: ' + ads.length + '/' + gAds.length + ' ads');
-
-  let key;
-
-  let ad;
+  let key, ad;
   const hash = {};
   const adsets = [];
 
   // set hidden val for each ad
   for (let i = 0; i < ads.length; i++) {
-
     ad = ads[i];
-
     key = getHash(ad);
-
     if (!key) continue;
-
     if (!hash[key]) {
-
       // new: add a hash entry
       hash[key] = new AdSet(ad);
       adsets.push(hash[key]);
-
     } else {
-
       // dup: add as child
       hash[key].add(ad);
     }
   }
 
   // sort adset children by foundTs
-
   for (let i = 0; i < adsets.length; i++) {
-
     adsets[i].children.sort(byField('-foundTs'));
   }
 
@@ -1785,11 +1742,8 @@ function repack() {
   showVaultAlert(visible ? false : 'no ads found');
 
   const loader = imagesLoaded($container, function () {
-
     if (visible > 1) {
-
       const p = new Packery('#container', {
-
         centered: {
           y: 10000
         }, // centered at half min-height
@@ -1800,9 +1754,7 @@ function repack() {
       computeZoom($items);
 
     } else if (visible === 1) {
-
       $items.css({ // center single
-
         top: (10000 - $items.height() / 2) + 'px',
         left: (10000 - $items.width() / 2) + 'px'
       });
@@ -1859,10 +1811,11 @@ function createSlider(mode) {
   // finding the first and last ad
   const minDate = d3.min(gAds, function (d) {
     return d.foundTs;
-  }),
-    maxDate = d3.max(gAds, function (d) {
-      return d.foundTs;
-    });
+  });
+
+  const maxDate = d3.max(gAds, function (d) {
+    return d.foundTs;
+  });
 
   // mapping the scales
   const xScale = d3.time.scale()
@@ -1995,7 +1948,7 @@ function createSlider(mode) {
   }
 
   // cases:
-  // 1) [default]]reload vault: doLayout, update slider - runFilter()
+  // 1) [default] reload vault: doLayout, update slider - runFilter()
   // 2) "update": updateLayout, same slider
   // 3) "delete": skipLayout, same slider
   // 4) "resize": repack, remap slider
@@ -2013,7 +1966,6 @@ function createSlider(mode) {
       runFilter([gMin, gMax])
       break;
     case "update":
-      // console.log(gMin, new Date())
       const ext = [gMin, new Date()];
       doLayout(runFilter(ext), true)
       break;
@@ -2026,7 +1978,6 @@ function createSlider(mode) {
   // this is called on brushend() and createSlider()
   function runFilter(ext) {
 
-    // console.log('vault.js::runFilter: '+ext[0]+","+ext[1]);
     centerContainer();
     gMin = ext[0], gMax = ext[1];
 
@@ -2035,11 +1986,6 @@ function createSlider(mode) {
 
     // make sure the sliders are always visible
     if (gMax - gMin <= 0) d3.select('.resize').style("display", "block");
-
-    // if (gAdSets != null && gAds.length !== 1 && gMax - gMin < 0) {
-    //   //console.log('vault-slider::ignore-micro: ' + ext[0] + "," + ext[1]);
-    //   return; // gAdSets || (gAdSets = createAdSets(gAds)); // fix for gh #100
-    // }
 
     if (gAds.length >= MaxStartNum) {
       uDom("a[class=showing-help]").text("?")
@@ -2092,15 +2038,11 @@ function createSlider(mode) {
 
   function dateFilter(min, max) {
 
-    //log('dateFilter: min='+min+', max='+max);
-
     const filtered = [];
 
     // NOTE: always need to start from full-set (all) here
     for (let i = 0, j = gAds.length; i < j; i++) {
-
       if (!(gAds[i].foundTs < min || gAds[i].foundTs > max)) {
-
         filtered.push(gAds[i]);
       }
     }
@@ -2125,6 +2067,65 @@ function createSlider(mode) {
   }
 }
 
+function onCapture() { // save screenshot
+
+  toggleInterface(showInterface = true);
+  setTimeout(() => {
+    browser.tabs.captureVisibleTab(imgUrl => {
+      const saveImageToFile = (image, meta) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0);
+
+        // create a meta data string and fname for the image
+        let metaText = `Clicked ${meta.clicked} of ${meta.count} ads, from ${meta.minDate} to ${meta.maxDate}, costing $${meta.cost}.`;
+        let metaName = `${meta.clicked}-${meta.count}-${meta.minTs}-${meta.maxTs}-${meta.cost}.png`;
+        console.log('Saving image: ' + metaName);
+
+        // write meta data to upper left corner
+        ctx.fillStyle = 'black';
+        ctx.fillText(metaText, 20, 20);
+
+        // Convert canvas to data URL
+        const dataURL = canvas.toDataURL();
+
+        // Create a link element and trigger a download
+        const anchor = document.createElement('a');
+        anchor.href = dataURL;
+        anchor.download = metaName;
+        anchor.click();
+      };
+
+      // create a subset of visited ads where foundTs is within the range gMin to gMax
+      let subset = gAds.filter(ad => ad.foundTs >= gMin && ad.foundTs <= gMax);
+
+      //console.log('subset:', subset.length, gMin, gMax);
+
+      let meta = extractData(subset);
+      meta.count = subset.length;
+      meta.clicked = numVisited(subset);
+      meta.cost = (meta.clicked * 1.03).toFixed(2);
+      meta.minDate = gMin ? gMin : sinceTime(subset);
+      meta.maxDate = gMax ? gMax : untilTime(subset);
+      meta.minTs = formatDate(meta.minDate);
+      meta.maxTs = formatDate(meta.maxDate);
+      //console.log('meta:', meta.minDate, meta.maxDate, meta.minTs, meta.maxTs);
+
+      const screenshot = new Image();
+      screenshot.src = imgUrl;
+      screenshot.onload = () => {
+        saveImageToFile(screenshot, meta);
+        setTimeout(() => {
+          toggleInterface(showInterface = false);
+        }, 5000);
+      };
+
+    });
+  }, 1000);
+};
+
 function onPurgeDeadAds() {
   let deadAds = getDeadAds()
   if (deadAds.length > 0) {
@@ -2133,13 +2134,12 @@ function onPurgeDeadAds() {
     console.log("no dead ads to purge")
   }
 }
+
 function getDeadAds() {
-  let adsGids = []
-  document.querySelectorAll(".image-error").forEach(el => {
-    adsGids.push(parseInt(el.getAttribute('data-gid')))
-  })
-  let deadAds = gAdSets.filter(adset => adsGids.includes(adset.gid))
-  return deadAds
+  let adsGids = [];
+  document.querySelectorAll(".image-error")
+    .forEach(el => adsGids.push(parseInt(el.getAttribute('data-gid'))));
+  return gAdSets.filter(adset => adsGids.includes(adset.gid))
 }
 
 /********************************************************************/
@@ -2148,7 +2148,6 @@ const TEXT_MINW = 150,
   TEXT_MAXW = 450;
 
 function AdSet(ad) {
-
   this.gid = Math.abs(createGid(ad));
   this.children = [];
   this.index = 0;
@@ -2156,113 +2155,73 @@ function AdSet(ad) {
 }
 
 AdSet.prototype.id = function (i) {
-
   return this.child(i).id;
 };
 
 AdSet.prototype.childIds = function () {
-
   const ids = [];
-
   for (let i = 0, j = this.children.length; i < j; i++) {
-
     this.children[i] && ids.push(this.children[i].id);
   }
-
   return ids;
 };
 
 AdSet.prototype.childIdxForId = function (id) {
-
   for (let i = 0, j = this.children.length; i < j; i++) {
-
-    if (this.children[i].id === id)
-      return i;
+    if (this.children[i].id === id) return i;
   }
-
   return -1;
 };
 
 AdSet.prototype.child = function (i) {
-
   return this.children[(typeof i === 'undefined') ? this.index : i];
 };
 
 AdSet.prototype.state = function (i) {
-
   const ad = this.child(i) || i;
-
   if (!ad) console.warn('invalid index!');
-
-  if (ad.dntAllowed) {
-    return 'dnt-allowed';
-  }
+  if (ad.dntAllowed) return 'dnt-allowed';
 
   // ad should not be 'failed' until 3 failed visits (gh #64)
   if (ad.visitedTs === 0 || (ad.attempts < 3 && ad.visitedTs < 0)) {
     return 'pending';
   }
-
   return ad.visitedTs < 0 ? 'failed' : 'visited';
 };
 
 AdSet.prototype.type = function () {
-
   return this.children[0].contentType; // same-for-all
 };
 
 AdSet.prototype.failedCount = function () {
-
   const containerObj = this;
-
-  return this.children.filter(function (d) {
-
-    return containerObj.state(d) === 'failed';
-
-  }).length;// === containerObj.children.length;
+  return this.children.filter((d) => containerObj.state(d) === 'failed').length;
 };
 
 AdSet.prototype.dntCount = function () {
-
   const containerObj = this;
-
-  return this.children.filter(function (d) {
-
-    return containerObj.state(d) === 'dnt-allowed';
-
-  }).length;// === containerObj.children.length;
+  return this.children.filter((d) => containerObj.state(d) === 'dnt-allowed').length;
 };
 
 AdSet.prototype.visitedCount = function () {
-
-  return this.children.filter(function (d) {
-
-    return d.visitedTs > 0;
-
-  }).length;
+  return this.children.filter((d) => d.visitedTs > 0).length;
 };
 
 AdSet.prototype.nextPending = function () {
-
   const ads = this.children.slice();
   ads.sort(byField('-foundTs'));
-
   for (let i = 0, j = ads.length; i < j; i++) {
-
     if (ads[i].visitedTs === 0) // pending
       return ads[i];
   }
-
   return null;
 };
 
 AdSet.prototype.count = function () {
-
   return this.children.length;
 };
 
 AdSet.prototype.add = function (ad) {
-
   ad && this.children.push(ad);
 };
 
@@ -2315,7 +2274,6 @@ AdSet.prototype.groupState = function () {
   }
 
   const failed = this.failedCount();
-
   return failed ? 'failed' : 'pending';
 };
 
@@ -2330,3 +2288,4 @@ $('#import').on('click', startImportFilePicker);
 $('#importFilePicker').on('change', handleImportAds);
 $('#reset').on('click', clearAds);
 $('#purge').on('click', onPurgeDeadAds);
+$('#capture').on('click', onCapture);

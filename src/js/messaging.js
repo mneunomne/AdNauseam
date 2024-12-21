@@ -109,197 +109,200 @@ const getDomainNames = function(targets) {
 };
 
 const onMessage = function(request, sender, callback) {
+
+  //console.log('onMessage', request.what, request, sender);
+  
     // Async
     switch ( request.what ) {
-    case 'getAssetContent':
-        // https://github.com/chrisaljoudi/uBlock/issues/417
-        io.get(request.url, {
-            dontCache: true,
-            needSourceURL: true,
-        }).then(result => {
-            result.trustedSource = µb.isTrustedList(result.assetKey);
-            callback(result);
-        });
-        return;
+      case 'getAssetContent':
+          // https://github.com/chrisaljoudi/uBlock/issues/417
+          io.get(request.url, {
+              dontCache: true,
+              needSourceURL: true,
+          }).then(result => {
+              result.trustedSource = µb.isTrustedList(result.assetKey);
+              callback(result);
+          });
+          return;
 
-    case 'listsFromNetFilter':
-        staticFilteringReverseLookup.fromNetFilter(
-            request.rawFilter
-        ).then(response => {
-            callback(response);
-        });
-        return;
+      case 'listsFromNetFilter':
+          staticFilteringReverseLookup.fromNetFilter(
+              request.rawFilter
+          ).then(response => {
+              callback(response);
+          });
+          return;
 
-    case 'listsFromCosmeticFilter':
-        staticFilteringReverseLookup.fromExtendedFilter(
-            request
-        ).then(response => {
-            callback(response);
-        });
-        return;
+      case 'listsFromCosmeticFilter':
+          staticFilteringReverseLookup.fromExtendedFilter(
+              request
+          ).then(response => {
+              callback(response);
+          });
+          return;
 
-    case 'reloadAllFilters':
-        µb.loadFilterLists().then(( ) => { callback(); });
-        return;
+      case 'reloadAllFilters':
+          µb.loadFilterLists().then(( ) => { callback(); });
+          return;
 
-    case 'scriptlet':
-        vAPI.tabs.executeScript(request.tabId, {
-            file: `/js/scriptlets/${request.scriptlet}.js`
-        }).then(result => {
-            callback(result);
-        });
-        return;
+      case 'scriptlet':
+          vAPI.tabs.executeScript(request.tabId, {
+              file: `/js/scriptlets/${request.scriptlet}.js`
+          }).then(result => {
+              callback(result);
+          });
+          return;
 
-    default:
-        break;
+      default:
+          break;
     }
 
     // Sync
     let response;
 
     switch ( request.what ) {
-    case 'applyFilterListSelection':
-        response = µb.applyFilterListSelection(request);
-        break;
+      case 'applyFilterListSelection':
+          response = µb.applyFilterListSelection(request);
+          break;
 
-    case 'clickToLoad':
-        response = clickToLoad(request, sender);
-        break;
+      case 'clickToLoad':
+          response = clickToLoad(request, sender);
+          break;
 
-    case 'createUserFilter':
-        µb.createUserFilters(request);
-        break;
+      case 'createUserFilter':
+          µb.createUserFilters(request);
+          break;
 
-    case 'isDNTVisible':
-        response = µb.userSettings.dntDomains.indexOf(request.domain) > -1
-           && µb.userSettings.disableHidingForDNT;
-        break;
+      case 'isDNTVisible':
+          response = µb.userSettings.dntDomains.indexOf(request.domain) > -1
+            && µb.userSettings.disableHidingForDNT;
+          break;
 
-    case 'forceUpdateAdnauseam':
-        io.forceUpdate("Adnauseam");
-        break;
+      case 'forceUpdateAdnauseam':
+          io.forceUpdate("Adnauseam");
+          break;
 
-    case 'forceUpdateEff':
-        io.forceUpdate("Eff");
-        break;
+      case 'forceUpdateEff':
+          io.forceUpdate("Eff");
+          break;
 
-    case 'getAppData':
-        response = {
-            name: browser.runtime.getManifest().name,
-            version: vAPI.app.version,
-            canBenchmark: µb.hiddenSettings.benchmarkDatasetURL !== 'unset',
-        };
-        break;
+      case 'getAppData':
+          response = {
+              name: browser.runtime.getManifest().name,
+              version: vAPI.app.version,
+              canBenchmark: µb.hiddenSettings.benchmarkDatasetURL !== 'unset',
+          };
+          break;
 
-    case 'getDomainNames':
-        response = getDomainNames(request.targets);
-        break;
+      case 'getDomainNames':
+          response = getDomainNames(request.targets);
+          break;
 
-    case 'getTrustedScriptletTokens':
-        response = redirectEngine.getTrustedScriptletTokens();
-        break;
+      case 'getTrustedScriptletTokens':
+          response = redirectEngine.getTrustedScriptletTokens();
+          break;
 
-    case 'getWhitelist':
-        response = {
-            dntEnabled: dnt.enabled(),
-            whitelist: µb.arrayFromWhitelist(µb.netWhitelist),
-            reBadHostname: µb.reWhitelistBadHostname.source,
-            reHostnameExtractor: µb.reWhitelistHostnameExtractor.source
-        };
-        break;
-    // Adn - strictBlockList
-    case 'getStrictBlockList':
-        response = {
-            strictBlockList: µb.arrayFromStrictBlockList(µb.netStrictBlockList),
-            reBadHostname: µb.reWhitelistBadHostname.source,
-            reHostnameExtractor: µb.reWhitelistHostnameExtractor.source
-        };
-        break;
-    // end of adn
-    case 'launchElementPicker':
-        // Launched from some auxiliary pages, clear context menu coords.
-        µb.epickerArgs.mouse = false;
-        µb.elementPickerExec(request.tabId, 0, request.targetURL, request.zap);
-        break;
+      case 'getWhitelist':
+          response = {
+              dntEnabled: dnt.enabled(),
+              whitelist: µb.arrayFromWhitelist(µb.netWhitelist),
+              reBadHostname: µb.reWhitelistBadHostname.source,
+              reHostnameExtractor: µb.reWhitelistHostnameExtractor.source
+          };
+          break;
+      // Adn - strictBlockList
+      case 'getStrictBlockList':
+          response = {
+              strictBlockList: µb.arrayFromStrictBlockList(µb.netStrictBlockList),
+              reBadHostname: µb.reWhitelistBadHostname.source,
+              reHostnameExtractor: µb.reWhitelistHostnameExtractor.source
+          };
+          break;
+      // end of adn
+      case 'launchElementPicker':
+          // Launched from some auxiliary pages, clear context menu coords.
+          µb.epickerArgs.mouse = false;
+          µb.elementPickerExec(request.tabId, 0, request.targetURL, request.zap);
+          break;
 
-    case 'loggerDisabled':
-        µb.clearInMemoryFilters();
-        break;
+      case 'loggerDisabled':
+          µb.clearInMemoryFilters();
+          break;
 
-    case 'gotoURL':
-        µb.openNewTab(request.details);
-        break;
+      case 'gotoURL':
+          µb.openNewTab(request.details);
+          break;
 
-    case 'readyToFilter':
-        response = µb.readyToFilter;
-        break;
+      case 'readyToFilter':
+          response = µb.readyToFilter;
+          break;
 
-    // https://github.com/uBlockOrigin/uBlock-issues/issues/1954
-    //   In case of document-blocked page, navigate to blocked URL instead
-    //   of forcing a reload.
-    case 'reloadTab': {
-        if ( vAPI.isBehindTheSceneTabId(request.tabId) ) { break; }
-        const { tabId, bypassCache, url, select } = request;
-        vAPI.tabs.get(tabId).then(tab => {
-            if ( url && tab && url !== tab.url ) {
-                vAPI.tabs.replace(tabId, url);
-            } else {
-                vAPI.tabs.reload(tabId, bypassCache === true);
-            }
-        });
-        if ( select && vAPI.tabs.select ) {
-            vAPI.tabs.select(tabId);
-        }
-        break;
-    }
-    case 'setWhitelist':
-        µb.netWhitelist = µb.whitelistFromString(request.whitelist);
-        µb.saveWhitelist();
-        filteringBehaviorChanged();
-        break;
-    case 'setStrictBlockList':
-        µb.netStrictBlockList = µb.strictBlockListFromString(request.strictBlockList);
-        µb.saveStrictBlockList();
-        break;
+      // https://github.com/uBlockOrigin/uBlock-issues/issues/1954
+      //   In case of document-blocked page, navigate to blocked URL instead
+      //   of forcing a reload.
+      case 'reloadTab': {
+          if ( vAPI.isBehindTheSceneTabId(request.tabId) ) { break; }
+          const { tabId, bypassCache, url, select } = request;
+          vAPI.tabs.get(tabId).then(tab => {
+              if ( url && tab && url !== tab.url ) {
+                  vAPI.tabs.replace(tabId, url);
+              } else {
+                  vAPI.tabs.reload(tabId, bypassCache === true);
+              }
+          });
+          if ( select && vAPI.tabs.select ) {
+              vAPI.tabs.select(tabId);
+          }
+          break;
+      }
+      case 'setWhitelist':
+          µb.netWhitelist = µb.whitelistFromString(request.whitelist);
+          µb.saveWhitelist();
+          filteringBehaviorChanged();
+          break;
+      case 'setStrictBlockList':
+          µb.netStrictBlockList = µb.strictBlockListFromString(request.strictBlockList);
+          µb.saveStrictBlockList();
+          break;
 
-    case 'reactivateList':
-        µb.reactivateList(request.list);
-        break;
+      case 'reactivateList':
+          µb.reactivateList(request.list);
+          break;
 
-    case 'toggleHostnameSwitch':
-        µb.toggleHostnameSwitch(request);
-        break;
+      case 'toggleHostnameSwitch':
+          µb.toggleHostnameSwitch(request);
+          break;
 
-    case 'uiAccentStylesheet':
-        µb.uiAccentStylesheet = request.stylesheet;
-        break;
+      case 'uiAccentStylesheet':
+          µb.uiAccentStylesheet = request.stylesheet;
+          break;
 
-    case 'uiStyles':
-        response = {
-            uiAccentCustom: µb.userSettings.uiAccentCustom,
-            uiAccentCustom0: µb.userSettings.uiAccentCustom0,
-            uiAccentStylesheet: µb.uiAccentStylesheet,
-            uiStyles: µb.hiddenSettings.uiStyles,
-            uiTheme: µb.userSettings.colorBlindFriendly ? 'colorBlind' : µb.userSettings.uiTheme,
-        };
-        break;
+      case 'uiStyles':
+          response = {
+              uiAccentCustom: µb.userSettings.uiAccentCustom,
+              uiAccentCustom0: µb.userSettings.uiAccentCustom0,
+              uiAccentStylesheet: µb.uiAccentStylesheet,
+              uiStyles: µb.hiddenSettings.uiStyles,
+              uiTheme: µb.userSettings.colorBlindFriendly ? 'colorBlind' : µb.userSettings.uiTheme,
+          };
+          break;
 
-    case 'userSettings':
-        response = µb.changeUserSettings(request.name, request.value);
-        if ( response instanceof Object ) {
-            if ( vAPI.net.canUncloakCnames !== true ) {
-                response.cnameUncloakEnabled = undefined;
-            }
-            response.canLeakLocalIPAddresses =
-                vAPI.browserSettings.canLeakLocalIPAddresses === true;
-        }
-        if (typeof response === 'undefined') { // ADN return notifications either way
-            response = { notifications: makeCloneable(adnauseam.getNotifications().notifications) }; // #1163
-        }
-        break;
+      case 'userSettings':
+          response = µb.changeUserSettings(request.name, request.value);
+          if ( response instanceof Object ) {
+              if ( vAPI.net.canUncloakCnames !== true ) {
+                  response.cnameUncloakEnabled = undefined;
+              }
+              response.canLeakLocalIPAddresses =
+                  vAPI.browserSettings.canLeakLocalIPAddresses === true;
+          }
+          if (typeof response === 'undefined') { // ADN return notifications either way
+              response = { notifications: makeCloneable(adnauseam.getNotifications().notifications) }; // #1163
+          }
+          break;
 
-    default:
-        return vAPI.messaging.UNHANDLED;
+      default:
+          return vAPI.messaging.UNHANDLED;
     }
 
     callback(response);

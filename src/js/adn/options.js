@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     AdNauseam - Fight back against advertising surveillance.
-    Copyright (C) 2014-2021 Daniel C. Howe
+    Copyright (C) 2014-2024 Daniel C. Howe
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -138,12 +138,11 @@ const changeUserSettings = function (name, value) {
     updateGroupState();
   });
   // reflect some changes immediately
-  switch ( name ) {
+  switch (name) {
     case 'colorBlindFriendly':
-        console.log("colorBlindFriendly", value)
-        setTheme(value ? 'colorBlind' : 'dark', true);
-        break;
-    }
+      setTheme(value ? 'colorBlind' : 'dark', true);
+      break;
+  }
 };
 
 /******************************************************************************/
@@ -185,10 +184,10 @@ const onDisableWarningChanged = function (ev) {
   // send to messaging so that the change is broadcasted to all tabs
   vAPI.messaging.send(
     'adnauseam', {
-      what: 'setWarningDisabled',
-      value, value
-    }
-  )  
+    what: 'setWarningDisabled',
+    value, value
+  }
+  )
 }
 
 // Workaround for:
@@ -208,7 +207,7 @@ const updateGroupState = function () {
 
   uDom('.clickingAds-child').prop('disabled', !uDom('#clickingAds').prop('checked'));
   uDom('.clickingAds-child').parent().parent().parent().toggleClass('disabled', !uDom('#clickingAds').prop('checked'));
-  
+
   /*
   blocking malware doesnt have any subgroup
   uDom('.blockingMalware-child').prop('disabled', !uDom('#blockingMalware').prop('checked'));
