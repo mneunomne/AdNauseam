@@ -766,7 +766,7 @@ const PageStore = class {
      *   0 -> allow
      *   1 -> block (including redirects)
      *   2 -> exception-for-cname-on-block ?? [allow]
-     *   3 -> ?
+     *   3 -> abort
      *   4 -> adn-allowed
      */
     filterRequest(fctxt) {
