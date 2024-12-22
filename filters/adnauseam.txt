@@ -601,7 +601,7 @@ opensubtitles.org###fcninnerbox
 /tacoda_^$important
 
 # Trackers added according to better.fyi/trackers^$important
-||tiqcdn.com^$important
+||tiqcdn.com^
 ||ak.sail-horizon.com^$important
 ||s.ntv.io^$important
 ||plugin.mediavoice.com^$important
