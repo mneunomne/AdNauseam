@@ -177,8 +177,14 @@ const renderAds = function (json) {
   });
 
   if (settings.devMode || settings.logEvents) {
-    console.log("devMode: enabling capture button");
-    $('#capture').removeClass('item-hidden');
+    if (navigator.userAgent.indexOf('Firefox') > -1) {
+      console.log("Firefox/devMode: enabling capture button");
+      $('#capture').on('click', onCapture);
+      $('#capture').removeClass('item-hidden');
+    }
+    else {
+      console.log("Capture function available only in Firefox");
+    }
   }
 };
 
@@ -2068,10 +2074,16 @@ function createSlider(mode) {
 }
 
 function onCapture() { // save screenshot
-
+  let dbug = false;
+  if (dbug) console.log('onCapture');
   toggleInterface(showInterface = true);
   setTimeout(() => {
-    browser.tabs.captureVisibleTab(imgUrl => {
+    if (dbug) console.log('captureVisibleTab');
+    browser.tabs.captureVisibleTab(null, {
+      quality: 100,
+      scale: 6
+    }, imgUrl => {
+      if (dbug) console.log('callback');
       const saveImageToFile = (image, meta) => {
         const canvas = document.createElement('canvas');
         canvas.width = image.width;
@@ -2111,7 +2123,7 @@ function onCapture() { // save screenshot
       meta.maxDate = gMax ? gMax : untilTime(subset);
       meta.minTs = formatDate(meta.minDate);
       meta.maxTs = formatDate(meta.maxDate);
-      //console.log('meta:', meta.minDate, meta.maxDate, meta.minTs, meta.maxTs);
+      console.log('meta:', meta);
 
       const screenshot = new Image();
       screenshot.src = imgUrl;
@@ -2288,4 +2300,3 @@ $('#import').on('click', startImportFilePicker);
 $('#importFilePicker').on('change', handleImportAds);
 $('#reset').on('click', clearAds);
 $('#purge').on('click', onPurgeDeadAds);
-$('#capture').on('click', onCapture);
