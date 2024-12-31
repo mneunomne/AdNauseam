@@ -153,7 +153,7 @@ const userSettingsDefault = {
 };
 
 if (vAPI.webextFlavor.soup.has('devbuild')) {
-    userSettingsDefault.devMode = true; // for capture
+    userSettingsDefault.devMode = true;
     hiddenSettingsDefault.consoleLogLevel = 'info';
     hiddenSettingsDefault.cacheStorageAPI = 'unset';
     adnlogSet(true);
@@ -275,9 +275,9 @@ const µBlock = {  // jshint ignore:line
 
     /*
         ADN - no need for us to use dev assets for dev build, but it is something we can implement later. 
-    assetsJsonPath: vAPI.webextFlavor.soup.has('devbuild')
-        ? '/assets/assets.dev.json'
-        : '/assets/assets.json',    
+        assetsJsonPath: vAPI.webextFlavor.soup.has('devbuild')
+          ? '/assets/assets.dev.json'
+          : '/assets/assets.json',    
     */
     assetsJsonPath: '/assets/assets.json', // Adn
     userFiltersPath: 'user-filters',

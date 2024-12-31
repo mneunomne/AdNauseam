@@ -19,6 +19,8 @@
     Home: https://github.com/dhowe/AdNauseam
 */
 
+// watch: fswatch - o - r src / js / | xargs - n1 - I{ } ./tools/make - chromium.sh
+
 /* global vAPI, µb */
 
 'use strict';
@@ -116,7 +118,7 @@ const adnauseam = (function () {
   const repeatVisitInterval = Number.MAX_VALUE;
   const updateStorageInterval = 1000 * 60 * 30; // 30min
 
-  // properties set to true for a devbuild (if version-num has a 4th digit, eg. 3.2.3.4)
+  // properties set to true for a devbuild
   const devProps = ["hidingAds", "clickingAds", "blockingMalware",
     "eventLogging", "disableClickingForDNT", "disableHidingForDNT"]
 
