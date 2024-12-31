@@ -2074,14 +2074,14 @@ function createSlider(mode) {
 }
 
 function onCapture() { // save screenshot
-  let dbug = false;
+  let dbug = true;
   if (dbug) console.log('onCapture');
   toggleInterface(showInterface = true);
   setTimeout(() => {
     if (dbug) console.log('captureVisibleTab');
     browser.tabs.captureVisibleTab(null, {
       quality: 100,
-      scale: 6
+      scale: 4
     }, imgUrl => {
       if (dbug) console.log('callback');
       const saveImageToFile = (image, meta) => {
