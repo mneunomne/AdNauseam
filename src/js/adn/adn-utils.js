@@ -152,7 +152,7 @@ export const type = function (obj) { // from Angus Croll
   return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 };
 
-const getExportFileName = function () {
+export const getExportFileName = function () {
   return i18n$('adnExportedAdsFilename')
     .replace('{{datetime}}', new Date().toLocaleString())
     .replace(/[:/,]+/g, '.').replace(/ +/g, '');
