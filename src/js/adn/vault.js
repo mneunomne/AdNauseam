@@ -40,7 +40,8 @@ import {
   handleImportAds,
   purgeDeadAds,
   decodeEntities,
-  clearAds
+  clearAds,
+  getExportFileName
 } from './adn-utils.js';
 
 // note: this code is a mess and needs to be refactored
@@ -78,7 +79,7 @@ const $ratio = $('#ratio')
 
 var transitionTimeout = null
 
-let gAds, gAdSets, gMin, gMax, gSliderRight, gSliderLeft, settings;
+let gAds, gAdSets, gMin, gMax, gSliderRight, gSliderLeft, settings, pack;
 let lastAdDetectedTime, waitingAds = []; // stateful
 
 onBroadcast(request => {
@@ -1744,7 +1745,7 @@ function repack() {
 
   const loader = imagesLoaded($container, function () {
     if (visible > 1) {
-      const p = new Packery('#container', {
+      pack = new Packery('#container', {
         centered: {
           y: 10000
         }, // centered at half min-height
@@ -1762,7 +1763,7 @@ function repack() {
     }
 
     done = true;
-
+    
     $('#loading-img').hide();
     // Show #container after repack
     $container.css('opacity', '1');
@@ -2068,11 +2069,24 @@ function createSlider(mode) {
   }
 }
 
+function parsePackElements (packElements) {
+  const ads = packElements.map(packEl => {
+    let src = packEl.element.querySelector('img').src;
+    let pos = {x: packEl.position.x - 10000, y: packEl.position.y - 10000};
+    let height = packEl.rect.height;
+    let width = packEl.rect.width;
+    return {src, pos, height, width}
+  })
+  return ads
+}
+
 function onCapture() { // save screenshot
-  let dbug = false;
+  let dbug = true;
   if (dbug) console.log('onCapture');
   toggleInterface(showInterface = true);
   setTimeout(() => {
+    const ads = parsePackElements(pack.items)
+    if (dbug) console.log("parsedPackElements", ads)
     if (dbug) console.log('captureVisibleTab');
     browser.tabs.captureVisibleTab(null, {}, imgUrl => {
       if (dbug) console.log('callback');
@@ -2116,6 +2130,21 @@ function onCapture() { // save screenshot
       meta.minTs = formatDate(meta.minDate);
       meta.maxTs = formatDate(meta.maxDate);
       if (dbug) console.log('meta:', meta);
+
+      let capture = {
+        ads: ads,
+        meta: meta
+      }
+      let exportData = JSON.stringify(capture, null, '  ')
+      let filename = getExportFileName();
+      const url = URL.createObjectURL(new Blob([exportData], { type: "text/plain" }));
+  
+      filename = "AdNauseam_Capture" + filename.substr(9, filename.length);
+  
+      vAPI.download({
+        'url': url,
+        'filename': filename
+      });
 
       const screenshot = new Image();
       screenshot.src = imgUrl;
