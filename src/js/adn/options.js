@@ -30,7 +30,6 @@ import { setAccentColor, setTheme } from '../theme.js';
 import {
   isMobile,
   exportToFile,
-  toogleVaultLoading,
   postImportAlert,
   clearAds,
   startImportFilePicker,

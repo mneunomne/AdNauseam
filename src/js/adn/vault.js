@@ -129,8 +129,6 @@ onBroadcast(request => {
 
 const renderAds = function (json) {
 
-  //console.log("renderAds", json);
-
   gAds = json.data; // store
   addInterfaceHandlers();
   settings = json.prefs;
@@ -479,6 +477,7 @@ function createDivs(adsets, update) {
 
     $div.hover(hoverOnDiv, hoverOffDiv);
   }
+
   // // Hide #container while appending new divs from 0
   if (!update) $container.css('opacity', '0');
 
@@ -706,7 +705,47 @@ function bulletIndex($div, adset) {
   }
 }
 
+var loadImageTimeout;
+
 function appendDisplayTo($div, adset) {
+
+  var type = adset.type();
+  var domain = adset.domain();
+  var pageTitle = adset.pageTitle();
+  var pageUrl = adset.pageUrl();
+  var targetHostname = adset.targetHostname();
+  var failedCount = adset.failedCount();
+  var dntCount = adset.dntCount();
+  var visitedCount = adset.visitedCount();
+  var foundTs = adset.foundTs();
+  var w = adset.width();
+  var h = adset.height();
+
+  var hasSize = w && h;
+
+  const max_size = 800;
+  // Adjust dimensions to max size
+  if (w > max_size) {
+    const prop = max_size / w;
+    w = max_size;
+    h = h * prop;
+  } else if (h > max_size) {
+    const prop = max_size / h;
+    h = max_size;
+    w = w * prop;
+  }
+
+  // set attributes
+  $div.attr('data-width', w);
+  $div.attr('data-height', h);
+  $div.attr('data-domain', domain);
+  $div.attr('data-pageTitle', pageTitle);
+  $div.attr('data-pageUrl', pageUrl);
+  $div.attr('data-targetHostname', targetHostname);
+  $div.attr('data-foundTs', foundTs);
+
+  $div.width(w);
+  $div.height(h);
 
   const $ad = $('<div/>', {
     class: 'ad'
@@ -732,41 +771,31 @@ function appendDisplayTo($div, adset) {
   let img_src = adset.child(0).contentData.src;
   var isPNGdata = img_src.includes('data:image/png');
   var cl = isPNGdata ? "white-bg" : "";
-
   const $img = $('<img/>', {
     src: img_src,
-    class: cl
+    class: cl,
+    width: w,
+    height: h
   }).appendTo($ad);
 
+  $img.width(w);
+  $img.height(h);
+
+  let isLoaded = false;
+
   $img.on("error", function () {
+    isLoaded = true;
     setItemClass($div, 'image-error');
-    $img.css({ width: 80, height: 40 });
-    $img.attr('src', 'img/placeholder.svg');
+    // $img.attr('src', 'img/placeholder.svg');
     $img.attr('alt', 'Unable to load image');
+    $img.attr('data-error', 'error');
     $img.off("error");
+    $div.addClass('loaded');
   });
-  // max ad size, addressing https://github.com/dhowe/AdNauseam/issues/2050
-  let max_size = 800;
-  // fix for #291
+
   $img.on('load', function () {
-    // cache the dimensions of the img-item AFTER load
-    const $this = $(this);
-    let w = $this.width()
-    let h = $this.height()
-    // adjust to max size
-    if (w > max_size) {
-      let prop = max_size / w
-      w = max_size;
-      h = h * prop
-    } else if (h > max_size) {
-      let prop = max_size / h
-      h = max_size;
-      w = w * prop
-    }
-    $this.width(w)
-    $this.height(h)
-    $div.attr('data-width', w);
-    $div.attr('data-height', h);
+    isLoaded = true;
+    $div.addClass('loaded');
   });
 }
 
@@ -986,8 +1015,6 @@ function sinceTime(adsets) {
 }
 
 function untilTime(adsets) {
-  console.log('untilTime');
-
   let youngest = 0;
   for (let i = 0, j = adsets && adsets.length; i < j; i++) {
     let foundTs;
@@ -1733,17 +1760,14 @@ function createAdSets(ads) {
 }
 
 function repack() {
-  let done = false;
+  $container.css('opacity', '0');
+  document.querySelector('#loading-img').style = '';
   const $items = $(".item");
   const visible = $items.length;
-
+  // it seems that the packing needs to happen on a separate thread so that the css 
+  // changes can be applied before the packery is initiated, therefore the setTimeout
   setTimeout(function () {
-    if (!done) $('#loading-img').show();
-  }, 1000);
-
-  showVaultAlert(visible ? false : 'no ads found');
-
-  const loader = imagesLoaded($container, function () {
+    showVaultAlert(visible ? false : 'no ads found');
     if (visible > 1) {
       pack = new Packery('#container', {
         centered: {
@@ -1751,8 +1775,7 @@ function repack() {
         }, // centered at half min-height
         itemSelector: '.item',
         gutter: 1
-      });
-
+      })
       computeZoom($items);
 
     } else if (visible === 1) {
@@ -1761,20 +1784,18 @@ function repack() {
         left: (10000 - $items.width() / 2) + 'px'
       });
     }
-
-    done = true;
-    
     $('#loading-img').hide();
     // Show #container after repack
     $container.css('opacity', '1');
     vaultLoading = false;
-  });
+
+  }, 1000);
 }
 
 /********************************************************************/
 
 function createSlider(mode) {
-  // console.log('Vault-Slider.createSlider: '+gAds.length);
+  //console.log('Vault-Slider.createSlider: ' + gAds.length);
   // three special modes:
   // all three special modes: remember brush
 
@@ -2069,13 +2090,29 @@ function createSlider(mode) {
   }
 }
 
-function parsePackElements (packElements) {
-  const ads = packElements.map(packEl => {
-    let src = packEl.element.querySelector('img').src;
-    let pos = {x: packEl.position.x - 10000, y: packEl.position.y - 10000};
+function parsePackElements(packElements, gMin, gMax) {
+  const ads = packElements.filter(packEl => {
+    let error = packEl.element.getAttribute('data-error');
+    if (error) return false;
+    let foundTs = packEl.element.getAttribute('data-foundTs');
+    if (foundTs < gMin || foundTs > gMax) return false;
+    return true;
+  }).map(packEl => {
+    let type = packEl.element.querySelector('img') ? 'image' : 'text';
+    let pos = { x: packEl.position.x - 10000, y: packEl.position.y - 10000 };
     let height = packEl.rect.height;
     let width = packEl.rect.width;
-    return {src, pos, height, width}
+    let foundTs = packEl.element.getAttribute('data-foundTs');
+    let gid = packEl.element.getAttribute('data-gid');
+    if (type == 'image') { // image
+      let src = packEl.element.querySelector('img').src;
+      return { src, pos, height, width, foundTs, gid, type }
+    } else {
+      let text = packEl.element.querySelector('.ads-creative').innerText;
+      let title = packEl.element.querySelector('.title').innerText;
+      let href = packEl.element.querySelector('cite');
+      return { pos, height, width, foundTs, gid, text, title, href, type }
+    }
   })
   return ads
 }
@@ -2085,7 +2122,7 @@ function onCapture() { // save screenshot
   if (dbug) console.log('onCapture');
   toggleInterface(showInterface = true);
   setTimeout(() => {
-    const ads = parsePackElements(pack.items)
+    const ads = parsePackElements(pack.items, gMin, gMax)
     if (dbug) console.log("parsedPackElements", ads)
     if (dbug) console.log('captureVisibleTab');
     browser.tabs.captureVisibleTab(null, {}, imgUrl => {
@@ -2138,9 +2175,9 @@ function onCapture() { // save screenshot
       let exportData = JSON.stringify(capture, null, '  ')
       let filename = getExportFileName();
       const url = URL.createObjectURL(new Blob([exportData], { type: "text/plain" }));
-  
+
       filename = "AdNauseam_Capture" + filename.substr(9, filename.length);
-  
+
       vAPI.download({
         'url': url,
         'filename': filename
@@ -2226,6 +2263,22 @@ AdSet.prototype.type = function () {
   return this.children[0].contentType; // same-for-all
 };
 
+AdSet.prototype.domain = function () {
+  return this.children[0].domain;
+}
+
+AdSet.prototype.pageTitle = function () {
+  return this.children[0].pageTitle;
+}
+
+AdSet.prototype.pageUrl = function () {
+  return this.children[0].pageUrl;
+}
+
+AdSet.prototype.targetHostname = function () {
+  return this.children[0].targetHostname;
+}
+
 AdSet.prototype.failedCount = function () {
   const containerObj = this;
   return this.children.filter((d) => containerObj.state(d) === 'failed').length;
@@ -2254,8 +2307,20 @@ AdSet.prototype.count = function () {
   return this.children.length;
 };
 
+AdSet.prototype.foundTs = function () {
+  return this.children[0].foundTs;
+}
+
 AdSet.prototype.add = function (ad) {
   ad && this.children.push(ad);
+};
+
+AdSet.prototype.width = function () {
+  return this.children[0].contentData.width;
+};
+
+AdSet.prototype.height = function () {
+  return this.children[0].contentData.height;
 };
 
 function createGid(ad) {

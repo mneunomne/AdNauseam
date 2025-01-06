@@ -415,10 +415,15 @@ div.tooltip {
 .item {
 	display: inline-block;
 	position: relative;
+	transform: scale(0,0);
+	margin: 0;
+	opacity: 0;
+}
+
+.item.loaded {
+	opacity: 1;
 	animation: 500ms cubic-bezier(0.175, 0.885, 0.320, 1.275) 0s normal forwards 1 pop;
 	transform: scale(1,1);
-	margin: 0;
-	opacity: 1;
 }
 
 /* -------------------INSPECTION----------------------- */
