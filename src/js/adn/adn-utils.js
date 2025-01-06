@@ -285,6 +285,7 @@ export const exportToFile = function (action) {
 
 // loading while ads are being imported #1877
 export const toogleVaultLoading = function(show) {
+  console.log("toogleVaultLoading")
   var $container = $("#container")
   if (show) {
     $container.css('opacity', '0');
