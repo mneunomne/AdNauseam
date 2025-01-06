@@ -129,8 +129,6 @@ onBroadcast(request => {
 
 const renderAds = function (json) {
 
-  console.log("renderAds", json);
-
   gAds = json.data; // store
   addInterfaceHandlers();
   settings = json.prefs;
@@ -269,12 +267,10 @@ function doLayout(adsets, update) {
   if (!update) $('.item').remove();
 
   createDivs(adsets, update);
-  console.log("createDivs")
   computeStats(adsets);
   analyze(gAds);
   enableLightbox();
   repack();
-  console.log("repack")
 }
 
 function parseAd(ad, data) {
@@ -1019,8 +1015,6 @@ function sinceTime(adsets) {
 }
 
 function untilTime(adsets) {
-  console.log('untilTime');
-
   let youngest = 0;
   for (let i = 0, j = adsets && adsets.length; i < j; i++) {
     let foundTs;
@@ -1775,7 +1769,6 @@ function repack() {
   setTimeout(function () {
     showVaultAlert(visible ? false : 'no ads found');
     if (visible > 1) {
-      console.log("pack!")
       pack = new Packery('#container', {
         centered: {
           y: 10000
@@ -1783,7 +1776,6 @@ function repack() {
         itemSelector: '.item',
         gutter: 1
       })
-      console.log("done packing")
       computeZoom($items);
 
     } else if (visible === 1) {
@@ -1803,7 +1795,7 @@ function repack() {
 /********************************************************************/
 
 function createSlider(mode) {
-  console.log('Vault-Slider.createSlider: ' + gAds.length);
+  //console.log('Vault-Slider.createSlider: ' + gAds.length);
   // three special modes:
   // all three special modes: remember brush
 
@@ -2100,14 +2092,12 @@ function createSlider(mode) {
 
 function parsePackElements(packElements, gMin, gMax) {
   const ads = packElements.filter(packEl => {
-    console.log("packElements", packEl)
     let error = packEl.element.getAttribute('data-error');
     if (error) return false;
     let foundTs = packEl.element.getAttribute('data-foundTs');
     if (foundTs < gMin || foundTs > gMax) return false;
     return true;
   }).map(packEl => {
-    console.log("packEl.element.querySelector('img')", packEl.element.querySelector('img'))
     let type = packEl.element.querySelector('img') ? 'image' : 'text';
     let pos = { x: packEl.position.x - 10000, y: packEl.position.y - 10000 };
     let height = packEl.rect.height;
