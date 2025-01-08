@@ -21,17 +21,16 @@
 
 import * as sfp from './static-filtering-parser.js';
 
-/******************************************************************************/
-
-import µb from './background.js';
-import adnauseam from './adn/core.js'
-import dnt from './adn/dnt.js'
 import { broadcast } from './broadcast.js';
 import cacheStorage from './cachestorage.js';
-import { adnlog } from './console.js';
 import { i18n$ } from './i18n.js';
 import logger from './logger.js';
 import { orphanizeString } from './text-utils.js';
+import µb from './background.js';
+// adn
+import adnauseam from './adn/core.js'
+import dnt from './adn/dnt.js'
+import { adnlog } from './console.js';
 
 /******************************************************************************/
 

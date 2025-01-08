@@ -1226,9 +1226,9 @@ const injectCSP = function (fctxt, pageStore, responseHeaders) {
 
     const builtinDirectives = [];
 
-    if (pageStore.filterScripting(fctxt, true) === 1) {
-        builtinDirectives.push(µb.cspNoScripting);
-        if (logger.enabled) {
+    if ( pageStore.filterScripting(fctxt, true) === 1 ) {
+        builtinDirectives.push(µb.hiddenSettings.noScriptingCSP);
+        if ( logger.enabled ) {
             fctxt.setRealm('network').setType('scripting').toLogger();
         }
     }
