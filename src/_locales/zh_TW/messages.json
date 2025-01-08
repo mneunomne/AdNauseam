@@ -4,7 +4,7 @@
     "description": "extension name."
   },
   "extShortDesc": {
-    "message": "終於有一款高效能的封鎖工具。對 CPU 和記憶體的佔用極低。",
+    "message": "終於，有一款僅使用少量 CPU 及記憶體的高效能攔截器。",
     "description": "this will be in the Chrome web store: must be 132 characters or less"
   },
   "dashboardName": {
@@ -16,7 +16,7 @@
     "description": "A warning in the dashboard when navigating away from unsaved changes"
   },
   "dashboardUnsavedWarningStay": {
-    "message": "留下",
+    "message": "留在這裡",
     "description": "Label for button to prevent navigating away from unsaved changes"
   },
   "dashboardUnsavedWarningIgnore": {
@@ -68,7 +68,7 @@
     "description": "Title for the advanced settings page"
   },
   "popupPowerSwitchInfo": {
-    "message": "點擊：在此網站 停用/啟用 uBlock₀ 。\n\nCtrl + 點擊：僅在此頁面停用 uBlock₀ 。",
+    "message": "點擊：在這個網站停用/啟用 uBlock₀。\n\nCtrl + 點擊：僅在這個頁面停用 uBlock₀。",
     "description": "English: Click: disable/enable uBlock₀ for this site.\n\nCtrl+click: disable uBlock₀ only on this page."
   },
   "popupPowerSwitchInfo1": {
@@ -100,11 +100,11 @@
     "description": "English: or"
   },
   "popupBlockedOnThisPage_v2": {
-    "message": "此頁面已阻擋",
+    "message": "已在這個頁面攔截",
     "description": "For the new mobile-friendly popup design"
   },
   "popupBlockedSinceInstall_v2": {
-    "message": "安裝後已阻擋",
+    "message": "安裝後已攔截",
     "description": "For the new mobile-friendly popup design"
   },
   "popupDomainsConnected_v2": {
@@ -136,11 +136,11 @@
     "description": "Tooltip for the no-popups per-site switch"
   },
   "popupTipNoPopups1": {
-    "message": "點擊以阻擋此網站的所有彈出式視窗",
+    "message": "點擊以封鎖此網站的所有彈出式視窗",
     "description": "Tooltip for the no-popups per-site switch"
   },
   "popupTipNoPopups2": {
-    "message": "點擊以停止阻擋此網站的所有彈出式視窗",
+    "message": "點擊以解除封鎖此網站的所有彈出式視窗",
     "description": "Tooltip for the no-popups per-site switch"
   },
   "popupTipNoLargeMedia": {
@@ -152,7 +152,7 @@
     "description": "Tooltip for the no-large-media per-site switch"
   },
   "popupTipNoLargeMedia2": {
-    "message": "點擊以停止封鎖此網站的大型媒體元素",
+    "message": "點擊以解除封鎖此網站的大型媒體元素",
     "description": "Tooltip for the no-large-media per-site switch"
   },
   "popupTipNoCosmeticFiltering": {
@@ -176,7 +176,7 @@
     "description": "Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipNoRemoteFonts2": {
-    "message": "點擊以解除封鎖此網站的遠端字體",
+    "message": "點擊以解除封鎖此網站的遠端字型",
     "description": "Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipNoScripting1": {
@@ -200,7 +200,7 @@
     "description": "Caption for the no-cosmetic-filtering per-site switch"
   },
   "popupNoRemoteFonts_v2": {
-    "message": "遠端字體",
+    "message": "遠端字型",
     "description": "Caption for the no-remote-fonts per-site switch"
   },
   "popupNoScripting_v2": {
@@ -224,7 +224,7 @@
     "description": "Tooltip when hovering the top-most cell of the local-rules column."
   },
   "popupTipSaveRules": {
-    "message": "點擊此處讓變更永久生效。",
+    "message": "點擊以永久儲存您的變更。",
     "description": "Tooltip when hovering over the padlock in the dynamic filtering pane."
   },
   "popupTipRevertRules": {
@@ -276,11 +276,11 @@
     "description": "Example of use: Version 1.26.4"
   },
   "popup3pScriptFilter": {
-    "message": "指令碼",
+    "message": "程式碼",
     "description": "Appears as an option to filter out firewall rows"
   },
   "popup3pFrameFilter": {
-    "message": "框架",
+    "message": "框架元素",
     "description": "Appears as an option to filter out firewall rows"
   },
   "pickerCreate": {
@@ -356,7 +356,7 @@
     "description": "Checkbox to let user access advanced, technical features"
   },
   "settingsPrefetchingDisabledPrompt": {
-    "message": "停用「預先取回連結」功能（避免連接至已阻擋的網路請求）",
+    "message": "停用「預先取回連結」（避免連接至已阻擋的網路請求）",
     "description": "English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt": {
@@ -364,7 +364,7 @@
     "description": "English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt": {
-    "message": "防止 WebRTC 洩漏本地 IP 位址",
+    "message": "防止 WebRTC 洩漏本機 IP 位址",
     "description": "English: "
   },
   "settingPerSiteSwitchGroup": {
@@ -384,7 +384,7 @@
     "description": ""
   },
   "settingsNoRemoteFontsPrompt": {
-    "message": "封鎖遠端字體",
+    "message": "封鎖遠端字型",
     "description": ""
   },
   "settingsNoScriptingPrompt": {
@@ -396,7 +396,7 @@
     "description": "background information: https://github.com/gorhill/uBlock/issues/3150"
   },
   "settingsUncloakCnamePrompt": {
-    "message": "揭露網域真實名稱",
+    "message": "揭露網域「正規名稱」",
     "description": "background information: https://github.com/uBlockOrigin/uBlock-issues/issues/1513"
   },
   "settingsAdvanced": {
@@ -404,7 +404,7 @@
     "description": "Section for controlling advanced-user settings"
   },
   "settingsAdvancedSynopsis": {
-    "message": "僅適合技術性使用者的功能",
+    "message": "僅合適技術使用者的功能",
     "description": "Description of section controlling advanced-user settings"
   },
   "settingsAdvancedUserSettings": {
@@ -452,7 +452,7 @@
     "description": "This will cause uBO to ignore all generic cosmetic filters."
   },
   "3pIgnoreGenericCosmeticFiltersInfo": {
-    "message": "「通用元素隱藏過濾規則」是會套用在所有網站上的網頁元素過濾規則。啟用此選項會消除網頁處理此類規則時增加的額外記憶體與 CPU 使用量。\n\n建議在擁有較低效能的裝置上啟用此選項。",
+    "message": "「通用元素過濾規則」是會套用在所有網站上的網頁元素過濾規則。啟用此選項會消除網頁處理此類規則時增加的額外記憶體與 CPU 使用量。\n\n建議在效能較弱的裝置上啟用此選項。",
     "description": "Describes the purpose of the 'Ignore generic cosmetic filters' feature."
   },
   "3pSuspendUntilListsAreLoaded": {
@@ -468,7 +468,7 @@
     "description": "English: Apply changes"
   },
   "3pGroupDefault": {
-    "message": "內置",
+    "message": "內建",
     "description": "Filter lists section name"
   },
   "3pGroupAds": {
@@ -480,11 +480,11 @@
     "description": "Filter lists section name"
   },
   "3pGroupMalware": {
-    "message": "惡意軟體保護及保安",
+    "message": "惡意軟體防護及安全性",
     "description": "Filter lists section name"
   },
   "3pGroupSocial": {
-    "message": "社交媒體小工具",
+    "message": "社交小工具",
     "description": "Filter lists section name"
   },
   "3pGroupCookies": {
@@ -536,7 +536,7 @@
     "description": "used as a tooltip for error icon beside a list"
   },
   "1pTrustWarning": {
-    "message": "切勿添加來歷不明的過濾規則。",
+    "message": "切勿加入來歷不明的過濾規則。",
     "description": "Warning against copy-pasting filters from random sources"
   },
   "1pEnableMyFiltersLabel": {
@@ -940,7 +940,7 @@
     "description": "Third paragraph of 'Filter issues' section in Support pane"
   },
   "supportS4H": {
-    "message": "錯誤報告",
+    "message": "錯誤回報",
     "description": "Header of 'Bug report' section in Support pane"
   },
   "supportS4P1": {
@@ -1036,7 +1036,7 @@
     "description": ""
   },
   "aboutCode": {
-    "message": "源碼（GPLv3）",
+    "message": "原始碼（GPLv3）",
     "description": "English: Source code (GPLv3)"
   },
   "aboutContributors": {
@@ -1044,7 +1044,7 @@
     "description": "English: Contributors"
   },
   "aboutSourceCode": {
-    "message": "源碼",
+    "message": "原始碼",
     "description": "Link text to source code repo"
   },
   "aboutTranslations": {
@@ -1192,7 +1192,7 @@
     "description": "Button text to navigate to the blocked page"
   },
   "docblockedRedirectPrompt": {
-    "message": "被封鎖的頁面想要重新導向至另一個網站。如果您選擇繼續，則會直接前往：{{url}}",
+    "message": "被封鎖的網頁想要重新導向至其他網站。如果您選擇繼續，則會直接前往：{{url}}",
     "description": "Text warning about an incoming redirect"
   },
   "cloudPush": {
@@ -1248,7 +1248,7 @@
     "description": "A context menu entry, present when large media elements have been blocked on the current site"
   },
   "contextMenuViewSource": {
-    "message": "檢視源碼…",
+    "message": "檢視原始碼…",
     "description": "A context menu entry, to view the source code of the target resource"
   },
   "shortcutCapturePlaceholder": {
