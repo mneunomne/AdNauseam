@@ -6,7 +6,7 @@
             cd docs/capture/
             npm install
             npm run start
-            ```
+   ```
 
 3. access interface on http://localhost:3000/render-ads-capture-base64.html
 
