@@ -786,7 +786,7 @@ function appendDisplayTo($div, adset) {
   $img.on("error", function () {
     isLoaded = true;
     setItemClass($div, 'image-error');
-    // $img.attr('src', 'img/placeholder.svg');
+    $img.attr('src', 'img/placeholder.svg');
     $img.attr('alt', 'Unable to load image');
     $img.attr('data-error', 'error');
     $img.off("error");
