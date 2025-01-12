@@ -41,7 +41,8 @@ import {
   purgeDeadAds,
   decodeEntities,
   clearAds,
-  getExportFileName
+  getExportFileName,
+  generateCaptureSvg
 } from './adn-utils.js';
 
 // note: this code is a mess and needs to be refactored
@@ -2118,6 +2119,7 @@ function parsePackElements(packElements, gMin, gMax) {
 }
 
 function onCapture() { // save screenshot
+
   let dbug = true;
   if (dbug) console.log('onCapture');
   toggleInterface(showInterface = true);
@@ -2172,25 +2174,36 @@ function onCapture() { // save screenshot
         ads: ads,
         meta: meta
       }
-      let exportData = JSON.stringify(capture, null, '  ')
-      let filename = getExportFileName();
-      const url = URL.createObjectURL(new Blob([exportData], { type: "text/plain" }));
 
-      filename = "AdNauseam_Capture" + filename.substr(9, filename.length);
+      generateCaptureSvg(capture).then(svgUrl => {
 
-      vAPI.download({
-        'url': url,
-        'filename': filename
+        let exportData = JSON.stringify(capture, null, '  ')
+        let filename = getExportFileName();
+        const url = URL.createObjectURL(new Blob([exportData], { type: "text/plain" }));
+
+        filename = "AdNauseam_Capture" + filename.substr(9, filename.length);
+
+        // download svg
+        vAPI.download({
+          'url': svgUrl,
+          'filename': filename.replace(/.json/g, ".svg")
+        });
+
+        // download json
+        vAPI.download({
+          'url': url,
+          'filename': filename
+        });
+
+        const screenshot = new Image();
+        screenshot.src = imgUrl;
+        screenshot.onload = () => {
+          saveImageToFile(screenshot, meta);
+          setTimeout(() => {
+            toggleInterface(showInterface = false);
+          }, 5000);
+        };
       });
-
-      const screenshot = new Image();
-      screenshot.src = imgUrl;
-      screenshot.onload = () => {
-        saveImageToFile(screenshot, meta);
-        setTimeout(() => {
-          toggleInterface(showInterface = false);
-        }, 5000);
-      };
 
     });
   }, 1000);
@@ -2336,7 +2349,7 @@ function createGid(ad) {
 }
 
 const adjustHeight = function () {
-  let notificationsHeight = $("#notifications").hasClass("hide") ? 0 : $("#notifications").height();
+  let notificationsHeight = $("#notifications#capture").hasClass("hide") ? 0 : $("#notifications").height();
   $("#stage").css('height', String($(window).height() - notificationsHeight) + "px");
 }
 
