@@ -18,16 +18,16 @@
 
     Home: https://github.com/gorhill/uBlock
 
-    The scriptlets below are meant to be injected only into a
-    web page context.
 */
 
+import { registerScriptlet } from './base.js';
 import { runAt } from './run-at.js';
 import { safeSelf } from './safe-self.js';
 
 /******************************************************************************/
 
 export function setAttrFn(
+    trusted = false,
     logPrefix,
     selector = '',
     attr = '',
@@ -37,7 +37,7 @@ export function setAttrFn(
     if ( attr === '' ) { return; }
 
     const safe = safeSelf();
-    const copyFrom = /^\[.+\]$/.test(value)
+    const copyFrom = trusted === false && /^\[.+\]$/.test(value)
         ? value.slice(1, -1)
         : '';
 
@@ -95,13 +95,13 @@ export function setAttrFn(
     };
     runAt(( ) => { start(); }, 'idle');
 }
-setAttrFn.details = {
+registerScriptlet(setAttrFn, {
     name: 'set-attr.fn',
     dependencies: [
         runAt,
         safeSelf,
     ],
-};
+});
 
 /**
  * @scriptlet set-attr
@@ -147,16 +147,16 @@ export function setAttr(
         }
     }
 
-    setAttrFn(logPrefix, selector, attr, value);
+    setAttrFn(false, logPrefix, selector, attr, value);
 }
-setAttr.details = {
+registerScriptlet(setAttr, {
     name: 'set-attr.js',
     dependencies: [
         safeSelf,
         setAttrFn,
     ],
     world: 'ISOLATED',
-};
+});
 
 /**
  * @trustedScriptlet trusted-set-attr
@@ -186,9 +186,9 @@ export function trustedSetAttr(
 ) {
     const safe = safeSelf();
     const logPrefix = safe.makeLogPrefix('trusted-set-attr', selector, attr, value);
-    setAttrFn(logPrefix, selector, attr, value);
+    setAttrFn(true, logPrefix, selector, attr, value);
 }
-trustedSetAttr.details = {
+registerScriptlet(trustedSetAttr, {
     name: 'trusted-set-attr.js',
     requiresTrust: true,
     dependencies: [
@@ -196,6 +196,110 @@ trustedSetAttr.details = {
         setAttrFn,
     ],
     world: 'ISOLATED',
-};
+});
+
+/**
+ * @scriptlet remove-attr
+ * 
+ * @description
+ * Remove one or more attributes from a set of elements.
+ * 
+ * @param attribute
+ * The name of the attribute(s) to remove. This can be a list of space-
+ * separated attribute names.
+ * 
+ * @param [selector]
+ * Optional. A CSS selector for the elements to target. Default to
+ * `[attribute]`, or `[attribute1],[attribute2],...` if more than one
+ * attribute name is specified.
+ * 
+ * @param [behavior]
+ * Optional. Space-separated tokens which modify the default behavior.
+ * - `asap`: Try to remove the attribute as soon as possible. Default behavior
+ *   is to remove the attribute(s) asynchronously. 
+ * - `stay`: Keep trying to remove the specified attribute(s) on DOM mutations.
+ * */
+
+export function removeAttr(
+    rawToken = '',
+    rawSelector = '',
+    behavior = ''
+) {
+    if ( typeof rawToken !== 'string' ) { return; }
+    if ( rawToken === '' ) { return; }
+    const safe = safeSelf();
+    const logPrefix = safe.makeLogPrefix('remove-attr', rawToken, rawSelector, behavior);
+    const tokens = safe.String_split.call(rawToken, /\s*\|\s*/);
+    const selector = tokens
+        .map(a => `${rawSelector}[${CSS.escape(a)}]`)
+        .join(',');
+    if ( safe.logLevel > 1 ) {
+        safe.uboLog(logPrefix, `Target selector:\n\t${selector}`);
+    }
+    const asap = /\basap\b/.test(behavior);
+    let timerId;
+    const rmattrAsync = ( ) => {
+        if ( timerId !== undefined ) { return; }
+        timerId = safe.onIdle(( ) => {
+            timerId = undefined;
+            rmattr();
+        }, { timeout: 17 });
+    };
+    const rmattr = ( ) => {
+        if ( timerId !== undefined ) {
+            safe.offIdle(timerId);
+            timerId = undefined;
+        }
+        try {
+            const nodes = document.querySelectorAll(selector);
+            for ( const node of nodes ) {
+                for ( const attr of tokens ) {
+                    if ( node.hasAttribute(attr) === false ) { continue; }
+                    node.removeAttribute(attr);
+                    safe.uboLog(logPrefix, `Removed attribute '${attr}'`);
+                }
+            }
+        } catch(ex) {
+        }
+    };
+    const mutationHandler = mutations => {
+        if ( timerId !== undefined ) { return; }
+        let skip = true;
+        for ( let i = 0; i < mutations.length && skip; i++ ) {
+            const { type, addedNodes, removedNodes } = mutations[i];
+            if ( type === 'attributes' ) { skip = false; }
+            for ( let j = 0; j < addedNodes.length && skip; j++ ) {
+                if ( addedNodes[j].nodeType === 1 ) { skip = false; break; }
+            }
+            for ( let j = 0; j < removedNodes.length && skip; j++ ) {
+                if ( removedNodes[j].nodeType === 1 ) { skip = false; break; }
+            }
+        }
+        if ( skip ) { return; }
+        asap ? rmattr() : rmattrAsync();
+    };
+    const start = ( ) => {
+        rmattr();
+        if ( /\bstay\b/.test(behavior) === false ) { return; }
+        const observer = new MutationObserver(mutationHandler);
+        observer.observe(document, {
+            attributes: true,
+            attributeFilter: tokens,
+            childList: true,
+            subtree: true,
+        });
+    };
+    runAt(( ) => { start(); }, safe.String_split.call(behavior, /\s+/));
+}
+registerScriptlet(removeAttr, {
+    name: 'remove-attr.js',
+    aliases: [
+        'ra.js',
+    ],
+    dependencies: [
+        runAt,
+        safeSelf,
+    ],
+});
 
 /******************************************************************************/

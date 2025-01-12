@@ -28,6 +28,7 @@ export const browser =
 export const dnr = browser.declarativeNetRequest;
 export const i18n = browser.i18n;
 export const runtime = browser.runtime;
+export const TAB_ID_NONE = browser.tabs.TAB_ID_NONE;
 export const windows = browser.windows;
 
 /******************************************************************************/
@@ -96,6 +97,12 @@ export async function sessionWrite(key, value) {
     if ( browser.storage instanceof Object === false ) { return; }
     if ( browser.storage.session instanceof Object === false ) { return; }
     return browser.storage.session.set({ [key]: value });
+}
+
+export async function sessionRemove(key) {
+    if ( browser.storage instanceof Object === false ) { return; }
+    if ( browser.storage.session instanceof Object === false ) { return; }
+    return browser.storage.session.remove(key);
 }
 
 /******************************************************************************/

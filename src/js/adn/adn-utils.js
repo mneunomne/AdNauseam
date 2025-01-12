@@ -425,3 +425,66 @@ export const decodeEntities = (function () {
   }
   return decodeHTMLEntities;
 })();
+
+
+
+/********* advault capture feature  *********/
+
+export async function generateCaptureSvg (jsonData) {
+  // create hidden div to hold the SVG
+  const output = document.createElement('div');
+  output.style.display = 'none';
+  const svgContent = await generateSVG(jsonData);
+  output.innerHTML = svgContent;
+  // Make the SVG downloadable
+  const blob = new Blob([svgContent], { type: 'image/svg+xml' });  
+  const url = URL.createObjectURL(blob);
+  return url;
+}
+
+export async function fetchImageAsBase64(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous'; // Handle CORS
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const base64 = canvas.toDataURL('image/jpeg'); // Convert to JPEG format
+      resolve(base64);
+    };
+    img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+    img.src = url;
+  });
+}
+
+export async function generateSVG(json) {
+  if (!json.ads || !Array.isArray(json.ads)) {
+    throw new Error('Invalid JSON structure. Expected an "ads" array.');
+  }
+
+  const svgHeader = `<svg xmlns="http://www.w3.org/2000/svg" width="10000" height="10000" viewBox="-5000 -5000 10000 10000">\n`;
+  const svgFooter = `</svg>`;
+
+  console.log("Adn Capture: Total images", json.ads.length);
+  var imageCounter = 0;
+
+  // Fetch and encode all image URLs to Base64
+  const images = await Promise.all(
+    json.ads.map(async (ad) => {
+      let src = ad.src;
+      if (src.startsWith('http')) {
+        src = await fetchImageAsBase64(src);
+      }
+      console.log("Parsed image", ad);
+      imageCounter++
+      console.log("Adn Capture: Image", imageCounter, "of", json.ads.length);
+
+      return `<image href="${src}" x="${ad.pos.x}" y="${ad.pos.y}" height="${ad.height}" width="${ad.width}" />`;
+    })
+  );
+
+  return `${svgHeader}${images.join('\n')}\n${svgFooter}`;
+}
