@@ -430,11 +430,11 @@ export const decodeEntities = (function () {
 
 /********* advault capture feature  *********/
 
-export async function generateCaptureSvg (jsonData) {
+export async function generateCaptureSvg (jsonData, currentZoom) {
   // create hidden div to hold the SVG
   const output = document.createElement('div');
   output.style.display = 'none';
-  const svgContent = await generateSVG(jsonData);
+  const svgContent = await generateSVG(jsonData, currentZoom);
   output.innerHTML = svgContent;
   // Make the SVG downloadable
   const blob = new Blob([svgContent], { type: 'image/svg+xml' });  
@@ -460,7 +460,7 @@ export async function fetchImageAsBase64(url) {
   });
 }
 
-export async function generateSVG(json) {
+export async function generateSVG(json, currentZoom) {
   if (!json.ads || !Array.isArray(json.ads)) {
     throw new Error('Invalid JSON structure. Expected an "ads" array.');
   }
@@ -478,11 +478,14 @@ export async function generateSVG(json) {
       if (src.startsWith('http')) {
         src = await fetchImageAsBase64(src);
       }
-      console.log("Parsed image", ad);
+      //console.log("Parsed image", ad);
       imageCounter++
       console.log("Adn Capture: Image", imageCounter, "of", json.ads.length);
-
-      return `<image href="${src}" x="${ad.pos.x}" y="${ad.pos.y}" height="${ad.height}" width="${ad.width}" />`;
+      let x = ad.pos.x * currentZoom;
+      let y = ad.pos.y * currentZoom;
+      let w = ad.width * currentZoom;
+      let h = ad.height * currentZoom;
+      return `<image href="${src}" x="${x}" y="${y}" height="${h}" width="${w}" />`;
     })
   );
 

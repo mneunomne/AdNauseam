@@ -963,6 +963,28 @@ const adnauseam = (function () {
     storeAdData();
   }
 
+  const deadAd = function (ad) {
+    console.log("deadAd", ad)
+    if (!ad) {
+      return warn("No Ad to set Dead", id, admap);
+    }
+
+    const pageHash = YaMD5.hashStr(ad.pageUrl);
+    if (pageHash !== YaMD5.hashStr("")) {
+      const hash = computeHash(ad);
+      if (admap[pageHash][hash]) {
+        let addata = admap[pageHash][hash];
+        console.log("addata", addata)
+        if (admap[pageHash][hash]["dead"]) {
+          admap[pageHash][hash]["dead"] = parseInt(admap[pageHash][hash]["dead"]) + 1;
+        } else {
+          admap[pageHash][hash]["dead"] = 1;
+        }
+        storeAdData();
+      }
+    }
+  }
+
   const adsForUI = function (pageUrl) {
     return {
       data: adlist(pageUrl, false, true),
@@ -1864,6 +1886,12 @@ const adnauseam = (function () {
     request.ids.forEach(deleteAd);
   };
 
+
+  exports.deadAd = function (request, pageStore, tabId) {
+    let ad = request.ad;
+    deadAd(ad);
+  };
+
   exports.logAdSet = function (request, pageStore, tabId) {
 
     let data = '';
@@ -2285,6 +2313,11 @@ const adnauseam = (function () {
   // check if "blur collected ads" options is enabled or not 
   exports.getBlurCollectedAds = function () {
     return µb.userSettings.blurCollectedAds;
+  };
+
+  // check if "blur collected ads" options is enabled or not 
+  exports.getHideDeadAds = function () {
+    return µb.userSettings.hideDeadAds;
   };
   
   // ADN broadcast change of "disable warning" to all tabs

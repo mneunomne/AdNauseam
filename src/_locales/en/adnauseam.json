@@ -507,6 +507,10 @@
     "message": "Blur Collected ads",
     "description": "English: Blur Collected ads"
   },
+  "hideDeadAds": {
+    "message": "Hide Dead ads",
+    "description": "English: Hide Dead ads"
+  },
   "showAdsDebugPrompt": {
     "message": "Show ads for ad-collection debugging",
     "description": "English: Show ads for ad-collection debugging"

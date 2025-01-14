@@ -808,8 +808,8 @@ div.bullets { display: none; } /* hide by default */
 	pointer-events: none;
 }
 
-#stage.blur .ad img {
-	filter: blur(5px);
+#stage.blur .item:not(.inspected) .ad img {
+	filter: blur(10px);
 }
 
 #stage.blur .ad img:hover {

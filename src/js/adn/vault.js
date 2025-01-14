@@ -83,6 +83,8 @@ var transitionTimeout = null
 let gAds, gAdSets, gMin, gMax, gSliderRight, gSliderLeft, settings, pack;
 let lastAdDetectedTime, waitingAds = []; // stateful
 
+var hideDeadAds = false;
+
 onBroadcast(request => {
   //console.log("GOT BROADCAST", request);
   switch (request.what) {
@@ -168,12 +170,19 @@ const renderAds = function (json) {
     'adnauseam', {
     what: 'getBlurCollectedAds'
   }).then(blurCollectedAds => {
-    //console.log("blurCollectedAds", blurCollectedAds);
     if (blurCollectedAds) {
       uDom("#stage").addClass('blur');
     } else {
       uDom("#stage").removeClass('blur');
     }
+  });
+
+  vAPI.messaging.send(
+    'adnauseam', {
+    what: 'getHideDeadAds'
+  }).then(_hideDeadAds => {
+    console.log("_hideDeadAds" ,_hideDeadAds)
+    hideDeadAds = _hideDeadAds;
   });
 
   if (settings.devMode || settings.logEvents) {
@@ -718,9 +727,16 @@ function appendDisplayTo($div, adset) {
   var failedCount = adset.failedCount();
   var dntCount = adset.dntCount();
   var visitedCount = adset.visitedCount();
+  var deadCount = adset.deadCount();
   var foundTs = adset.foundTs();
   var w = adset.width();
   var h = adset.height();
+
+  if (deadCount > 0 && hideDeadAds) {
+    // dont display add
+    return;
+  } 
+  
 
   var hasSize = w && h;
 
@@ -787,11 +803,16 @@ function appendDisplayTo($div, adset) {
   $img.on("error", function () {
     isLoaded = true;
     setItemClass($div, 'image-error');
-    $img.attr('src', 'img/placeholder.svg');
+    $img.attr('src', '  ');
     $img.attr('alt', 'Unable to load image');
     $img.attr('data-error', 'error');
     $img.off("error");
     $div.addClass('loaded');
+    // tell the addon
+    messager.send('adnauseam', {
+      what: 'deadAd',
+      ad: adset.children[0]
+    });
   });
 
   $img.on('load', function () {
@@ -2174,8 +2195,7 @@ function onCapture() { // save screenshot
         ads: ads,
         meta: meta
       }
-
-      generateCaptureSvg(capture).then(svgUrl => {
+      generateCaptureSvg(capture, userZoomScale/100).then(svgUrl => {
 
         let exportData = JSON.stringify(capture, null, '  ')
         let filename = getExportFileName();
@@ -2295,6 +2315,11 @@ AdSet.prototype.targetHostname = function () {
 AdSet.prototype.failedCount = function () {
   const containerObj = this;
   return this.children.filter((d) => containerObj.state(d) === 'failed').length;
+};
+
+AdSet.prototype.deadCount = function () {
+  const containerObj = this;
+  return this.children[0]?.dead;
 };
 
 AdSet.prototype.dntCount = function () {
