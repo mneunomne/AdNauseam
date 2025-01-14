@@ -2211,7 +2211,8 @@ function onCapture() { // save screenshot
         ads: ads,
         meta: meta
       }
-      generateCaptureSvg(capture, userZoomScale/100).then(svgUrl => {
+
+      generateCaptureSvg(capture, userZoomScale/100, $("#svg-loaded"), $("#svg-total")).then(svgUrl => {
 
         let exportData = JSON.stringify(capture, null, '  ')
         let filename = getExportFileName();
@@ -2230,6 +2231,8 @@ function onCapture() { // save screenshot
           'url': url,
           'filename': filename
         });
+
+        $("#svg-progress").hide();
 
         const screenshot = new Image();
         screenshot.src = imgUrl;

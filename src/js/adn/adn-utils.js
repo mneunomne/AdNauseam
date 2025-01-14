@@ -432,11 +432,11 @@ export const decodeEntities = (function () {
 
 /********* advault capture feature  *********/
 
-export async function generateCaptureSvg (jsonData, currentZoom) {
+export async function generateCaptureSvg (jsonData, currentZoom, $loaded, $total) {
   // create hidden div to hold the SVG
   const output = document.createElement('div');
   output.style.display = 'none';
-  const svgContent = await generateSVG(jsonData, currentZoom);
+  const svgContent = await generateSVG(jsonData, currentZoom, $loaded, $total);
   output.innerHTML = svgContent;
   // Make the SVG downloadable
   const blob = new Blob([svgContent], { type: 'image/svg+xml' });  
@@ -462,7 +462,7 @@ export async function fetchImageAsBase64(url) {
   });
 }
 
-export async function generateSVG(json, currentZoom) {
+export async function generateSVG(json, currentZoom, $loaded, $total) {
   if (!json.ads || !Array.isArray(json.ads)) {
     throw new Error('Invalid JSON structure. Expected an "ads" array.');
   }
@@ -472,7 +472,8 @@ export async function generateSVG(json, currentZoom) {
 
   console.log("Adn Capture: Total images", json.ads.length);
   var imageCounter = 0;
-
+  $total.parent().show();
+  $total.text(json.ads.length);
   // Fetch and encode all image URLs to Base64
   const images = await Promise.all(
     json.ads.map(async (ad) => {
@@ -483,6 +484,7 @@ export async function generateSVG(json, currentZoom) {
       //console.log("Parsed image", ad);
       imageCounter++
       console.log("Adn Capture: Image", imageCounter, "of", json.ads.length);
+      $loaded.text(imageCounter);
       let x = ad.pos.x * currentZoom;
       let y = ad.pos.y * currentZoom;
       let w = ad.width * currentZoom;

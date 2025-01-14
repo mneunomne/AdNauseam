@@ -820,6 +820,16 @@ div.bullets { display: none; } /* hide by default */
 	background: white;
 }
 
+#svg-progress {
+	position: absolute;
+	display: none;
+	top: 40px;
+	left: 50%;
+	transform: translateX(-50%);
+	color: black;
+	z-index: 1000;
+}
+
 /*
 .item, .item img {
 	//temporary fix for the big images bug
