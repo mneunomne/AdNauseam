@@ -180,12 +180,18 @@ const renderAds = function (json, purge) {
     }
   });
 
-  vAPI.messaging.send(
-    'adnauseam', {
-    what: 'getHideDeadAds'
-  }).then(_hideDeadAds => {
-    console.log("_hideDeadAds" ,_hideDeadAds)
-    hideDeadAds = _hideDeadAds;
+  $('#show-dead-ads').on('click', function () {
+    hideDeadAds = false;
+    $('#show-dead-ads').hide();
+    $('#hide-dead-ads').show();
+    createSlider();
+  });
+  
+  $('#hide-dead-ads').on('click', function () {
+    hideDeadAds = true;
+    $('#show-dead-ads').show();
+    $('#hide-dead-ads').hide();
+    createSlider();
   });
 
   if (settings.devMode || settings.logEvents) {
@@ -746,8 +752,6 @@ function appendDisplayTo($div, adset) {
         ad: adset.children[0]
       });
     }
-
-
     // dont display add
     return;
   } 
@@ -817,7 +821,7 @@ function appendDisplayTo($div, adset) {
   $img.on("error", function () {
     isLoaded = true;
     setItemClass($div, 'image-error');
-    $img.attr('src', '  ');
+    $img.attr('src', 'img/placeholder.svg');
     $img.attr('alt', 'Unable to load image');
     $img.attr('data-error', 'error');
     $img.off("error");
@@ -2431,11 +2435,24 @@ AdSet.prototype.groupState = function () {
   return failed ? 'failed' : 'pending';
 };
 
-messager.send('adnauseam', {
-  what: 'adsForVault'
-}).then(details => {
-  renderAds(details);
-})
+vAPI.messaging.send(
+  'adnauseam', {
+  what: 'getHideDeadAds'
+}).then(_hideDeadAds => {
+  if (_hideDeadAds) {
+    $('#show-dead-ads').show();
+    $('#hide-dead-ads').hide();
+  } else {
+    $('#show-dead-ads').hide();
+    $('#hide-dead-ads').show();
+  }
+  hideDeadAds = _hideDeadAds;
+  messager.send('adnauseam', {
+    what: 'adsForVault'
+  }).then(details => {
+    renderAds(details);
+  })  
+});
 
 $('#export').on('click', exportToFile);
 $('#import').on('click', startImportFilePicker);
