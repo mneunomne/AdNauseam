@@ -116,7 +116,7 @@ const userSettingsDefault = {
     strictBlockingMode: false,
     disableWarnings: false, 
     blurCollectedAds: false,
-    hideDeadAds: true,
+    hideDeadAds: false,
 
     clickOnlyWhenIdleFor: 0,
     noIncomingCookies: true,
