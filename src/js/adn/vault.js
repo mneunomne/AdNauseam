@@ -135,7 +135,7 @@ const renderAds = function (json, purge) {
   addInterfaceHandlers();
   settings = json.prefs;
   if (purge) {
-    createSlider("delete");
+    createSlider("update");
   } else {
     createSlider();
   }
