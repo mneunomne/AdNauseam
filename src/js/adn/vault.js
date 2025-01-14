@@ -83,6 +83,8 @@ var transitionTimeout = null
 let gAds, gAdSets, gMin, gMax, gSliderRight, gSliderLeft, settings, pack;
 let lastAdDetectedTime, waitingAds = []; // stateful
 
+var hideDeadAds = false;
+
 onBroadcast(request => {
   //console.log("GOT BROADCAST", request);
   switch (request.what) {
@@ -128,12 +130,15 @@ onBroadcast(request => {
 
 /********************************************************************/
 
-const renderAds = function (json) {
-
+const renderAds = function (json, purge) {
   gAds = json.data; // store
   addInterfaceHandlers();
   settings = json.prefs;
-  createSlider();
+  if (purge) {
+    createSlider("update");
+  } else {
+    createSlider();
+  }
   setCurrent(json.current);
 
   vAPI.messaging.send(
@@ -168,12 +173,19 @@ const renderAds = function (json) {
     'adnauseam', {
     what: 'getBlurCollectedAds'
   }).then(blurCollectedAds => {
-    //console.log("blurCollectedAds", blurCollectedAds);
     if (blurCollectedAds) {
       uDom("#stage").addClass('blur');
     } else {
       uDom("#stage").removeClass('blur');
     }
+  });
+
+  vAPI.messaging.send(
+    'adnauseam', {
+    what: 'getHideDeadAds'
+  }).then(_hideDeadAds => {
+    console.log("_hideDeadAds" ,_hideDeadAds)
+    hideDeadAds = _hideDeadAds;
   });
 
   if (settings.devMode || settings.logEvents) {
@@ -718,9 +730,28 @@ function appendDisplayTo($div, adset) {
   var failedCount = adset.failedCount();
   var dntCount = adset.dntCount();
   var visitedCount = adset.visitedCount();
+  var deadCount = adset.deadCount();
   var foundTs = adset.foundTs();
   var w = adset.width();
   var h = adset.height();
+  let img_src = adset.child(0).contentData.src;
+
+  if (deadCount > 0 && hideDeadAds) {
+    // still try to load the image in case it is not dead
+    let img = new Image();
+    img.src = img_src;
+    img.onload = function () {
+      messager.send('adnauseam', {
+        what: 'notDeadAd',
+        ad: adset.children[0]
+      });
+    }
+
+
+    // dont display add
+    return;
+  } 
+  
 
   var hasSize = w && h;
 
@@ -769,7 +800,6 @@ function appendDisplayTo($div, adset) {
 
   // add white background to transparent ads that are saved data strings 
   // https://github.com/dhowe/AdNauseam/issues/1978
-  let img_src = adset.child(0).contentData.src;
   var isPNGdata = img_src.includes('data:image/png');
   var cl = isPNGdata ? "white-bg" : "";
   const $img = $('<img/>', {
@@ -787,11 +817,16 @@ function appendDisplayTo($div, adset) {
   $img.on("error", function () {
     isLoaded = true;
     setItemClass($div, 'image-error');
-    $img.attr('src', 'img/placeholder.svg');
+    $img.attr('src', '  ');
     $img.attr('alt', 'Unable to load image');
     $img.attr('data-error', 'error');
     $img.off("error");
     $div.addClass('loaded');
+    // tell the addon
+    messager.send('adnauseam', {
+      what: 'deadAd',
+      ad: adset.children[0]
+    });
   });
 
   $img.on('load', function () {
@@ -1261,7 +1296,9 @@ function toggleInterface() {
 
     $("body")
       .css('background-image', 'none')
-      .css({ 'background-color': '#fff' });
+      .css({ 'background-color': '#fff'})
+      .css({ 'pointer-events': 'none'});
+
     ifs.forEach(s => $(s).hide());
 
     // remove all duplicate classes (TODO: just hide them)
@@ -1272,7 +1309,8 @@ function toggleInterface() {
   } else {
     $("body")
       .css('background-image', 'url(../img/gray_grid.png)')
-      .css({ 'background-color': '#000' });
+      .css({ 'background-color': '#000' })
+      .css({ 'pointer-events': 'all'});
     ifs.forEach(s => $(s).show());
   }
 }
@@ -1986,7 +2024,7 @@ function createSlider(mode) {
       vaultLoading = false;
       break;
     case "resize":
-      repack();
+      // repack();
       runFilter([gMin, gMax])
       break;
     case "update":
@@ -2119,7 +2157,6 @@ function parsePackElements(packElements, gMin, gMax) {
 }
 
 function onCapture() { // save screenshot
-
   let dbug = true;
   if (dbug) console.log('onCapture');
   toggleInterface(showInterface = true);
@@ -2175,7 +2212,7 @@ function onCapture() { // save screenshot
         meta: meta
       }
 
-      generateCaptureSvg(capture).then(svgUrl => {
+      generateCaptureSvg(capture, userZoomScale/100, $("#svg-loaded"), $("#svg-total")).then(svgUrl => {
 
         let exportData = JSON.stringify(capture, null, '  ')
         let filename = getExportFileName();
@@ -2195,6 +2232,8 @@ function onCapture() { // save screenshot
           'filename': filename
         });
 
+        $("#svg-progress").hide();
+
         const screenshot = new Image();
         screenshot.src = imgUrl;
         screenshot.onload = () => {
@@ -2212,17 +2251,16 @@ function onCapture() { // save screenshot
 function onPurgeDeadAds() {
   let deadAds = getDeadAds()
   if (deadAds.length > 0) {
-    purgeDeadAds(getDeadAds())
+    purgeDeadAds(getDeadAds(), function (response) {
+      renderAds(response, true)
+    })
   } else {
     console.log("no dead ads to purge")
   }
 }
 
 function getDeadAds() {
-  let adsGids = [];
-  document.querySelectorAll(".image-error")
-    .forEach(el => adsGids.push(parseInt(el.getAttribute('data-gid'))));
-  return gAdSets.filter(adset => adsGids.includes(adset.gid))
+  return gAdSets.filter(adset => adset.deadCount() > 0)
 }
 
 /********************************************************************/
@@ -2295,6 +2333,11 @@ AdSet.prototype.targetHostname = function () {
 AdSet.prototype.failedCount = function () {
   const containerObj = this;
   return this.children.filter((d) => containerObj.state(d) === 'failed').length;
+};
+
+AdSet.prototype.deadCount = function () {
+  const containerObj = this;
+  return this.children[0]?.dead;
 };
 
 AdSet.prototype.dntCount = function () {

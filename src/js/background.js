@@ -114,8 +114,9 @@ const userSettingsDefault = {
     clickProbability: 1.0,
     removeAdsInPrivate: true,
     strictBlockingMode: false,
-    disableWarnings: false,
+    disableWarnings: false, 
     blurCollectedAds: false,
+    hideDeadAds: true,
 
     clickOnlyWhenIdleFor: 0,
     noIncomingCookies: true,

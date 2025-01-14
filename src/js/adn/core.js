@@ -844,7 +844,7 @@ const adnauseam = (function () {
   };
   
   const purgeDeadAdsAdmap = function (deadAds) {
-    let deadIds = deadAds.map(deadad => deadad.children.map(c => c.id))[0]
+    let deadIds = deadAds.map(deadad => deadad.children.map(c => c.id)[0])
     const pages = Object.keys(admap);
     for (let i = 0; i < pages.length; i++) {
       if (admap[pages[i]]) {
@@ -961,6 +961,31 @@ const adnauseam = (function () {
 
     adsetSize--;
     storeAdData();
+  }
+
+  const deadAd = function (ad, setDead) {
+    console.log("deadAd", ad)
+    if (!ad) {
+      return warn("No Ad to set Dead", id, admap);
+    }
+
+    const pageHash = YaMD5.hashStr(ad.pageUrl);
+    if (pageHash !== YaMD5.hashStr("")) {
+      const hash = computeHash(ad);
+      if (admap[pageHash][hash]) {
+        let addata = admap[pageHash][hash];
+        if(setDead) { // set ad as dead
+          if (admap[pageHash][hash]["dead"]) {
+            admap[pageHash][hash]["dead"] = parseInt(admap[pageHash][hash]["dead"]) + 1;
+          } else {
+            admap[pageHash][hash]["dead"] = 1;
+          }
+        } else { // set as not dead
+          admap[pageHash][hash]["dead"] = 0;
+        }
+        storeAdData();
+      }
+    }
   }
 
   const adsForUI = function (pageUrl) {
@@ -1864,6 +1889,18 @@ const adnauseam = (function () {
     request.ids.forEach(deleteAd);
   };
 
+
+  exports.deadAd = function (request, pageStore, tabId) {
+    let ad = request.ad;
+    deadAd(ad, true);
+  };
+
+  exports.notDeadAd = function (request, pageStore, tabId) {
+    let ad = request.ad;
+    deadAd(ad, false);
+  };
+
+
   exports.logAdSet = function (request, pageStore, tabId) {
 
     let data = '';
@@ -2286,6 +2323,11 @@ const adnauseam = (function () {
   exports.getBlurCollectedAds = function () {
     return µb.userSettings.blurCollectedAds;
   };
+
+  // check if "blur collected ads" options is enabled or not 
+  exports.getHideDeadAds = function () {
+    return µb.userSettings.hideDeadAds;
+  };
   
   // ADN broadcast change of "disable warning" to all tabs
   exports.setWarningDisabled = function () {
@@ -2346,6 +2388,11 @@ const adnauseam = (function () {
     }
 
     return json;
+  };
+
+  exports.purgeDeadAds = function (request, pageStore, tabId) {
+    purgeDeadAdsAdmap(request.deadAds);
+    return adsForUI();
   };
 
   return exports;
