@@ -198,6 +198,17 @@ const renderAds = function (json, purge) {
     console.log("DevMode: enabling capture button");
     $('#capture').on('click', onCapture);
     $('#capture').removeClass('item-hidden');
+
+    if (hideDeadAds) {
+      $('#show-dead-ads').show();
+      $('#hide-dead-ads').hide();
+    } else {
+      $('#show-dead-ads').hide();
+      $('#hide-dead-ads').show();
+    }
+  } else {
+    $('#show-dead-ads').hide();
+    $('#hide-dead-ads').hide();
   }
 };
 
@@ -2439,13 +2450,6 @@ vAPI.messaging.send(
   'adnauseam', {
   what: 'getHideDeadAds'
 }).then(_hideDeadAds => {
-  if (_hideDeadAds) {
-    $('#show-dead-ads').show();
-    $('#hide-dead-ads').hide();
-  } else {
-    $('#show-dead-ads').hide();
-    $('#hide-dead-ads').show();
-  }
   hideDeadAds = _hideDeadAds;
   messager.send('adnauseam', {
     what: 'adsForVault'
