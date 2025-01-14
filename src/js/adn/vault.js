@@ -2245,7 +2245,6 @@ function onCapture() { // save screenshot
 
 function onPurgeDeadAds() {
   let deadAds = getDeadAds()
-  if (dbug) console.log("deadAds", deadAds.length, gAds.length)
   if (deadAds.length > 0) {
     purgeDeadAds(getDeadAds(), function (response) {
       renderAds(response, true)
