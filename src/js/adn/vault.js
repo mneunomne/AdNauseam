@@ -1296,7 +1296,9 @@ function toggleInterface() {
 
     $("body")
       .css('background-image', 'none')
-      .css({ 'background-color': '#fff' });
+      .css({ 'background-color': '#fff'})
+      .css({ 'pointer-events': 'none'});
+
     ifs.forEach(s => $(s).hide());
 
     // remove all duplicate classes (TODO: just hide them)
@@ -1307,7 +1309,8 @@ function toggleInterface() {
   } else {
     $("body")
       .css('background-image', 'url(../img/gray_grid.png)')
-      .css({ 'background-color': '#000' });
+      .css({ 'background-color': '#000' })
+      .css({ 'pointer-events': 'all'});
     ifs.forEach(s => $(s).show());
   }
 }
@@ -2154,7 +2157,6 @@ function parsePackElements(packElements, gMin, gMax) {
 }
 
 function onCapture() { // save screenshot
-
   let dbug = true;
   if (dbug) console.log('onCapture');
   toggleInterface(showInterface = true);
