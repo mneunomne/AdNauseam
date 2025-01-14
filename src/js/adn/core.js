@@ -844,13 +844,14 @@ const adnauseam = (function () {
   };
   
   const purgeDeadAdsAdmap = function (deadAds) {
-    let deadIds = deadAds.map(deadad => deadad.children.map(c => c.id))[0]
+    let deadIds = deadAds.map(deadad => deadad.children.map(c => c.id)[0])
     const pages = Object.keys(admap);
     for (let i = 0; i < pages.length; i++) {
       if (admap[pages[i]]) {
         const hashes = Object.keys(admap[pages[i]]);
         for (let j = 0; j < hashes.length; j++) {
           let ad = admap[pages[i]][hashes[j]];
+          console.log("ad.id", ad.id, deadIds, deadIds.includes(ad.id))
           if (deadIds.includes(ad.id)) {
             delete admap[pages[i]][hashes[j]];
           }
@@ -963,7 +964,7 @@ const adnauseam = (function () {
     storeAdData();
   }
 
-  const deadAd = function (ad) {
+  const deadAd = function (ad, setDead) {
     console.log("deadAd", ad)
     if (!ad) {
       return warn("No Ad to set Dead", id, admap);
@@ -974,11 +975,14 @@ const adnauseam = (function () {
       const hash = computeHash(ad);
       if (admap[pageHash][hash]) {
         let addata = admap[pageHash][hash];
-        console.log("addata", addata)
-        if (admap[pageHash][hash]["dead"]) {
-          admap[pageHash][hash]["dead"] = parseInt(admap[pageHash][hash]["dead"]) + 1;
-        } else {
-          admap[pageHash][hash]["dead"] = 1;
+        if(setDead) { // set ad as dead
+          if (admap[pageHash][hash]["dead"]) {
+            admap[pageHash][hash]["dead"] = parseInt(admap[pageHash][hash]["dead"]) + 1;
+          } else {
+            admap[pageHash][hash]["dead"] = 1;
+          }
+        } else { // set as not dead
+          admap[pageHash][hash]["dead"] = 0;
         }
         storeAdData();
       }
@@ -1889,8 +1893,14 @@ const adnauseam = (function () {
 
   exports.deadAd = function (request, pageStore, tabId) {
     let ad = request.ad;
-    deadAd(ad);
+    deadAd(ad, true);
   };
+
+  exports.notDeadAd = function (request, pageStore, tabId) {
+    let ad = request.ad;
+    deadAd(ad, false);
+  };
+
 
   exports.logAdSet = function (request, pageStore, tabId) {
 
@@ -2379,6 +2389,11 @@ const adnauseam = (function () {
     }
 
     return json;
+  };
+
+  exports.purgeDeadAds = function (request, pageStore, tabId) {
+    purgeDeadAdsAdmap(request.deadAds);
+    return adsForUI();
   };
 
   return exports;

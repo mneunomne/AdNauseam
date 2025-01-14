@@ -130,12 +130,15 @@ onBroadcast(request => {
 
 /********************************************************************/
 
-const renderAds = function (json) {
-
+const renderAds = function (json, purge) {
   gAds = json.data; // store
   addInterfaceHandlers();
   settings = json.prefs;
-  createSlider();
+  if (purge) {
+    createSlider("delete");
+  } else {
+    createSlider();
+  }
   setCurrent(json.current);
 
   vAPI.messaging.send(
@@ -731,8 +734,20 @@ function appendDisplayTo($div, adset) {
   var foundTs = adset.foundTs();
   var w = adset.width();
   var h = adset.height();
+  let img_src = adset.child(0).contentData.src;
 
   if (deadCount > 0 && hideDeadAds) {
+    // still try to load the image in case it is not dead
+    let img = new Image();
+    img.src = img_src;
+    img.onload = function () {
+      messager.send('adnauseam', {
+        what: 'notDeadAd',
+        ad: adset.children[0]
+      });
+    }
+
+
     // dont display add
     return;
   } 
@@ -785,7 +800,6 @@ function appendDisplayTo($div, adset) {
 
   // add white background to transparent ads that are saved data strings 
   // https://github.com/dhowe/AdNauseam/issues/1978
-  let img_src = adset.child(0).contentData.src;
   var isPNGdata = img_src.includes('data:image/png');
   var cl = isPNGdata ? "white-bg" : "";
   const $img = $('<img/>', {
@@ -2231,18 +2245,18 @@ function onCapture() { // save screenshot
 
 function onPurgeDeadAds() {
   let deadAds = getDeadAds()
+  console.log("deadAds", deadAds.length, gAds.length)
   if (deadAds.length > 0) {
-    purgeDeadAds(getDeadAds())
+    purgeDeadAds(getDeadAds(), function (response) {
+      renderAds(response, true)
+    })
   } else {
     console.log("no dead ads to purge")
   }
 }
 
 function getDeadAds() {
-  let adsGids = [];
-  document.querySelectorAll(".image-error")
-    .forEach(el => adsGids.push(parseInt(el.getAttribute('data-gid'))));
-  return gAdSets.filter(adset => adsGids.includes(adset.gid))
+  return gAdSets.filter(adset => adset.deadCount() > 0)
 }
 
 /********************************************************************/

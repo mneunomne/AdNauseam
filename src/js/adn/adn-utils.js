@@ -362,13 +362,15 @@ export const clearAds = function () {
   }
 };
 
-export const purgeDeadAds = function (deadAds) {
+export const purgeDeadAds = function (deadAds, callback) {
   const msg = i18n$('adnPurgeConfirm');
   const proceed = window.confirm(msg); // changed from vAPI.confirm merge1.14.12
   if (proceed) {
     vAPI.messaging.send('adnauseam', {
       what: 'purgeDeadAds',
       'deadAds': deadAds
+    }).then(data => {
+      callback(data);
     });
   }
 };
