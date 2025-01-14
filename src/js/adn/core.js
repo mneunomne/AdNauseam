@@ -851,7 +851,6 @@ const adnauseam = (function () {
         const hashes = Object.keys(admap[pages[i]]);
         for (let j = 0; j < hashes.length; j++) {
           let ad = admap[pages[i]][hashes[j]];
-          console.log("ad.id", ad.id, deadIds, deadIds.includes(ad.id))
           if (deadIds.includes(ad.id)) {
             delete admap[pages[i]][hashes[j]];
           }

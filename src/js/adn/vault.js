@@ -2021,7 +2021,7 @@ function createSlider(mode) {
       vaultLoading = false;
       break;
     case "resize":
-      repack();
+      // repack();
       runFilter([gMin, gMax])
       break;
     case "update":
@@ -2245,7 +2245,7 @@ function onCapture() { // save screenshot
 
 function onPurgeDeadAds() {
   let deadAds = getDeadAds()
-  console.log("deadAds", deadAds.length, gAds.length)
+  if (dbug) console.log("deadAds", deadAds.length, gAds.length)
   if (deadAds.length > 0) {
     purgeDeadAds(getDeadAds(), function (response) {
       renderAds(response, true)
