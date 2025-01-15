@@ -467,7 +467,7 @@ export async function generateSVG(json, currentZoom, $loaded, $total) {
     throw new Error('Invalid JSON structure. Expected an "ads" array.');
   }
 
-  const svgHeader = `<svg xmlns="http://www.w3.org/2000/svg" width="10000" height="10000" viewBox="-5000 -5000 10000 10000">\n`;
+  const svgHeader = `<svg xmlns="http://www.w3.org/2000/svg" width="${window.innerWidth}" height="${window.innerHeight}" viewBox="0 0 ${window.innerWidth} ${window.innerHeight}">\n`;
   const svgFooter = `</svg>`;
 
   console.log("Adn Capture: Total images", json.ads.length);
@@ -485,10 +485,10 @@ export async function generateSVG(json, currentZoom, $loaded, $total) {
       imageCounter++
       console.log("Adn Capture: Image", imageCounter, "of", json.ads.length);
       $loaded.text(imageCounter);
-      let x = ad.pos.x * currentZoom;
-      let y = ad.pos.y * currentZoom;
-      let w = ad.width * currentZoom;
-      let h = ad.height * currentZoom;
+      let x = ad.pos.x*currentZoom + window.innerWidth/2;
+      let y = ad.pos.y*currentZoom + window.innerHeight/2;
+      let w = ad.width*currentZoom;
+      let h = ad.height*currentZoom;
       return `<image href="${src}" x="${x}" y="${y}" height="${h}" width="${w}" />`;
     })
   );
