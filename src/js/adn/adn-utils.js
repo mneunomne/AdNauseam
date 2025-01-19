@@ -454,7 +454,7 @@ export async function fetchImageAsBase64(url) {
       canvas.height = img.height;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0);
-      const base64 = canvas.toDataURL('image/jpeg'); // Convert to JPEG format
+      const base64 = canvas.toDataURL('image/png'); // Convert to PNG format
       resolve(base64);
     };
     img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
