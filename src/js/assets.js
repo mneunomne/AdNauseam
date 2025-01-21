@@ -30,7 +30,7 @@ import µb from './background.js';
 // adn
 import adnauseam from './adn/core.js'
 import dnt from './adn/dnt.js'
-import { uboLog } from './console.js';
+import { adnLog } from './console.js';
 
 /******************************************************************************/
 
@@ -122,7 +122,7 @@ const resourceIsStale = (networkDetails, cacheDetails) => {
     if ( typeof cacheDetails.resourceTime !== 'number' ) { return false; }
     if ( cacheDetails.resourceTime === 0 ) { return false; }
     if ( networkDetails.resourceTime < cacheDetails.resourceTime ) {
-        uboLog(`Skip ${networkDetails.url}\n\tolder than ${cacheDetails.remoteURL}`);
+        adnLog(`Skip ${networkDetails.url}\n\tolder than ${cacheDetails.remoteURL}`);
         return true;
     }
     return false;
@@ -540,7 +540,7 @@ function getAssetSourceRegistry() {
             if ( bin instanceof Object ) {
                 if ( bin.assetSourceRegistry instanceof Object ) {
                     assetSourceRegistry = bin.assetSourceRegistry;
-                    uboLog('Loaded assetSourceRegistry');
+                    adnLog('Loaded assetSourceRegistry');
                     return assetSourceRegistry;
                 }
             }
@@ -552,7 +552,7 @@ function getAssetSourceRegistry() {
                     : assets.fetchText(µb.assetsJsonPath);
             }).then(details => {
                 updateAssetSourceRegistry(details.content, true);
-                uboLog('Loaded assetSourceRegistry');
+                adnLog('Loaded assetSourceRegistry');
                 return assetSourceRegistry;
             });
         });
@@ -694,7 +694,7 @@ function getAssetCacheRegistry() {
         if ( Object.keys(assetCacheRegistry).length !== 0 ) {
             return console.error('getAssetCacheRegistry(): assetCacheRegistry reassigned!');
         }
-        uboLog('Loaded assetCacheRegistry');
+        adnLog('Loaded assetCacheRegistry');
         assetCacheRegistry = bin.assetCacheRegistry;
     }).then(( ) =>
         assetCacheRegistry
@@ -805,7 +805,7 @@ async function assetCacheRemove(pattern, options = {}) {
         const keys = await cacheStorage.keys(re);
         for ( const key of keys ) {
             removedContent.push(key);
-            uboLog(`Removing stray ${key}`);
+            adnLog(`Removing stray ${key}`);
         }
     }
     if ( removedContent.length !== 0 ) {
@@ -1253,7 +1253,7 @@ async function diffUpdater() {
         }
     }
     if ( toHardUpdate.length === 0 ) { return; }
-    uboLog('Diff updater: cycle start');
+    adnLog('Diff updater: cycle start');
     return new Promise(resolve => {
         let pendingOps = 0;
         const bc = new globalThis.BroadcastChannel('diffUpdater');
@@ -1262,7 +1262,7 @@ async function diffUpdater() {
             bc.close();
             resolve();
             if ( typeof error !== 'string' ) { return; }
-            uboLog(`Diff updater: terminate because ${error}`);
+            adnLog(`Diff updater: terminate because ${error}`);
         };
         const checkAndCorrectDiffPath = data => {
             if ( typeof data.text !== 'string' ) { return; }
@@ -1275,7 +1275,7 @@ async function diffUpdater() {
         bc.onmessage = ev => {
             const data = ev.data || {};
             if ( data.what === 'ready' ) {
-                uboLog('Diff updater: hard updating', toHardUpdate.map(v => v.assetKey).join());
+                adnLog('Diff updater: hard updating', toHardUpdate.map(v => v.assetKey).join());
                 while ( toHardUpdate.length !== 0 ) {
                     const assetDetails = toHardUpdate.shift();
                     assetDetails.fetch = true;
@@ -1289,7 +1289,7 @@ async function diffUpdater() {
                 return;
             }
             if ( data.status === 'needtext' ) {
-                uboLog('Diff updater: need text for', data.assetKey);
+                adnLog('Diff updater: need text for', data.assetKey);
                 assetCacheRead(data.assetKey).then(result => {
                     // https://bugzilla.mozilla.org/show_bug.cgi?id=1929326#c9
                     //   Must never be set to undefined!
@@ -1301,7 +1301,7 @@ async function diffUpdater() {
                 return;
             }
             if ( data.status === 'updated' ) {
-                uboLog(`Diff updater: successfully patched ${data.assetKey} using ${data.patchURL} (${data.patchSize})`);
+                adnLog(`Diff updater: successfully patched ${data.assetKey} using ${data.patchURL} (${data.patchSize})`);
                 const metadata = extractMetadataFromList(data.text, [
                     'Last-Modified',
                     'Expires',
@@ -1316,9 +1316,9 @@ async function diffUpdater() {
                 assetCacheSetDetails(data.assetKey, metadata);
                 updaterUpdated.push(data.assetKey);
             } else if ( data.error ) {
-                uboLog(`Diff updater: failed to update ${data.assetKey} using ${data.patchPath}\n\treason: ${data.error}`);
+                adnLog(`Diff updater: failed to update ${data.assetKey} using ${data.patchPath}\n\treason: ${data.error}`);
             } else if ( data.status === 'nopatch-yet' || data.status === 'nodiff' ) {
-                uboLog(`Diff updater: skip update of ${data.assetKey} using ${data.patchPath}\n\treason: ${data.status}`);
+                adnLog(`Diff updater: skip update of ${data.assetKey} using ${data.patchPath}\n\treason: ${data.status}`);
                 assetCacheSetDetails(data.assetKey, { writeTime: data.writeTime });
                 broadcast({
                     what: 'assetUpdated',
@@ -1326,34 +1326,34 @@ async function diffUpdater() {
                     cached: true,
                 });
             } else {
-                uboLog(`Diff updater: ${data.assetKey} / ${data.patchPath} / ${data.status}`);
+                adnLog(`Diff updater: ${data.assetKey} / ${data.patchPath} / ${data.status}`);
             }
             pendingOps -= 1;
             if ( pendingOps === 0 && toSoftUpdate.length !== 0 ) {
-                uboLog('Diff updater: soft updating', toSoftUpdate.map(v => v.assetKey).join());
+                adnLog('Diff updater: soft updating', toSoftUpdate.map(v => v.assetKey).join());
                 while ( toSoftUpdate.length !== 0 ) {
                     bc.postMessage(toSoftUpdate.shift());
                     pendingOps += 1;
                 }
             }
             if ( pendingOps !== 0 ) { return; }
-            uboLog('Diff updater: cycle complete');
+            adnLog('Diff updater: cycle complete');
             terminate();
         };
         const worker = new Worker('js/diff-updater.js');
     }).catch(reason => {
-        uboLog(`Diff updater: ${reason}`);
+        adnLog(`Diff updater: ${reason}`);
     });
 }
 
 function updateFirst() {
-    uboLog('Updater: cycle start');
-    uboLog('Updater: prefer', updaterAuto ? 'CDNs' : 'origin');
+    adnLog('Updater: cycle start');
+    adnLog('Updater: prefer', updaterAuto ? 'CDNs' : 'origin');
     updaterStatus = 'updating';
     updaterFetched.clear();
     updaterUpdated.length = 0;
     diffUpdater().catch(reason => {
-        uboLog(reason);
+        adnLog(reason);
     }).finally(( ) => {
         updateNext();
     });
@@ -1427,10 +1427,10 @@ async function updateNext() {
     remoteServerFriendly = false;
 
     if ( result.error ) {
-        uboLog(`Full updater: failed to update ${assetKey}`);
+        adnLog(`Full updater: failed to update ${assetKey}`);
         fireNotification('asset-update-failed', { assetKey: result.assetKey });
     } else {
-        uboLog(`Full updater: successfully updated ${assetKey}`);
+        adnLog(`Full updater: successfully updated ${assetKey}`);
         updaterUpdated.push(result.assetKey);
         if ( result.assetKey === 'assets.json' && result.content !== '' ) {
             updateAssetSourceRegistry(result.content);
@@ -1449,9 +1449,9 @@ function updateDone() {
     updaterStatus = undefined;
     updaterAuto = false;
     updaterAssetDelay = updaterAssetDelayDefault;
-    uboLog('Updater: cycle end');
+    adnLog('Updater: cycle end');
     if ( assetKeys.length ) {
-        uboLog(`Updater: ${assetKeys.join()} were updated`);
+        adnLog(`Updater: ${assetKeys.join()} were updated`);
     }
     fireNotification('after-assets-updated', { assetKeys });
 }

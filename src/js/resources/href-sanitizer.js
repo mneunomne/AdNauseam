@@ -141,7 +141,7 @@ function hrefSanitizer(
             if ( hrefAfter === href ) { continue; }
             elem.setAttribute('href', hrefAfter);
             const count = sanitizeCopycats(href, hrefAfter);
-            safe.uboLog(logPrefix, `Sanitized ${count+1} links to\n${hrefAfter}`);
+            safe.adnLog(logPrefix, `Sanitized ${count+1} links to\n${hrefAfter}`);
         }
         return true;
     };

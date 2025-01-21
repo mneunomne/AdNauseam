@@ -23,32 +23,32 @@
 
 /******************************************************************************/
 
-function uboLogSet(state = false) {
+function adnLogSet(state = false) {
     if ( state ) {
-        if ( uboLog.process instanceof Function ) {
-            uboLog.process();
+        if ( adnLog.process instanceof Function ) {
+            adnLog.process();
         }
-        uboLog = uboLogDo;
+        adnLog = adnLogDo;
     } else {
-        uboLog = uboLogIgnore;
+        adnLog = adnLogIgnore;
     }
 }
 
-function uboLogDo(...args) {
+function adnLogDo(...args) {
     console.info('[ADN]', ...args);
 }
 
-function uboLogIgnore() {
+function adnLogIgnore() {
 }
 
-let uboLog = (( ) => {
+let adnLog = (( ) => {
     const pending = [];
     const store = function(...args) {
         pending.push(args);
     };
     store.process = function() {
         for ( const args of pending ) {
-            uboLogDo(...args);
+            adnLogDo(...args);
         }
     };
     return store;
@@ -56,4 +56,4 @@ let uboLog = (( ) => {
 
 /******************************************************************************/
 
-export { uboLog, uboLogSet };
+export { adnLog, adnLogSet };

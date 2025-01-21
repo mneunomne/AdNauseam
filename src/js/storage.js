@@ -33,7 +33,7 @@ import {
     permanentSwitches,
     permanentURLFiltering,
 } from './filtering-engines.js';
-import { uboLog, uboLogSet } from './console.js';
+import { adnLog, adnLogSet } from './console.js';
 
 import cosmeticFilteringEngine from './cosmetic-filtering.js';
 import { hostnameFromURI } from './uri-utils.js';
@@ -312,7 +312,7 @@ const hasOwnProperty = (o, p) =>
 onBroadcast(msg => {
     if ( msg.what !== 'hiddenSettingsChanged' ) { return; }
     const µbhs = µb.hiddenSettings;
-    uboLogSet(µbhs.consoleLogLevel === 'info');
+    adnLogSet(µbhs.consoleLogLevel === 'info');
     vAPI.net.setOptions({
         cnameIgnoreList: µbhs.cnameIgnoreList,
         cnameIgnore1stParty: µbhs.cnameIgnore1stParty,
@@ -923,7 +923,7 @@ onBroadcast(msg => {
     const elapsed = ( ) => `${Date.now() - t0} ms`;
 
     const onDone = ( ) => {
-        uboLog(`loadFilterLists() All filters in memory at ${elapsed()}`);
+        adnLog(`loadFilterLists() All filters in memory at ${elapsed()}`);
 
         staticNetFilteringEngine.freeze();
         staticExtFilteringEngine.freeze();
@@ -931,7 +931,7 @@ onBroadcast(msg => {
         vAPI.net.unsuspend();
         filteringBehaviorChanged();
 
-        uboLog(`loadFilterLists() All filters ready at ${elapsed()}`);
+        adnLog(`loadFilterLists() All filters ready at ${elapsed()}`);
 
         logger.writeOne({
             realm: 'message',
@@ -955,7 +955,7 @@ onBroadcast(msg => {
     };
 
     const applyCompiledFilters = (assetKey, compiled) => {
-        uboLog(`loadFilterLists() Loading filters from ${assetKey} at ${elapsed()}`);
+        adnLog(`loadFilterLists() Loading filters from ${assetKey} at ${elapsed()}`);
         const snfe = staticNetFilteringEngine;
         const sxfe = staticExtFilteringEngine;
         let acceptedCount = snfe.acceptedCount + sxfe.acceptedCount;
@@ -995,7 +995,7 @@ onBroadcast(msg => {
         µb.selfieManager.destroy();
         staticFilteringReverseLookup.resetLists();
 
-        uboLog(`loadFilterLists() All filters removed at ${elapsed()}`);
+        adnLog(`loadFilterLists() All filters removed at ${elapsed()}`);
 
         // We need to build a complete list of assets to pull first: this is
         // because it *may* happens that some load operations are synchronous:
@@ -1032,11 +1032,11 @@ onBroadcast(msg => {
 
     µb.loadFilterLists = function() {
         if ( loadingPromise instanceof Promise ) { return loadingPromise; }
-        uboLog('loadFilterLists() Start');
+        adnLog('loadFilterLists() Start');
         t0 = Date.now();
         loadedListKeys.length = 0;
         loadingPromise = this.loadRedirectResources().then(( ) => {
-            uboLog(`loadFilterLists() Redirects/scriptlets ready at ${elapsed()}`);
+            adnLog(`loadFilterLists() Redirects/scriptlets ready at ${elapsed()}`);
             return this.getAvailableLists();
         }).then(lists => {
             return onFilterListsReady(lists)
@@ -1268,7 +1268,7 @@ onBroadcast(msg => {
     try {
         const success = await redirectEngine.resourcesFromSelfie(io);
         if ( success === true ) {
-            uboLog('Loaded redirect/scriptlets resources from selfie');
+            adnLog('Loaded redirect/scriptlets resources from selfie');
             return true;
         }
 
@@ -1307,7 +1307,7 @@ onBroadcast(msg => {
         }
         redirectEngine.selfieFromResources(io);
     } catch(ex) {
-        uboLog(ex);
+        adnLog(ex);
         return false;
     }
     return true;
@@ -1326,7 +1326,7 @@ onBroadcast(msg => {
             }).then(
                 WebAssembly.compileStreaming
             ).catch(reason => {
-                uboLog(reason);
+                adnLog(reason);
             });
         };
         let result = false;
@@ -1335,21 +1335,21 @@ onBroadcast(msg => {
                 './lib/publicsuffixlist/wasm/'
             );
         } catch(reason) {
-            uboLog(reason);
+            adnLog(reason);
         }
         if ( result ) {
-            uboLog(`WASM PSL ready ${Date.now()-vAPI.T0} ms after launch`);
+            adnLog(`WASM PSL ready ${Date.now()-vAPI.T0} ms after launch`);
         }
     }
 
     try {
         const selfie = await io.fromCache(`selfie/${this.pslAssetKey}`);
         if ( psl.fromSelfie(selfie) ) {
-            uboLog('Loaded PSL from selfie');
+            adnLog('Loaded PSL from selfie');
             return;
         }
     } catch (reason) {
-        uboLog(reason);
+        adnLog(reason);
     }
 
     const result = await io.get(this.pslAssetKey);
@@ -1361,7 +1361,7 @@ onBroadcast(msg => {
 µb.compilePublicSuffixList = function(content) {
     const psl = publicSuffixList;
     psl.parse(content, punycode.toASCII);
-    uboLog(`Loaded PSL from ${this.pslAssetKey}`);
+    adnLog(`Loaded PSL from ${this.pslAssetKey}`);
     return io.toCache(`selfie/${this.pslAssetKey}`, psl.toSelfie());
 };
 
@@ -1394,7 +1394,7 @@ onBroadcast(msg => {
             ),
         ]);
         µb.selfieIsInvalid = false;
-        uboLog('Filtering engine selfie created');
+        adnLog('Filtering engine selfie created');
     };
 
     const loadMain = async function() {
@@ -1424,9 +1424,9 @@ onBroadcast(msg => {
             }
         }
         catch (reason) {
-            uboLog(reason);
+            adnLog(reason);
         }
-        uboLog('Filtering engine selfie not available');
+        adnLog('Filtering engine selfie not available');
         destroy();
         return false;
     };
@@ -1435,7 +1435,7 @@ onBroadcast(msg => {
         if ( µb.selfieIsInvalid === false ) {
             io.remove(/^selfie\/static/, options);
             µb.selfieIsInvalid = true;
-            uboLog('Filtering engine selfie marked for invalidation');
+            adnLog('Filtering engine selfie marked for invalidation');
         }
         vAPI.alarms.create('createSelfie', {
             delayInMinutes: (µb.hiddenSettings.selfieDelayInSeconds + 17) / 60,
