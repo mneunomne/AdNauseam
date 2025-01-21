@@ -335,11 +335,11 @@
     "message": "Уклоните огласе",
     "description": "appears in ADN popup menu"
   },
-  "adnLogNoLog": {
+  "uboLogNoLog": {
     "message": "Ниједна евиденција није доступна",
     "description": "appears in ADN log page"
   },
-  "adnLogViewFullLog": {
+  "uboLogViewFullLog": {
     "message": "Погледајте пуну евиденцију",
     "description": "appears in ADN log page"
   },

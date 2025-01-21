@@ -335,11 +335,11 @@
     "message": "Zbriši oglase",
     "description": "appears in ADN popup menu"
   },
-  "adnLogNoLog": {
+  "uboLogNoLog": {
     "message": "Dnevnik ni na voljo",
     "description": "appears in ADN log page"
   },
-  "adnLogViewFullLog": {
+  "uboLogViewFullLog": {
     "message": "Preglej celoten dnevnik",
     "description": "appears in ADN log page"
   },

@@ -335,11 +335,11 @@
     "message": "Dzēst reklāmas",
     "description": "appears in ADN popup menu"
   },
-  "adnLogNoLog": {
+  "uboLogNoLog": {
     "message": "Žurnāls nav pieejams",
     "description": "appears in ADN log page"
   },
-  "adnLogViewFullLog": {
+  "uboLogViewFullLog": {
     "message": "Skatīt pilnu žurnālu",
     "description": "appears in ADN log page"
   },

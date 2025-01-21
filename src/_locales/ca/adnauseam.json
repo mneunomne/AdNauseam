@@ -335,11 +335,11 @@
     "message": "Esborra els anuncis",
     "description": "appears in ADN popup menu"
   },
-  "adnLogNoLog": {
+  "uboLogNoLog": {
     "message": "No hi ha cap registre disponible",
     "description": "appears in ADN log page"
   },
-  "adnLogViewFullLog": {
+  "uboLogViewFullLog": {
     "message": "Mostra el registre complet",
     "description": "appears in ADN log page"
   },

@@ -68,7 +68,7 @@ export function safeSelf() {
         makeLogPrefix(...args) {
             return this.sendToLogger && `[${args.join(' \u205D ')}]` || '';
         },
-        adnlog(...args) {
+        uboLog(...args) {
             if ( this.sendToLogger === undefined ) { return; }
             if ( args === undefined || args[0] === '' ) { return; }
             return this.sendToLogger('info', ...args);

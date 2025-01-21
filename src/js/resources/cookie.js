@@ -206,7 +206,7 @@ export function setCookie(
     );
 
     if ( done ) {
-        safe.adnLog(logPrefix, 'Done');
+        safe.uboLog(logPrefix, 'Done');
     }
 }
 registerScriptlet(setCookie, {
@@ -300,7 +300,7 @@ export function trustedSetCookie(
     );
 
     if ( done ) {
-        safe.adnLog(logPrefix, 'Done');
+        safe.uboLog(logPrefix, 'Done');
     }
 }
 registerScriptlet(trustedSetCookie, {

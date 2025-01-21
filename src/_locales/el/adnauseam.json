@@ -335,11 +335,11 @@
     "message": "Καθαρισμός διαφημίσεων",
     "description": "appears in ADN popup menu"
   },
-  "adnLogNoLog": {
+  "uboLogNoLog": {
     "message": "Δεν υπάρχει διαθέσιμο αρχείο καταγραφής",
     "description": "appears in ADN log page"
   },
-  "adnLogViewFullLog": {
+  "uboLogViewFullLog": {
     "message": "Πλήρες αρχείο καταγραφής",
     "description": "appears in ADN log page"
   },

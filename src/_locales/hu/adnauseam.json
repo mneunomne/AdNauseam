@@ -335,11 +335,11 @@
     "message": "Hirdetések törlése",
     "description": "appears in ADN popup menu"
   },
-  "adnLogNoLog": {
+  "uboLogNoLog": {
     "message": "Nincs elérhető napló",
     "description": "appears in ADN log page"
   },
-  "adnLogViewFullLog": {
+  "uboLogViewFullLog": {
     "message": "Teljes napló megtekintése",
     "description": "appears in ADN log page"
   },

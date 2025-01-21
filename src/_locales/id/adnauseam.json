@@ -335,11 +335,11 @@
     "message": "Hapus iklan",
     "description": "appears in ADN popup menu"
   },
-  "adnLogNoLog": {
+  "uboLogNoLog": {
     "message": "Log tidak tersedia",
     "description": "appears in ADN log page"
   },
-  "adnLogViewFullLog": {
+  "uboLogViewFullLog": {
     "message": "Liat seluruh log",
     "description": "appears in ADN log page"
   },

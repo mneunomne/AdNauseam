@@ -335,11 +335,11 @@
     "message": "Advertenties wissen",
     "description": "appears in ADN popup menu"
   },
-  "adnLogNoLog": {
+  "uboLogNoLog": {
     "message": "Geen log beschikbaar",
     "description": "appears in ADN log page"
   },
-  "adnLogViewFullLog": {
+  "uboLogViewFullLog": {
     "message": "Bekijk volledig log",
     "description": "appears in ADN log page"
   },

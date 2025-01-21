@@ -335,11 +335,11 @@
     "message": "Cancella pubblicità",
     "description": "appears in ADN popup menu"
   },
-  "adnLogNoLog": {
+  "uboLogNoLog": {
     "message": "Nessuna voce disponibile nel registro",
     "description": "appears in ADN log page"
   },
-  "adnLogViewFullLog": {
+  "uboLogViewFullLog": {
     "message": "Visualizza registro delle richieste completo",
     "description": "appears in ADN log page"
   },

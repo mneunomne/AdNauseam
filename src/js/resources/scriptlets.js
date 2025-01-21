@@ -246,7 +246,7 @@ function abortCurrentScriptCore(
             return;
         }
         if ( safe.logLevel > 1 && context !== '' ) {
-            safe.adnlog(logPrefix, `Matched src\n${e.src}`);
+            safe.uboLog(logPrefix, `Matched src\n${e.src}`);
         }
         const scriptText = getScriptText(e);
         if ( reNeedle.test(scriptText) === false ) {
@@ -255,11 +255,11 @@ function abortCurrentScriptCore(
             return;
         }
         if ( safe.logLevel > 1 ) {
-            safe.adnlog(logPrefix, `Matched text\n${scriptText}`);
+            safe.uboLog(logPrefix, `Matched text\n${scriptText}`);
         }
         // eslint-disable-next-line no-debugger
         if ( debug === 'match' || debug === 'all' ) { debugger; }
-        safe.adnlog(logPrefix, 'Aborted');
+        safe.uboLog(logPrefix, 'Aborted');
         throw new ReferenceError(exceptionToken);
     };
     // eslint-disable-next-line no-debugger
@@ -319,7 +319,7 @@ function replaceNodeTextFn(
         }
         observer.disconnect();
         if ( safe.logLevel > 1 ) {
-            safe.adnlog(logPrefix, 'Quitting');
+            safe.uboLog(logPrefix, 'Quitting');
         }
     };
     const textContentFactory = (( ) => {
@@ -355,9 +355,9 @@ function replaceNodeTextFn(
             ? textContentFactory.createScript(after)
             : after;
         if ( safe.logLevel > 1 ) {
-            safe.adnlog(logPrefix, `Text before:\n${before.trim()}`);
+            safe.uboLog(logPrefix, `Text before:\n${before.trim()}`);
         }
-        safe.adnlog(logPrefix, `Text after:\n${after.trim()}`);
+        safe.uboLog(logPrefix, `Text after:\n${after.trim()}`);
         return sedCount === 0 || (sedCount -= 1) !== 0;
     };
     const handleMutations = mutations => {
@@ -386,7 +386,7 @@ function replaceNodeTextFn(
             if ( handleNode(node) ) { continue; }
             stop(); break;
         }
-        safe.adnlog(logPrefix, `${count} nodes present before installing mutation observer`);
+        safe.uboLog(logPrefix, `${count} nodes present before installing mutation observer`);
     }
     if ( extraArgs.stay ) { return; }
     runAt(( ) => {
@@ -578,7 +578,7 @@ function matchesStackTraceFn(
         logLevel === 'match' && r ||
         logLevel === 'nomatch' && !r
     ) {
-        safe.adnlog(stack.replace(/\t/g, '\n'));
+        safe.uboLog(stack.replace(/\t/g, '\n'));
     }
     return r;
 }
@@ -696,14 +696,14 @@ function jsonPruneFetchResponseFn(
         }
         if ( logall === false && outcome === 'nomatch' ) { return fetchPromise; }
         if ( safe.logLevel > 1 && outcome !== 'nomatch' && propNeedles.size !== 0 ) {
-            safe.adnlog(logPrefix, `Matched optional "propsToMatch"\n${extraArgs.propsToMatch}`);
+            safe.uboLog(logPrefix, `Matched optional "propsToMatch"\n${extraArgs.propsToMatch}`);
         }
         return fetchPromise.then(responseBefore => {
             const response = responseBefore.clone();
             return response.json().then(objBefore => {
                 if ( typeof objBefore !== 'object' ) { return responseBefore; }
                 if ( logall ) {
-                    safe.adnlog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
+                    safe.uboLog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
                     return responseBefore;
                 }
                 const objAfter = objectPruneFn(
@@ -714,7 +714,7 @@ function jsonPruneFetchResponseFn(
                     extraArgs
                 );
                 if ( typeof objAfter !== 'object' ) { return responseBefore; }
-                safe.adnlog(logPrefix, 'Pruned');
+                safe.uboLog(logPrefix, 'Pruned');
                 const responseAfter = Response.json(objAfter, {
                     status: responseBefore.status,
                     statusText: responseBefore.statusText,
@@ -790,7 +790,7 @@ function replaceFetchResponseFn(
             }
             if ( outcome === 'nomatch' ) { return fetchPromise; }
             if ( safe.logLevel > 1 ) {
-                safe.adnlog(logPrefix, `Matched "propsToMatch"\n${propsToMatch}`);
+                safe.uboLog(logPrefix, `Matched "propsToMatch"\n${propsToMatch}`);
             }
             return fetchPromise.then(responseBefore => {
                 const response = responseBefore.clone();
@@ -801,7 +801,7 @@ function replaceFetchResponseFn(
                     const textAfter = textBefore.replace(rePattern, replacement);
                     const outcome = textAfter !== textBefore ? 'match' : 'nomatch';
                     if ( outcome === 'nomatch' ) { return responseBefore; }
-                    safe.adnlog(logPrefix, 'Replaced');
+                    safe.uboLog(logPrefix, 'Replaced');
                     const responseAfter = new Response(textAfter, {
                         status: responseBefore.status,
                         statusText: responseBefore.statusText,
@@ -865,7 +865,7 @@ function preventXhrFn(
             }
             const haystack = { method, url };
             if ( propsToMatch === '' && directive === '' ) {
-                safe.adnlog(logPrefix, `Called: ${safe.JSON_stringify(haystack, null, 2)}`);
+                safe.uboLog(logPrefix, `Called: ${safe.JSON_stringify(haystack, null, 2)}`);
                 return super.open(method, url, ...args);
             }
             if ( matchObjectProperties(propNeedles, haystack) ) {
@@ -975,7 +975,7 @@ function preventXhrFn(
                 safeDispatchEvent(details.xhr, 'readystatechange');
                 safeDispatchEvent(details.xhr, 'load');
                 safeDispatchEvent(details.xhr, 'loadend');
-                safe.adnlog(logPrefix, `Prevented with response:\n${details.xhr.response}`);
+                safe.uboLog(logPrefix, `Prevented with response:\n${details.xhr.response}`);
             });
         }
         getResponseHeader(headerName) {
@@ -1069,7 +1069,7 @@ function abortOnPropertyRead(
     const logPrefix = safe.makeLogPrefix('abort-on-property-read', chain);
     const exceptionToken = getExceptionToken();
     const abort = function() {
-        safe.adnlog(logPrefix, 'Aborted');
+        safe.uboLog(logPrefix, 'Aborted');
         throw new ReferenceError(exceptionToken);
     };
     const makeProxy = function(owner, chain) {
@@ -1139,7 +1139,7 @@ function abortOnPropertyWrite(
     delete owner[prop];
     Object.defineProperty(owner, prop, {
         set: function() {
-            safe.adnlog(logPrefix, 'Aborted');
+            safe.uboLog(logPrefix, 'Aborted');
             throw new ReferenceError(exceptionToken);
         }
     });
@@ -1296,9 +1296,9 @@ function addEventListenerDefuser(
             } catch(ex) {
             }
             if ( type === '' && pattern === '' ) {
-                safe.adnlog(logPrefix, `Called: ${t}\n${h}\n${elementDetails(thisArg)}`);
+                safe.uboLog(logPrefix, `Called: ${t}\n${h}\n${elementDetails(thisArg)}`);
             } else if ( shouldPrevent(thisArg, t, h) ) {
-                return safe.adnlog(logPrefix, `Prevented: ${t}\n${h}\n${elementDetails(thisArg)}`);
+                return safe.uboLog(logPrefix, `Prevented: ${t}\n${h}\n${elementDetails(thisArg)}`);
             }
             return context.reflect();
         });
@@ -1328,7 +1328,7 @@ function jsonPrune(
         apply: function(target, thisArg, args) {
             const objBefore = Reflect.apply(target, thisArg, args);
             if ( rawPrunePaths === '' ) {
-                safe.adnlog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
+                safe.uboLog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
             }
             const objAfter = objectPruneFn(
                 objBefore,
@@ -1338,9 +1338,9 @@ function jsonPrune(
                 extraArgs
             );
             if ( objAfter === undefined ) { return objBefore; }
-            safe.adnlog(logPrefix, 'Pruned');
+            safe.uboLog(logPrefix, 'Pruned');
             if ( safe.logLevel > 1 ) {
-                safe.adnlog(logPrefix, `After pruning:\n${safe.JSON_stringify(objAfter, null, 2)}`);
+                safe.uboLog(logPrefix, `After pruning:\n${safe.JSON_stringify(objAfter, null, 2)}`);
             }
             return objAfter;
         },
@@ -1399,7 +1399,7 @@ function jsonPruneXhrResponse(
             }
             if ( outcome === 'match' ) {
                 if ( safe.logLevel > 1 ) {
-                    safe.adnlog(logPrefix, `Matched optional "propsToMatch", "${extraArgs.propsToMatch}"`);
+                    safe.uboLog(logPrefix, `Matched optional "propsToMatch", "${extraArgs.propsToMatch}"`);
                 }
                 xhrInstances.set(this, xhrDetails);
             }
@@ -1445,7 +1445,7 @@ function jsonPruneXhrResponse(
                 outerResponse = typeof innerResponse === 'string'
                     ? safe.JSON_stringify(objAfter)
                     : objAfter;
-                safe.adnlog(logPrefix, 'Pruned');
+                safe.uboLog(logPrefix, 'Pruned');
             } else {
                 outerResponse = innerResponse;
             }
@@ -1617,11 +1617,11 @@ function noEvalIf(
         apply: function(target, thisArg, args) {
             const a = String(args[0]);
             if ( needle !== '' && reNeedle.test(a) ) {
-                safe.adnlog(logPrefix, 'Prevented:\n', a);
+                safe.uboLog(logPrefix, 'Prevented:\n', a);
                 return;
             }
             if ( needle === '' || safe.logLevel > 1 ) {
-                safe.adnlog(logPrefix, 'Not prevented:\n', a);
+                safe.uboLog(logPrefix, 'Not prevented:\n', a);
             }
             return Reflect.apply(target, thisArg, args);
         }
@@ -1704,7 +1704,7 @@ function noFetchIf(
             }
             if ( safe.logLevel > 1 || propsToMatch === '' && responseBody === '' ) {
                 const out = Array.from(props).map(a => `${a[0]}:${a[1]}`);
-                safe.adnlog(logPrefix, `Called: ${out.join('\n')}`);
+                safe.uboLog(logPrefix, `Called: ${out.join('\n')}`);
             }
             if ( propsToMatch === '' && responseBody === '' ) {
                 return context.reflect();
@@ -1725,7 +1725,7 @@ function noFetchIf(
             return context.reflect();
         }
         return Promise.resolve(generateContentFn(false, responseBody)).then(text => {
-            safe.adnlog(logPrefix, `Prevented with response "${text}"`);
+            safe.uboLog(logPrefix, `Prevented with response "${text}"`);
             const response = new Response(text, {
                 headers: {
                     'Content-Length': text.length,
@@ -1763,7 +1763,7 @@ function preventRefresh(
     const logPrefix = safe.makeLogPrefix('prevent-refresh', delay);
     const stop = content => {
         window.stop();
-        safe.adnlog(logPrefix, `Prevented "${content}"`);
+        safe.uboLog(logPrefix, `Prevented "${content}"`);
     };
     const defuse = ( ) => {
         const meta = document.querySelector('meta[http-equiv="refresh" i][content]');
@@ -1809,7 +1809,7 @@ function removeClass(
         .map(a => `${rawSelector}.${CSS.escape(a)}`)
         .join(',');
     if ( safe.logLevel > 1 ) {
-        safe.adnlog(logPrefix, `Target selector:\n\t${selector}`);
+        safe.uboLog(logPrefix, `Target selector:\n\t${selector}`);
     }
     const mustStay = /\bstay\b/.test(behavior);
     let timer;
@@ -1819,7 +1819,7 @@ function removeClass(
             const nodes = document.querySelectorAll(selector);
             for ( const node of nodes ) {
                 node.classList.remove(...tokens);
-                safe.adnlog(logPrefix, 'Removed class(es)');
+                safe.uboLog(logPrefix, 'Removed class(es)');
             }
         } catch(ex) {
         }
@@ -2024,11 +2024,11 @@ function noWindowOpenIf(
         const haystack = callArgs.join(' ');
         if ( rePattern.test(haystack) !== targetMatchResult ) {
             if ( safe.logLevel > 1 ) {
-                safe.adnlog(logPrefix, `Allowed (${callArgs.join(', ')})`);
+                safe.uboLog(logPrefix, `Allowed (${callArgs.join(', ')})`);
             }
             return context.reflect();
         }
-        safe.adnlog(logPrefix, `Prevented (${callArgs.join(', ')})`); // adn log
+        safe.uboLog(logPrefix, `Prevented (${callArgs.join(', ')})`); // adn log
         if ( delay === '' ) { return null; }
         if ( decoy === 'blank' ) {
             callArgs[0] = 'about:blank';
@@ -2059,14 +2059,14 @@ function noWindowOpenIf(
             popup = new Proxy(popup, {
                 get: function(target, prop, ...args) {
                     const r = Reflect.get(target, prop, ...args);
-                    safe.adnlog(logPrefix, `popup / get ${prop} === ${r}`); // adn log
+                    safe.uboLog(logPrefix, `popup / get ${prop} === ${r}`); // adn log
                     if ( typeof r === 'function' ) {
                         return (...args) => { return r.call(target, ...args); };
                     }
                     return r;
                 },
                 set: function(target, prop, value, ...args) {
-                    safe.adnlog(logPrefix, `popup / set ${prop} = ${value}`); // adn log
+                    safe.uboLog(logPrefix, `popup / set ${prop} = ${value}`); // adn log
                     return Reflect.set(target, prop, value, ...args);
                 },
             });
@@ -2312,18 +2312,18 @@ function xmlPrune(
             }
             if ( extraArgs.logdoc ) {
                 const serializer = new XMLSerializer();
-                safe.adnlog(logPrefix, `Document is\n\t${serializer.serializeToString(xmlDoc)}`);
+                safe.uboLog(logPrefix, `Document is\n\t${serializer.serializeToString(xmlDoc)}`);
             }
             const items = queryAll(xmlDoc, selector);
             if ( items.length === 0 ) { return xmlDoc; }
-            safe.adnlog(logPrefix, `Removing ${items.length} items`);
+            safe.uboLog(logPrefix, `Removing ${items.length} items`);
             for ( const item of items ) {
                 if ( item.nodeType === 1 ) {
                     item.remove();
                 } else if ( item.nodeType === 2 ) {
                     item.ownerElement.removeAttribute(item.nodeName);
                 }
-                safe.adnlog(logPrefix, `${item.constructor.name}.${item.nodeName} removed`);
+                safe.uboLog(logPrefix, `${item.constructor.name}.${item.nodeName} removed`);
             }
         } catch(ex) {
             safe.adnErr(logPrefix, `Error: ${ex}`);
@@ -2484,7 +2484,7 @@ function m3uPrune(
     const pruner = text => {
         if ( (/^\s*#EXTM3U/.test(text)) === false ) { return text; }
         if ( m3uPattern === '' ) {
-            safe.adnlog(` Content:\n${text}`);
+            safe.uboLog(` Content:\n${text}`);
             return text;
         }
         if ( reM3u.multiline ) {
@@ -2550,7 +2550,7 @@ function m3uPrune(
                     });
                     if ( toLog.length !== 0 ) {
                         toLog.unshift(logPrefix);
-                        safe.adnlog(toLog.join('\n'));
+                        safe.uboLog(toLog.join('\n'));
                     }
                     return response;
                 })
@@ -2573,7 +2573,7 @@ function m3uPrune(
                 Object.defineProperty(thisArg, 'responseText', { value: textout });
                 if ( toLog.length !== 0 ) {
                     toLog.unshift(logPrefix);
-                    safe.adnlog(toLog.join('\n'));
+                    safe.uboLog(toLog.join('\n'));
                 }
             });
             return Reflect.apply(target, thisArg, args);
@@ -2874,7 +2874,7 @@ function trustedReplaceXhrResponse(
             }
             if ( outcome === 'match' ) {
                 if ( safe.logLevel > 1 ) {
-                    safe.adnlog(logPrefix, `Matched "propsToMatch"`);
+                    safe.uboLog(logPrefix, `Matched "propsToMatch"`);
                 }
                 xhrInstances.set(outerXhr, xhrDetails);
             }
@@ -2905,7 +2905,7 @@ function trustedReplaceXhrResponse(
             const textBefore = innerResponse;
             const textAfter = textBefore.replace(rePattern, replacement);
             if ( textAfter !== textBefore ) {
-                safe.adnlog(logPrefix, 'Match');
+                safe.uboLog(logPrefix, 'Match');
             }
             return (xhrDetails.response = textAfter);
         }
@@ -3041,12 +3041,12 @@ function trustedClickElement(
 
     const next = notFound => {
         if ( selectorList.length === 0 ) {
-            safe.adnlog(logPrefix, 'Completed');
+            safe.uboLog(logPrefix, 'Completed');
             return terminate();
         }
         const tnow = Date.now();
         if ( tnow >= tbye ) {
-            safe.adnlog(logPrefix, 'Timed out');
+            safe.uboLog(logPrefix, 'Timed out');
             return terminate();
         }
         if ( notFound ) { observe(); }
@@ -3055,7 +3055,7 @@ function trustedClickElement(
             next.timer = undefined;
             process();
         }, delay);
-        safe.adnlog(logPrefix, `Waiting for ${selectorList[0]}...`);
+        safe.uboLog(logPrefix, `Waiting for ${selectorList[0]}...`);
     };
     next.stop = ( ) => {
         if ( next.timer === undefined ) { return; }
@@ -3099,7 +3099,7 @@ function trustedClickElement(
             selectorList.unshift(selector);
             return next(true);
         }
-        safe.adnlog(logPrefix, `Clicked ${selector}`);
+        safe.uboLog(logPrefix, `Clicked ${selector}`);
         elem.click();
         tnext += clickDelay;
         next();
@@ -3256,16 +3256,16 @@ function trustedReplaceOutboundText(
             catch(ex) { return encodedTextBefore; }
         }
         if ( rawPattern === '' ) {
-            safe.adnlog(logPrefix, 'Decoded outbound text:\n', textBefore);
+            safe.uboLog(logPrefix, 'Decoded outbound text:\n', textBefore);
             return encodedTextBefore;
         }
         reCondition.lastIndex = 0;
         if ( reCondition.test(textBefore) === false ) { return encodedTextBefore; }
         const textAfter = textBefore.replace(rePattern, replacement);
         if ( textAfter === textBefore ) { return encodedTextBefore; }
-        safe.adnlog(logPrefix, 'Matched and replaced');
+        safe.uboLog(logPrefix, 'Matched and replaced');
         if ( safe.logLevel > 1 ) {
-            safe.adnlog(logPrefix, 'Modified decoded outbound text:\n', textAfter);
+            safe.uboLog(logPrefix, 'Modified decoded outbound text:\n', textAfter);
         }
         let encodedTextAfter = textAfter;
         if ( extraArgs.encoding === 'base64' ) {
@@ -3333,7 +3333,7 @@ function trustedSuppressNativeMethod(
     proxyApplyFn(methodPath, function(context) {
         const { callArgs } = context;
         if ( signature === '' ) {
-            safe.adnlog(logPrefix, `Arguments:\n${callArgs.join('\n')}`);
+            safe.uboLog(logPrefix, `Arguments:\n${callArgs.join('\n')}`);
             return context.reflect();
         }
         for ( let i = 0; i < signatureArgs.length; i++ ) {
@@ -3361,7 +3361,7 @@ function trustedSuppressNativeMethod(
             debugger; // eslint-disable-line no-debugger
             return context.reflect();
         }
-        safe.adnLog(logPrefix, `Suppressed:\n${callArgs.join('\n')}`);
+        safe.uboLog(logPrefix, `Suppressed:\n${callArgs.join('\n')}`);
         if ( how === 'abort' ) {
             throw new ReferenceError();
         }
@@ -3453,7 +3453,7 @@ function trustedPreventDomBypass(
                 } else {
                     Object.defineProperty(elem, 'contentWindow', { value: self });
                 }
-                safe.adnlog(logPrefix, 'Bypass prevented');
+                safe.uboLog(logPrefix, 'Bypass prevented');
             } catch(_) {
             }
         }
@@ -3515,7 +3515,7 @@ function trustedOverrideElementMethod(
         if ( override === false ) {
             return context.reflect();
         }
-        safe.adnlog(logPrefix, 'Overridden');
+        safe.uboLog(logPrefix, 'Overridden');
         if ( disposition === '' ) { return; }
         if ( disposition === 'debug' && safe.logLevel !== 0 ) {
             debugger; // eslint-disable-line no-debugger

@@ -335,11 +335,11 @@
     "message": "Xoá quảng cáo",
     "description": "appears in ADN popup menu"
   },
-  "adnLogNoLog": {
+  "uboLogNoLog": {
     "message": "Không có nhật ký",
     "description": "appears in ADN log page"
   },
-  "adnLogViewFullLog": {
+  "uboLogViewFullLog": {
     "message": "Xem toàn bộ nhật ký",
     "description": "appears in ADN log page"
   },

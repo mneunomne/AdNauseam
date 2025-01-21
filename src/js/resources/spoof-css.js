@@ -66,7 +66,7 @@ export function spoofCSS(
         const shouldSpoof = propToValueMap.has(normalProp);
         const value = shouldSpoof ? propToValueMap.get(normalProp) : real;
         if ( shouldSpoof ) {
-            safe.adnLog(logPrefix, `Spoofing ${prop} to ${value}`);
+            safe.uboLog(logPrefix, `Spoofing ${prop} to ${value}`);
         }
         return value;
     };

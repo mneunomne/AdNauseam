@@ -91,7 +91,7 @@ export function trustedReplaceArgument(
     };
     proxyApplyFn(propChain, function(context) {
         if ( argposRaw === '' ) {
-            safe.adnLog(logPrefix, `Arguments:\n${context.callArgs.join('\n')}`);
+            safe.uboLog(logPrefix, `Arguments:\n${context.callArgs.join('\n')}`);
             return context.reflect();
         }
         const argBefore = getArg(context);
@@ -103,7 +103,7 @@ export function trustedReplaceArgument(
             : value;
         if ( argAfter !== argBefore ) {
             setArg(context, argAfter);
-            safe.adnLog(logPrefix, `Replaced argument:\nBefore: ${JSON.stringify(argBefore)}\nAfter: ${argAfter}`);
+            safe.uboLog(logPrefix, `Replaced argument:\nBefore: ${JSON.stringify(argBefore)}\nAfter: ${argAfter}`);
         }
         return context.reflect();
     });
