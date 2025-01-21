@@ -43,7 +43,7 @@ import io from './assets.js';
 import µb from './background.js';
 import { filteringBehaviorChanged } from './broadcast.js';
 import cacheStorage from './cachestorage.js';
-import { adnLog } from './console.js';
+import { adnlog } from './console.js';
 import adnauseam from './adn/core.js'
 import contextMenu from './contextmenu.js';
 import { redirectEngine } from './redirect-engine.js';
@@ -260,14 +260,14 @@ const onUserSettingsReady = fetched => {
         fetched.suspendUntilListsAreLoaded === false
     ) {
         vAPI.net.unsuspend({ all: true, discard: true });
-        adnLog(`Unsuspend network activity listener at ${tnow} ms`);
+        adnlog(`Unsuspend network activity listener at ${tnow} ms`);
         µb.supportStats.unsuspendAfter = `${tnow} ms`;
     } else if (
         vAPI.Net.canSuspend() === false &&
         fetched.suspendUntilListsAreLoaded
     ) {
         vAPI.net.suspend();
-        adnLog(`Suspend network activity listener at ${tnow} ms`);
+        adnlog(`Suspend network activity listener at ${tnow} ms`);
     }
 
     // `externalLists` will be deprecated in some future, it is kept around
@@ -320,11 +320,11 @@ const onCacheSettingsReady = async (fetched = {}) => {
     if ( fetched.compiledMagic !== µb.systemSettings.compiledMagic ) {
         µb.compiledFormatChanged = true;
         selfieIsInvalid = true;
-        adnLog(`Serialized format of static filter lists changed`);
+        adnlog(`Serialized format of static filter lists changed`);
     }
     if ( fetched.selfieMagic !== µb.systemSettings.selfieMagic ) {
         selfieIsInvalid = true;
-        adnLog(`Serialized format of selfie changed`);
+        adnlog(`Serialized format of selfie changed`);
     }
     if ( selfieIsInvalid === false ) { return; }
     µb.selfieManager.destroy({ janitor: true });
@@ -350,7 +350,7 @@ const onHiddenSettingsReady = async ( ) => {
                 break;
             }
         }
-        adnLog(`Override default webext flavor with ${tokens}`);
+        adnlog(`Override default webext flavor with ${tokens}`);
     }
 
     // Maybe disable WebAssembly
@@ -359,12 +359,12 @@ const onHiddenSettingsReady = async ( ) => {
             return fetch(`${path}.wasm`, { mode: 'same-origin' }).then(
                 WebAssembly.compileStreaming
             ).catch(reason => {
-                adnLog(reason);
+                adnlog(reason);
             });
         };
         staticNetFilteringEngine.enableWASM(wasmModuleFetcher, './js/wasm/').then(result => {
             if ( result !== true ) { return; }
-            adnLog(`WASM modules ready ${Date.now()-vAPI.T0} ms after launch`);
+            adnlog(`WASM modules ready ${Date.now()-vAPI.T0} ms after launch`);
         });
     }
 };
@@ -434,47 +434,47 @@ const createDefaultProps = ( ) => {
 // >>>>> start of async/await scope
     
 try {
-    adnLog(`Start sequence of loading storage-based data ${Date.now()-vAPI.T0} ms after launch`);
+    adnlog(`Start sequence of loading storage-based data ${Date.now()-vAPI.T0} ms after launch`);
 
     // https://github.com/gorhill/uBlock/issues/531
     await µb.restoreAdminSettings();
-    adnLog(`Admin settings ready ${Date.now()-vAPI.T0} ms after launch`);
+    adnlog(`Admin settings ready ${Date.now()-vAPI.T0} ms after launch`);
 
     await µb.loadHiddenSettings();
     await onHiddenSettingsReady();
-    adnLog(`Hidden settings ready ${Date.now()-vAPI.T0} ms after launch`);
+    adnlog(`Hidden settings ready ${Date.now()-vAPI.T0} ms after launch`);
 
     const adminExtra = await vAPI.adminStorage.get('toAdd');
-    adnLog(`Extra admin settings ready ${Date.now()-vAPI.T0} ms after launch`);
+    adnlog(`Extra admin settings ready ${Date.now()-vAPI.T0} ms after launch`);
 
     // Maybe override default cache storage
     µb.supportStats.cacheBackend = await cacheStorage.select(
         µb.hiddenSettings.cacheStorageAPI
     );
-    adnLog(`Backend storage for cache will be ${µb.supportStats.cacheBackend}`);
+    adnlog(`Backend storage for cache will be ${µb.supportStats.cacheBackend}`);
 
     await vAPI.storage.get(createDefaultProps()).then(async fetched => {
-        adnLog(`Version ready ${Date.now()-vAPI.T0} ms after launch`);
+        adnlog(`Version ready ${Date.now()-vAPI.T0} ms after launch`);
         await onVersionReady(fetched.version);
         return fetched;
     }).then(fetched => {
-        adnLog(`First fetch ready ${Date.now()-vAPI.T0} ms after launch`);
+        adnlog(`First fetch ready ${Date.now()-vAPI.T0} ms after launch`);
         onFirstFetchReady(fetched, adminExtra);
     });
 
     await Promise.all([
         µb.loadSelectedFilterLists().then(( ) => {
-            adnLog(`List selection ready ${Date.now()-vAPI.T0} ms after launch`);
+            adnlog(`List selection ready ${Date.now()-vAPI.T0} ms after launch`);
         }),
         µb.loadUserSettings().then(fetched => {
-            adnLog(`User settings ready ${Date.now()-vAPI.T0} ms after launch`);
+            adnlog(`User settings ready ${Date.now()-vAPI.T0} ms after launch`);
             onUserSettingsReady(fetched);
         }),
         µb.loadPublicSuffixList().then(( ) => {
-            adnLog(`PSL ready ${Date.now()-vAPI.T0} ms after launch`);
+            adnlog(`PSL ready ${Date.now()-vAPI.T0} ms after launch`);
         }),
         cacheStorage.get({ compiledMagic: 0, selfieMagic: 0 }).then(bin => {
-            adnLog(`Cache magic numbers ready ${Date.now()-vAPI.T0} ms after launch`);
+            adnlog(`Cache magic numbers ready ${Date.now()-vAPI.T0} ms after launch`);
             onCacheSettingsReady(bin);
         }),
         µb.loadLocalSettings(),
@@ -499,7 +499,7 @@ let selfieIsValid = false;
 try {
     selfieIsValid = await µb.selfieManager.load();
     if ( selfieIsValid === true ) {
-        adnLog(`Loaded filtering engine from selfie ${Date.now()-vAPI.T0} ms after launch`);
+        adnlog(`Loaded filtering engine from selfie ${Date.now()-vAPI.T0} ms after launch`);
     }
 } catch (ex) {
     console.trace(ex);
@@ -507,7 +507,7 @@ try {
 if ( selfieIsValid !== true ) {
     try {
         await µb.loadFilterLists();
-        adnLog(`Filter lists ready ${Date.now()-vAPI.T0} ms after launch`);
+        adnlog(`Filter lists ready ${Date.now()-vAPI.T0} ms after launch`);
     } catch (ex) {
         console.trace(ex);
     }
@@ -555,7 +555,7 @@ browser.runtime.onUpdateAvailable.addListener(details => {
 if ( selfieIsValid ) {
     µb.supportStats.allReadyAfter += ' (selfie)';
 }
-adnLog(`All ready ${µb.supportStats.allReadyAfter} after launch`);
+adnlog(`All ready ${µb.supportStats.allReadyAfter} after launch`);
 
 µb.isReadyResolve();
 
@@ -587,7 +587,7 @@ if ( µb.userSettings.autoUpdate ) {
 // Process alarm queue
 while ( µb.alarmQueue.length !== 0 ) {
     const what = µb.alarmQueue.shift();
-    adnLog(`Processing alarm event from suspended state: '${what}'`);
+    adnlog(`Processing alarm event from suspended state: '${what}'`);
     switch ( what ) {
     case 'assetUpdater':
         µb.scheduleAssetUpdater({ auto: true, updateDelay: 2000, fetchDelay : 1000 });

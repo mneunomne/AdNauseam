@@ -25,7 +25,7 @@ import * as s14e from './s14e-serializer.js';
 
 import webext from './webext.js';
 import µb from './background.js';
-import { adnLog } from './console.js';
+import { adnlog } from './console.js';
 
 /******************************************************************************/
 
@@ -59,7 +59,7 @@ const hasOwnProperty = (o, p) =>
 const cacheStorage = (( ) => {
 
     const exGet = async (api, wanted, outbin) => {
-        adnLog('cacheStorage.get:', api.name || 'storage.local', wanted.join());
+        adnlog('cacheStorage.get:', api.name || 'storage.local', wanted.join());
         const missing = [];
         for ( const key of wanted ) {
             if ( pendingWrite.has(key) ) {
@@ -128,7 +128,7 @@ const cacheStorage = (( ) => {
                 }
                 return Promise.all(promises).then(( ) => outbin);
             }).catch(reason => {
-                adnLog(reason);
+                adnlog(reason);
             });
         },
 
@@ -149,7 +149,7 @@ const cacheStorage = (( ) => {
         async set(rawbin) {
             const keys = Object.keys(rawbin);
             if ( keys.length === 0 ) { return; }
-            adnLog('cacheStorage.set:', keys.join());
+            adnlog('cacheStorage.set:', keys.join());
             for ( const key of keys ) {
                 pendingWrite.set(key, rawbin[key]);
             }
@@ -165,7 +165,7 @@ const cacheStorage = (( ) => {
                     extensionStorage.set(serializedbin),
                 ]);
             } catch(reason) {
-                adnLog(reason);
+                adnlog(reason);
             }
             for ( const key of keys ) {
                 pendingWrite.delete(key);
@@ -175,14 +175,14 @@ const cacheStorage = (( ) => {
         remove(...args) {
             cacheAPIs[fastCache].remove(...args);
             return extensionStorage.remove(...args).catch(reason => {
-                adnLog(reason);
+                adnlog(reason);
             });
         },
 
         clear(...args) {
             cacheAPIs[fastCache].clear(...args);
             return extensionStorage.clear(...args).catch(reason => {
-                adnLog(reason);
+                adnlog(reason);
             });
         },
 
@@ -201,7 +201,7 @@ const cacheStorage = (( ) => {
     if ( extensionStorage.getBytesInUse instanceof Function ) {
         api.getBytesInUse = function(...args) {
             return extensionStorage.getBytesInUse(...args).catch(reason => {
-                adnLog(reason);
+                adnlog(reason);
             });
         };
     }
@@ -227,13 +227,13 @@ const cacheAPI = (( ) => {
         if ( cacheStoragePromise !== undefined ) { return cacheStoragePromise; }
         cacheStoragePromise = new Promise(resolve => {
             if ( typeof caches !== 'object' || caches === null ) {
-                adnLog('CacheStorage API not available');
+                adnlog('CacheStorage API not available');
                 resolve(null);
                 return;
             }
             resolve(caches.open(STORAGE_NAME));
         }).catch(reason => {
-            adnLog(reason);
+            adnlog(reason);
             return null;
         });
         return cacheStoragePromise;
@@ -270,7 +270,7 @@ const cacheAPI = (( ) => {
             if ( text === undefined ) { return; }
             return { key, text };
         }).catch(reason => {
-            adnLog(reason);
+            adnlog(reason);
         });
     };
 
@@ -291,7 +291,7 @@ const cacheAPI = (( ) => {
             }
             return bin;
         }).catch(reason => {
-            adnLog(reason);
+            adnlog(reason);
         });
     };
 
@@ -303,7 +303,7 @@ const cacheAPI = (( ) => {
         return cache
             .put(keyToURL(key), new Response(blob))
             .catch(reason => {
-                adnLog(reason);
+                adnlog(reason);
             });
     };
 
@@ -311,7 +311,7 @@ const cacheAPI = (( ) => {
         const cache = await getAPI();
         if ( cache === null ) { return; }
         return cache.delete(keyToURL(key)).catch(reason => {
-            adnLog(reason);
+            adnlog(reason);
         });
     };
 
@@ -380,7 +380,7 @@ const cacheAPI = (( ) => {
         async clear() {
             if ( typeof caches !== 'object' || caches === null ) { return; }
             return globalThis.caches.delete(STORAGE_NAME).catch(reason => {
-                adnLog(reason);
+                adnlog(reason);
             });
         },
         
@@ -420,7 +420,7 @@ const memoryStorage = (( ) => {
             return sessionStorage.get(...args).then(bin => {
                 return bin;
             }).catch(reason => {
-                adnLog(reason);
+                adnlog(reason);
             });
         },
 
@@ -438,19 +438,19 @@ const memoryStorage = (( ) => {
             const bin = shouldCache(serializedbin);
             if ( bin === undefined ) { return; }
             return sessionStorage.set(bin).catch(reason => {
-                adnLog(reason);
+                adnlog(reason);
             });
         },
 
         remove(...args) {
             return sessionStorage.remove(...args).catch(reason => {
-                adnLog(reason);
+                adnlog(reason);
             });
         },
 
         clear(...args) {
             return sessionStorage.clear(...args).catch(reason => {
-                adnLog(reason);
+                adnlog(reason);
             });
         },
 
@@ -491,7 +491,7 @@ const idbStorage = (( ) => {
             };
             req.onerror = req.onblocked = ( ) => {
                 if ( resolve === undefined ) { return; }
-                adnLog(req.error);
+                adnlog(req.error);
                 resolve(null);
                 resolve = undefined;
             };
@@ -501,7 +501,7 @@ const idbStorage = (( ) => {
                 resolve = undefined;
             });
         }).catch(reason => {
-            adnLog(`idbStorage() / getDb() failed: ${reason}`);
+            adnlog(`idbStorage() / getDb() failed: ${reason}`);
             return null;
         });
         return dbPromise;
@@ -537,7 +537,7 @@ const idbStorage = (( ) => {
                 cursor.continue();
             };
         }).catch(reason => {
-            adnLog(`idbStorage() / getAllEntries() failed: ${reason}`);
+            adnlog(`idbStorage() / getAllEntries() failed: ${reason}`);
             return [];
         });
     };
@@ -563,7 +563,7 @@ const idbStorage = (( ) => {
                 cursor.continue();
             };
         }).catch(reason => {
-            adnLog(`idbStorage() / getAllKeys() failed: ${reason}`);
+            adnlog(`idbStorage() / getAllKeys() failed: ${reason}`);
             return [];
         });
     };
@@ -594,7 +594,7 @@ const idbStorage = (( ) => {
                 req.onerror = ( ) => { };
             }
         }).catch(reason => {
-            adnLog(`idbStorage() / getEntries() failed: ${reason}`);
+            adnlog(`idbStorage() / getEntries() failed: ${reason}`);
             return [];
         });
     };
@@ -629,7 +629,7 @@ const idbStorage = (( ) => {
                 table.put(entry);
             }
         }).catch(reason => {
-            adnLog(`idbStorage() / setEntries() failed: ${reason}`);
+            adnlog(`idbStorage() / setEntries() failed: ${reason}`);
         });
     };
 
@@ -650,7 +650,7 @@ const idbStorage = (( ) => {
                 table.delete(key);
             }
         }).catch(reason => {
-            adnLog(`idbStorage() / deleteEntries() failed: ${reason}`);
+            adnlog(`idbStorage() / deleteEntries() failed: ${reason}`);
         });
     };
 
@@ -705,7 +705,7 @@ const idbStorage = (( ) => {
                 db.close();
                 indexedDB.deleteDatabase(STORAGE_NAME);
             }).catch(reason => {
-                adnLog(`idbStorage.clear() failed: ${reason}`);
+                adnlog(`idbStorage.clear() failed: ${reason}`);
             });
         },
 

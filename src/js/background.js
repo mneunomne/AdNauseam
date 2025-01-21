@@ -30,7 +30,7 @@ import {
 import { internalLinkDomainsDefault } from './adn/adn-utils.js'; // adn 
 import { FilteringContext } from './filtering-context.js';
 import logger from './logger.js';
-import { adnLogSet } from './console.js';
+import { adnlogSet } from './console.js';
 
 /******************************************************************************/
 
@@ -158,7 +158,7 @@ if (vAPI.webextFlavor.soup.has('devbuild')) {
     userSettingsDefault.devMode = true;
     hiddenSettingsDefault.consoleLogLevel = 'info';
     hiddenSettingsDefault.cacheStorageAPI = 'unset';
-    adnLogSet(true);
+    adnlogSet(true);
 }
 
 /* Adn https://github.com/dhowe/AdNauseam/issues/2040 */

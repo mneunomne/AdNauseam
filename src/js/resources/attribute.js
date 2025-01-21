@@ -60,7 +60,7 @@ export function setAttrFn(
                 if ( attr.toLowerCase() in elem ) { continue; }
             }
             elem.setAttribute(attr, after);
-            safe.adnLog(logPrefix, `${attr}="${after}"`);
+            safe.adnlog(logPrefix, `${attr}="${after}"`);
         }
         return true;
     };
@@ -234,7 +234,7 @@ export function removeAttr(
         .map(a => `${rawSelector}[${CSS.escape(a)}]`)
         .join(',');
     if ( safe.logLevel > 1 ) {
-        safe.adnLog(logPrefix, `Target selector:\n\t${selector}`);
+        safe.adnlog(logPrefix, `Target selector:\n\t${selector}`);
     }
     const asap = /\basap\b/.test(behavior);
     let timerId;
@@ -256,7 +256,7 @@ export function removeAttr(
                 for ( const attr of tokens ) {
                     if ( node.hasAttribute(attr) === false ) { continue; }
                     node.removeAttribute(attr);
-                    safe.adnLog(logPrefix, `Removed attribute '${attr}'`);
+                    safe.adnlog(logPrefix, `Removed attribute '${attr}'`);
                 }
             }
         } catch(ex) {

@@ -23,32 +23,32 @@
 
 /******************************************************************************/
 
-function adnLogSet(state = false) {
+function adnlogSet(state = false) {
     if ( state ) {
-        if ( adnLog.process instanceof Function ) {
-            adnLog.process();
+        if ( adnlog.process instanceof Function ) {
+            adnlog.process();
         }
-        adnLog = adnLogDo;
+        adnlog = adnlogDo;
     } else {
-        adnLog = adnLogIgnore;
+        adnlog = adnlogIgnore;
     }
 }
 
-function adnLogDo(...args) {
+function adnlogDo(...args) {
     console.info('[ADN]', ...args);
 }
 
-function adnLogIgnore() {
+function adnlogIgnore() {
 }
 
-let adnLog = (( ) => {
+let adnlog = (( ) => {
     const pending = [];
     const store = function(...args) {
         pending.push(args);
     };
     store.process = function() {
         for ( const args of pending ) {
-            adnLogDo(...args);
+            adnlogDo(...args);
         }
     };
     return store;
@@ -56,4 +56,4 @@ let adnLog = (( ) => {
 
 /******************************************************************************/
 
-export { adnLog, adnLogSet };
+export { adnlog, adnlogSet };
