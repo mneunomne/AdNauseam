@@ -335,11 +335,11 @@
     "message": "広告を消去",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "利用可能なログがありません",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "すべてログを見る",
     "description": "appears in ADN log page"
   },

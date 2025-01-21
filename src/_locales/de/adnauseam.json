@@ -335,11 +335,11 @@
     "message": "Lösche Werbungen",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "Kein Protokoll vorhanden",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "Vollständige Protokoll anzeigen",
     "description": "appears in ADN log page"
   },

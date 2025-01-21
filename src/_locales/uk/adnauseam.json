@@ -335,11 +335,11 @@
     "message": "Очистити Рекламу",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "Логів немає",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "Переглянути весь лог",
     "description": "appears in ADN log page"
   },

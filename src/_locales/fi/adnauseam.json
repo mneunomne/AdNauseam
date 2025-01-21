@@ -335,11 +335,11 @@
     "message": "Tyhjennä mainokset",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "Ei lokia saatavilla",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "Näytä koko loki",
     "description": "appears in ADN log page"
   },

@@ -335,11 +335,11 @@
     "message": "Išvalyti skelbimus",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "Nėra įrašų",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "Peržiūrėti visą žurnalą",
     "description": "appears in ADN log page"
   },

@@ -335,11 +335,11 @@
     "message": "Limpar anúncios",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "Sem registo disponível",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "Ver registo completo",
     "description": "appears in ADN log page"
   },

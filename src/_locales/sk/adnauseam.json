@@ -335,11 +335,11 @@
     "message": "Vyčistiť reklamy",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "Nie sú dostupné žiadne záznamy denníka",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "Zobraziť celý denník",
     "description": "appears in ADN log page"
   },

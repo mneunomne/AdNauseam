@@ -335,11 +335,11 @@
     "message": "Ryd annoncer",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "Ingen log tilgængelig",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "Se fuld log",
     "description": "appears in ADN log page"
   },

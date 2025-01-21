@@ -335,11 +335,11 @@
     "message": "清除廣告",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "沒有可用的日誌",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "查看完整日誌",
     "description": "appears in ADN log page"
   },

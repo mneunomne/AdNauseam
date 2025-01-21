@@ -335,11 +335,11 @@
     "message": "Obriši reklame",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "Nema dostupnog zapisa",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "Prikaži potpuni zapis",
     "description": "appears in ADN log page"
   },

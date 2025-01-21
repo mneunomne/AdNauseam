@@ -335,11 +335,11 @@
     "message": "Vaciar anuncios",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "No hay ningún registro disponible",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "Ver registro completo",
     "description": "appears in ADN log page"
   },

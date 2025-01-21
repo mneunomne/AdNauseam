@@ -335,11 +335,11 @@
     "message": "Puhasta reklaamid",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "Logi pole saadaval",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "Vaata tervet logi",
     "description": "appears in ADN log page"
   },

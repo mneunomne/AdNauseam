@@ -335,11 +335,11 @@
     "message": "Изчистване на реклами",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "Не е намерен журнал",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "Преглед на пълния журнал",
     "description": "appears in ADN log page"
   },

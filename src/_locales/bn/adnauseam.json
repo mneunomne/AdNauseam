@@ -335,11 +335,11 @@
     "message": "বিজ্ঞাপনগুলো মুছুন",
     "description": "appears in ADN popup menu"
   },
-  "uboLogNoLog": {
+  "adnLogNoLog": {
     "message": "কন লগ পাওয়া জায়নি",
     "description": "appears in ADN log page"
   },
-  "uboLogViewFullLog": {
+  "adnLogViewFullLog": {
     "message": "সম্পূর্ণ লগ দেখুন",
     "description": "appears in ADN log page"
   },
