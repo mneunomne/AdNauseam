@@ -99,12 +99,12 @@ export function preventSetTimeout(
             : String(callArgs[0]);
         const b = callArgs[1];
         if ( needleRaw === '' && range.unbound() ) {
-            safe.adnLog(logPrefix, `Called:\n${a}\n${b}`);
+            safe.adnlog(logPrefix, `Called:\n${a}\n${b}`);
             return context.reflect();
         }
         if ( reNeedle.test(a) !== needleNot && range.test(b) ) {
             callArgs[0] = function(){};
-            safe.adnLog(logPrefix, `Prevented:\n${a}\n${b}`);
+            safe.adnlog(logPrefix, `Prevented:\n${a}\n${b}`);
         }
         return context.reflect();
     });
@@ -163,12 +163,12 @@ export function preventSetInterval(
             : String(callArgs[0]);
         const b = callArgs[1];
         if ( needleRaw === '' && range.unbound() ) {
-            safe.adnLog(logPrefix, `Called:\n${a}\n${b}`);
+            safe.adnlog(logPrefix, `Called:\n${a}\n${b}`);
             return context.reflect();
         }
         if ( reNeedle.test(a) !== needleNot && range.test(b) ) {
             callArgs[0] = function(){};
-            safe.adnLog(logPrefix, `Prevented:\n${a}\n${b}`);
+            safe.adnlog(logPrefix, `Prevented:\n${a}\n${b}`);
         }
         return context.reflect();
     });
@@ -215,10 +215,10 @@ export function preventRequestAnimationFrame(
             ? String(safe.Function_toString(callArgs[0]))
             : String(callArgs[0]);
         if ( needleRaw === '' ) {
-            safe.adnLog(logPrefix, `Called:\n${a}`);
+            safe.adnlog(logPrefix, `Called:\n${a}`);
         } else if ( reNeedle.test(a) !== needleNot ) {
             callArgs[0] = function(){};
-            safe.adnLog(logPrefix, `Prevented:\n${a}`);
+            safe.adnlog(logPrefix, `Prevented:\n${a}`);
         }
         return context.reflect();
     });

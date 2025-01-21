@@ -3361,7 +3361,7 @@ function trustedSuppressNativeMethod(
             debugger; // eslint-disable-line no-debugger
             return context.reflect();
         }
-        safe.adnLog(logPrefix, `Suppressed:\n${callArgs.join('\n')}`);
+        safe.adnlog(logPrefix, `Suppressed:\n${callArgs.join('\n')}`);
         if ( how === 'abort' ) {
             throw new ReferenceError();
         }
