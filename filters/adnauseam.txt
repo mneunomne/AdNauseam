@@ -909,7 +909,3 @@ bunkr.site##center:has(script[src^="//bullionglidingscuttle"])
 
 ||bullionglidingscuttle.com^$script,important
 ||blurbreimbursetrombone.com^$script,important
-
-# scriptlet exceptions
-
-nytimes.com#@#+js(no-fetch-if, api.theathletic.com/graphql body:/PostEvent|PostImpressions/)
