@@ -141,7 +141,7 @@ export function setConstantFn(
                 (normalValue !== undefined && normalValue !== null) &&
                 (typeof v !== typeof normalValue);
             if ( aborted ) {
-                safe.uboLog(logPrefix, `Aborted because value set to ${v}`);
+                safe.adnLog(logPrefix, `Aborted because value set to ${v}`);
             }
             return aborted;
         };
@@ -176,7 +176,7 @@ export function setConstantFn(
                         handler.setter(a);
                     }
                 });
-                safe.uboLog(logPrefix, 'Trap installed');
+                safe.adnLog(logPrefix, 'Trap installed');
             } catch(ex) {
                 safe.uboErr(logPrefix, ex);
             }
@@ -195,7 +195,7 @@ export function setConstantFn(
                         if ( document.currentScript === thisScript ) {
                             return this.v;
                         }
-                        safe.uboLog(logPrefix, 'Property read');
+                        safe.adnLog(logPrefix, 'Property read');
                         return normalValue;
                     },
                     setter: function(a) {
