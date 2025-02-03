@@ -178,7 +178,7 @@ export function setConstantFn(
                 });
                 safe.adnlog(logPrefix, 'Trap installed');
             } catch(ex) {
-                safe.uboErr(logPrefix, ex);
+                safe.adnErr(logPrefix, ex);
             }
         };
         const trapChain = function(owner, chain) {
