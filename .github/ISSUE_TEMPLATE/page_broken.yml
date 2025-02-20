@@ -1,4 +1,4 @@
-name: AdNauseam Page Broken
+name: Page Broken
 description: Report page broken by AdNauseam
 body:
   - type: checkboxes
