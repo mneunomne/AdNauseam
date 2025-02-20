@@ -220,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "Αυτή η ενέργεια θα αφαιρέσει οριστικά όλες τις διαφημίσεις με σφάλμα φόρτωσης εικόνας. Βεβαιωθείτε ότι το internet σας είναι συνδεδεμένο, αλλιώς όλες οι διαφημίσεις σας θα διαγραφούν.",
+    "message": "This action will permanently remove all ads for which the image cannot be loaded. It is a good idea to backup your vault before purging, and also to make sure you have an active internet connection.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -363,6 +363,18 @@
     "message": "Απαλοιφή νεκρών διαφημίσεων",
     "description": "appears on vault page"
   },
+  "adnShowDeadAds": {
+    "message": "Show Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnHideDeadAds": {
+    "message": "Hide Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnCaptureVault": {
+    "message": "Capture",
+    "description": "appears on vault page in dev mode"
+  },
   "adnVaultFound": {
     "message": "{{total}} Διαφημίσεις συγκεντρώθηκαν",
     "description": "appears on vault page"
@@ -492,7 +504,7 @@
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Ενεργοποίηση διαγνωστηκής κατάστασης",
+    "message": "Debug mode",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
@@ -502,6 +514,10 @@
   "blurCollectedAds": {
     "message": "Blur Collected ads",
     "description": "English: Blur Collected ads"
+  },
+  "hideDeadAds": {
+    "message": "Hide Dead ads",
+    "description": "English: Hide Dead ads"
   },
   "showAdsDebugPrompt": {
     "message": "Εμφάνιση διαφημίσεων για αποσφαλμάτωση συλλογής διαφημίσεων",
