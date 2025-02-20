@@ -220,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "Toiminto poistaa pysyvästi kaikki mainokset, joiden kuvalatauksissa on virheitä. Varmista, että Internet-yhteytesi toimii, koska muuten kaikki mainokset poistetaan.",
+    "message": "This action will permanently remove all ads for which the image cannot be loaded. It is a good idea to backup your vault before purging, and also to make sure you have an active internet connection.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -363,6 +363,18 @@
     "message": "Hävitä kuolleet mainokset",
     "description": "appears on vault page"
   },
+  "adnShowDeadAds": {
+    "message": "Show Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnHideDeadAds": {
+    "message": "Hide Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnCaptureVault": {
+    "message": "Capture",
+    "description": "appears on vault page in dev mode"
+  },
   "adnVaultFound": {
     "message": "{{total}} mainoksia kerätty",
     "description": "appears on vault page"
@@ -492,7 +504,7 @@
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Ota virheenkorjaus käyttöön",
+    "message": "Debug mode",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
@@ -502,6 +514,10 @@
   "blurCollectedAds": {
     "message": "Blur Collected ads",
     "description": "English: Blur Collected ads"
+  },
+  "hideDeadAds": {
+    "message": "Hide Dead ads",
+    "description": "English: Hide Dead ads"
   },
   "showAdsDebugPrompt": {
     "message": "Näytä mainokset mainoskokoelman vianetsintää varten",

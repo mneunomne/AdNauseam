@@ -220,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "Ez a művelet véglegesen eltávolítja az összes olyan hirdetést, amelynek betöltési képhibája van. Győződj meg róla, hogy az internet csatlakozik, különben az összes hirdetésed törlődik.",
+    "message": "This action will permanently remove all ads for which the image cannot be loaded. It is a good idea to backup your vault before purging, and also to make sure you have an active internet connection.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -363,6 +363,18 @@
     "message": "Törölje a Halott Hirdetéseket",
     "description": "appears on vault page"
   },
+  "adnShowDeadAds": {
+    "message": "Show Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnHideDeadAds": {
+    "message": "Hide Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnCaptureVault": {
+    "message": "Capture",
+    "description": "appears on vault page in dev mode"
+  },
   "adnVaultFound": {
     "message": "{{total}} összegyűjtött hirdetések",
     "description": "appears on vault page"
@@ -480,7 +492,7 @@
     "description": "English: update"
   },
   "adnUpdateButton": {
-    "message": "Update",
+    "message": "Frissítés",
     "description": "English: update"
   },
   "whitelistPageName": {
@@ -492,7 +504,7 @@
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Hibakeresési mód aktiválása",
+    "message": "Debug mode",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
@@ -500,8 +512,12 @@
     "description": "English:Disable warnings"
   },
   "blurCollectedAds": {
-    "message": "Blur Collected ads",
+    "message": "Gyűjtött hirdetések elhomályosítása",
     "description": "English: Blur Collected ads"
+  },
+  "hideDeadAds": {
+    "message": "Hide Dead ads",
+    "description": "English: Hide Dead ads"
   },
   "showAdsDebugPrompt": {
     "message": "Hirdetések megjelenítése a hirdetésgyűjtési hibakereséséhez",
@@ -524,15 +540,15 @@
     "description": "English: refresh page from menu notification"
   },
   "supportS6P3S1": {
-    "message": "Make sure this issue is <b>AdNauseam-specific<\/b>.",
+    "message": "Bizonyosodj meg arról, hogy ez a jelenség <b>AdNauseam-specifikus<\/b>.",
     "description": "A paragraph in the filter issue reporter section"
   },
   "supportS6P3S2": {
-    "message": "I have tested the same web-page on <a url='https:\/\/github.com\/gorhill\/uBlock'>#uBO#<\/a> and confirm this issue is <b>AdNauseam-specific<\/b>.",
+    "message": "<a url='https:\/\/github.com\/gorhill\/uBlock'>#uBO#<\/a>-n leteszteltem ugyanezt a weboldalt, és megerősítem, hogy a jelenség <b>AdNauseam-specifikus<\/b>.",
     "description": "A checkbox in the filter issue reporter section"
   },
   "supportS6Select1Option7": {
-    "message": "Ads not collected",
+    "message": "Össze nem gyűjtött hirdetések",
     "description": "Ads are present on page but none are collected"
   }
 }

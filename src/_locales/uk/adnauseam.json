@@ -116,7 +116,7 @@
     "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
   },
   "adnNewerVersionAvailableNotification": {
-    "message": "A newer version of AdNauseam is available",
+    "message": "Доступна нова версія AdNauseam",
     "description": "English: Notifications -> A newer version of AdNauseam is available"
   },
   "adnTarget": {
@@ -196,11 +196,11 @@
     "description": "shown in menu when only 'recent' Ads are shown"
   },
   "adnThisPageStrictBlocked": {
-    "message": "{{domain}} is currently strict-blocked.",
+    "message": "{{domain}} в даний час обмежений.",
     "description": "shown in menu when the current page is strict-blocked"
   },
   "adnStrictBlockListDescription": {
-    "message": "The strict-block list serves to help the users to strict-block specific domains or pages more easily.",
+    "message": "Список блоків обмеження допомагає користувачам легше блокувати конкретні домени або сторінки з додатком.",
     "description": "Description on the strict-block list tab, which is found on the dashboard"
   },
   "adnExportedAdsFilename": {
@@ -220,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "This action will permanently remove all ads with load image error. Make sure your internet is connected, otherwise all your ads will be deleted.",
+    "message": "Ця дія назавжди видалить всі оголошення, для яких зображення неможливо завантажити. Це гарна ідея, щоб зробити резервне копіювання сховища перед очищенням, а також переконатися, що у вас є активне підключення до Інтернету.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -363,6 +363,18 @@
     "message": "Purge Dead Ads",
     "description": "appears on vault page"
   },
+  "adnShowDeadAds": {
+    "message": "Показати мерлу рекламу",
+    "description": "appears on vault page"
+  },
+  "adnHideDeadAds": {
+    "message": "Purge Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnCaptureVault": {
+    "message": "Взяття",
+    "description": "appears on vault page in dev mode"
+  },
   "adnVaultFound": {
     "message": "{{total}} зібраних оголошень",
     "description": "appears on vault page"
@@ -480,7 +492,7 @@
     "description": "English: update"
   },
   "adnUpdateButton": {
-    "message": "Update",
+    "message": "Оновлення",
     "description": "English: update"
   },
   "whitelistPageName": {
@@ -488,11 +500,11 @@
     "description": "appears as tab name in dashboard"
   },
   "strictBlockListPageName": {
-    "message": "Strict-Block List",
+    "message": "Список блоків Strict-Block",
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Активувати режим відлагодження",
+    "message": "Режим вiдладки",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
@@ -500,8 +512,12 @@
     "description": "English:Disable warnings"
   },
   "blurCollectedAds": {
-    "message": "Blur Collected ads",
+    "message": "Розмиття оголошень зібрані",
     "description": "English: Blur Collected ads"
+  },
+  "hideDeadAds": {
+    "message": "Purge Dead Ads",
+    "description": "English: Hide Dead ads"
   },
   "showAdsDebugPrompt": {
     "message": "Показувати рекламу для відлагодження реклами",
@@ -516,11 +532,11 @@
     "description": "English: Activate Strict-Blocking Mode"
   },
   "adnRefreshButton": {
-    "message": "Refresh",
+    "message": "Оновити",
     "description": "English: refresh page from menu notification button"
   },
   "adnRefreshNotification": {
-    "message": "Apply changes on current page",
+    "message": "Застосувати зміни на поточній сторінці",
     "description": "English: refresh page from menu notification"
   },
   "supportS6P3S1": {

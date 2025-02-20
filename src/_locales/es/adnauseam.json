@@ -116,7 +116,7 @@
     "description": "English: Notifications -> The Advanced Setting \"Show Ads Debug\" is turned on"
   },
   "adnNewerVersionAvailableNotification": {
-    "message": "Una nueva versión de ShareX está disponible",
+    "message": "Una nueva versión de AdNauseam está disponible",
     "description": "English: Notifications -> A newer version of AdNauseam is available"
   },
   "adnTarget": {
@@ -220,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "Esta acción eliminará de manera permanente todos los anuncios con error al cargar la imagen. Asegúrese de que su dispositivo está conectado a internet, de lo contrario todos sus anuncios serán eliminados",
+    "message": "This action will permanently remove all ads for which the image cannot be loaded. It is a good idea to backup your vault before purging, and also to make sure you have an active internet connection.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -363,6 +363,18 @@
     "message": "Purgar anuncios muertos",
     "description": "appears on vault page"
   },
+  "adnShowDeadAds": {
+    "message": "Show Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnHideDeadAds": {
+    "message": "Hide Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnCaptureVault": {
+    "message": "Capture",
+    "description": "appears on vault page in dev mode"
+  },
   "adnVaultFound": {
     "message": "{{total}} anuncios recopilados",
     "description": "appears on vault page"
@@ -492,7 +504,7 @@
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Activar modo de depuración",
+    "message": "Debug mode",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
@@ -502,6 +514,10 @@
   "blurCollectedAds": {
     "message": "Blur Collected ads",
     "description": "English: Blur Collected ads"
+  },
+  "hideDeadAds": {
+    "message": "Hide Dead ads",
+    "description": "English: Hide Dead ads"
   },
   "showAdsDebugPrompt": {
     "message": "Mostrar anuncios para la depuración de la colección de anuncios",

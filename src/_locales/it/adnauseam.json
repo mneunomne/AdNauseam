@@ -220,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "Questa azione rimuoverà permanentemente tutti gli annunci con un errore di caricamento delle immagini. Assicurati di essere connesso ad internet, altrimenti tutti gli annunci verranno eliminati.",
+    "message": "This action will permanently remove all ads for which the image cannot be loaded. It is a good idea to backup your vault before purging, and also to make sure you have an active internet connection.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -280,7 +280,7 @@
     "description": "Make Adnauseam Active -> appears in ADN popup menu three state button"
   },
   "adnMenuStrict": {
-    "message": "",
+    "message": "Rigorosa",
     "description": "Activate Strict-Block -> appears in ADN popup menu three state button"
   },
   "adnMenuDisableScopeDomain": {
@@ -362,6 +362,18 @@
   "adnPurgeDeadAds": {
     "message": "Eliminare gli annunci vecchi",
     "description": "appears on vault page"
+  },
+  "adnShowDeadAds": {
+    "message": "Show Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnHideDeadAds": {
+    "message": "Hide Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnCaptureVault": {
+    "message": "Capture",
+    "description": "appears on vault page in dev mode"
   },
   "adnVaultFound": {
     "message": "{{total}} annunci raccolti",
@@ -480,7 +492,7 @@
     "description": "English: update"
   },
   "adnUpdateButton": {
-    "message": "Update",
+    "message": "Aggiorna",
     "description": "English: update"
   },
   "whitelistPageName": {
@@ -488,11 +500,11 @@
     "description": "appears as tab name in dashboard"
   },
   "strictBlockListPageName": {
-    "message": "",
+    "message": "Lista Strict-Block",
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Attiva debug",
+    "message": "Debug mode",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
@@ -500,8 +512,12 @@
     "description": "English:Disable warnings"
   },
   "blurCollectedAds": {
-    "message": "Blur Collected ads",
+    "message": "Sfoca gli annunci collezionati",
     "description": "English: Blur Collected ads"
+  },
+  "hideDeadAds": {
+    "message": "Hide Dead ads",
+    "description": "English: Hide Dead ads"
   },
   "showAdsDebugPrompt": {
     "message": "Mostra pubblicità per il debug della collezione pubblicitaria",

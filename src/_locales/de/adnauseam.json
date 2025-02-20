@@ -220,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "Diese Aktion wird alle Anzeigen mit Ladebild-Fehler dauerhaft entfernen. Stellen Sie sicher, dass Ihr Internet verbunden ist, andernfalls werden alle Ihre Anzeigen gelöscht.",
+    "message": "This action will permanently remove all ads for which the image cannot be loaded. It is a good idea to backup your vault before purging, and also to make sure you have an active internet connection.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -363,6 +363,18 @@
     "message": "Beseitige vernichtete Werbungen",
     "description": "appears on vault page"
   },
+  "adnShowDeadAds": {
+    "message": "Show Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnHideDeadAds": {
+    "message": "Hide Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnCaptureVault": {
+    "message": "Capture",
+    "description": "appears on vault page in dev mode"
+  },
   "adnVaultFound": {
     "message": "{{total}} Werbungen gesammelt",
     "description": "appears on vault page"
@@ -492,7 +504,7 @@
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Aktiviere Debugging Modus",
+    "message": "Debug mode",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
@@ -500,8 +512,12 @@
     "description": "English:Disable warnings"
   },
   "blurCollectedAds": {
-    "message": "Blur Collected ads",
+    "message": "Gesammelte Werbung verschleiern",
     "description": "English: Blur Collected ads"
+  },
+  "hideDeadAds": {
+    "message": "Hide Dead ads",
+    "description": "English: Hide Dead ads"
   },
   "showAdsDebugPrompt": {
     "message": "Anzeigen für das Debuggen der Werbesammlung anzeigen",

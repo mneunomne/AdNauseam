@@ -220,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "Ta akcja spowoduje trwałe usunięcie wszystkich reklam, w których nie ładują się obrazy. Upewnij się, że jesteś podłączony do internetu, gdyż w przeciwnym razie wszystkie twoje reklamy zostaną usunięte.",
+    "message": "This action will permanently remove all ads for which the image cannot be loaded. It is a good idea to backup your vault before purging, and also to make sure you have an active internet connection.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -272,7 +272,7 @@
     "description": "appears in ADN popup menu three state button"
   },
   "adnMenuDisable": {
-    "message": "Wyłacz",
+    "message": "Wyłącz",
     "description": "Disabled Adnauseam -> appears in ADN popup menu three state button"
   },
   "adnMenuActive": {
@@ -280,7 +280,7 @@
     "description": "Make Adnauseam Active -> appears in ADN popup menu three state button"
   },
   "adnMenuStrict": {
-    "message": "Ścisły",
+    "message": "Surowy",
     "description": "Activate Strict-Block -> appears in ADN popup menu three state button"
   },
   "adnMenuDisableScopeDomain": {
@@ -362,6 +362,18 @@
   "adnPurgeDeadAds": {
     "message": "Wymaż martwe reklamy",
     "description": "appears on vault page"
+  },
+  "adnShowDeadAds": {
+    "message": "Show Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnHideDeadAds": {
+    "message": "Hide Dead Ads",
+    "description": "appears on vault page"
+  },
+  "adnCaptureVault": {
+    "message": "Capture",
+    "description": "appears on vault page in dev mode"
   },
   "adnVaultFound": {
     "message": "{{total}} zgromadzone reklamy",
@@ -480,7 +492,7 @@
     "description": "English: update"
   },
   "adnUpdateButton": {
-    "message": "Update",
+    "message": "Zaktualizuj",
     "description": "English: update"
   },
   "whitelistPageName": {
@@ -492,7 +504,7 @@
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Włącz tryb debugowania",
+    "message": "Debug mode",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
@@ -500,8 +512,12 @@
     "description": "English:Disable warnings"
   },
   "blurCollectedAds": {
-    "message": "Blur Collected ads",
+    "message": "Zakryj skolekcjonowane reklamy",
     "description": "English: Blur Collected ads"
+  },
+  "hideDeadAds": {
+    "message": "Hide Dead ads",
+    "description": "English: Hide Dead ads"
   },
   "showAdsDebugPrompt": {
     "message": "Pokaż reklamy w celu debugowania",
@@ -512,7 +528,7 @@
     "description": "English:Remove ads collected in private mode - settings page"
   },
   "settingsStrictBlockingMode": {
-    "message": "Aktywuj tryb ścisłego blokowania",
+    "message": "Aktywuj tryb surowego blokowania",
     "description": "English: Activate Strict-Blocking Mode"
   },
   "adnRefreshButton": {
@@ -532,7 +548,7 @@
     "description": "A checkbox in the filter issue reporter section"
   },
   "supportS6Select1Option7": {
-    "message": "Reklamy nie są zebrane",
+    "message": "Niezebrane reklamy",
     "description": "Ads are present on page but none are collected"
   }
 }

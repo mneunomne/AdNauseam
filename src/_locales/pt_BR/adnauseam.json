@@ -220,7 +220,7 @@
     "description": "appears in ADN settings"
   },
   "adnPurgeConfirm": {
-    "message": "Esta ação irá remover permanentemente todos os anúncios com erro de carregamento da imagem. Certifique-se de que sua internet está conectada, caso contrário, todos os seus anúncios serão excluídos.",
+    "message": "Esta ação irá remover permanentemente todos os anúncios para os quais a imagem não pode ser carregada. É uma boa ideia fazer o backup do seu cofre antes de limpar, e também certificar-se de que você tem uma conexão com a internet ativa.",
     "description": "appears in ADN settings"
   },
   "adnAdClickingStatusPending": {
@@ -363,6 +363,18 @@
     "message": "Eliminar Anúncios Inativos",
     "description": "appears on vault page"
   },
+  "adnShowDeadAds": {
+    "message": "Mostrar Anúncios Mortos",
+    "description": "appears on vault page"
+  },
+  "adnHideDeadAds": {
+    "message": "Eliminar Anúncios Inativos",
+    "description": "appears on vault page"
+  },
+  "adnCaptureVault": {
+    "message": "Capturar",
+    "description": "appears on vault page in dev mode"
+  },
   "adnVaultFound": {
     "message": "{{total}} anúncios coletados",
     "description": "appears on vault page"
@@ -480,7 +492,7 @@
     "description": "English: update"
   },
   "adnUpdateButton": {
-    "message": "Update",
+    "message": "Atualizar",
     "description": "English: update"
   },
   "whitelistPageName": {
@@ -492,7 +504,7 @@
     "description": "appears as tab name in dashboard"
   },
   "eventLoggingPrompt": {
-    "message": "Ativar modo de depuração",
+    "message": "Modo de depuração",
     "description": "prompt for toggle"
   },
   "disableWarnings": {
@@ -500,8 +512,12 @@
     "description": "English:Disable warnings"
   },
   "blurCollectedAds": {
-    "message": "Blur Collected ads",
+    "message": "Desfocar anúncios coletados",
     "description": "English: Blur Collected ads"
+  },
+  "hideDeadAds": {
+    "message": "Eliminar Anúncios Inativos",
+    "description": "English: Hide Dead ads"
   },
   "showAdsDebugPrompt": {
     "message": "Mostrar anúncios para depuração de coleção de anúncios",
@@ -524,11 +540,11 @@
     "description": "English: refresh page from menu notification"
   },
   "supportS6P3S1": {
-    "message": "Make sure this issue is <b>AdNauseam-specific<\/b>.",
+    "message": "Certifique-se de que esta issue é <b>específica para o AdNauseam<\/b>.",
     "description": "A paragraph in the filter issue reporter section"
   },
   "supportS6P3S2": {
-    "message": "I have tested the same web-page on <a url='https:\/\/github.com\/gorhill\/uBlock'>#uBO#<\/a> and confirm this issue is <b>AdNauseam-specific<\/b>.",
+    "message": "Eu testei a mesma página em <a url='https:\/\/github.com\/gorhill\/uBlock'>#uBO#<\/a> e confirmei que a issue é <b>específica para o AdNauseam<\/b>.",
     "description": "A checkbox in the filter issue reporter section"
   },
   "supportS6Select1Option7": {
