@@ -19,8 +19,6 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-'use strict';
-
 function getActualTheme(nominalTheme) {
     let theme = nominalTheme || 'light';
     if ( nominalTheme === 'auto' ) {
@@ -62,7 +60,7 @@ function setTheme(theme, propagate = false) {
         if ( propagate === false ) { break; }
         if ( w === w.parent ) { break; }
         w = w.parent;
-        try { void w.document; } catch(ex) { return; }
+        try { void w.document; } catch { return; }
     }
 }
 
@@ -121,7 +119,7 @@ function setAccentColor(
         if ( propagate === false ) { break; }
         if ( w === w.parent ) { break; }
         w = w.parent;
-        try { void w.document; } catch(ex) { break; }
+        try { void w.document; } catch { break; }
     }
 }
 

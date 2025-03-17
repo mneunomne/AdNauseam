@@ -23,7 +23,6 @@
 
 import {
     domainFromHostname,
-    entityFromDomain,
     hostnameFromURI,
 } from './uri-utils.js';
 
@@ -166,7 +165,7 @@ const onScriptletMessageInjector = (( ) => {
                 };
                 bcSecret.postMessage('iamready!');
                 self.uBO_bcSecret = bcSecret;
-            } catch(_) {
+            } catch {
             }
         }.toString(),
         ')(',
@@ -335,7 +334,7 @@ export class ScriptletFilteringEngineEx extends ScriptletFilteringEngine {
             url: details.url,
             hostname,
             domain,
-            entity: entityFromDomain(domain),
+            ancestors: details.ancestors,
         });
         if ( scriptletDetails === undefined ) {
             contentScriptRegisterer.unregister(hostname);

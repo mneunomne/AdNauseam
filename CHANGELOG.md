@@ -1,3 +1,30 @@
+- [Improve `prevent-set[Timeout|Interval]` scriptlets](https://github.com/gorhill/uBlock/commit/d36ea89a02)
+- [Add quit button to element zapper mode](https://github.com/gorhill/uBlock/commit/4aebdbb0a9)
+- [Improve `trusted-override-element-method` scriptlet](https://github.com/gorhill/uBlock/commit/9e946ce0c3)
+- [Disable obsolete cache-control workaround for Firefox](https://github.com/gorhill/uBlock/commit/34cea70924)
+- [Improve `overlay-buster` scriptlet](https://github.com/gorhill/uBlock/commit/fc231998b9)
+- [Add ability to inject scriptlets according to origin of ancestor contexts](https://github.com/gorhill/uBlock/commit/a483f7955f)
+- [Fix range parser in prevent-setTimeout scriptlet](https://github.com/gorhill/uBlock/commit/e636c32f2a)
+- [Add filter option synonyms for `strict1p`/`strict3p`](https://github.com/gorhill/uBlock/commit/34df044808)
+- [Increase URL buffer size to 8192 (from 2048)](https://github.com/gorhill/uBlock/commit/36404543e4)
+- [Use onmessage/postMessage instead of BroadcastChannel in diff updater](https://github.com/gorhill/uBlock/commit/ea8853cda3)
+- [Improve `disable-newtab-links` scriptlet](https://github.com/gorhill/uBlock/commit/d41989e62a)
+- [Improve `prevent-addEventListener` scriptlet](https://github.com/gorhill/uBlock/commit/9c26a07b53)
+- [Fix reverse lookup of `##^responseheader(...)` filters](https://github.com/gorhill/uBlock/commit/5921e50e03)
+- [Improve `evaldata-prune` scriptlet](https://github.com/gorhill/uBlock/commit/9bb1a2baaf)
+- [Comply with Mozilla's "User Consent and Control"](https://github.com/gorhill/uBlock/commit/344539d793)
+- [Improve `noeval-if` scriptlet](https://github.com/gorhill/uBlock/commit/0df7faffac)
+- [Add "closed","next", "mandatory", "agree/disagree" values to `set-cookie` scriptlet](https://github.com/gorhill/uBlock/commit/35a47d674b) (by @ryanbr)
+- [Add `decline` value to `set-cookie` scriptlet](https://github.com/gorhill/uBlock/commit/4b12247da1)
+- [Improve `abort-on-stack-trace` scriptlet](https://github.com/gorhill/uBlock/commit/b617926c1c)
+- [Improve `href-sanitizer` scriptlet](https://github.com/gorhill/uBlock/commit/551c6bc6eb)
+
+----------
+
+# 1.62.0
+
+## Fixes / changes
+
 - [Fix deserialization of ArrayBuffer shared by multiple TypedArrays](https://github.com/gorhill/uBlock/commit/c92a518218)
 - [Improve `trusted-suppress-native-method` scriptlet](https://github.com/gorhill/uBlock/commit/cb6c11ab6f)
 - [Improve `urlskip=` filter option](https://github.com/gorhill/uBlock/commit/a7aa755f18)

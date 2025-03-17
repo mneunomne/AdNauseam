@@ -148,7 +148,7 @@ onBroadcast(request => {
                 if ( iframe.src !== '' ) {
                     iframe.src = '';
                 }
-            } catch(ex) {
+            } catch {
             }
             vAPI.defer.once(250).then(( ) => check());
         };

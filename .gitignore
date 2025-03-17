@@ -9,7 +9,4 @@ node_modules/
 /dist/build/
 /bin/build/
 /tmp/
-misc
-artifacts/*
-*.DS_Store
-assets/checksums/ublock0.txt
+.DS_Store
