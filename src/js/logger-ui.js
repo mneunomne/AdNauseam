@@ -2206,7 +2206,7 @@ const rowFilterer = (( ) => {
                 reStr = rawPart.slice(1, -1);
                 try {
                     new RegExp(reStr);
-                } catch(ex) {
+                } catch {
                     reStr = '';
                 }
             }
@@ -2987,7 +2987,7 @@ const loggerSettings = (( ) => {
             if ( Array.isArray(stored.columns) ) {
                 settings.columns = stored.columns;
             }
-        } catch(_) {
+        } catch {
         }
     });
 

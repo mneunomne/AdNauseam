@@ -25,7 +25,6 @@ import * as sfp from './static-filtering-parser.js';
 import {
     domainFromHostname,
     domainFromURI,
-    entityFromDomain,
     hostnameFromURI,
     isNetworkURI,
 } from './uri-utils.js';
@@ -734,7 +733,7 @@ const retrieveContentScriptParameters = async function(sender, request) {
     request.frameId = frameId;
     request.hostname = hostnameFromURI(request.url);
     request.domain = domainFromHostname(request.hostname);
-    request.entity = entityFromDomain(request.domain);
+    request.ancestors = pageStore.getFrameAncestorDetails(frameId);
     response.prefs = adnauseam.contentPrefs(pageStore.tabHostname); // ADN
 
     const scf = response.specificCosmeticFilters =
@@ -977,7 +976,7 @@ const fromBase64 = function(encoded) {
     let u8array;
     try {
         u8array = denseBase64.decode(encoded);
-    } catch(ex) {
+    } catch {
     }
     return Promise.resolve(u8array !== undefined ? u8array : encoded);
 };

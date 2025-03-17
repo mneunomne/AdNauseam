@@ -326,7 +326,7 @@ assets.fetch = function(url, options = {}) {
         xhr.responseType = options.responseType || 'text';
         xhr.send();
         timeoutTimer.on({ sec: timeoutAfter });
-    } catch (e) {
+    } catch {
         onErrorEvent.call(xhr);
     }
 
@@ -403,7 +403,7 @@ assets.fetchFilterList = async function(mainlistURL) {
     const toParsedURL = url => {
         try {
             return new URL(url.trim());
-        } catch (ex) {
+        } catch {
         }
     };
 
@@ -629,7 +629,7 @@ function updateAssetSourceRegistry(json, silent = false) {
             Array.from(Object.entries(newDict))
                 .filter(a => a[1].content === 'filters' && a[1].off === undefined)
                 .map(a => a[0]);
-    } catch (ex) {
+    } catch {
     }
     if ( newDict instanceof Object === false ) { return; }
 
@@ -1256,10 +1256,8 @@ async function diffUpdater() {
     adnlog('Diff updater: cycle start');
     return new Promise(resolve => {
         let pendingOps = 0;
-        const bc = new globalThis.BroadcastChannel('diffUpdater');
         const terminate = error => {
             worker.terminate();
-            bc.close();
             resolve();
             if ( typeof error !== 'string' ) { return; }
             adnlog(`Diff updater: terminate because ${error}`);
@@ -1272,14 +1270,15 @@ async function diffUpdater() {
             if ( metadata.diffPath === data.patchPath ) { return; }
             assetCacheSetDetails(data.assetKey, metadata);
         };
-        bc.onmessage = ev => {
+        const worker = new Worker('js/diff-updater.js');
+        worker.onmessage = ev => {
             const data = ev.data || {};
             if ( data.what === 'ready' ) {
                 adnlog('Diff updater: hard updating', toHardUpdate.map(v => v.assetKey).join());
                 while ( toHardUpdate.length !== 0 ) {
                     const assetDetails = toHardUpdate.shift();
                     assetDetails.fetch = true;
-                    bc.postMessage(assetDetails);
+                    worker.postMessage(assetDetails);
                     pendingOps += 1;
                 }
                 return;
@@ -1296,7 +1295,7 @@ async function diffUpdater() {
                     data.text = result.content || '';
                     data.status = undefined;
                     checkAndCorrectDiffPath(data);
-                    bc.postMessage(data);
+                    worker.postMessage(data);
                 });
                 return;
             }
@@ -1332,7 +1331,7 @@ async function diffUpdater() {
             if ( pendingOps === 0 && toSoftUpdate.length !== 0 ) {
                 adnlog('Diff updater: soft updating', toSoftUpdate.map(v => v.assetKey).join());
                 while ( toSoftUpdate.length !== 0 ) {
-                    bc.postMessage(toSoftUpdate.shift());
+                    worker.postMessage(toSoftUpdate.shift());
                     pendingOps += 1;
                 }
             }
@@ -1340,7 +1339,6 @@ async function diffUpdater() {
             adnlog('Diff updater: cycle complete');
             terminate();
         };
-        const worker = new Worker('js/diff-updater.js');
     }).catch(reason => {
         adnlog(`Diff updater: ${reason}`);
     });
