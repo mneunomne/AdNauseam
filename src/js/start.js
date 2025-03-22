@@ -54,7 +54,6 @@ import { redirectEngine } from './redirect-engine.js';
 import staticExtFilteringEngine from './static-ext-filtering.js';
 import staticFilteringReverseLookup from './reverselookup.js';
 import staticNetFilteringEngine from './static-net-filtering.js';
-import { ubolog } from './console.js';
 import webRequest from './traffic.js';
 import µb from './background.js';
 

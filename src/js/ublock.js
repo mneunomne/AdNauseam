@@ -52,7 +52,6 @@ import contextMenu from './contextmenu.js';
 import cosmeticFilteringEngine from './cosmetic-filtering.js';
 import { hostnameFromURI } from './uri-utils.js';
 import { redirectEngine } from './redirect-engine.js';
-import µb from './background.js';
 
 /******************************************************************************/
 /******************************************************************************/
