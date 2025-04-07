@@ -222,7 +222,7 @@ const reactivateList = function() {
 
 const reloadCurrentTab = function() {
   browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    browser.tabs.reload(tabs[0].id);
+    browser.tabs.reload(tabs[0].id, { bypassCache: true });
   });
 }
 
