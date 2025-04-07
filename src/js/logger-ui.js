@@ -3093,37 +3093,6 @@ const keyColorPopup = (( ) => {
 
 /******************************************************************************/
 
-
-logger.resize = (function() {
-    let timer;
-
-    const resize = function() {
-        const vrect = dom.body.getBoundingClientRect();
-        for ( const elem of qsa$('.vscrollable') ) {
-            const crect = elem.getBoundingClientRect();
-            const dh = crect.bottom - vrect.bottom;
-            if ( dh === 0 ) { continue; }
-            elem.style.height = Math.ceil(crect.height - dh) + 'px';
-        }
-    };
-
-    const resizeAsync = function() {
-        if ( timer !== undefined ) { return; }
-        timer = self.requestAnimationFrame(( ) => {
-            timer = undefined;
-            resize();
-        });
-    };
-
-    resizeAsync();
-
-    dom.on(window, 'resize', resizeAsync, { passive: true });
-
-    return resizeAsync;
-})();
-
-/******************************************************************************/
-
 const grabView = function() {
     if ( logger.ownerId === undefined ) {
         logger.ownerId = Date.now();
