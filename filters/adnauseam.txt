@@ -909,3 +909,6 @@ bunkr.site##center:has(script[src^="//bullionglidingscuttle"])
 
 ||bullionglidingscuttle.com^$script,important
 ||blurbreimbursetrombone.com^$script,important
+
+# snooker.org
+www.snooker.org###stickyAdContainer
