@@ -912,3 +912,6 @@ bunkr.site##center:has(script[src^="//bullionglidingscuttle"])
 
 # snooker.org
 www.snooker.org###stickyAdContainer
+
+# fix ad detection on drakecomic.org
+||drakecomic.org/wp-content/themes/mangareader/script.js$script,important
