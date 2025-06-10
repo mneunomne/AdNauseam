@@ -19,6 +19,11 @@
     Home: https://github.com/gorhill/uBlock
 */
 
+import {
+    browser,
+    runtime,
+} from './ext.js';
+
 /******************************************************************************/
 
 function parsedURLromOrigin(origin) {
@@ -114,7 +119,7 @@ const matchesFromHostnames = hostnames => {
 const hostnamesFromMatches = origins => {
     const out = [];
     for ( const origin of origins ) {
-        if ( origin === '<all_urls>' ) {
+        if ( origin === '<all_urls>' || origin === '*://*/*' ) {
             out.push('all-urls');
             continue;
         }
@@ -134,6 +139,62 @@ const broadcastMessage = message => {
 
 /******************************************************************************/
 
+// https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/host_permissions#requested_permissions_and_user_prompts
+// "Users can grant or revoke host permissions on an ad hoc basis. Therefore,
+// most browsers treat host_permissions as optional."
+
+async function hasBroadHostPermissions() {
+    return browser.permissions.getAll().then(permissions =>
+        permissions.origins.includes('<all_urls>') ||
+        permissions.origins.includes('*://*/*')
+    ).catch(( ) => false);
+}
+
+/******************************************************************************/
+
+async function gotoURL(url, type) {
+    const pageURL = new URL(url, runtime.getURL('/'));
+    const tabs = await browser.tabs.query({
+        url: pageURL.href,
+        windowType: type !== 'popup' ? 'normal' : 'popup'
+    });
+
+    if ( Array.isArray(tabs) && tabs.length !== 0 ) {
+        const { windowId, id } = tabs[0];
+        return Promise.all([
+            browser.windows.update(windowId, { focused: true }),
+            browser.tabs.update(id, { active: true }),
+        ]);
+    }
+
+    if ( type === 'popup' ) {
+        return browser.windows.create({
+            type: 'popup',
+            url: pageURL.href,
+        });
+    }
+
+    return browser.tabs.create({
+        active: true,
+        url: pageURL.href,
+    });
+}
+
+/******************************************************************************/
+
+// Important: We need to sort the arrays for fast comparison
+const strArrayEq = (a = [], b = [], sort = true) => {
+    const alen = a.length;
+    if ( alen !== b.length ) { return false; }
+    if ( sort ) { a.sort(); b.sort(); }
+    for ( let i = 0; i < alen; i++ ) {
+        if ( a[i] !== b[i] ) { return false; }
+    }
+    return true;
+};
+
+/******************************************************************************/
+
 export {
     broadcastMessage,
     parsedURLromOrigin,
@@ -145,4 +206,7 @@ export {
     matchFromHostname,
     matchesFromHostnames,
     hostnamesFromMatches,
+    hasBroadHostPermissions,
+    gotoURL,
+    strArrayEq,
 };

@@ -4,7 +4,7 @@
     "description": "extension name."
   },
   "extShortDesc": {
-    "message": "Un bloqueador de contenido con menos permisos. Bloquea anuncios, rastreadores, criptomineros y aún más.",
+    "message": "Un bloqueador de contenido eficiente. Bloquea anuncios, rastreadores, criptomineros y aún más.",
     "description": "this will be in the Chrome web store: must be 132 characters or less"
   },
   "perRulesetStats": {
@@ -111,6 +111,10 @@
     "message": "Reportar problemas de filtros con sitios web específicos en el registro de problemas <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code></span>. <u>Requiere una cuenta en GitHub</u>.",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Información para solucionar problemas",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "Para evitar sobrecargar a voluntarios con reportes duplicados, verifica que el problema no haya sido reportado. <b>Nota:</b> al hacer clic en el botón, hará que el origen de la página se envíe a GitHub.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Crear nuevo reporte en GitHub",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Bienvenida",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Acabas de instalar uBO Lite. Aquí puedes elegir el modo de filtrado predeterminado que se utilizará en todos los sitios web.\n\nPor defecto, el modo <em>básico</em> está seleccionado porque no requiere permiso para leer y modificar datos. Si confías en uBO Lite, puedes otorgarle un permiso amplio para leer y modificar datos en todos los sitios web para habilitar capacidades de filtrado más avanzadas para todos los sitios web de forma predeterminada.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Modo de filtrado predeterminado",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Continuar",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Entrar al modo eliminación de elementos",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Salir del modo eliminación de elementos",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

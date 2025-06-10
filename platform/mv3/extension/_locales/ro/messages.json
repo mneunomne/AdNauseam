@@ -111,6 +111,10 @@
     "message": "Raportează aici o eroare cu filtrele pentru un site specific <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> issue tracker</span>. <u>Este necesar un cont GitHub.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Troubleshooting information",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "Pentru a evita încărcarea voluntarilor cu rapoarte duplicate, vă rugăm să verificați dacă problema nu a fost deja raportată.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Creează o nouă sesizare",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Bun venit",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Tocmai ați instalat uBO Lite. Aici puteți alege modul de filtrare implicit pe toate site-urile.\n\nImplicit, modul de <em>bază</em> este selectat întrucât nu necesită permisiuni pentru a citi și modifica date. Dacă aveți încredere în uBO Lite, puteți să-i acordați permisiuni sporite pentru a citi și modifica datele tututor sitte-rilor pentru a activa capabilități mai avansate de filtrare.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Mod de filtrare implicit",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Continuă",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Enter element zapper mode",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Exit element zapper mode",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

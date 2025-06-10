@@ -26,7 +26,7 @@
 'use strict';
 
 import µb from '../background.js';
-import staticFilteringReverseLookup from '../reverselookup.js';
+import { staticFilteringReverseLookup } from '../reverselookup.js';
 import staticNetFilteringEngine from '../static-net-filtering.js'
 import { broadcast } from '../broadcast.js';
 

@@ -4,7 +4,7 @@
     "description": "extension name."
   },
   "extShortDesc": {
-    "message": "Блокировщик контента, не требующий разрешений. Сразу после инсталляции блокирует рекламу, трекеры, майнеры и многое другое.",
+    "message": "Эффективный блокировщик веб-элементов. Сразу после установки блокирует рекламу, трекеры, майнеры и многое другое.",
     "description": "this will be in the Chrome web store: must be 132 characters or less"
   },
   "perRulesetStats": {
@@ -111,6 +111,10 @@
     "message": "Сообщайте о проблемах с фильтрами на определённых сайтах в <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\">трекер ошибок <code>uBlockOrigin/uAssets</code></span>. <u>Требуется учётная запись в GitHub.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Диагностическая информация",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "Чтобы не обременять добровольцев повторяющимися отчётами, пожалуйста, убедитесь, что об этой проблеме ещё не сообщали. <b>Примечание:</b> щелчок по кнопке приведёт к отправке адреса посещенной страницы GitHub'у.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Создать новый отчёт в GitHub",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Добро пожаловать",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Вы только что установили uBO Lite. Здесь вы можете выбрать стандартный режим фильтрации для всех веб-сайтов.\n\nПо умолчанию выбран режим <em>Базовый</em>, так как он не требует разрешения на чтение и изменение данных. Если вы доверяете uBO Lite, вы можете дать ему широкие права на чтение и изменение данных на всех веб-сайтах, чтобы включить более продвинутые возможности фильтрации для всех веб-сайтов по умолчанию.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Режим фильтрации по умолчанию",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Продолжить",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Войти в режим временного скрытия элемента",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Покинуть режим временного скрытия элемента",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

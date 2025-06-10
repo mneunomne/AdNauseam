@@ -111,6 +111,10 @@
     "message": "ცალკეულ საიტზე ფილტრების ხარვეზების მოსახსენებლად გამოიყენეთ <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> ხარვეზების აღსარიცხავი</span>. დაგჭირდებათ GitHub-ანგარიში.",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "მონაცემები ხარვეზის მოსაგვარებლად",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "მოხალისეები რომ არ მოცდნენ ერთნაირი მოსხენებების გაცნობით, გთხოვთ გადაამოწმოთ, უკვე ხომ არაა გაგზავნილი საჩივარი ამ ხარვეზზე. <b>გაითვალისწინეთ:</b> ღილაკზე დაწკაპების შედეგად გვერდის მონაცემები გაიგზავნება GitHub-ზე.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "შექმენით ახალი მოსხენება",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "მოგესალმებით",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "თქვენ ახლახან დააყენეთ uBO Lite. აქვე შეგიძლიათ აირჩიოთ ფილტრაციის ნაგულისხმევი რეჟიმი ყველა საიტზე გამოსაყენებლად.\n\nნაგულისხმევად <em>ძირითადი</em> რეჟიმია შერჩეული, ვინაიდან არ საჭიროებს მონაცემთა წაკითხვისა და ცვლილების ნებართვებს. თუ თქვენთვის სანდოა uBO Lite, შეგიძლიათ დართოთ მონაცემთა წაკითხვისა და შეცვლის ნება ყველა საიტზე გაუმჯობესებული ფილტრაციის ნაგულისხმევად გამოყენებისთვის.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "გაფილტვრის ნაგულისხმევი რეჟიმი",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "გაგრძელება",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "ნაწილების ამოჭრის რეჟიმში გადასვლა",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "ნაწილების ამოჭრის რეჟიმიდან გასვლა",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

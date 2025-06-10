@@ -111,6 +111,10 @@
     "message": "Пријавете проблеми со филтерите за специфични веб-страници до <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> issue tracker</span>. <u>Потребен е GitHub профил.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Troubleshooting information",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "За да се избегне оптоварување на волонтерите со дупликат пријави, ве молиме проверете дали проблемот веќе не е пријавен.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Создај нова пријава",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Добредојде",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Токму ја инсталиравте uBO Lite. Овде можете да изберете режим на филтрирање по подразбирање што ќе го користите на сите веб-страници.\n\nПо подразбирање, е избран режимот <em>Основен</em> затоа што не бара дозвола за читање и модификација на податоци. Ако му верувате на uBO Lite, можете да му дадете ширување на дозволата за читање и модификација на податоци на сите веб-страници за да овозможите попрецизни способности за филтрирање на сите веб-страници по подразбирање.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Режим на филтрирање по подразбирање",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Proceed",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Enter element zapper mode",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Exit element zapper mode",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

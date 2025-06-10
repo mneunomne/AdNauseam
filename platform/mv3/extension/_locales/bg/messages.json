@@ -111,6 +111,10 @@
     "message": "Докладвайте за проблеми с филтрирането на конкретни уебсайтове в <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> за проследяване на проблеми</span>.  <u>Изисква се акаунт в GitHub.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Информация за отстраняване на неизправности",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "За да се избегне натоварването на доброволците с дублиращи се доклади, моля, проверете дали проблемът вече не е докладван.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Създаване на нов доклад",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Добре дошли",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Току-що инсталирахте uBO Lite. Тук можете да изберете режима на филтриране по подразбиране, който да се използва за всички уебсайтове.\n\nПо подразбиране е избран <em>основен</em> режим, тъй като той не изисква разрешение за четене и промяна на данни. Ако се доверите на uBO Lite, можете да му дадете широко разрешение да чете и променя данни на всички уебсайтове, за да активирате по-разширени възможности за филтриране за всички уебсайтове по подразбиране.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Режим на филтриране по подразбиране",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Продължаване",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Влизане в режима на временно скриване на елемента",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Излизане от режима на временно скриване на елемента",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

@@ -111,6 +111,10 @@
     "message": "Паведамляйце пра праблемы з фільтрамі, датычныя канкрэтных вэб-сайтаў, праз <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\">трэкер праблем<code>uBlockOrigin/uAssets</code> </span>. <u>Патрэбны ўліковы запіс GitHub.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Дыягнастычныя звесткі",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "Каб не абцяжарваць добраахвотнікаў дубляванымі справаздачамі, калі ласка, пераканайцеся, што пра гэтую праблему не паведамлялі раней.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Стварыць новую справаздачу",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Вітаем",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Вы толькі што ўсталявалі uBO Lite. Тут вы можаце выбраць прадвызначаны рэжым фільтравання для ўсіх вэб-сайтаў.\n\nКалі не ўказана іншае, выбраны <em>базавы</em> рэжым, бо ён не патрабуе дазволаў на чытанне і змяненне звестак. Калі вы давяраеце uBO Lite, можаце даць яму шырэйшыя дазволы на чытанне і змяненне звестак на ўсіх вэб-сайтах, каб зрабіць магчымымі больш прасунутыя функцыі фільтравання прадвызначана на ўсіх вэб-сайтах.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Прадвызначаны рэжым фільтравання",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Працягнуць",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Перайсці ў рэжым імгненнага хавання элементаў",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Выйсці з рэжыму імгненнага хавання элементаў",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

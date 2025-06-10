@@ -111,6 +111,10 @@
     "message": "Informeu d'un problema en llocs web específics mitjançant el <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> seguiment d'errors</span>. <u>Cal un compte al GitHub.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Informació de resolució de problemes",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "Per a evitar la sobrecàrrega del nostre voluntariat amb informes duplicats, verifiqueu abans que el problema encara no s'ha notificat. <b>Nota:</b> En fer clic, enviareu la pàgina causant al nostre GitHub.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Crea un informe nou",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Us donem la benvinguda",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Acabeu d'instal·lar l'uBO Lite. Aquí podeu triar el mode de filtrat per defecte per utilitzar-lo a tots els llocs web.\n\nPer defecte, el mode <em>Bàsic</em> està seleccionat perquè no requereix permís per llegir i canviar dades. Si confieu en l'uBO Lite, podeu donar-li un ampli permís per llegir i canviar dades a tots els llocs web per tal d'activar capacitats de filtratge més avançades per a tots els llocs web per defecete.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Mode de filtratge per defecte",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Continua",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Accedeix al mode d'eliminació d'elements",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Surt del mode d'eliminació d'elements",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

@@ -4,7 +4,7 @@
     "description": "extension name."
   },
   "extShortDesc": {
-    "message": "Ein Inhaltsblocker, der ohne Berechtigungen auskommt. Blockiert Werbung, Tracker und mehr sofort nach der Installation.",
+    "message": "Ein effizienter Inhaltsblocker. Blockiert Werbung, Tracker und mehr sofort nach der Installation.",
     "description": "this will be in the Chrome web store: must be 132 characters or less"
   },
   "perRulesetStats": {
@@ -111,6 +111,10 @@
     "message": "Bitte melden Sie Filterprobleme mit bestimmten Websites an den <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> Issue Tracker</span>. <u>Erfordert ein GitHub-Konto.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Informationen zur Fehlerbehebung",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "Um die Freiwilligen nicht mit doppelten Meldungen zu überlasten, vergewissern Sie sich bitte, dass das Problem noch nicht gemeldet wurde. <b>Hinweis:</b> Das Anklicken der Schaltfläche übermittelt den Ursprung der Seite an GitHub.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Neue Meldung auf GitHub erstellen",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Willkommen",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Sie haben soeben uBO Lite installiert. Sie können hier den Standardfiltermodus auswählen, der auf allen Websites angewendet werden soll.\n\nStandardmäßig ist der <em>einfache</em> Modus ausgewählt, weil er keine Berechtigung zum Lesen und Ändern von Daten erfordert. Wenn Sie uBO Lite vertrauen, können Sie dieser Erweiterung eine weitreichende Berechtigung zum Lesen und Ändern von Daten auf allen Websites erteilen, um standardmäßig erweiterte Filterfunktionen für alle Websites zu aktivieren.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Standardfiltermodus",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Fortfahren",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Element temporär entfernen",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Temporären Modus beenden",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

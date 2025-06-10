@@ -52,7 +52,7 @@ import { filteringBehaviorChanged } from './broadcast.js';
 import io from './assets.js';
 import { redirectEngine } from './redirect-engine.js';
 import staticExtFilteringEngine from './static-ext-filtering.js';
-import staticFilteringReverseLookup from './reverselookup.js';
+import { staticFilteringReverseLookup } from './reverselookup.js';
 import staticNetFilteringEngine from './static-net-filtering.js';
 import webRequest from './traffic.js';
 import µb from './background.js';
@@ -398,15 +398,15 @@ const onFirstFetchReady = (fetched, adminExtra) => {
 
 const toFetch = (from, fetched) => {
     for ( const k in from ) {
-        if ( from.hasOwnProperty(k) === false ) { continue; }
+        if ( Object.hasOwn(from, k) === false ) { continue; }
         fetched[k] = from[k];
     }
 };
 
 const fromFetch = (to, fetched) => {
     for ( const k in to ) {
-        if ( to.hasOwnProperty(k) === false ) { continue; }
-        if ( fetched.hasOwnProperty(k) === false ) { continue; }
+        if ( Object.hasOwn(to, k) === false ) { continue; }
+        if ( Object.hasOwn(fetched, k) === false ) { continue; }
         to[k] = fetched[k];
     }
 };

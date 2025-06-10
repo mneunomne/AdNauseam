@@ -31,7 +31,7 @@ import staticNetFilteringEngine from './static-net-filtering.js';
 
 /******************************************************************************/
 
-const isRegex = hn => hn.startsWith('/') && hn.endsWith('/');
+const isRegexOrPath = hn => hn.includes('/');
 
 /******************************************************************************/
 
@@ -112,7 +112,7 @@ function addExtendedToDNR(context, parser) {
         for ( const { hn, not, bad } of parser.getExtFilterDomainIterator() ) {
             if ( bad ) { continue; }
             if ( exception ) { continue; }
-            if ( isRegex(hn) ) { continue; }
+            if ( isRegexOrPath(hn) ) { continue; }
             let details = context.scriptletFilters.get(argsToken);
             if ( details === undefined ) {
                 context.scriptletFilters.set(argsToken, details = { args });
@@ -170,7 +170,7 @@ function addExtendedToDNR(context, parser) {
         };
         for ( const { hn, not, bad } of parser.getExtFilterDomainIterator() ) {
             if ( bad ) { continue; }
-            if ( isRegex(hn) ) { continue; }
+            if ( isRegexOrPath(hn) ) { continue; }
             if ( not ) {
                 if ( rule.condition.excludedInitiatorDomains === undefined ) {
                     rule.condition.excludedInitiatorDomains = [];
@@ -222,10 +222,13 @@ function addExtendedToDNR(context, parser) {
         return;
     }
     let details = context.specificCosmeticFilters.get(compiled);
+    let isGeneric = true;
     for ( const { hn, not, bad } of parser.getExtFilterDomainIterator() ) {
         if ( bad ) { continue; }
         if ( not && exception ) { continue; }
-        if ( isRegex(hn) ) { continue; }
+        isGeneric = false;
+        // TODO: Support regex- and path-based entries
+        if ( isRegexOrPath(hn) ) { continue; }
         if ( details === undefined ) {
             context.specificCosmeticFilters.set(compiled, details = {});
         }
@@ -252,9 +255,8 @@ function addExtendedToDNR(context, parser) {
     if ( details === undefined ) { return; }
     if ( exception ) { return; }
     if ( compiled.startsWith('{') ) { return; }
-    if ( details.matches === undefined || details.matches.includes('*') ) {
+    if ( isGeneric ) {
         addGenericCosmeticFilter(context, compiled, false);
-        details.matches = undefined;
     }
 }
 
@@ -436,6 +438,20 @@ function finalizeRuleset(context, network) {
     mergeRules(rulesetMap, 'requestDomains');
     mergeRules(rulesetMap, 'responseHeaders');
 
+    // Convert back single-entry requestDomains into pattern-based filters
+    // https://github.com/uBlockOrigin/uBOL-home/issues/327
+    // TODO: Remove when (if) Safari is changed to interpret requestDomains as
+    //       in other browsers.
+    for ( const rule of rulesetMap.values() ) {
+        const { condition } = rule;
+        if ( condition?.requestDomains === undefined ) { continue; }
+        if ( condition.requestDomains.length !== 1 ) { continue; }
+        if ( condition.urlFilter !== undefined ) { continue; }
+        if ( condition.regexFilter !== undefined ) { continue; }
+        condition.urlFilter = `||${condition.requestDomains[0]}^`;
+        condition.requestDomains = undefined;
+    }
+
     // Patch id
     const rulesetFinal = [];
     {
@@ -460,6 +476,7 @@ function finalizeRuleset(context, network) {
 
 async function dnrRulesetFromRawLists(lists, options = {}) {
     const context = Object.assign({}, options);
+    context.bad = options.networkBad;
     staticNetFilteringEngine.dnrFromCompiled('begin', context);
     context.extensionPaths = new Map(context.extensionPaths || []);
     const toLoad = [];
@@ -474,6 +491,7 @@ async function dnrRulesetFromRawLists(lists, options = {}) {
     await Promise.all(toLoad);
     const result = {
         network: staticNetFilteringEngine.dnrFromCompiled('end', context),
+        networkBad: context.bad,
         genericCosmeticFilters: context.genericCosmeticFilters,
         genericCosmeticExceptions: context.genericCosmeticExceptions,
         specificCosmetic: context.specificCosmeticFilters,

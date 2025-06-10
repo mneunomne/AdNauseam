@@ -4,7 +4,7 @@
     "description": "extension name."
   },
   "extShortDesc": {
-    "message": "En behörighetslös innehållsblockerare. Blockerar annonser, spårare, miners och mer omedelbart efter installationen.",
+    "message": "En effektiv innehållsblockerare. Blockerar annonser, spårare, miners och mer direkt efter den har installerats.",
     "description": "this will be in the Chrome web store: must be 132 characters or less"
   },
   "perRulesetStats": {
@@ -111,6 +111,10 @@
     "message": "Rapportera filterproblem med specifika webbplatser till <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> problemhanteringssystemet</span>. <u>Kräver ett GitHub-konto.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Felsökningsinformation",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "För att undvika att belasta volontärer med dubbletter av rapporter, kontrollera att problemet inte redan har rapporterats. <b>Observera:</b> om du klickar på knappen kommer sidans ursprung att skickas till GitHub.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Skapa ny rapport på GitHub",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Välkommen",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Du har precis installerat uBO Lite. Här kan du välja standardfiltreringsläget som ska användas på alla webbplatser.\n\nSom standard är läget <em>Grundläggande</em> valt eftersom det inte kräver behörighet att läsa och ändra data. Om du litar på uBO Lite kan du ge den högre behörighet att läsa och ändra data på alla webbplatser för att som standard aktivera mer avancerade filtreringsmöjligheter för alla webbplatser.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Standardfiltreringsläge",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Fortsätt",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Gå in i elementzapperläge",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Lämna elementzapperläge",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

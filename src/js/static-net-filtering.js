@@ -23,6 +23,7 @@ import * as sfp from './static-filtering-parser.js';
 
 import { domainFromHostname, hostnameFromNetworkURL } from './uri-utils.js';
 import { dropTask, queueTask } from './tasks.js';
+import { isRE2, tokenizableStrFromRegex } from './regex-analyzer.js';
 
 import BidiTrieContainer from './biditrie.js';
 import { CompiledListReader } from './static-filtering-io.js';
@@ -761,6 +762,10 @@ class FilterImportant {
         return filterDataAlloc(args[0]);
     }
 
+    static dnrFromCompiled(args, rule) {
+        rule.__important = true;
+    }
+
     static keyFromArgs() {
     }
 
@@ -1250,7 +1255,7 @@ class FilterRegex {
         if ( rule.condition === undefined ) {
             rule.condition = {};
         }
-        if ( sfp.utils.regex.isRE2(args[1]) === false ) {
+        if ( isRE2(args[1]) === false ) {
             dnrAddRuleError(rule, `regexFilter is not RE2-compatible: ${args[1]}`);
         }
         rule.condition.regexFilter = args[1];
@@ -3130,9 +3135,9 @@ const urlTokenizer = new (class {
     }
 
     // Tokenize on demand.
-    getTokens(encodeInto) {
+    getTokens() {
         if ( this._tokenized ) { return this._tokens; }
-        let i = this._tokenize(encodeInto);
+        let i = this._tokenize();
         this._tokens[i+0] = ANY_TOKEN_HASH;
         this._tokens[i+1] = 0;
         i += 2;
@@ -3189,17 +3194,17 @@ const urlTokenizer = new (class {
     // https://github.com/chrisaljoudi/uBlock/issues/1118
     // We limit to a maximum number of tokens.
 
-    _tokenize(encodeInto) {
+    _tokenize() {
         const tokens = this._tokens;
         const url = this._urlOut;
-        const l = encodeInto.setHaystackLen(url.length);
+        const l = bidiTrie.setHaystackLen(url.length);
         if ( l === 0 ) { return 0; }
         let j = 0;
         let hasq = -1;
         mainLoop: {
             const knownTokens = this.knownTokens;
             const vtc = this._validTokenChars;
-            const charCodes = encodeInto.haystack;
+            const charCodes = bidiTrie.haystack;
             let i = 0, n = 0, ti = 0, th = 0;
             for (;;) {
                 for (;;) {
@@ -3246,7 +3251,7 @@ class FilterCompiler {
         if ( other !== undefined ) {
             return Object.assign(this, other);
         }
-        this.reToken = /[%0-9A-Za-z]+/g;
+        this.reTokens = /[%0-9A-Za-z]+/g;
         this.optionValues = new Map();
         this.tokenIdToNormalizedType = new Map([
             [ sfp.NODE_TYPE_NET_OPTION_NAME_CNAME, bitFromType('cname') ],
@@ -3797,11 +3802,11 @@ class FilterCompiler {
 
     // Note: a one-char token is better than a documented bad token.
     extractTokenFromPattern(pattern) {
-        this.reToken.lastIndex = 0;
+        this.reTokens.lastIndex = 0;
         let bestMatch = null;
         let bestBadness = 0x7FFFFFFF;
         for (;;) {
-            const match = this.reToken.exec(pattern);
+            const match = this.reTokens.exec(pattern);
             if ( match === null ) { break; }
             const token = match[0];
             const badness = token.length > 1 ? this.badTokens.get(token) || 0 : 1;
@@ -3811,7 +3816,7 @@ class FilterCompiler {
                 if ( c === 0x2A /* '*' */ ) { continue; }
             }
             if ( token.length < MAX_TOKEN_LENGTH ) {
-                const lastIndex = this.reToken.lastIndex;
+                const lastIndex = this.reTokens.lastIndex;
                 if ( lastIndex < pattern.length ) {
                     const c = pattern.charCodeAt(lastIndex);
                     if ( c === 0x2A /* '*' */ ) { continue; }
@@ -3835,18 +3840,18 @@ class FilterCompiler {
     //   Mind `\b` directives: `/\bads\b/` should result in token being `ads`,
     //   not `bads`.
     extractTokenFromRegex(pattern) {
-        pattern = sfp.utils.regex.toTokenizableStr(pattern);
-        this.reToken.lastIndex = 0;
+        pattern = tokenizableStrFromRegex(pattern);
+        this.reTokens.lastIndex = 0;
         let bestToken;
         let bestBadness = 0x7FFFFFFF;
         for (;;) {
-            const matches = this.reToken.exec(pattern);
+            const matches = this.reTokens.exec(pattern);
             if ( matches === null ) { break; }
             const { 0: token, index } = matches;
             if ( index === 0 || pattern.charAt(index - 1) === '\x01' ) {
                 continue;
             }
-            const { lastIndex } = this.reToken;
+            const { lastIndex } = this.reTokens;
             if (
                 token.length < MAX_TOKEN_LENGTH && (
                     lastIndex === pattern.length ||
@@ -4323,7 +4328,7 @@ StaticNetFilteringEngine.prototype.dnrFromCompiled = function(op, context, ...ar
     if ( op === 'begin' ) {
         Object.assign(context, {
             good: new Set(),
-            bad: new Set(),
+            bad: new Set(context.bad),
             invalid: new Set(),
             filterCount: 0,
             acceptedFilterCount: 0,
@@ -4445,10 +4450,8 @@ StaticNetFilteringEngine.prototype.dnrFromCompiled = function(op, context, ...ar
 
     const realms = new Map([
         [ BLOCK_REALM, { type: 'block', priority: 10 } ],
-        [ BLOCK_REALM | IMPORTANT_REALM, { type: 'block', priority: 40 } ],
         [ ALLOW_REALM, { type: 'allow', priority: 30 } ],
         [ REDIRECT_REALM, { type: 'redirect', priority: 11 } ],
-        [ REDIRECT_REALM | IMPORTANT_REALM, { type: 'redirect', priority: 41 } ],
         [ REMOVEPARAM_REALM, { type: 'removeparam', priority: 0 } ],
         [ CSP_REALM, { type: 'csp', priority: 0 } ],
         [ PERMISSIONS_REALM, { type: 'permissions', priority: 0 } ],
@@ -4507,6 +4510,13 @@ StaticNetFilteringEngine.prototype.dnrFromCompiled = function(op, context, ...ar
                 }
             }
         }
+    }
+
+    // Adjust `important` priority
+    for ( const rule of ruleset ) {
+        if ( rule.__important !== true ) { continue; }
+        if ( rule.priority === undefined ) { continue; }
+        rule.priority += 30;
     }
 
     // Collect generichide filters
@@ -4968,7 +4978,7 @@ StaticNetFilteringEngine.prototype.matchAndFetchModifiers = function(
         results,
     };
 
-    const tokenHashes = urlTokenizer.getTokens(bidiTrie);
+    const tokenHashes = urlTokenizer.getTokens();
     let i = 0;
     let th = 0, iunit = 0;
     for (;;) {
@@ -5158,7 +5168,7 @@ StaticNetFilteringEngine.prototype.realmMatchString = function(
     }
     // Pattern-based filters
     else {
-        const tokenHashes = urlTokenizer.getTokens(bidiTrie);
+        const tokenHashes = urlTokenizer.getTokens();
         let i = 0;
         for (;;) {
             tokenHash = tokenHashes[i];
@@ -5493,7 +5503,7 @@ StaticNetFilteringEngine.prototype.transformRequest = function(fctxt, out = []) 
             continue;
         }
         if ( directive.cache === null ) {
-            directive.cache = sfp.parseReplaceValue(directive.value);
+            directive.cache = sfp.parseReplaceByRegexValue(directive.value);
         }
         const cache = directive.cache;
         if ( cache === undefined ) { continue; }

@@ -1454,7 +1454,7 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
         vAPI.messaging.send('contentscript', {
             what: 'retrieveContentScriptParameters',
             url: vAPI.effectiveSelf.location.href,
-            needScriptlets: typeof self.uBO_scriptletsInjected !== 'string',
+            needScriptlets: self.uBO_scriptletsInjected === undefined,
         }).then(response => {
             onResponseReady(response);
         });

@@ -1,19 +1,9 @@
+:root {
+    --filtering-mode-button-size: 32px;
+    }
+
 body.loading {
     visibility: hidden;
-    }
-body .firstRun {
-    display: none;
-    }
-body.firstRun .firstRun {
-    background-color: rgb(var(--dashboard-highlight-surface-rgb));
-    display: block;
-    padding: 8px;
-    }
-body .firstRun > *:first-child {
-    margin-top: 0;
-    }
-body .firstRun > *:last-child {
-    margin-bottom: 0;
     }
 h3 {
     margin: 1em 0;
@@ -81,9 +71,7 @@ label:has(input[type="checkbox"][disabled]) + legend {
     white-space: pre-line;
     }
 .filteringModeSlider {
-    height: calc(60px / 2);
     pointer-events: none;
-    width: calc(240px / 2);
     }
 
 h3[data-i18n="filteringMode0Name"]::first-letter {

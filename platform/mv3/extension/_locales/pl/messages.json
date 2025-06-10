@@ -111,6 +111,10 @@
     "message": "Zgłoś problemy z filtrami dotyczące konkretnych witryn internetowych do systemu śledzenia problemów <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code></span>. <u>Wymagane jest konto GitHub.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Informacje pomocne w rozwiązywaniu problemów",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "Sprawdź, czy problem nie został już zgłoszony, aby uniknąć obciążania wolontariuszy duplikatami raportów. <b>Uwaga:</b> kliknięcie przycisku spowoduje wysłanie źródła strony do serwisu GitHub.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Utwórz nowy raport",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Witaj",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Właśnie został zainstalowany uBO Lite. Tutaj możesz wybrać domyślny tryb filtrowania, który będzie używany na wszystkich witrynach internetowych.\n\nDomyślnie wybrany jest tryb <em>Podstawowy</em>, ponieważ nie wymaga uprawnień do odczytu i zmiany danych. Jeśli ufasz uBO Lite, możesz nadać mu szerokie uprawnienia do odczytu i zmiany danych na wszystkich witrynach internetowych w celu domyślnego włączenia bardziej zaawansowanych funkcji filtrowania wszystkich witryn internetowych.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Domyślny tryb filtrowania",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Kontynuuj",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Przejdź do trybu usuwania elementów",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Wyjdź z trybu usuwania elementów",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }
