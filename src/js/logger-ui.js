@@ -71,9 +71,6 @@ const tabIdFromAttribute = function(elem) {
     return isNaN(tabId) ? 0 : tabId;
 };
 
-const hasOwnProperty = (o, p) =>
-    Object.prototype.hasOwnProperty.call(o, p);
-
 const dispatchTabidChange = vAPI.defer.create(( ) => {
     document.dispatchEvent(new Event('tabIdChanged'));
 });
@@ -255,7 +252,7 @@ class LogEntry {
         this.voided = false;
         if ( details instanceof Object === false ) { return; }
         for ( const prop in this ) {
-            if ( hasOwnProperty(details, prop) === false ) { continue; }
+            if ( Object.hasOwn(details, prop) === false ) { continue; }
             this[prop] = details[prop];
         }
         if ( details.aliasURL !== undefined ) {
@@ -1257,7 +1254,7 @@ dom.on(document, 'keydown', ev => {
     const onColorsReady = function(response) {
         dom.cl.toggle(dom.body, 'dirty', response.dirty);
         for ( const url in response.colors ) {
-            if ( hasOwnProperty(response.colors, url) === false ) { continue; }
+            if ( Object.hasOwn(response.colors, url) === false ) { continue; }
             const colorEntry = response.colors[url];
             const node = qs$(dialog, `.dynamic .entry .action[data-url="${url}"]`);
             if ( node === null ) { continue; }
@@ -1324,7 +1321,7 @@ dom.on(document, 'keydown', ev => {
         dom.cl.toggle(
             qs$(dialog, '#createStaticFilter'),
             'disabled',
-            hasOwnProperty(createdStaticFilters, value) || value === ''
+            Object.hasOwn(createdStaticFilters, value) || value === ''
         );
     };
 
@@ -1365,7 +1362,7 @@ dom.on(document, 'keydown', ev => {
             const value = staticFilterNode().value
                 .replace(/^((?:@@)?\/.+\/)(\$|$)/, '$1*$2');
             // Avoid duplicates
-            if ( hasOwnProperty(createdStaticFilters, value) ) { return; }
+            if ( Object.hasOwn(createdStaticFilters, value) ) { return; }
             createdStaticFilters[value] = true;
             // https://github.com/uBlockOrigin/uBlock-issues/issues/1281#issuecomment-704217175
             // TODO:
@@ -1637,9 +1634,8 @@ dom.on(document, 'keydown', ev => {
             }
             let bestMatchFilter = '';
             for ( const filter in response ) {
-                if ( filter.length > bestMatchFilter.length ) {
-                    bestMatchFilter = filter;
-                }
+                if ( filter.length <= bestMatchFilter.length ) { continue; }
+                bestMatchFilter = filter;
             }
             if (
                 bestMatchFilter !== '' &&
@@ -1672,14 +1668,14 @@ dom.on(document, 'keydown', ev => {
         if ( dom.cl.has(targetRow, 'networkRealm') ) {
             const response = await messaging.send('loggerUI', {
                 what: 'listsFromNetFilter',
-                rawFilter: rawFilter,
+                rawFilter,
             });
             handleResponse(response);
         } else if ( dom.cl.has(targetRow, 'extendedRealm') ) {
             const response = await messaging.send('loggerUI', {
                 what: 'listsFromCosmeticFilter',
                 url: targetRow.children[COLUMN_URL].textContent,
-                rawFilter: rawFilter,
+                rawFilter,
             });
             handleResponse(response);
         }
@@ -2885,7 +2881,7 @@ const loggerStats = (( ) => {
     };
 
     const setRadioButton = function(group, value) {
-        if ( hasOwnProperty(options, group) === false ) { return; }
+        if ( Object.hasOwn(options, group) === false ) { return; }
         const groupEl = qs$(dialog, `[data-radio="${group}"]`);
         const buttonEls = qsa$(groupEl, '[data-radio-item]');
         for ( const buttonEl of buttonEls ) {

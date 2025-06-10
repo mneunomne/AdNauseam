@@ -111,6 +111,10 @@
     "message": "Informa de problemas cos filtros en webs concretas no <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\">seguimento de problemas en <code>uBlockOrigin/uAssets</code>. <u>Require unha conta GitHub.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Información para arranxar problemas",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "Para evitar a sobrecarga de traballo para as persoas voluntarias con duplicados dos problemas, comproba que aínda non se informou sobre o problema. <b>Nota:</b> ao premer no botón enviarás a orixe da páxina a GitHub.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Crear nova denuncia",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Benvida",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Acabas de instalar uBO Lite. Aquí podes escoller o modo de filtrado para usar en todas as páxinas web.\n\nPor defecto, o modo <em>Básico</em> está seleccionado porque non require o permiso de lectura ou modificar datos. Se confías en uBO Lite, podes darlle máis permisos para ler e modificar os datos de todos os sitios web para poder realizar por defecto un filtrado máis preciso en todas as páxinas web.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Modo de filtrado por defecto",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Proceder",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Entrar no modo eliminador de elementos",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Sair do modo eliminador de elementos",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

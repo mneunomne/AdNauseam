@@ -111,6 +111,10 @@
     "message": "將特定網站的過濾器問題回報至 <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> 議題追蹤器</span>。<u>需要 GitHub 帳號。</u>.",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "疑難排解資訊",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "為避免增加志願者的負擔，請先確認此問題是否已被回報過。<b>請注意：</b>點選按鈕會將本頁的來源傳送到 GitHub。",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "建立新報告",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "歡迎",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "您剛安裝了 uBO Lite。您可以在此處選擇會在所有網站上套用的預設過濾模式。\n\n預設情況下，選擇了<em>基礎</em>模式，因為其不需要讀取與變更資料的權限。若您信任 uBO Lite，您可以授予其讀取並變更在所有網站上資料的廣泛權限，以便為所有網站啟用進階過濾功能。",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "預設過濾模式",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "繼續",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "進入元素臨時移除模式",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "離開元素臨時移除模式",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

@@ -50,9 +50,6 @@ let remoteServerFriendly = false;
 
 /******************************************************************************/
 
-const hasOwnProperty = (o, p) =>
-    Object.prototype.hasOwnProperty.call(o, p);
-
 const stringIsNotEmpty = s => typeof s === 'string' && s !== '';
 
 const parseExpires = s => {
@@ -742,7 +739,7 @@ async function assetCacheRead(assetKey, updateReadTime = false) {
     }
 
     if ( bin instanceof Object === false ) { return reportBack(''); }
-    if ( hasOwnProperty(bin, internalKey) === false ) { return reportBack(''); }
+    if ( Object.hasOwn(bin, internalKey) === false ) { return reportBack(''); }
 
     const entry = assetCacheRegistry[assetKey];
     if ( entry === undefined ) { return reportBack(''); }
@@ -965,6 +962,7 @@ assets.get = async function(assetKey, options = {}) {
 
     let error = 'ENOTFOUND';
     for ( const contentURL of contentURLs ) {
+        ubolog(`Fetching ${contentURL} from remote server `);
         const details = assetDetails.content === 'filters'
             ? await assets.fetchFilterList(contentURL)
             : await assets.fetchText(contentURL);
@@ -1228,6 +1226,9 @@ const getAssetDiffDetails = assetKey => {
     }
     if ( Array.isArray(out.cdnURLs) === false ) { return; }
     if ( out.cdnURLs.length === 0 ) { return; }
+    if ( Array.isArray(assetEntry.patchURLs) ) {
+        out.patchURLs = assetEntry.patchURLs.slice();
+    }
     return out;
 };
 

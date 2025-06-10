@@ -111,6 +111,10 @@
     "message": "Meld filterproblemen met specifieke websites in de <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code>-probleemtracker</span>. <u>Vereist een GitHub-account.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Probleemoplossingsinformatie",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "Controleer of het probleem niet eerder is gemeld om te voorkomen dat vrijwilligers met dubbele meldingen worden belast.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Nieuwe melding maken",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Welkom",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "U hebt zojuist uBO Lite geïnstalleerd. Hier kunt u de standaard filtermodus voor het gebruik op alle websites kiezen.\n\nStandaard wordt de modus <em>Basis</em> geselecteerd, omdat hiervoor geen toestemming voor het lezen en aanpassen van gegevens is vereist. Als u uBO Lite vertrouwt, kunt u het brede toestemming voor het lezen en aanpassen van gegevens op alle websites verlenen, zodat standaard meer geavanceerde filtermogelijkheden voor alle websites beschikbaar zijn.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Standaard filtermodus",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Doorgaan",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Element­wisser­modus openen",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Element­wisser­modus sluiten",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

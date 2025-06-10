@@ -4,7 +4,7 @@
     "description": "extension name."
   },
   "extShortDesc": {
-    "message": "Un bloqueur de contenu sans permission requise. Bloque les publicités, pisteurs, mineurs et plus dès l'installation.",
+    "message": "Un bloqueur de contenu efficace. Bloque les publicités, pisteurs, mineurs et plus dès l'installation.",
     "description": "this will be in the Chrome web store: must be 132 characters or less"
   },
   "perRulesetStats": {
@@ -111,6 +111,10 @@
     "message": "Rapportez des problèmes de filtre sur des sites Web spécifiques dans le <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code> suivi des problèmes</span>. <u>Nécessite un compte GitHub.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Informations de dépannage",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "Pour éviter d'encombrer les contributeurs avec des rapports en double, veuillez vérifier que le problème n'a pas déjà été rapporté.\n<b>Note :</b> Cliquer sur le bouton entraînera l'envoi de la page d'origine à GitHub.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Créer un nouveau rapport sur GitHub",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Bienvenue",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Vous venez d'installer uBO Lite. À présent vous pouvez choisir le mode de filtrage par défaut à utiliser sur tous les sites Web.\n\nPar défaut, le mode <em>Basique</em> est sélectionné car il ne requiert pas de permissions pour lire et modifier les données. Si vous faites confiance à uBO Lite, vous pouvez lui donner des permissions étendues pour lire et modifier les données sur tous les sites Web pour activer des capacités de filtrage plus avancées pour tous les sites Web par défaut.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Mode de filtrage par défaut",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Continuer",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Entrer en mode Zappeur d'élément",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Quitter le mode Zappeur d'élément",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }

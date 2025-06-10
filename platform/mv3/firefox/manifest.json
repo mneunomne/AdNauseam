@@ -22,6 +22,11 @@
       "strict_min_version": "128.0"
     }
   },
+  "commands": {
+    "enter-zapper-mode": {
+      "description": "__MSG_zapperTipEnter__"
+    }
+  },
   "declarative_net_request": {
     "rule_resources": [
     ]
@@ -40,7 +45,7 @@
       "open_in_tab": true,
       "page": "dashboard.html"
   },
-  "optional_permissions": [
+  "host_permissions": [
     "<all_urls>"
   ],
   "permissions": [
@@ -55,6 +60,14 @@
     {
       "resources": [
         "/strictblock.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    },
+    {
+      "resources": [
+        "/zapper-ui.html"
       ],
       "matches": [
         "<all_urls>"

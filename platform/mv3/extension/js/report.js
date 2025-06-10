@@ -19,8 +19,9 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-import { dnr, runtime } from './ext.js';
 import { dom, qs$ } from './dom.js';
+import { dnr } from './ext-compat.js';
+import { runtime } from './ext.js';
 import { sendMessage } from './ext.js';
 
 /******************************************************************************/
@@ -91,6 +92,30 @@ function renderData(data, depth = 0) {
 
 /******************************************************************************/
 
+async function getConfigData() {
+    const manifest = runtime.getManifest();
+    const [
+        rulesets,
+        defaultMode,
+    ] = await Promise.all([
+        dnr.getEnabledRulesets(),
+        sendMessage({ what: 'getDefaultFilteringMode' }),
+    ]);
+    const modes = [ 'no filtering', 'basic', 'optimal', 'complete' ];
+    const config = {
+        name: manifest.name,
+        version: manifest.version,
+        filtering: {
+            'site': `${modes[reportedPage.mode]}`,
+            'default': `${modes[defaultMode]}`,
+        },
+        rulesets,
+    };
+    return renderData(config);
+}
+
+/******************************************************************************/
+
 async function reportSpecificFilterIssue() {
     const githubURL = new URL(
         'https://github.com/uBlockOrigin/uAssets/issues/new?template=specific_report_from_ubol.yml'
@@ -107,22 +132,9 @@ async function reportSpecificFilterIssue() {
     );
     githubURL.searchParams.set('category', issueType);
 
-    const manifest = runtime.getManifest();
-    const rulesets = await dnr.getEnabledRulesets();
-    const defaultMode = await sendMessage({ what: 'getDefaultFilteringMode' });
-    const modes = [ 'no filtering', 'basic', 'optimal', 'complete' ];
-    const config = {
-        name: manifest.name,
-        version: manifest.version,
-        filtering: {
-            'site': `${modes[reportedPage.mode]}`,
-            'default': `${modes[defaultMode]}`,
-        },
-        rulesets,
-    };
     const configBody = [
         '```yaml',
-        renderData(config),
+        qs$('[data-i18n="supportS5H"] + pre').textContent,
         '```',
         '',
     ].join('\n');
@@ -132,7 +144,9 @@ async function reportSpecificFilterIssue() {
 
 /******************************************************************************/
 
-(async ( ) => {
+getConfigData().then(config => {
+    qs$('[data-i18n="supportS5H"] + pre').textContent = config;
+
     dom.on('[data-url]', 'click', ev => {
         const elem = ev.target.closest('[data-url]');
         const url = dom.attr(elem, 'data-url');
@@ -154,5 +168,4 @@ async function reportSpecificFilterIssue() {
             ev.preventDefault();
         });
     }
-
-})();
+});

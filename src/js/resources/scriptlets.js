@@ -21,17 +21,30 @@
 */
 
 import './attribute.js';
+import './create-html.js';
 import './href-sanitizer.js';
+import './json-edit.js';
+import './json-prune.js';
 import './noeval.js';
+import './object-prune.js';
+import './prevent-fetch.js';
 import './prevent-innerHTML.js';
 import './prevent-settimeout.js';
 import './replace-argument.js';
 import './spoof-css.js';
 
+import {
+    generateContentFn,
+    getExceptionTokenFn,
+    getRandomTokenFn,
+    matchObjectPropertiesFn,
+    parsePropertiesToMatchFn,
+} from './utils.js';
 import { runAt, runAtHtmlElementFn } from './run-at.js';
 
 import { getAllCookiesFn } from './cookie.js';
 import { getAllLocalStorageFn } from './localstorage.js';
+import { matchesStackTraceFn } from './stack-trace.js';
 import { proxyApplyFn } from './proxy-apply.js';
 import { registeredScriptlets } from './base.js';
 import { safeSelf } from './safe-self.js';
@@ -53,120 +66,12 @@ export const builtinScriptlets = registeredScriptlets;
 *******************************************************************************/
 
 builtinScriptlets.push({
-    name: 'get-random-token.fn',
-    fn: getRandomToken,
-    dependencies: [
-        'safe-self.fn',
-    ],
-});
-function getRandomToken() {
-    const safe = safeSelf();
-    return safe.String_fromCharCode(Date.now() % 26 + 97) +
-        safe.Math_floor(safe.Math_random() * 982451653 + 982451653).toString(36);
-}
-/******************************************************************************/
-
-builtinScriptlets.push({
-    name: 'get-exception-token.fn',
-    fn: getExceptionToken,
-    dependencies: [
-        'get-random-token.fn',
-    ],
-});
-function getExceptionToken() {
-    const token = getRandomToken();
-    const oe = self.onerror;
-    self.onerror = function(msg, ...args) {
-        if ( typeof msg === 'string' && msg.includes(token) ) { return true; }
-        if ( oe instanceof Function ) {
-            return oe.call(this, msg, ...args);
-        }
-    }.bind();
-    return token;
-}
-
-/******************************************************************************/
-
-builtinScriptlets.push({
     name: 'should-debug.fn',
     fn: shouldDebug,
 });
 function shouldDebug(details) {
     if ( details instanceof Object === false ) { return false; }
     return scriptletGlobals.canDebug && details.debug;
-}
-
-/******************************************************************************/
-
-// Reference:
-// https://github.com/AdguardTeam/Scriptlets/blob/master/wiki/about-scriptlets.md#prevent-xhr
-//
-// Added `trusted` argument to allow for returning arbitrary text. Can only
-// be used through scriptlets requiring trusted source.
-
-builtinScriptlets.push({
-    name: 'generate-content.fn',
-    fn: generateContentFn,
-    dependencies: [
-        'safe-self.fn',
-    ],
-});
-function generateContentFn(trusted, directive) {
-    const safe = safeSelf();
-    const randomize = len => {
-        const chunks = [];
-        let textSize = 0;
-        do {
-            const s = safe.Math_random().toString(36).slice(2);
-            chunks.push(s);
-            textSize += s.length;
-        }
-        while ( textSize < len );
-        return chunks.join(' ').slice(0, len);
-    };
-    if ( directive === 'true' ) {
-        return randomize(10);
-    }
-    if ( directive === 'emptyObj' ) {
-        return '{}';
-    }
-    if ( directive === 'emptyArr' ) {
-        return '[]';
-    }
-    if ( directive === 'emptyStr' ) {
-        return '';
-    }
-    if ( directive.startsWith('length:') ) {
-        const match = /^length:(\d+)(?:-(\d+))?$/.exec(directive);
-        if ( match === null ) { return ''; }
-        const min = parseInt(match[1], 10);
-        const extent = safe.Math_max(parseInt(match[2], 10) || 0, min) - min;
-        const len = safe.Math_min(min + extent * safe.Math_random(), 500000);
-        return randomize(len | 0);
-    }
-    if ( directive.startsWith('war:') ) {
-        if ( scriptletGlobals.warOrigin === undefined ) { return ''; }
-        return new Promise(resolve => {
-            const warOrigin = scriptletGlobals.warOrigin;
-            const warName = directive.slice(4);
-            const fullpath = [ warOrigin, '/', warName ];
-            const warSecret = scriptletGlobals.warSecret;
-            if ( warSecret !== undefined ) {
-                fullpath.push('?secret=', warSecret);
-            }
-            const warXHR = new safe.XMLHttpRequest();
-            warXHR.responseType = 'text';
-            warXHR.onloadend = ev => {
-                resolve(ev.target.responseText || '');
-            };
-            warXHR.open('GET', fullpath.join(''));
-            warXHR.send();
-        }).catch(( ) => '');
-    }
-    if ( trusted ) {
-        return directive;
-    }
-    return '';
 }
 
 /******************************************************************************/
@@ -215,7 +120,7 @@ function abortCurrentScriptCore(
         desc = undefined;
     }
     const debug = shouldDebug(extraArgs);
-    const exceptionToken = getExceptionToken();
+    const exceptionToken = getExceptionTokenFn();
     const scriptTexts = new WeakMap();
     const getScriptText = elem => {
         let text = elem.textContent;
@@ -330,7 +235,7 @@ function replaceNodeTextFn(
         if ( tt instanceof Object ) {
             if ( typeof tt.getPropertyType === 'function' ) {
                 if ( tt.getPropertyType('script', 'textContent') === 'TrustedScript' ) {
-                    return tt.createPolicy(getRandomToken(), out);
+                    return tt.createPolicy(getRandomTokenFn(), out);
                 }
             }
         }
@@ -404,6 +309,7 @@ function replaceNodeTextFn(
 /******************************************************************************/
 
 builtinScriptlets.push({
+<<<<<<< HEAD
     name: 'object-prune.fn',
     fn: objectPruneFn,
     dependencies: [
@@ -746,6 +652,8 @@ function jsonPruneFetchResponseFn(
 /******************************************************************************/
 
 builtinScriptlets.push({
+=======
+>>>>>>> upstream1.64.0
     name: 'replace-fetch-response.fn',
     fn: replaceFetchResponseFn,
     dependencies: [
@@ -765,14 +673,13 @@ function replaceFetchResponseFn(
     const logPrefix = safe.makeLogPrefix('replace-fetch-response', pattern, replacement, propsToMatch);
     if ( pattern === '*' ) { pattern = '.*'; }
     const rePattern = safe.patternToRegex(pattern);
-    const propNeedles = parsePropertiesToMatch(propsToMatch, 'url');
+    const propNeedles = parsePropertiesToMatchFn(propsToMatch, 'url');
     const extraArgs = safe.getExtraArgs(Array.from(arguments), 4);
     const reIncludes = extraArgs.includes ? safe.patternToRegex(extraArgs.includes) : null;
     self.fetch = new Proxy(self.fetch, {
         apply: function(target, thisArg, args) {
             const fetchPromise = Reflect.apply(target, thisArg, args);
             if ( pattern === '' ) { return fetchPromise; }
-            let outcome = 'match';
             if ( propNeedles.size !== 0 ) {
                 const objs = [ args[0] instanceof Object ? args[0] : { url: args[0] } ];
                 if ( objs[0] instanceof Request ) {
@@ -786,14 +693,19 @@ function replaceFetchResponseFn(
                 if ( args[1] instanceof Object ) {
                     objs.push(args[1]);
                 }
-                if ( matchObjectProperties(propNeedles, ...objs) === false ) {
-                    outcome = 'nomatch';
+                const matched = matchObjectPropertiesFn(propNeedles, ...objs);
+                if ( matched === undefined ) { return fetchPromise; }
+                if ( safe.logLevel > 1 ) {
+                    safe.uboLog(logPrefix, `Matched "propsToMatch":\n\t${matched.join('\n\t')}`);
                 }
             }
+<<<<<<< HEAD
             if ( outcome === 'nomatch' ) { return fetchPromise; }
             if ( safe.logLevel > 1 ) {
                 safe.adnlog(logPrefix, `Matched "propsToMatch"\n${propsToMatch}`);
             }
+=======
+>>>>>>> upstream1.64.0
             return fetchPromise.then(responseBefore => {
                 const response = responseBefore.clone();
                 return response.text().then(textBefore => {
@@ -801,9 +713,14 @@ function replaceFetchResponseFn(
                         return responseBefore;
                     }
                     const textAfter = textBefore.replace(rePattern, replacement);
+<<<<<<< HEAD
                     const outcome = textAfter !== textBefore ? 'match' : 'nomatch';
                     if ( outcome === 'nomatch' ) { return responseBefore; }
                     safe.adnlog(logPrefix, 'Replaced');
+=======
+                    if ( textAfter === textBefore ) { return responseBefore; }
+                    safe.uboLog(logPrefix, 'Replaced');
+>>>>>>> upstream1.64.0
                     const responseAfter = new Response(textAfter, {
                         status: responseBefore.status,
                         statusText: responseBefore.statusText,
@@ -850,7 +767,7 @@ function preventXhrFn(
     const scriptletName = trusted ? 'trusted-prevent-xhr' : 'prevent-xhr';
     const logPrefix = safe.makeLogPrefix(scriptletName, propsToMatch, directive);
     const xhrInstances = new WeakMap();
-    const propNeedles = parsePropertiesToMatch(propsToMatch, 'url');
+    const propNeedles = parsePropertiesToMatchFn(propsToMatch, 'url');
     const warOrigin = scriptletGlobals.warOrigin;
     const safeDispatchEvent = (xhr, type) => {
         try {
@@ -870,7 +787,7 @@ function preventXhrFn(
                 safe.adnlog(logPrefix, `Called: ${safe.JSON_stringify(haystack, null, 2)}`);
                 return super.open(method, url, ...args);
             }
-            if ( matchObjectProperties(propNeedles, haystack) ) {
+            if ( matchObjectPropertiesFn(propNeedles, haystack) ) {
                 const xhrDetails = Object.assign(haystack, {
                     xhr: this,
                     defer: args.length === 0 || !!args[0],
@@ -1069,7 +986,7 @@ function abortOnPropertyRead(
     if ( chain === '' ) { return; }
     const safe = safeSelf();
     const logPrefix = safe.makeLogPrefix('abort-on-property-read', chain);
-    const exceptionToken = getExceptionToken();
+    const exceptionToken = getExceptionTokenFn();
     const abort = function() {
         safe.adnlog(logPrefix, 'Aborted');
         throw new ReferenceError(exceptionToken);
@@ -1129,7 +1046,7 @@ function abortOnPropertyWrite(
     if ( prop === '' ) { return; }
     const safe = safeSelf();
     const logPrefix = safe.makeLogPrefix('abort-on-property-write', prop);
-    const exceptionToken = getExceptionToken();
+    const exceptionToken = getExceptionTokenFn();
     let owner = window;
     for (;;) {
         const pos = prop.indexOf('.');
@@ -1145,74 +1062,6 @@ function abortOnPropertyWrite(
             throw new ReferenceError(exceptionToken);
         }
     });
-}
-
-/******************************************************************************/
-
-builtinScriptlets.push({
-    name: 'abort-on-stack-trace.js',
-    aliases: [
-        'aost.js',
-    ],
-    fn: abortOnStackTrace,
-    dependencies: [
-        'get-exception-token.fn',
-        'matches-stack-trace.fn',
-        'safe-self.fn',
-    ],
-});
-function abortOnStackTrace(
-    chain = '',
-    needle = ''
-) {
-    if ( typeof chain !== 'string' ) { return; }
-    const safe = safeSelf();
-    const needleDetails = safe.initPattern(needle, { canNegate: true });
-    const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
-    if ( needle === '' ) { extraArgs.log = 'all'; }
-    const makeProxy = function(owner, chain) {
-        const pos = chain.indexOf('.');
-        if ( pos === -1 ) {
-            let v = owner[chain];
-            Object.defineProperty(owner, chain, {
-                get: function() {
-                    const log = safe.logLevel > 1 ? 'all' : 'match';
-                    if ( matchesStackTraceFn(needleDetails, log) ) {
-                        throw new ReferenceError(getExceptionToken());
-                    }
-                    return v;
-                },
-                set: function(a) {
-                    const log = safe.logLevel > 1 ? 'all' : 'match';
-                    if ( matchesStackTraceFn(needleDetails, log) ) {
-                        throw new ReferenceError(getExceptionToken());
-                    }
-                    v = a;
-                },
-            });
-            return;
-        }
-        const prop = chain.slice(0, pos);
-        let v = owner[prop];
-        chain = chain.slice(pos + 1);
-        if ( v ) {
-            makeProxy(v, chain);
-            return;
-        }
-        const desc = Object.getOwnPropertyDescriptor(owner, prop);
-        if ( desc && desc.set !== undefined ) { return; }
-        Object.defineProperty(owner, prop, {
-            get: function() { return v; },
-            set: function(a) {
-                v = a;
-                if ( a instanceof Object ) {
-                    makeProxy(a, chain);
-                }
-            }
-        });
-    };
-    const owner = window;
-    makeProxy(owner, chain);
 }
 
 /******************************************************************************/
@@ -1314,6 +1163,7 @@ function addEventListenerDefuser(
 /******************************************************************************/
 
 builtinScriptlets.push({
+<<<<<<< HEAD
     name: 'json-prune.js',
     fn: jsonPrune,
     dependencies: [
@@ -1494,6 +1344,8 @@ function evaldataPrune(
 /******************************************************************************/
 
 builtinScriptlets.push({
+=======
+>>>>>>> upstream1.64.0
     name: 'adjust-setInterval.js',
     aliases: [
         'nano-setInterval-booster.js',
@@ -1601,6 +1453,7 @@ function adjustSetTimeout(
 /******************************************************************************/
 
 builtinScriptlets.push({
+<<<<<<< HEAD
     name: 'prevent-fetch.js',
     aliases: [
         'no-fetch-if.js',
@@ -1714,6 +1567,8 @@ function noFetchIf(
 /******************************************************************************/
 
 builtinScriptlets.push({
+=======
+>>>>>>> upstream1.64.0
     name: 'prevent-refresh.js',
     aliases: [
         'refresh-defuser.js',
@@ -2829,7 +2684,7 @@ function trustedReplaceXhrResponse(
     const xhrInstances = new WeakMap();
     if ( pattern === '*' ) { pattern = '.*'; }
     const rePattern = safe.patternToRegex(pattern);
-    const propNeedles = parsePropertiesToMatch(propsToMatch, 'url');
+    const propNeedles = parsePropertiesToMatchFn(propsToMatch, 'url');
     const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
     const reIncludes = extraArgs.includes ? safe.patternToRegex(extraArgs.includes) : null;
     self.XMLHttpRequest = class extends self.XMLHttpRequest {
@@ -2838,7 +2693,7 @@ function trustedReplaceXhrResponse(
             const xhrDetails = { method, url };
             let outcome = 'match';
             if ( propNeedles.size !== 0 ) {
-                if ( matchObjectProperties(propNeedles, xhrDetails) === false ) {
+                if ( matchObjectPropertiesFn(propNeedles, xhrDetails) === undefined ) {
                     outcome = 'nomatch';
                 }
             }
@@ -3081,120 +2936,6 @@ function trustedClickElement(
 /******************************************************************************/
 
 builtinScriptlets.push({
-    name: 'trusted-prune-inbound-object.js',
-    requiresTrust: true,
-    fn: trustedPruneInboundObject,
-    dependencies: [
-        'object-find-owner.fn',
-        'object-prune.fn',
-        'safe-self.fn',
-    ],
-});
-function trustedPruneInboundObject(
-    entryPoint = '',
-    argPos = '',
-    rawPrunePaths = '',
-    rawNeedlePaths = ''
-) {
-    if ( entryPoint === '' ) { return; }
-    let context = globalThis;
-    let prop = entryPoint;
-    for (;;) {
-        const pos = prop.indexOf('.');
-        if ( pos === -1 ) { break; }
-        context = context[prop.slice(0, pos)];
-        if ( context instanceof Object === false ) { return; }
-        prop = prop.slice(pos+1);
-    }
-    if ( typeof context[prop] !== 'function' ) { return; }
-    const argIndex = parseInt(argPos);
-    if ( isNaN(argIndex) ) { return; }
-    if ( argIndex < 1 ) { return; }
-    const safe = safeSelf();
-    const extraArgs = safe.getExtraArgs(Array.from(arguments), 4);
-    const needlePaths = [];
-    if ( rawPrunePaths !== '' ) {
-        needlePaths.push(...safe.String_split.call(rawPrunePaths, / +/));
-    }
-    if ( rawNeedlePaths !== '' ) {
-        needlePaths.push(...safe.String_split.call(rawNeedlePaths, / +/));
-    }
-    const stackNeedle = safe.initPattern(extraArgs.stackToMatch || '', { canNegate: true });
-    const mustProcess = root => {
-        for ( const needlePath of needlePaths ) {
-            if ( objectFindOwnerFn(root, needlePath) === false ) {
-                return false;
-            }
-        }
-        return true;
-    };
-    context[prop] = new Proxy(context[prop], {
-        apply: function(target, thisArg, args) {
-            const targetArg = argIndex <= args.length
-                ? args[argIndex-1]
-                : undefined;
-            if ( targetArg instanceof Object && mustProcess(targetArg) ) {
-                let objBefore = targetArg;
-                if ( extraArgs.dontOverwrite ) {
-                    try {
-                        objBefore = safe.JSON_parse(safe.JSON_stringify(targetArg));
-                    } catch {
-                        objBefore = undefined;
-                    }
-                }
-                if ( objBefore !== undefined ) {
-                    const objAfter = objectPruneFn(
-                        objBefore,
-                        rawPrunePaths,
-                        rawNeedlePaths,
-                        stackNeedle,
-                        extraArgs
-                    );
-                    args[argIndex-1] = objAfter || objBefore;
-                }
-            }
-            return Reflect.apply(target, thisArg, args);
-        },
-    });
-}
-
-/******************************************************************************/
-
-builtinScriptlets.push({
-    name: 'trusted-prune-outbound-object.js',
-    requiresTrust: true,
-    fn: trustedPruneOutboundObject,
-    dependencies: [
-        'object-prune.fn',
-        'proxy-apply.fn',
-        'safe-self.fn',
-    ],
-});
-function trustedPruneOutboundObject(
-    propChain = '',
-    rawPrunePaths = '',
-    rawNeedlePaths = ''
-) {
-    if ( propChain === '' ) { return; }
-    const safe = safeSelf();
-    const extraArgs = safe.getExtraArgs(Array.from(arguments), 3);
-    proxyApplyFn(propChain, function(context) {
-        const objBefore = context.reflect();
-        if ( objBefore instanceof Object === false ) { return objBefore; }
-        const objAfter = objectPruneFn(
-            objBefore,
-            rawPrunePaths,
-            rawNeedlePaths,
-            { matchAll: true },
-            extraArgs
-        );
-        return objAfter || objBefore;
-    });
-}
-
-/******************************************************************************/
-
-builtinScriptlets.push({
     name: 'trusted-replace-outbound-text.js',
     requiresTrust: true,
     fn: trustedReplaceOutboundText,
@@ -3419,7 +3160,16 @@ function trustedPreventDomBypass(
                     }
                 }
                 if ( targetProp !== '' ) {
-                    elem.contentWindow[targetProp] = self[targetProp];
+                    let me = self, it = elem.contentWindow;
+                    let chain = targetProp;
+                    for (;;) {
+                        const pos = chain.indexOf('.');
+                        if ( pos === -1 ) { break; }
+                        const prop = chain.slice(0, pos);
+                        me = me[prop]; it = it[prop];
+                        chain = chain.slice(pos+1);
+                    }
+                    it[chain] = me[chain];
                 } else {
                     Object.defineProperty(elem, 'contentWindow', { value: self });
                 }

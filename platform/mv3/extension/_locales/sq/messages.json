@@ -111,6 +111,10 @@
     "message": "Problemet e disa faqeve me filtrat duhen raportuar në ditarin e problemeve <span data-url=\"https://github.com/uBlockOrigin/uAssets/issues?q=is%3Aissue\"><code>uBlockOrigin/uAssets</code></span>. <u>Duhet një konto GitHub.</u>",
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
+  "supportS5H": {
+    "message": "Diagnostikimi i problemeve",
+    "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
+  },
   "supportS6P1S1": {
     "message": "Verifikoni a është raportuar edhe më parë që të mos i lodhni vullnetarët e tjerë me të njëjtat probleme. <b>Shënim:</b> kur klikoni butonin, origjina e faqes do të dërgohet në GitHub.",
     "description": "A paragraph in the filter issue reporter section"
@@ -166,14 +170,6 @@
   "supportReportSpecificButton": {
     "message": "Krijoj raport të ri në GitHub",
     "description": "Text for button which open an external webpage in Support pane"
-  },
-  "firstRunSectionLabel": {
-    "message": "Përshëndetje",
-    "description": "The header text for the welcome message section"
-  },
-  "firstRunDescription": {
-    "message": "Sapo instaluat uBO Lite. Këtu mund të zgjidhni mënyrën e filtrimit që duhet përdorur për të gjitha uebsajtet.\n\n<em>E thjeshta</em> është mënyra standarde, sepse nuk ju merret leje për leximin dhe modifikimin e të dhënave. Nëse keni besim te uBO Lite, mund t'i jepni leje shtesë për leximin dhe modifikimin e të dhënave në të gjitha uebsajtet, në mënyrë që të kryeni një filtrim më të avancuar.",
-    "description": "Descriptive text shown at first install time only "
   },
   "defaultFilteringModeSectionLabel": {
     "message": "Mënyra standarde e filtrimit",
@@ -278,5 +274,13 @@
   "strictblockProceed": {
     "message": "Vazhdoj",
     "description": "A button to navigate to the blocked page"
+  },
+  "zapperTipEnter": {
+    "message": "Aktivizoj asgjësuesin e elementeve",
+    "description": "Tooltip for the button used to enter zapper mode"
+  },
+  "zapperTipQuit": {
+    "message": "Mbyll asgjësuesin e elementeve",
+    "description": "Tooltip for the button used to exit zapper mode"
   }
 }
