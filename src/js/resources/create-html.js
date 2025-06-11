@@ -83,13 +83,13 @@ function trustedCreateHTML(
             if ( node.parentNode === null ) { continue; }
             node.parentNode.removeChild(node);
         }
-        safe.uboLog(logPrefix, 'Node(s) removed');
+        safe.adnlog(logPrefix, 'Node(s) removed');
     };
     const append = ( ) => {
         const parent = document.querySelector(parentSelector);
         if ( parent === null ) { return false; }
         parent.append(docFragment);
-        safe.uboLog(logPrefix, 'Node(s) appended');
+        safe.adnlog(logPrefix, 'Node(s) appended');
         if ( toRemove.length === 0 ) { return true; }
         setTimeout(remove, duration);
         return true;

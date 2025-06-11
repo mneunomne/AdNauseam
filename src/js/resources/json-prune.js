@@ -45,7 +45,7 @@ function jsonPrune(
         apply: function(target, thisArg, args) {
             const objBefore = Reflect.apply(target, thisArg, args);
             if ( rawPrunePaths === '' ) {
-                safe.uboLog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
+                safe.adnlog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
             }
             const objAfter = objectPruneFn(
                 objBefore,
@@ -55,9 +55,9 @@ function jsonPrune(
                 extraArgs
             );
             if ( objAfter === undefined ) { return objBefore; }
-            safe.uboLog(logPrefix, 'Pruned');
+            safe.adnlog(logPrefix, 'Pruned');
             if ( safe.logLevel > 1 ) {
-                safe.uboLog(logPrefix, `After pruning:\n${safe.JSON_stringify(objAfter, null, 2)}`);
+                safe.adnlog(logPrefix, `After pruning:\n${safe.JSON_stringify(objAfter, null, 2)}`);
             }
             return objAfter;
         },
@@ -100,7 +100,7 @@ function jsonPruneFetchResponse(
             const matched = matchObjectPropertiesFn(propNeedles, ...objs);
             if ( matched === undefined ) { return fetchPromise; }
             if ( safe.logLevel > 1 ) {
-                safe.uboLog(logPrefix, `Matched "propsToMatch":\n\t${matched.join('\n\t')}`);
+                safe.adnlog(logPrefix, `Matched "propsToMatch":\n\t${matched.join('\n\t')}`);
             }
         }
         return fetchPromise.then(responseBefore => {
@@ -108,7 +108,7 @@ function jsonPruneFetchResponse(
             return response.json().then(objBefore => {
                 if ( typeof objBefore !== 'object' ) { return responseBefore; }
                 if ( logall ) {
-                    safe.uboLog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
+                    safe.adnlog(logPrefix, safe.JSON_stringify(objBefore, null, 2));
                     return responseBefore;
                 }
                 const objAfter = objectPruneFn(
@@ -119,7 +119,7 @@ function jsonPruneFetchResponse(
                     extraArgs
                 );
                 if ( typeof objAfter !== 'object' ) { return responseBefore; }
-                safe.uboLog(logPrefix, 'Pruned');
+                safe.adnlog(logPrefix, 'Pruned');
                 const responseAfter = Response.json(objAfter, {
                     status: responseBefore.status,
                     statusText: responseBefore.statusText,
@@ -178,7 +178,7 @@ function jsonPruneXhrResponse(
             }
             if ( outcome === 'match' ) {
                 if ( safe.logLevel > 1 ) {
-                    safe.uboLog(logPrefix, `Matched optional "propsToMatch", "${extraArgs.propsToMatch}"`);
+                    safe.adnlog(logPrefix, `Matched optional "propsToMatch", "${extraArgs.propsToMatch}"`);
                 }
                 xhrInstances.set(this, xhrDetails);
             }
@@ -224,7 +224,7 @@ function jsonPruneXhrResponse(
                 outerResponse = typeof innerResponse === 'string'
                     ? safe.JSON_stringify(objAfter)
                     : objAfter;
-                safe.uboLog(logPrefix, 'Pruned');
+                safe.adnlog(logPrefix, 'Pruned');
             } else {
                 outerResponse = innerResponse;
             }
