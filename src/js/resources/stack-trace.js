@@ -66,7 +66,7 @@ export function matchesStackTraceFn(
         logLevel === 'match' && r ||
         logLevel === 'nomatch' && !r
     ) {
-        safe.uboLog(stack.replace(/\t/g, '\n'));
+        safe.adnlog(stack.replace(/\t/g, '\n'));
     }
     return r;
 }

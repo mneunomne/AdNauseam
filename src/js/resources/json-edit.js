@@ -40,14 +40,14 @@ function jsonEditFn(trusted, jsonq = '') {
     );
     const jsonp = JSONPath.create(jsonq);
     if ( jsonp.valid === false || jsonp.value !== undefined && trusted !== true ) {
-        return safe.uboLog(logPrefix, 'Bad JSONPath query');
+        return safe.adnlog(logPrefix, 'Bad JSONPath query');
     }
     proxyApplyFn('JSON.parse', function(context) {
         const obj = context.reflect();
         if ( jsonp.apply(obj) !== 0 ) { return obj; }
-        safe.uboLog(logPrefix, 'Edited');
+        safe.adnlog(logPrefix, 'Edited');
         if ( safe.logLevel > 1 ) {
-            safe.uboLog(logPrefix, `After edit:\n${safe.JSON_stringify(obj, null, 2)}`);
+            safe.adnlog(logPrefix, `After edit:\n${safe.JSON_stringify(obj, null, 2)}`);
         }
         return obj;
     });
@@ -120,7 +120,7 @@ function jsonEditXhrResponseFn(trusted, jsonq = '') {
     const xhrInstances = new WeakMap();
     const jsonp = JSONPath.create(jsonq);
     if ( jsonp.valid === false || jsonp.value !== undefined && trusted !== true ) {
-        return safe.uboLog(logPrefix, 'Bad JSONPath query');
+        return safe.adnlog(logPrefix, 'Bad JSONPath query');
     }
     const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
     const propNeedles = parsePropertiesToMatchFn(extraArgs.propsToMatch, 'url');
@@ -131,7 +131,7 @@ function jsonEditXhrResponseFn(trusted, jsonq = '') {
                 matchObjectPropertiesFn(propNeedles, xhrDetails);
             if ( matched ) {
                 if ( safe.logLevel > 1 && Array.isArray(matched) ) {
-                    safe.uboLog(logPrefix, `Matched "propsToMatch":\n\t${matched.join('\n\t')}`);
+                    safe.adnlog(logPrefix, `Matched "propsToMatch":\n\t${matched.join('\n\t')}`);
                 }
                 xhrInstances.set(this, xhrDetails);
             }
@@ -160,7 +160,7 @@ function jsonEditXhrResponseFn(trusted, jsonq = '') {
             if ( typeof obj !== 'object' || obj === null || jsonp.apply(obj) === 0 ) {
                 return (xhrDetails.response = innerResponse);
             }
-            safe.uboLog(logPrefix, 'Edited');
+            safe.adnlog(logPrefix, 'Edited');
             const outerResponse = typeof innerResponse === 'string'
                 ? JSONPath.toJSON(obj, safe.JSON_stringify)
                 : obj;
@@ -250,7 +250,7 @@ function jsonEditFetchResponseFn(trusted, jsonq = '') {
     );
     const jsonp = JSONPath.create(jsonq);
     if ( jsonp.valid === false || jsonp.value !== undefined && trusted !== true ) {
-        return safe.uboLog(logPrefix, 'Bad JSONPath query');
+        return safe.adnlog(logPrefix, 'Bad JSONPath query');
     }
     const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
     const propNeedles = parsePropertiesToMatchFn(extraArgs.propsToMatch, 'url');
@@ -272,7 +272,7 @@ function jsonEditFetchResponseFn(trusted, jsonq = '') {
             const matched = matchObjectPropertiesFn(propNeedles, ...objs);
             if ( matched === undefined ) { return fetchPromise; }
             if ( safe.logLevel > 1 ) {
-                safe.uboLog(logPrefix, `Matched "propsToMatch":\n\t${matched.join('\n\t')}`);
+                safe.adnlog(logPrefix, `Matched "propsToMatch":\n\t${matched.join('\n\t')}`);
             }
         }
         return fetchPromise.then(responseBefore => {
@@ -280,7 +280,7 @@ function jsonEditFetchResponseFn(trusted, jsonq = '') {
             return response.json().then(obj => {
                 if ( typeof obj !== 'object' ) { return responseBefore; }
                 if ( jsonp.apply(obj) === 0 ) { return responseBefore; }
-                safe.uboLog(logPrefix, 'Edited');
+                safe.adnlog(logPrefix, 'Edited');
                 const responseAfter = Response.json(obj, {
                     status: responseBefore.status,
                     statusText: responseBefore.statusText,
@@ -410,7 +410,7 @@ function jsonlEditXhrResponseFn(trusted, jsonq = '') {
     const xhrInstances = new WeakMap();
     const jsonp = JSONPath.create(jsonq);
     if ( jsonp.valid === false || jsonp.value !== undefined && trusted !== true ) {
-        return safe.uboLog(logPrefix, 'Bad JSONPath query');
+        return safe.adnlog(logPrefix, 'Bad JSONPath query');
     }
     const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
     const propNeedles = parsePropertiesToMatchFn(extraArgs.propsToMatch, 'url');
@@ -421,7 +421,7 @@ function jsonlEditXhrResponseFn(trusted, jsonq = '') {
                 matchObjectPropertiesFn(propNeedles, xhrDetails);
             if ( matched ) {
                 if ( safe.logLevel > 1 && Array.isArray(matched) ) {
-                    safe.uboLog(logPrefix, `Matched "propsToMatch":\n\t${matched.join('\n\t')}`);
+                    safe.adnlog(logPrefix, `Matched "propsToMatch":\n\t${matched.join('\n\t')}`);
                 }
                 xhrInstances.set(this, xhrDetails);
             }
@@ -448,7 +448,7 @@ function jsonlEditXhrResponseFn(trusted, jsonq = '') {
             }
             const outerResponse = jsonlEditFn(jsonp, innerResponse);
             if ( outerResponse !== innerResponse ) {
-                safe.uboLog(logPrefix, 'Pruned');
+                safe.adnlog(logPrefix, 'Pruned');
             }
             return (xhrDetails.response = outerResponse);
         }
@@ -537,7 +537,7 @@ function jsonlEditFetchResponseFn(trusted, jsonq = '') {
     );
     const jsonp = JSONPath.create(jsonq);
     if ( jsonp.valid === false || jsonp.value !== undefined && trusted !== true ) {
-        return safe.uboLog(logPrefix, 'Bad JSONPath query');
+        return safe.adnlog(logPrefix, 'Bad JSONPath query');
     }
     const extraArgs = safe.getExtraArgs(Array.from(arguments), 2);
     const propNeedles = parsePropertiesToMatchFn(extraArgs.propsToMatch, 'url');
@@ -560,7 +560,7 @@ function jsonlEditFetchResponseFn(trusted, jsonq = '') {
             const matched = matchObjectPropertiesFn(propNeedles, ...objs);
             if ( matched === undefined ) { return fetchPromise; }
             if ( safe.logLevel > 1 ) {
-                safe.uboLog(logPrefix, `Matched "propsToMatch":\n\t${matched.join('\n\t')}`);
+                safe.adnlog(logPrefix, `Matched "propsToMatch":\n\t${matched.join('\n\t')}`);
             }
         }
         return fetchPromise.then(responseBefore => {
@@ -568,12 +568,12 @@ function jsonlEditFetchResponseFn(trusted, jsonq = '') {
             return response.text().then(textBefore => {
                 if ( typeof textBefore !== 'string' ) { return textBefore; }
                 if ( logall ) {
-                    safe.uboLog(logPrefix, textBefore);
+                    safe.adnlog(logPrefix, textBefore);
                     return responseBefore;
                 }
                 const textAfter = jsonlEditFn(jsonp, textBefore);
                 if ( textAfter === textBefore ) { return responseBefore; }
-                safe.uboLog(logPrefix, 'Pruned');
+                safe.adnlog(logPrefix, 'Pruned');
                 const responseAfter = new Response(textAfter, {
                     status: responseBefore.status,
                     statusText: responseBefore.statusText,
