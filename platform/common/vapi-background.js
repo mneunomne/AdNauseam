@@ -25,7 +25,7 @@
 /******************************************************************************/
 
 import webext from './webext.js';
-import { adnlog } from './console.js';
+import { ubolog } from './console.js';
 import { makeCloneable } from './adn/adn-utils.js';
 
 /******************************************************************************/
@@ -1179,7 +1179,7 @@ vAPI.messaging = {
         }
 
         // Auxiliary process to main process: no handler
-        adnlog(
+        ubolog(
             `vAPI.messaging.onPortMessage > unhandled request: ${JSON.stringify(request.msg)}`,
             request
         );
@@ -1190,7 +1190,7 @@ vAPI.messaging = {
     },
 };
 
-
+/******************************************************************************/
 /******************************************************************************/
 
 // https://github.com/gorhill/uBlock/issues/3474
@@ -1715,7 +1715,7 @@ vAPI.cloud = (( ) => {
         );
     };
 
-    var maxChunkSize = evalMaxChunkSize();
+    let maxChunkSize = evalMaxChunkSize();
 
     // The real actual webextFlavor value may not be set in stone, so listen
     // for possible future changes.

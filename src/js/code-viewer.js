@@ -45,7 +45,6 @@ const cmEditor = new CodeMirror(qs$('#content'), {
 uBlockDashboard.patchCodeMirrorEditor(cmEditor);
 
 vAPI.messaging.send('dom', { what: 'uiStyles' }).then(response => {
-    console.log("getActualTheme(response.uiTheme)", getActualTheme(response.uiTheme))
     if ( typeof response !== 'object' || response === null ) { return; }
     if ( getActualTheme(response.uiTheme) === 'dark' ) {
         dom.cl.add('#content .cm-s-default', 'cm-s-night');

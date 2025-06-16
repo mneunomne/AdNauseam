@@ -132,10 +132,10 @@ export function removeCacheStorageItem(
             if ( requestPattern === '' ) {
                 cacheStorage.delete(cacheName).then(result => {
                     if ( safe.logLevel > 1 ) {
-                        safe.adnlog(logPrefix, `Deleting ${cacheName}`);
+                        safe.uboLog(logPrefix, `Deleting ${cacheName}`);
                     }
                     if ( result !== true ) { return; }
-                    safe.adnlog(logPrefix, `Deleted ${cacheName}: ${result}`);
+                    safe.uboLog(logPrefix, `Deleted ${cacheName}: ${result}`);
                 });
                 continue;
             }
@@ -144,11 +144,11 @@ export function removeCacheStorageItem(
                     for ( const request of requests ) {
                         if ( reRequest.test(request.url) === false ) { continue; }
                         if ( safe.logLevel > 1 ) {
-                            safe.adnlog(logPrefix, `Deleting ${cacheName}/${request.url}`);
+                            safe.uboLog(logPrefix, `Deleting ${cacheName}/${request.url}`);
                         }
                         cache.delete(request).then(result => {
                             if ( result !== true ) { return; }
-                            safe.adnlog(logPrefix, `Deleted ${cacheName}/${request.url}: ${result}`);
+                            safe.uboLog(logPrefix, `Deleted ${cacheName}/${request.url}: ${result}`);
                         });
                     }
                 });

@@ -87,12 +87,6 @@ const noopFunc = function(){};
 
 let cachedWhitelist = '';
 
-const userSettings = await messaging.send('dashboard', {
-    what: 'userSettings',
-});
-
-console.log("userSettings", userSettings)
-
 const cmEditor = new CodeMirror(qs$('#whitelist'), {
     autofocus: true,
     lineNumbers: true,

@@ -37,11 +37,11 @@ function noEvalIf(
         const { callArgs } = context;
         const a = String(callArgs[0]);
         if ( needle !== '' && reNeedle.test(a) ) {
-            safe.adnlog(logPrefix, 'Prevented:\n', a);
+            safe.uboLog(logPrefix, 'Prevented:\n', a);
             return;
         }
         if ( needle === '' || safe.logLevel > 1 ) {
-            safe.adnlog(logPrefix, 'Not prevented:\n', a);
+            safe.uboLog(logPrefix, 'Not prevented:\n', a);
         }
         return context.reflect();
     });

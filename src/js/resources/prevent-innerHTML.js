@@ -63,12 +63,12 @@ export function preventInnerHTML(
         },
         set: function(a) {
             if ( shouldPreventSet(this, a) ) {
-                safe.adnlog(logPrefix, 'Prevented');
+                safe.uboLog(logPrefix, 'Prevented');
             } else if ( current.set ) {
                 current.set.call(this, a);
             }
             if ( safe.logLevel > 1 ) {
-                safe.adnlog(logPrefix, `Assigned:\n${a}`);
+                safe.uboLog(logPrefix, `Assigned:\n${a}`);
             }
             current.value = a;
         },
