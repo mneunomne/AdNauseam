@@ -96,7 +96,7 @@ function preventFetchFn(
             }
             if ( safe.logLevel > 1 || propsToMatch === '' && responseBody === '' ) {
                 const out = Array.from(props).map(a => `${a[0]}:${a[1]}`);
-                safe.adnlog(logPrefix, `Called: ${out.join('\n')}`);
+                safe.uboLog(logPrefix, `Called: ${out.join('\n')}`);
             }
             if ( propsToMatch === '' && responseBody === '' ) {
                 return context.reflect();
@@ -117,7 +117,7 @@ function preventFetchFn(
             return context.reflect();
         }
         return Promise.resolve(generateContentFn(trusted, responseBody)).then(text => {
-            safe.adnlog(logPrefix, `Prevented with response "${text}"`);
+            safe.uboLog(logPrefix, `Prevented with response "${text}"`);
             const response = new Response(text, {
                 headers: {
                     'Content-Length': text.length,

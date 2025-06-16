@@ -39,7 +39,6 @@ import scriptletFilteringEngine from './scriptlet-filtering.js';
 import staticNetFilteringEngine from './static-net-filtering.js';
 import webext from './webext.js';
 import µb from './background.js';
-
 import adnauseam from './adn/core.js' // ADN
 
 /******************************************************************************/
@@ -1166,7 +1165,6 @@ vAPI.tabs = new vAPI.Tabs();
             newParts |= currentParts;
         }
         tabIdToDetails.set(tabId, newParts);
-
     };
 }
 

@@ -175,7 +175,7 @@ const matchBucket = function(url, hostname, bucket, start) {
                 if ( i === -1 ) { break; }
                 directive = bucket.splice(i, 1)[0];
                 if ( isHandcraftedWhitelistDirective(directive) ) {
-                    netWhitelist.get('#').push(`# ${directive}`);3
+                    netWhitelist.get('#').push(`# ${directive}`);
                 }
             }
             if ( bucket.length === 0 ) {
@@ -477,9 +477,7 @@ const matchBucket = function(url, hostname, bucket, start) {
         return us;
     }
 
-    if ( typeof name !== 'string' || name === '' ) { 
-      return; 
-    }
+    if ( typeof name !== 'string' || name === '' ) { return; }
 
     if ( value === undefined ) {
         return us[name];

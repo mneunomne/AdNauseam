@@ -33,7 +33,7 @@ import {
     permanentSwitches,
     permanentURLFiltering,
 } from './filtering-engines.js';
-import { adnlog, adnlogSet } from './console.js';
+import { ubolog, ubologSet } from './console.js';
 
 import cosmeticFilteringEngine from './cosmetic-filtering.js';
 import { hostnameFromURI } from './uri-utils.js';
@@ -306,7 +306,7 @@ import µb from './background.js';
 onBroadcast(msg => {
     if ( msg.what !== 'hiddenSettingsChanged' ) { return; }
     const µbhs = µb.hiddenSettings;
-    adnlogSet(µbhs.consoleLogLevel === 'info');
+    ubologSet(µbhs.consoleLogLevel === 'info');
     vAPI.net.setOptions({
         cnameIgnoreList: µbhs.cnameIgnoreList,
         cnameIgnore1stParty: µbhs.cnameIgnore1stParty,
@@ -917,7 +917,7 @@ onBroadcast(msg => {
     const elapsed = ( ) => `${Date.now() - t0} ms`;
 
     const onDone = ( ) => {
-        adnlog(`loadFilterLists() All filters in memory at ${elapsed()}`);
+        ubolog(`loadFilterLists() All filters in memory at ${elapsed()}`);
 
         staticNetFilteringEngine.freeze();
         staticExtFilteringEngine.freeze();
@@ -925,7 +925,7 @@ onBroadcast(msg => {
         vAPI.net.unsuspend();
         filteringBehaviorChanged();
 
-        adnlog(`loadFilterLists() All filters ready at ${elapsed()}`);
+        ubolog(`loadFilterLists() All filters ready at ${elapsed()}`);
 
         logger.writeOne({
             realm: 'message',
@@ -949,7 +949,7 @@ onBroadcast(msg => {
     };
 
     const applyCompiledFilters = (assetKey, compiled) => {
-        adnlog(`loadFilterLists() Loading filters from ${assetKey} at ${elapsed()}`);
+        ubolog(`loadFilterLists() Loading filters from ${assetKey} at ${elapsed()}`);
         const snfe = staticNetFilteringEngine;
         const sxfe = staticExtFilteringEngine;
         let acceptedCount = snfe.acceptedCount + sxfe.acceptedCount;
@@ -989,7 +989,7 @@ onBroadcast(msg => {
         µb.selfieManager.destroy();
         staticFilteringReverseLookup.resetLists();
 
-        adnlog(`loadFilterLists() All filters removed at ${elapsed()}`);
+        ubolog(`loadFilterLists() All filters removed at ${elapsed()}`);
 
         // We need to build a complete list of assets to pull first: this is
         // because it *may* happens that some load operations are synchronous:
@@ -1026,11 +1026,11 @@ onBroadcast(msg => {
 
     µb.loadFilterLists = function() {
         if ( loadingPromise instanceof Promise ) { return loadingPromise; }
-        adnlog('loadFilterLists() Start');
+        ubolog('loadFilterLists() Start');
         t0 = Date.now();
         loadedListKeys.length = 0;
         loadingPromise = this.loadRedirectResources().then(( ) => {
-            adnlog(`loadFilterLists() Redirects/scriptlets ready at ${elapsed()}`);
+            ubolog(`loadFilterLists() Redirects/scriptlets ready at ${elapsed()}`);
             return this.getAvailableLists();
         }).then(lists => {
             return onFilterListsReady(lists)
@@ -1262,7 +1262,7 @@ onBroadcast(msg => {
     try {
         const success = await redirectEngine.resourcesFromSelfie(io);
         if ( success === true ) {
-            adnlog('Loaded redirect/scriptlets resources from selfie');
+            ubolog('Loaded redirect/scriptlets resources from selfie');
             return true;
         }
 
@@ -1301,7 +1301,7 @@ onBroadcast(msg => {
         }
         redirectEngine.selfieFromResources(io);
     } catch(ex) {
-        adnlog(ex);
+        ubolog(ex);
         return false;
     }
     return true;
@@ -1320,7 +1320,7 @@ onBroadcast(msg => {
             }).then(
                 WebAssembly.compileStreaming
             ).catch(reason => {
-                adnlog(reason);
+                ubolog(reason);
             });
         };
         let result = false;
@@ -1329,21 +1329,21 @@ onBroadcast(msg => {
                 './lib/publicsuffixlist/wasm/'
             );
         } catch(reason) {
-            adnlog(reason);
+            ubolog(reason);
         }
         if ( result ) {
-            adnlog(`WASM PSL ready ${Date.now()-vAPI.T0} ms after launch`);
+            ubolog(`WASM PSL ready ${Date.now()-vAPI.T0} ms after launch`);
         }
     }
 
     try {
         const selfie = await io.fromCache(`selfie/${this.pslAssetKey}`);
         if ( psl.fromSelfie(selfie) ) {
-            adnlog('Loaded PSL from selfie');
+            ubolog('Loaded PSL from selfie');
             return;
         }
     } catch (reason) {
-        adnlog(reason);
+        ubolog(reason);
     }
 
     const result = await io.get(this.pslAssetKey);
@@ -1355,7 +1355,7 @@ onBroadcast(msg => {
 µb.compilePublicSuffixList = function(content) {
     const psl = publicSuffixList;
     psl.parse(content, punycode.toASCII);
-    adnlog(`Loaded PSL from ${this.pslAssetKey}`);
+    ubolog(`Loaded PSL from ${this.pslAssetKey}`);
     return io.toCache(`selfie/${this.pslAssetKey}`, psl.toSelfie());
 };
 
@@ -1388,7 +1388,7 @@ onBroadcast(msg => {
             ),
         ]);
         µb.selfieIsInvalid = false;
-        adnlog('Filtering engine selfie created');
+        ubolog('Filtering engine selfie created');
     };
 
     const loadMain = async function() {
@@ -1418,9 +1418,9 @@ onBroadcast(msg => {
             }
         }
         catch (reason) {
-            adnlog(reason);
+            ubolog(reason);
         }
-        adnlog('Filtering engine selfie not available');
+        ubolog('Filtering engine selfie not available');
         destroy();
         return false;
     };
@@ -1429,7 +1429,7 @@ onBroadcast(msg => {
         if ( µb.selfieIsInvalid === false ) {
             io.remove(/^selfie\/static/, options);
             µb.selfieIsInvalid = true;
-            adnlog('Filtering engine selfie marked for invalidation');
+            ubolog('Filtering engine selfie marked for invalidation');
         }
         vAPI.alarms.create('createSelfie', {
             delayInMinutes: (µb.hiddenSettings.selfieDelayInSeconds + 17) / 60,
@@ -1734,7 +1734,6 @@ onBroadcast(msg => {
             key: details.assetKey,
             cached,
         });
-
         // https://github.com/gorhill/uBlock/issues/2585
         //   Whenever an asset is overwritten, the current selfie is quite
         //   likely no longer valid.

@@ -35,24 +35,6 @@ import adnauseam from './adn/core.js'
 //ublock also added something similar to address google ads at src/web_accessible_resources/googlesyndication_adsbygoogle.js
 // TO DO - add these entries to a separate config file 
 const fakeEntries = '.adsbygoogle, ins[id*="aswift"] > iframe, iframe[id^="google_ads_frame"], #google_image_div, #mys-content'.split(", ");
-
-const checkFakeEntries = function(filters) {
-  //ADN
-  //iterate over filters, if they are fakeEntries, remove from simple/complex
-  const array = filters.split(",\n");
-  let out = [];
-  for (let i = 0; i < fakeEntries.length; i++) {
-    const entry = fakeEntries[i];
-    if (array.includes(entry)) {
-      out.push(entry);
-      const index = array.indexOf(entry);
-      array.splice(index, 1);
-    }
-  }
-  filters = array.join(',\n');
-  return [filters,out];
-}
-
 /******************************************************************************/
 /******************************************************************************/
 
@@ -959,7 +941,6 @@ CosmeticFilteringEngine.prototype.retrieveSpecificSelectors = function(
         }
 
     }
-    //console.timeEnd('cosmeticFilteringEngine.retrieveSpecificSelectors');
     return out;
 };
 

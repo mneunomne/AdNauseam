@@ -23,9 +23,9 @@
 
 import * as s14e from './s14e-serializer.js';
 
+import { ubolog } from './console.js';
 import webext from './webext.js';
 import µb from './background.js';
-import { adnlog } from './console.js';
 
 /******************************************************************************/
 
@@ -55,7 +55,7 @@ let fastCache = 'indexedDB';
 const cacheStorage = (( ) => {
 
     const exGet = async (api, wanted, outbin) => {
-        adnlog('cacheStorage.get:', api.name || 'storage.local', wanted.join());
+        ubolog('cacheStorage.get:', api.name || 'storage.local', wanted.join());
         const missing = [];
         for ( const key of wanted ) {
             if ( pendingWrite.has(key) ) {
@@ -124,7 +124,7 @@ const cacheStorage = (( ) => {
                 }
                 return Promise.all(promises).then(( ) => outbin);
             }).catch(reason => {
-                adnlog(reason);
+                ubolog(reason);
             });
         },
 
@@ -145,7 +145,7 @@ const cacheStorage = (( ) => {
         async set(rawbin) {
             const keys = Object.keys(rawbin);
             if ( keys.length === 0 ) { return; }
-            adnlog('cacheStorage.set:', keys.join());
+            ubolog('cacheStorage.set:', keys.join());
             for ( const key of keys ) {
                 pendingWrite.set(key, rawbin[key]);
             }
@@ -161,7 +161,7 @@ const cacheStorage = (( ) => {
                     extensionStorage.set(serializedbin),
                 ]);
             } catch(reason) {
-                adnlog(reason);
+                ubolog(reason);
             }
             for ( const key of keys ) {
                 pendingWrite.delete(key);
@@ -171,14 +171,14 @@ const cacheStorage = (( ) => {
         remove(...args) {
             cacheAPIs[fastCache].remove(...args);
             return extensionStorage.remove(...args).catch(reason => {
-                adnlog(reason);
+                ubolog(reason);
             });
         },
 
         clear(...args) {
             cacheAPIs[fastCache].clear(...args);
             return extensionStorage.clear(...args).catch(reason => {
-                adnlog(reason);
+                ubolog(reason);
             });
         },
 
@@ -197,7 +197,7 @@ const cacheStorage = (( ) => {
     if ( extensionStorage.getBytesInUse instanceof Function ) {
         api.getBytesInUse = function(...args) {
             return extensionStorage.getBytesInUse(...args).catch(reason => {
-                adnlog(reason);
+                ubolog(reason);
             });
         };
     }
@@ -223,13 +223,13 @@ const cacheAPI = (( ) => {
         if ( cacheStoragePromise !== undefined ) { return cacheStoragePromise; }
         cacheStoragePromise = new Promise(resolve => {
             if ( typeof caches !== 'object' || caches === null ) {
-                adnlog('CacheStorage API not available');
+                ubolog('CacheStorage API not available');
                 resolve(null);
                 return;
             }
             resolve(caches.open(STORAGE_NAME));
         }).catch(reason => {
-            adnlog(reason);
+            ubolog(reason);
             return null;
         });
         return cacheStoragePromise;
@@ -266,7 +266,7 @@ const cacheAPI = (( ) => {
             if ( text === undefined ) { return; }
             return { key, text };
         }).catch(reason => {
-            adnlog(reason);
+            ubolog(reason);
         });
     };
 
@@ -287,7 +287,7 @@ const cacheAPI = (( ) => {
             }
             return bin;
         }).catch(reason => {
-            adnlog(reason);
+            ubolog(reason);
         });
     };
 
@@ -299,7 +299,7 @@ const cacheAPI = (( ) => {
         return cache
             .put(keyToURL(key), new Response(blob))
             .catch(reason => {
-                adnlog(reason);
+                ubolog(reason);
             });
     };
 
@@ -307,7 +307,7 @@ const cacheAPI = (( ) => {
         const cache = await getAPI();
         if ( cache === null ) { return; }
         return cache.delete(keyToURL(key)).catch(reason => {
-            adnlog(reason);
+            ubolog(reason);
         });
     };
 
@@ -376,7 +376,7 @@ const cacheAPI = (( ) => {
         async clear() {
             if ( typeof caches !== 'object' || caches === null ) { return; }
             return globalThis.caches.delete(STORAGE_NAME).catch(reason => {
-                adnlog(reason);
+                ubolog(reason);
             });
         },
         
@@ -416,7 +416,7 @@ const memoryStorage = (( ) => {
             return sessionStorage.get(...args).then(bin => {
                 return bin;
             }).catch(reason => {
-                adnlog(reason);
+                ubolog(reason);
             });
         },
 
@@ -434,19 +434,19 @@ const memoryStorage = (( ) => {
             const bin = shouldCache(serializedbin);
             if ( bin === undefined ) { return; }
             return sessionStorage.set(bin).catch(reason => {
-                adnlog(reason);
+                ubolog(reason);
             });
         },
 
         remove(...args) {
             return sessionStorage.remove(...args).catch(reason => {
-                adnlog(reason);
+                ubolog(reason);
             });
         },
 
         clear(...args) {
             return sessionStorage.clear(...args).catch(reason => {
-                adnlog(reason);
+                ubolog(reason);
             });
         },
 
@@ -487,7 +487,7 @@ const idbStorage = (( ) => {
             };
             req.onerror = req.onblocked = ( ) => {
                 if ( resolve === undefined ) { return; }
-                adnlog(req.error);
+                ubolog(req.error);
                 resolve(null);
                 resolve = undefined;
             };
@@ -497,7 +497,7 @@ const idbStorage = (( ) => {
                 resolve = undefined;
             });
         }).catch(reason => {
-            adnlog(`idbStorage() / getDb() failed: ${reason}`);
+            ubolog(`idbStorage() / getDb() failed: ${reason}`);
             return null;
         });
         return dbPromise;
@@ -533,7 +533,7 @@ const idbStorage = (( ) => {
                 cursor.continue();
             };
         }).catch(reason => {
-            adnlog(`idbStorage() / getAllEntries() failed: ${reason}`);
+            ubolog(`idbStorage() / getAllEntries() failed: ${reason}`);
             return [];
         });
     };
@@ -559,7 +559,7 @@ const idbStorage = (( ) => {
                 cursor.continue();
             };
         }).catch(reason => {
-            adnlog(`idbStorage() / getAllKeys() failed: ${reason}`);
+            ubolog(`idbStorage() / getAllKeys() failed: ${reason}`);
             return [];
         });
     };
@@ -590,7 +590,7 @@ const idbStorage = (( ) => {
                 req.onerror = ( ) => { };
             }
         }).catch(reason => {
-            adnlog(`idbStorage() / getEntries() failed: ${reason}`);
+            ubolog(`idbStorage() / getEntries() failed: ${reason}`);
             return [];
         });
     };
@@ -625,7 +625,7 @@ const idbStorage = (( ) => {
                 table.put(entry);
             }
         }).catch(reason => {
-            adnlog(`idbStorage() / setEntries() failed: ${reason}`);
+            ubolog(`idbStorage() / setEntries() failed: ${reason}`);
         });
     };
 
@@ -646,7 +646,7 @@ const idbStorage = (( ) => {
                 table.delete(key);
             }
         }).catch(reason => {
-            adnlog(`idbStorage() / deleteEntries() failed: ${reason}`);
+            ubolog(`idbStorage() / deleteEntries() failed: ${reason}`);
         });
     };
 
@@ -701,7 +701,7 @@ const idbStorage = (( ) => {
                 db.close();
                 indexedDB.deleteDatabase(STORAGE_NAME);
             }).catch(reason => {
-                adnlog(`idbStorage.clear() failed: ${reason}`);
+                ubolog(`idbStorage.clear() failed: ${reason}`);
             });
         },
 

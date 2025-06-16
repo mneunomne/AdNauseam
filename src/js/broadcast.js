@@ -20,7 +20,6 @@
 */
 
 import webext from './webext.js';
-
 import { makeCloneable } from './adn/adn-utils.js'; // ADN
 
 /******************************************************************************/

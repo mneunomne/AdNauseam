@@ -240,7 +240,9 @@ function reportSpecificFilterType() {
 }
 
 function reportSpecificFilterIssue() {
-    const githubURL = new URL('https://github.com/dhowe/AdNauseam/issues/new?template=specific_report_from_adn.yml'); // ADN
+    const githubURL = new URL(
+        'https://github.com/dhowe/AdNauseam/issues/new?template=specific_report_from_adn.yml'
+    ); // ADN
     const issueType = reportSpecificFilterType();
     let title = `${reportedPage.hostname}: ${issueType}`;
     if ( qs$('#isNSFW').checked ) {

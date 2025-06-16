@@ -1,5 +1,5 @@
 {
-  "version": "3.25.4",
+  "version": "3.25.3.5",
   "key": "ilkggpgmkemaniponkfgnkonpajankkm",
   "author": "Daniel C. Howe",
   "background": {
@@ -24,8 +24,17 @@
     "launch-logger": {
       "description": "__MSG_popupTipLog__"
     },
+    "open-dashboard": {
+      "description": "__MSG_popupTipDashboard__"
+    },
     "relax-blocking-mode": {
       "description": "__MSG_relaxBlockingMode__"
+    },
+    "toggle-cosmetic-filtering": {
+      "description": "__MSG_toggleCosmeticFiltering__"
+    },
+    "toggle-javascript": {
+      "description": "__MSG_toggleJavascript__"
     }
   },
   "content_scripts": [
@@ -82,7 +91,7 @@
     "128": "img/icon_128.png"
   },
   "manifest_version": 2,
-  "minimum_chrome_version": "66.0",
+  "minimum_chrome_version": "93.0",
   "name": "AdNauseam",
   "options_ui": {
     "page": "options.html",
