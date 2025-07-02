@@ -915,3 +915,6 @@ www.snooker.org###stickyAdContainer
 
 # fix ad detection on drakecomic.org
 ||drakecomic.org/wp-content/themes/mangareader/script.js$script,important
+
+# fix sainsburys checkout https://github.com/dhowe/AdNauseam/issues/2661
+@@||tags.tiqcdn.com/utag/sainsburys/groceries/prod/utag.sync.js
