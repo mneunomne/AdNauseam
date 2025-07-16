@@ -20,7 +20,7 @@
 */
 
 export const webext = self.browser || self.chrome;
-export const dnr = webext.declarativeNetRequest;
+export const dnr = webext.declarativeNetRequest || {};
 export const INITIATOR_DOMAINS = 'initiatorDomains';
 export const EXCLUDED_INITIATOR_DOMAINS = 'excludedInitiatorDomains';
 
@@ -36,7 +36,7 @@ const isSameRules = (a, b) => {
 
 /******************************************************************************/
 
-dnr.setAllowAllRules = async function(id, allowed, notAllowed, reverse) {
+dnr.setAllowAllRules = async function(id, allowed, notAllowed, reverse, priority) {
     const [
         beforeDynamicRules,
         beforeSessionRules,
@@ -53,7 +53,7 @@ dnr.setAllowAllRules = async function(id, allowed, notAllowed, reverse) {
             condition: {
                 resourceTypes: [ 'main_frame' ],
             },
-            priority: 1000000,
+            priority,
         };
         if ( allowed.length ) {
             rule0.condition.requestDomains = allowed.slice();
@@ -69,7 +69,7 @@ dnr.setAllowAllRules = async function(id, allowed, notAllowed, reverse) {
             condition: {
                 tabIds: [ webext.tabs.TAB_ID_NONE ],
             },
-            priority: 1000000,
+            priority,
         };
         if ( allowed.length ) {
             rule1.condition.initiatorDomains = allowed.slice();

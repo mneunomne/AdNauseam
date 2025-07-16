@@ -19,6 +19,10 @@
     "message": "설정",
     "description": "appears as tab name in dashboard"
   },
+  "developPageName": {
+    "message": "개발자용",
+    "description": "appears as tab name in dashboard. Inspired from 'Develop' menu in Safari, see https://developer.apple.com/documentation/safari-developer-tools/develop-menu"
+  },
   "aboutPageName": {
     "message": "정보",
     "description": "appears as tab name in dashboard"
@@ -30,6 +34,10 @@
   "popupFilteringModeLabel": {
     "message": "필터링 모드",
     "description": "Label in the popup panel for the current filtering mode"
+  },
+  "popupLocalToolsLabel": {
+    "message": "On this website",
+    "description": "Label in the popup panel for the local tools section"
   },
   "popupTipReport": {
     "message": "이 사이트의 이슈를 신고하기",
@@ -112,7 +120,7 @@
     "description": "First paragraph of 'Filter issues' section in Support pane"
   },
   "supportS5H": {
-    "message": "Troubleshooting information",
+    "message": "문제 해결 정보",
     "description": "Label of 'Troubleshooting information' section in 'Report a filter issue' page"
   },
   "supportS6P1S1": {
@@ -233,7 +241,15 @@
   },
   "enableStrictBlockLegend": {
     "message": "잠재적으로 좋지 않은 사이트로의 접속을 차단하고, 사용자가 진행할지 선택하도록 합니다.",
+    "description": "Short description for a checkbox in the options page"
+  },
+  "developerModeLabel": {
+    "message": "개발자 모드",
     "description": "Label for a checkbox in the options page"
+  },
+  "developerModeLegend": {
+    "message": "기술적 사용자를 위한 기능에 접근할 수 있도록 합니다.",
+    "description": "Short description for a checkbox in the options page"
   },
   "findListsPlaceholder": {
     "message": "목록 찾기",
@@ -282,5 +298,81 @@
   "zapperTipQuit": {
     "message": "구성 요소 제거 모드 종료",
     "description": "Tooltip for the button used to exit zapper mode"
+  },
+  "pickerTipEnter": {
+    "message": "Create a custom filter",
+    "description": "Label for the menu entry to create cosmetic filters"
+  },
+  "unpickerTipEnter": {
+    "message": "Remove a custom filter",
+    "description": "Label for the menu entry to delete cosmetic filters"
+  },
+  "developDropdownLabel": {
+    "message": "보기:",
+    "description": "A label of a dropdown list"
+  },
+  "developOptionFilteringModeDetails": {
+    "message": "필터링 모드 상세정보",
+    "description": "An option in a dropdown list"
+  },
+  "developOptionCustomDnrRules": {
+    "message": "사용자 지정 DNR 규칙",
+    "description": "An option in a dropdown list"
+  },
+  "developOptionDnrRulesOf": {
+    "message": "DNR 규칙…",
+    "description": "A section header in a dropdown list"
+  },
+  "developOptionDynamicRuleset": {
+    "message": "동적 규칙 목록",
+    "description": "An option in a dropdown list"
+  },
+  "developOptionSessionRuleset": {
+    "message": "세션 규칙 목록",
+    "description": "An option in a dropdown list"
+  },
+  "saveButton": {
+    "message": "저장",
+    "description": "Text for buttons used to save changes"
+  },
+  "revertButton": {
+    "message": "되돌리기",
+    "description": "Text for buttons used to revert changes"
+  },
+  "importAndAppendButton": {
+    "message": "가져오기 및 추가하기…",
+    "description": "Text for buttons used to import and append content"
+  },
+  "exportButton": {
+    "message": "내보내기…",
+    "description": "Text for buttons used to export content"
+  },
+  "dnrRulesWarning": {
+    "message": "신뢰할 수 없는 출처의 콘텐츠를 추가하지 마십시오",
+    "description": "Short description of the DNR rules editor pane"
+  },
+  "dnrRulesCountInfo": {
+    "message": "등록된 규칙 수: {count}",
+    "description": "Short sentence to report the number of currently registered DNR rules"
+  },
+  "pickerSliderLabel": {
+    "message": "Move the slider to select the best match",
+    "description": "Label to describe the purpose of the slider"
+  },
+  "pickerPick": {
+    "message": "Pick",
+    "description": "Text for the button to re-enter element-picking mode"
+  },
+  "pickerPreview": {
+    "message": "Preview",
+    "description": "Text for the button to activate preview mode"
+  },
+  "pickerCreate": {
+    "message": "Create",
+    "description": "Text for the button to create the filter"
+  },
+  "unpickerUsage": {
+    "message": "Select a filter below to highlight matching elements in the webpage. Click the trash can to remove a filter.",
+    "description": "Summary description on how to use the tool to remove custom filters"
   }
 }

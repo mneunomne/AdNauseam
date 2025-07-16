@@ -31,8 +31,8 @@ import {
     mergeRules,
 } from './js/static-dnr-filtering.js';
 
+import { execSync } from 'node:child_process';
 import fs from 'fs/promises';
-import https from 'https';
 import path from 'path';
 import process from 'process';
 import redirectResourcesMap from './js/redirect-resources.js';
@@ -107,46 +107,55 @@ console.log = log;
 const logProgress = text => {
     process?.stdout?.clearLine?.();
     process?.stdout?.cursorTo?.(0);
-    process?.stdout?.write?.(text.length > 120 ? `${text.slice(0, 119)}…` : text);
+    process?.stdout?.write?.(text.length > 120 ? `${text.slice(0, 119)}… ` : `${text} `);
 };
 
 /******************************************************************************/
 
-const urlToFileName = url => {
-    return url
+async function fetchText(url, cacheDir) {
+    logProgress(`Reading locally cached ${url}`);
+    const fname = url
         .replace(/^https?:\/\//, '')
-        .replace(/\//g, '_');
-};
+        .replace(/\//g, '_');(url);
+    const content = await fs.readFile(
+        `${cacheDir}/${fname}`,
+        { encoding: 'utf8' }
+    ).catch(( ) => { });
+    if ( content !== undefined ) {
+        log(`\tFetched local ${url}`);
+        return { url, content };
+    }
+    logProgress(`Fetching remote ${url}`);
+    log(`\tFetching remote ${url}`);
+    const response = await fetch(url).catch(( ) => { });
+    if ( response === undefined ) {
+        return { url, error: `Fetching failed: ${url}` };
+    }
+    let text;
+    if ( response.ok ) {
+        text = await response.text().catch(( ) => { });
+    } else {
+        text = await fallbackFetchText(url).catch(( ) => { });
+    }
+    if ( text === undefined ) {
+        return { url, error: `Fetching text content failed: ${url}` };
+    }
+    writeFile(`${cacheDir}/${fname}`, text);
+    return { url, content: text };
+}
 
-const fetchText = (url, cacheDir) => {
-    return new Promise((resolve, reject) => {
-        logProgress(`Reading locally cached ${url}`);
-        const fname = urlToFileName(url);
-        fs.readFile(`${cacheDir}/${fname}`, { encoding: 'utf8' }).then(content => {
-            log(`\tFetched local ${url}`);
-            resolve({ url, content });
-        }).catch(( ) => {
-            logProgress(`Fetching remote ${url}`);
-            log(`\tFetching remote ${url}`);
-            https.get(url, response => {
-                const data = [];
-                response.on('data', chunk => {
-                    data.push(chunk.toString());
-                });
-                response.on('end', ( ) => {
-                    const content = data.join('');
-                    try {
-                        writeFile(`${cacheDir}/${fname}`, content);
-                    } catch {
-                    }
-                    resolve({ url, content });
-                });
-            }).on('error', error => {
-                reject(error);
-            });
-        });
-    });
-};
+async function fallbackFetchText(url) {
+    const match = /^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/master\/([^?]+)/.exec(url);
+    if ( match === null ) { return; }
+    logProgress(`\tGitHub CLI-fetching remote ${url}`);
+    // https://docs.github.com/en/rest/repos/contents
+    const content = execSync(`gh api \
+        -H "Accept: application/vnd.github.raw+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        /repos/${match[1]}/${match[2]}/contents/${match[3]} \
+    `, { encoding: 'utf8' });
+    return content;
+}
 
 /******************************************************************************/
 
@@ -251,22 +260,18 @@ async function fetchList(assetDetails) {
             }
             newParts.push(
                 fetchText(part.url, cacheDir).then(details => {
-                    const { url } = details;
+                    const { url, error } = details;
+                    if ( error !== undefined ) { return details; }
                     const content = details.content.trim();
-                    if ( typeof content === 'string' && content !== '' ) {
-                        if (
-                            content.startsWith('<') === false ||
-                            content.endsWith('>') === false
-                        ) {
-                            return { url, content };
-                        }
+                    if ( content === '' || /^<.*>$/.test(content) ) {
+                        return { url, error: `Bad content: ${url}` };
                     }
-                    log(`No valid content for ${url}`, false);
-                    return { url, content: '' };
+                    return { url, content };
                 })
             );
             newParts.push(`!#trusted off ${secret}`);
         }
+        if ( parts.some(v => typeof v === 'object' && v.error) ) { return; }
         parts = await Promise.all(newParts);
         parts = sfp.utils.preparser.expandIncludes(parts, env);
     }
@@ -319,34 +324,12 @@ const isURLSkip = rule =>
 
 /******************************************************************************/
 
-function patchRuleset(ruleset) {
-    if ( platform !== 'safari' ) { return ruleset; }
-    const out = [];
-    for ( const rule of ruleset ) {
-        const condition = rule.condition;
-        if ( rule.action.type === 'modifyHeaders' ) {
-            log(`Safari's incomplete API: ${JSON.stringify(rule)}`, true);
-            continue;
-        }
-        if ( Array.isArray(condition.requestMethods) ) {
-            log(`Safari's incomplete API: ${JSON.stringify(rule)}`, true);
-            continue;
-        }
-        if ( Array.isArray(condition.excludedRequestMethods) ) {
-            log(`Safari's incomplete API: ${JSON.stringify(rule)}`, true);
-            continue;
-        }
-        if ( Array.isArray(condition.initiatorDomains) ) {
-            condition.domains = condition.initiatorDomains;
-            delete condition.initiatorDomains;
-        }
-        if ( Array.isArray(condition.excludedInitiatorDomains) ) {
-            condition.excludedDomains = condition.excludedInitiatorDomains;
-            delete condition.excludedInitiatorDomains;
-        }
-        out.push(rule);
-    }
-    return out;
+async function patchRuleset(ruleset) {
+    return import(`./${platform}/patch-ruleset.js`).then(module => {
+        return module.patchRuleset(ruleset)
+    }).catch(( ) => {
+        return ruleset;
+    });
 }
 
 /******************************************************************************/
@@ -541,7 +524,7 @@ async function processNetworkFilters(assetDetails, network) {
         }
     }
 
-    const plainGood = patchRuleset(
+    const plainGood = await patchRuleset(
         rules.filter(rule => isSafe(rule) && isRegex(rule) === false)
     );
     log(`\tPlain good: ${plainGood.length}`);
@@ -551,12 +534,12 @@ async function processNetworkFilters(assetDetails, network) {
         .join('\n'), true
     );
 
-    const regexes = patchRuleset(
+    const regexes = await patchRuleset(
         rules.filter(rule => isSafe(rule) && isRegex(rule))
     );
     log(`\tMaybe good (regexes): ${regexes.length}`);
 
-    const redirects = patchRuleset(
+    const redirects = await patchRuleset(
         rules.filter(rule =>
             isUnsupported(rule) === false &&
             isRedirect(rule)
@@ -570,19 +553,19 @@ async function processNetworkFilters(assetDetails, network) {
     });
     log(`\tredirect=: ${redirects.length}`);
 
-    const removeparamsGood = patchRuleset(
+    const removeparamsGood = await patchRuleset(
         rules.filter(rule =>
             isUnsupported(rule) === false && isRemoveparam(rule)
         )
     );
-    const removeparamsBad = patchRuleset(
+    const removeparamsBad = await patchRuleset(
         rules.filter(rule =>
             isUnsupported(rule) && isRemoveparam(rule)
         )
     );
     log(`\tremoveparams= (accepted/discarded): ${removeparamsGood.length}/${removeparamsBad.length}`);
 
-    const modifyHeaders = patchRuleset(
+    const modifyHeaders = await patchRuleset(
         rules.filter(rule =>
             isUnsupported(rule) === false &&
             isModifyHeaders(rule)
@@ -845,17 +828,17 @@ async function processGenericHighCosmeticFilters(
             .filter(a => a.key === undefined)
             .map(a => a.selector)
     );
+    // https://github.com/uBlockOrigin/uBOL-home/issues/365
     if ( genericExceptionList ) {
-        const genericExceptionSet = new Set(
-            genericExceptionList
-                .filter(a => a.key === undefined)
-                .map(a => a.selector)
-        );
-        for ( const selector of genericExceptionSet ) {
-            if ( genericSelectorSet.has(selector) === false ) { continue; }
-            genericSelectorSet.delete(selector);
-            log(`\tRemoving excepted highly generic filter ##${selector}`);
+        for ( const entry of genericExceptionList ) {
+            if ( entry.key !== undefined ) { continue; }
+            globalHighlyGenericExceptionSet.add(entry.selector);
         }
+    }
+    for ( const selector of globalHighlyGenericExceptionSet ) {
+        if ( genericSelectorSet.has(selector) === false ) { continue; }
+        genericSelectorSet.delete(selector);
+        log(`\tRemoving excepted highly generic filter ##${selector}`);
     }
     if ( genericSelectorSet.size === 0 ) { return 0; }
     const selectorLists = Array.from(genericSelectorSet).sort().join(',\n');
@@ -878,6 +861,8 @@ async function processGenericHighCosmeticFilters(
 
     return genericSelectorSet.size;
 }
+
+const globalHighlyGenericExceptionSet = new Set();
 
 /******************************************************************************/
 
@@ -1239,6 +1224,9 @@ async function rulesetFromURLs(assetDetails) {
 
     if ( assetDetails.text === undefined && assetDetails.urls.length !== 0 ) {
         const text = await fetchList(assetDetails);
+        if ( text === undefined ) {
+            process.exit(1);
+        }
         assetDetails.text = text;
     } else {
         assetDetails.text = '';
@@ -1425,6 +1413,7 @@ async function main() {
     );
 
     for ( const ruleset of rulesets ) {
+        if ( ruleset.excludedPlatforms?.includes(platform) ) { continue; }
         await rulesetFromURLs(ruleset);
     }
 

@@ -23,7 +23,7 @@ import * as sfp from './static-filtering-parser.js';
 
 import { domainFromHostname, hostnameFromNetworkURL } from './uri-utils.js';
 import { dropTask, queueTask } from './tasks.js';
-import { isRE2, tokenizableStrFromRegex } from './regex-analyzer.js';
+import { isRE2, toHeaderPattern, tokenizableStrFromRegex } from './regex-analyzer.js';
 
 import BidiTrieContainer from './biditrie.js';
 import { CompiledListReader } from './static-filtering-io.js';
@@ -300,9 +300,8 @@ const $httpHeaders = {
     },
     lookup(name) {
         if ( this.parsed.size === 0 ) {
-            for ( let i = 0, n = this.headers.length; i < n; i++ ) {
-                const { name, value } = this.headers[i];
-                this.parsed.set(name, value);
+            for ( const { name, value } of this.headers ) {
+                this.parsed.set(name.toLowerCase(), value);
             }
         }
         return this.parsed.get(name);
@@ -411,6 +410,9 @@ class LogData {
         }
         this.raw = raw;
         this.regex = logData.regex.join('');
+        if ( logData.reason ) {
+            this.reason = logData.reason;
+        }
     }
     isUntokenized() {
         return this.tokenHash === NO_TOKEN_HASH;
@@ -2929,18 +2931,26 @@ class FilterOnHeaders {
         if ( refs.$parsed === null ) {
             refs.$parsed = sfp.parseHeaderValue(refs.headerOpt);
         }
-        const { bad, name, not, re, value } = refs.$parsed;
+        const { bad, name, not, value } = refs.$parsed;
         if ( bad ) { return false; }
         const headerValue = $httpHeaders.lookup(name);
         if ( headerValue === undefined ) { return false; }
         if ( value === '' ) { return true; }
-        return re === undefined
-            ? (headerValue === value) !== not
-            : re.test(headerValue) !== not;
+        let { re } = refs.$parsed;
+        if ( re === undefined ) {
+            re = new RegExp(refs.$parsed.reStr, refs.$parsed.reFlags);
+            refs.$parsed.re = re;
+        }
+        return re.test(headerValue) !== not;
     }
 
     static compile(details) {
-        return [ FilterOnHeaders.fid, details.optionValues.get('header') ];
+        const parsed = sfp.parseHeaderValue(details.optionValues.get('header'));
+        let normalized = parsed.name;
+        if ( parsed.value !== '' ) {
+            normalized += `:${parsed.value}`;
+        }
+        return [ FilterOnHeaders.fid, normalized ];
     }
 
     static fromCompiled(args) {
@@ -2954,6 +2964,27 @@ class FilterOnHeaders {
     }
 
     static dnrFromCompiled(args, rule) {
+        rule.condition ||= {};
+        const parsed = sfp.parseHeaderValue(args[1]);
+        if ( parsed.bad !== true ) {
+            const value = parsed.isRegex
+                ? toHeaderPattern(parsed.reStr)
+                : parsed.value;
+            if ( value !== undefined ) {
+                const prop = parsed.not
+                    ? 'excludedResponseHeaders'
+                    : 'responseHeaders';
+                rule.condition[prop] ||= [];
+                const details = {
+                    header: parsed.name,
+                };
+                if ( value !== '' ) {
+                    details.values = [ value ];
+                }
+                rule.condition[prop].push(details);
+                return;
+            }
+        }
         dnrAddRuleError(rule, `header="${args[1]}" not supported`);
     }
 
@@ -3073,6 +3104,40 @@ class FilterIPAddress {
 }
 
 registerFilterClass(FilterIPAddress);
+
+/******************************************************************************/
+
+class FilterMessage {
+    static match() {
+        return true;
+    }
+
+    static compile(details) {
+        return [
+            FilterMessage.fid,
+            encodeURIComponent(details.optionValues.get('reason')),
+        ];
+    }
+
+    static fromCompiled(args) {
+        const msg = args[1];
+        return filterDataAlloc(args[0], bidiTrie.storeString(msg), msg.length);
+    }
+
+    static keyFromArgs(args) {
+        return `${args[1]}`;
+    }
+
+    static logData(idata, details) {
+        const reason = decodeURIComponent(
+            bidiTrie.extractString(filterData[idata+1], filterData[idata+2])
+        );
+        details.reason = reason;
+        details.options.push(`reason=${reason}`);
+    }
+}
+
+registerFilterClass(FilterMessage);
 
 /******************************************************************************/
 /******************************************************************************/
@@ -3564,6 +3629,10 @@ class FilterCompiler {
             }
             this.optionUnitBits |= MODIFY_BIT;
             break;
+        case sfp.NODE_TYPE_NET_OPTION_NAME_REASON:
+            this.optionValues.set('reason', parser.getNetOptionValue(id));
+            this.optionUnitBits |= MESSAGE_BIT;
+            break;
         case sfp.NODE_TYPE_NET_OPTION_NAME_REDIRECT: {
             const actualId = this.action === ALLOW_REALM
                 ? sfp.NODE_TYPE_NET_OPTION_NAME_REDIRECTRULE
@@ -3672,6 +3741,7 @@ class FilterCompiler {
             case sfp.NODE_TYPE_NET_OPTION_NAME_IPADDRESS:
             case sfp.NODE_TYPE_NET_OPTION_NAME_METHOD:
             case sfp.NODE_TYPE_NET_OPTION_NAME_PERMISSIONS:
+            case sfp.NODE_TYPE_NET_OPTION_NAME_REASON:
             case sfp.NODE_TYPE_NET_OPTION_NAME_REDIRECT:
             case sfp.NODE_TYPE_NET_OPTION_NAME_REDIRECTRULE:
             case sfp.NODE_TYPE_NET_OPTION_NAME_REMOVEPARAM:
@@ -4052,6 +4122,11 @@ class FilterCompiler {
             this.action |= HEADERS_REALM;
         }
 
+        // Message
+        if ( (this.optionUnitBits & MESSAGE_BIT) !== 0 ) {
+            units.push(FilterMessage.compile(this));
+        }
+
         // Important
         //
         // IMPORTANT: must always appear at the end of the sequence, so as to
@@ -4146,16 +4221,17 @@ class FilterCompiler {
 }
 
 // These are to quickly test whether a filter is composite
-const FROM_BIT         = 0b0000000001;
-const TO_BIT           = 0b0000000010;
-const DENYALLOW_BIT    = 0b0000000100;
-const HEADER_BIT       = 0b0000001000;
-const STRICT_PARTY_BIT = 0b0000010000;
-const MODIFY_BIT       = 0b0000100000;
-const NOT_TYPE_BIT     = 0b0001000000;
-const IMPORTANT_BIT    = 0b0010000000;
-const METHOD_BIT       = 0b0100000000;
-const IPADDRESS_BIT    = 0b1000000000;
+const FROM_BIT         = 0b00000000001;
+const TO_BIT           = 0b00000000010;
+const DENYALLOW_BIT    = 0b00000000100;
+const HEADER_BIT       = 0b00000001000;
+const STRICT_PARTY_BIT = 0b00000010000;
+const MODIFY_BIT       = 0b00000100000;
+const NOT_TYPE_BIT     = 0b00001000000;
+const IMPORTANT_BIT    = 0b00010000000;
+const METHOD_BIT       = 0b00100000000;
+const IPADDRESS_BIT    = 0b01000000000;
+const MESSAGE_BIT      = 0b10000000000
 
 FilterCompiler.prototype.FILTER_OK          = 0;
 FilterCompiler.prototype.FILTER_INVALID     = 1;
@@ -4451,6 +4527,7 @@ StaticNetFilteringEngine.prototype.dnrFromCompiled = function(op, context, ...ar
     const realms = new Map([
         [ BLOCK_REALM, { type: 'block', priority: 10 } ],
         [ ALLOW_REALM, { type: 'allow', priority: 30 } ],
+        [ BLOCK_REALM | IMPORTANT_REALM, { type: 'block', priority: 10 } ],
         [ REDIRECT_REALM, { type: 'redirect', priority: 11 } ],
         [ REMOVEPARAM_REALM, { type: 'removeparam', priority: 0 } ],
         [ CSP_REALM, { type: 'csp', priority: 0 } ],
@@ -4458,7 +4535,7 @@ StaticNetFilteringEngine.prototype.dnrFromCompiled = function(op, context, ...ar
         [ URLTRANSFORM_REALM, { type: 'uritransform', priority: 0 } ],
         [ HEADERS_REALM, { type: 'block', priority: 10 } ],
         [ HEADERS_REALM | ALLOW_REALM, { type: 'allow', priority: 30 } ],
-        [ HEADERS_REALM | IMPORTANT_REALM, { type: 'allow', priority: 40 } ],
+        [ HEADERS_REALM | IMPORTANT_REALM, { type: 'allow', priority: 10 } ],
         [ URLSKIP_REALM, { type: 'urlskip', priority: 0 } ],
     ]);
     const partyness = new Map([
@@ -4482,6 +4559,7 @@ StaticNetFilteringEngine.prototype.dnrFromCompiled = function(op, context, ...ar
         'other',
     ]);
     const ruleset = [];
+    const seen = new Set();
     for ( const [ realmBits, realmDetails ] of realms ) {
         for ( const [ partyBits, partyName ] of partyness ) {
             for ( const typeName in typeNameToTypeValue ) {
@@ -4505,12 +4583,16 @@ StaticNetFilteringEngine.prototype.dnrFromCompiled = function(op, context, ...ar
                             rule.condition = rule.condition || {};
                             rule.condition.resourceTypes = [ typeName ];
                         }
+                        const hash = JSON.stringify(rule);
+                        if ( seen.has(hash) ) { continue; }
+                        seen.add(hash);
                         ruleset.push(rule);
                     }
                 }
             }
         }
     }
+    seen.clear();
 
     // Adjust `important` priority
     for ( const rule of ruleset ) {
@@ -4626,7 +4708,7 @@ StaticNetFilteringEngine.prototype.dnrFromCompiled = function(op, context, ...ar
             if ( token !== '' ) {
                 const match = /:(\d+)$/.exec(token);
                 if ( match !== null ) {
-                    rule.priority += Math.min(rule.priority + parseInt(match[1], 10), 9);
+                    rule.priority += Math.min(parseInt(match[1], 10), 8);
                     token = token.slice(0, match.index);
                 }
             }
@@ -5424,6 +5506,7 @@ StaticNetFilteringEngine.prototype.matchHeaders = function(fctxt, headers) {
     $requestMethodBit = fctxt.method || 0;
     $requestTypeValue = (typeBits & TYPE_REALM) >>> TYPE_REALM_OFFSET;
     $requestAddress = fctxt.getIPAddress();
+    $isBlockImportant = false;
     $httpHeaders.init(headers);
 
     let r = 0;

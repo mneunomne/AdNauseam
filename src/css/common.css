@@ -589,6 +589,7 @@ button.error{
     --default-gap-small: 12px;
     --default-gap-xsmall: 8px;
     --default-gap-xxsmall: 4px;
+    --button-font-size: max(calc(var(--font-size) * 0.875), 14px);
     }
 body {
     font: 14px sans-serif;
@@ -636,7 +637,7 @@ a:hover {
 }
 .cmn-toggle + label {
   display: block;
-    position: relative;
+  position: relative;
 }
 .question {
     position: absolute;
