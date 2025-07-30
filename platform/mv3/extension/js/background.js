@@ -24,12 +24,21 @@ import {
     MODE_OPTIMAL,
     getDefaultFilteringMode,
     getFilteringMode,
-    getTrustedSites,
+    getFilteringModeDetails,
     setDefaultFilteringMode,
     setFilteringMode,
-    setTrustedSites,
+    setFilteringModeDetails,
     syncWithBrowserPermissions,
 } from './mode-manager.js';
+
+import {
+    addCustomFilter,
+    hasCustomFilters,
+    injectCustomFilters,
+    removeCustomFilter,
+    selectorsFromCustomFilters,
+    uninjectCustomFilters,
+} from './filter-manager.js';
 
 import {
     adminReadEx,
@@ -53,12 +62,15 @@ import {
 import {
     enableRulesets,
     excludeFromStrictBlock,
-    getEnabledRulesetsDetails,
+    getEffectiveDynamicRules,
+    getEffectiveSessionRules,
+    getEffectiveUserRules,
     getRulesetDetails,
     patchDefaultRulesets,
     setStrictBlockMode,
     updateDynamicRules,
     updateSessionRules,
+    updateUserRules,
 } from './ruleset-manager.js';
 
 import {
@@ -135,16 +147,29 @@ async function onPermissionsAdded(permissions) {
 
 /******************************************************************************/
 
+function setDeveloperMode(state) {
+    rulesetConfig.developerMode = state === true;
+    toggleDeveloperMode(rulesetConfig.developerMode);
+    broadcastMessage({ developerMode: rulesetConfig.developerMode });
+    return Promise.all([
+        updateUserRules(),
+        saveRulesetConfig(),
+    ]);
+}
+
+/******************************************************************************/
+
 function onMessage(request, sender, callback) {
+
+    const tabId = sender?.tab?.id ?? false;
+    const frameId = tabId && (sender?.frameId ?? false);
 
     // Does not require trusted origin.
 
     switch ( request.what ) {
 
     case 'insertCSS': {
-        const tabId = sender?.tab?.id ?? false;
-        const frameId = sender?.frameId ?? false;
-        if ( tabId === false || frameId === false ) { return; }
+        if ( frameId === false ) { return false; }
         browser.scripting.insertCSS({
             css: request.css,
             origin: 'USER',
@@ -156,9 +181,7 @@ function onMessage(request, sender, callback) {
     }
 
     case 'removeCSS': {
-        const tabId = sender?.tab?.id ?? false;
-        const frameId = sender?.frameId ?? false;
-        if ( tabId === false || frameId === false ) { return; }
+        if ( frameId === false ) { return false; }
         browser.scripting.removeCSS({
             css: request.css,
             origin: 'USER',
@@ -170,12 +193,25 @@ function onMessage(request, sender, callback) {
     }
 
     case 'toggleToolbarIcon': {
-        const tabId = sender?.tab?.id ?? false;
         if ( tabId ) {
             toggleToolbarIcon(tabId);
         }
         return false;
     }
+
+    case 'injectCustomFilters':
+        if ( frameId === false ) { return false; }
+        injectCustomFilters(tabId, frameId, request.hostname).then(selectors => {
+            callback(selectors);
+        });
+        return true;
+
+    case 'uninjectCustomFilters':
+        if ( frameId === false ) { return false; }
+        uninjectCustomFilters(tabId, frameId, request.hostname).then(( ) => {
+            callback();
+        });
+        return true;
 
     default:
         break;
@@ -205,11 +241,10 @@ function onMessage(request, sender, callback) {
         return true;
     }
 
-    case 'getOptionsPageData': {
+    case 'getOptionsPageData':
         Promise.all([
             hasBroadHostPermissions(),
             getDefaultFilteringMode(),
-            getTrustedSites(),
             getRulesetDetails(),
             dnr.getEnabledRulesets(),
             getAdminRulesets(),
@@ -218,7 +253,6 @@ function onMessage(request, sender, callback) {
             const [
                 hasOmnipotence,
                 defaultFilteringMode,
-                trustedSites,
                 rulesetDetails,
                 enabledRulesets,
                 adminRulesets,
@@ -227,7 +261,6 @@ function onMessage(request, sender, callback) {
             callback({
                 hasOmnipotence,
                 defaultFilteringMode,
-                trustedSites: Array.from(trustedSites),
                 enabledRulesets,
                 adminRulesets,
                 maxNumberOfEnabledRulesets: dnr.MAX_NUMBER_OF_ENABLED_STATIC_RULESETS,
@@ -244,7 +277,12 @@ function onMessage(request, sender, callback) {
             process.firstRun = false;
         });
         return true;
-    }
+
+    case 'getRulesetDetails':
+        getRulesetDetails().then(rulesetDetails => {
+            callback(Array.from(rulesetDetails.values()));
+        });
+        return true;
 
     case 'setAutoReload':
         rulesetConfig.autoReload = request.state && true || false;
@@ -275,9 +313,7 @@ function onMessage(request, sender, callback) {
         return true;
 
     case 'setDeveloperMode':
-        rulesetConfig.developerMode = request.state;
-        toggleDeveloperMode(rulesetConfig.developerMode);
-        saveRulesetConfig().then(( ) => {
+        setDeveloperMode(request.state).then(( ) => {
             callback();
         });
         return true;
@@ -285,24 +321,18 @@ function onMessage(request, sender, callback) {
     case 'popupPanelData': {
         Promise.all([
             hasBroadHostPermissions(),
-            getFilteringMode(request.hostname),
-            getEnabledRulesetsDetails(),
+            getFilteringMode(request.normalHostname),
             adminReadEx('disabledFeatures'),
+            hasCustomFilters(request.hostname),
         ]).then(results => {
-            const [
-                hasOmnipotence,
-                level,
-                rulesetDetails,
-                disabledFeatures,
-            ] = results;
             callback({
-                hasOmnipotence,
-                level,
+                hasOmnipotence: results[0],
+                level: results[1],
                 autoReload: rulesetConfig.autoReload,
-                rulesetDetails,
                 isSideloaded,
                 developerMode: rulesetConfig.developerMode,
-                disabledFeatures,
+                disabledFeatures: results[2],
+                hasCustomFilters: results[3],
             });
         });
         return true;
@@ -341,7 +371,7 @@ function onMessage(request, sender, callback) {
         return true;
     }
 
-    case 'setDefaultFilteringMode': {
+    case 'setDefaultFilteringMode':
         getDefaultFilteringMode().then(beforeLevel =>
             setDefaultFilteringMode(request.level).then(afterLevel =>
                 ({ beforeLevel, afterLevel })
@@ -353,19 +383,21 @@ function onMessage(request, sender, callback) {
             callback(afterLevel);
         });
         return true;
-    }
 
-    case 'setTrustedSites':
-        setTrustedSites(request.hostnames).then(( ) => {
+    case 'getFilteringModeDetails':
+        getFilteringModeDetails(true).then(details => {
+            callback(details);
+        });
+        return true;
+
+    case 'setFilteringModeDetails':
+        setFilteringModeDetails(request.modes).then(( ) => {
             registerInjectables();
-            return Promise.all([
-                getDefaultFilteringMode(),
-                getTrustedSites(),
-            ]);
-        }).then(results => {
-            callback({
-                defaultFilteringMode: results[0],
-                trustedSites: Array.from(results[1]),
+            getDefaultFilteringMode().then(defaultFilteringMode => {
+                broadcastMessage({ defaultFilteringMode });
+            });
+            getFilteringModeDetails(true).then(details => {
+                callback(details);
             });
         });
         return true;
@@ -390,6 +422,54 @@ function onMessage(request, sender, callback) {
         });
         break;
 
+    case 'getEffectiveDynamicRules':
+        getEffectiveDynamicRules().then(result => {
+            callback(result);
+        });
+        return true;
+
+    case 'getEffectiveSessionRules':
+        getEffectiveSessionRules().then(result => {
+            callback(result);
+        });
+        return true;
+
+    case 'getEffectiveUserRules':
+        getEffectiveUserRules().then(result => {
+            callback(result);
+        });
+        return true;
+
+    case 'updateUserDnrRules':
+        updateUserRules().then(result => {
+            callback(result);
+        });
+        return true;
+
+    case 'addCustomFilter':
+        addCustomFilter(request.hostname, request.selector).then(modified => {
+            if ( modified !== true ) { return; }
+            return registerInjectables();
+        }).then(( ) => {
+            callback();
+        })
+        return true;
+
+    case 'removeCustomFilter':
+        removeCustomFilter(request.hostname, request.selector).then(modified => {
+            if ( modified !== true ) { return; }
+            return registerInjectables();
+        }).then(( ) => {
+            callback();
+        });
+        return true;
+
+    case 'selectorsFromCustomFilters':
+        selectorsFromCustomFilters(request.hostname).then(selectors => {
+            callback(selectors);
+        });
+        return true;
+
     default:
         break;
     }
@@ -404,7 +484,15 @@ function onCommand(command, tab) {
     case 'enter-zapper-mode': {
         if ( browser.scripting === undefined ) { return; }
         browser.scripting.executeScript({
-            files: [ '/js/scripting/zapper.js' ],
+            files: [ '/js/scripting/tool-overlay.js', '/js/scripting/zapper.js' ],
+            target: { tabId: tab.id },
+        });
+        break;
+    }
+    case 'enter-picker-mode': {
+        if ( browser.scripting === undefined ) { return; }
+        browser.scripting.executeScript({
+            files: [ '/js/scripting/tool-overlay.js', '/js/scripting/picker.js' ],
             target: { tabId: tab.id },
         });
         break;
@@ -472,8 +560,15 @@ async function startSession() {
         }
     }
 
-    // Required to ensure the up to date property is available when needed
-    adminReadEx('disabledFeatures');
+    // Required to ensure up to date properties are available when needed
+    adminReadEx('disabledFeatures').then(items => {
+        if ( Array.isArray(items) === false ) { return; }
+        if ( items.includes('develop') ) {
+            if ( rulesetConfig.developerMode ) {
+                setDeveloperMode(false);
+            }
+        }
+    });
 }
 
 /******************************************************************************/

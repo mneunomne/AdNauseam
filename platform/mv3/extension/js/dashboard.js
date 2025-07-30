@@ -19,7 +19,14 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-import { dom } from './dom.js';
+import { dom, qs$ } from './dom.js';
+import {
+    localRead,
+    localRemove,
+    localWrite,
+} from './ext.js';
+
+import { getTroubleshootingInfo } from './troubleshooting.js';
 import { runtime } from './ext.js';
 
 /******************************************************************************/
@@ -32,7 +39,22 @@ import { runtime } from './ext.js';
 dom.attr('a', 'target', '_blank');
 
 dom.on('#dashboard-nav', 'click', '.tabButton', ev => {
-    dom.body.dataset.pane = ev.target.dataset.pane;
+    const { pane } = ev.target.dataset;
+    dom.body.dataset.pane = pane;
+    if ( pane === 'settings' ) {
+        localRemove('dashboard.activePane');
+    } else {
+        localWrite('dashboard.activePane', pane);
+    }
+});
+
+localRead('dashboard.activePane').then(pane => {
+    if ( typeof pane !== 'string' ) { return; }
+    dom.body.dataset.pane = pane;
+});
+
+getTroubleshootingInfo().then(config => {
+    qs$('[data-i18n="supportS5H"] + pre').textContent = config;
 });
 
 /******************************************************************************/

@@ -21,10 +21,16 @@
 
 import * as ut from './utils.js';
 
-import { browser } from './ext.js';
+import {
+    browser,
+    localRemove,
+    localWrite,
+} from './ext.js';
+
 import { fetchJSON } from './fetch.js';
 import { getEnabledRulesetsDetails } from './ruleset-manager.js';
 import { getFilteringModeDetails } from './mode-manager.js';
+import { registerCustomFilters } from './filter-manager.js';
 import { registerToolbarIconToggler } from './action.js';
 import { ubolLog } from './debug.js';
 
@@ -142,11 +148,13 @@ function registerHighGeneric(context, genericDetails) {
     const directive = {
         id: 'css-generichigh',
         css,
-        allFrames: true,
         matches,
-        excludeMatches,
+        allFrames: true,
         runAt: 'document_end',
     };
+    if ( excludeMatches.length !== 0 ) {
+        directive.excludeMatches = excludeMatches;
+    }
 
     // register
     if ( registered === undefined ) {
@@ -239,9 +247,12 @@ function registerGeneric(context, genericDetails) {
         js,
         allFrames: true,
         matches: [ '<all_urls>' ],
-        excludeMatches,
         runAt: 'document_idle',
     };
+    if ( excludeMatches.length !== 0 ) {
+        directiveAll.excludeMatches = excludeMatches;
+    }
+
     if ( registeredAll === undefined ) { // register
         context.toAdd.push(directiveAll);
     } else if ( // update
@@ -316,11 +327,13 @@ function registerProcedural(context) {
     const directive = {
         id: 'css-procedural',
         js,
-        allFrames: true,
         matches,
-        excludeMatches,
+        allFrames: true,
         runAt: 'document_start',
     };
+    if ( excludeMatches.length !== 0 ) {
+        directive.excludeMatches = excludeMatches;
+    }
 
     // register
     if ( registered === undefined ) {
@@ -378,11 +391,13 @@ function registerDeclarative(context) {
     const directive = {
         id: 'css-declarative',
         js,
-        allFrames: true,
         matches,
-        excludeMatches,
+        allFrames: true,
         runAt: 'document_start',
     };
+    if ( excludeMatches.length !== 0 ) {
+        directive.excludeMatches = excludeMatches;
+    }
 
     // register
     if ( registered === undefined ) {
@@ -440,11 +455,13 @@ function registerSpecific(context) {
     const directive = {
         id: 'css-specific',
         js,
-        allFrames: true,
         matches,
-        excludeMatches,
+        allFrames: true,
         runAt: 'document_start',
     };
+    if ( excludeMatches.length !== 0 ) {
+        directive.excludeMatches = excludeMatches;
+    }
 
     // register
     if ( registered === undefined ) {
@@ -511,19 +528,22 @@ function registerScriptlet(context, scriptletDetails) {
             }
             if ( targetHostnames.length === 0 ) { continue; }
             matches.push(...ut.matchesFromHostnames(targetHostnames));
+            normalizeMatches(matches);
 
             before.delete(id); // Important!
 
             const directive = {
                 id,
                 js: [ `/rulesets/scripting/scriptlet/${id}.js` ],
-                allFrames: true,
                 matches,
-                excludeMatches,
+                allFrames: true,
                 matchOriginAsFallback: true,
                 runAt: 'document_start',
                 world: details.world,
             };
+            if ( excludeMatches.length !== 0 ) {
+                directive.excludeMatches = excludeMatches;
+            }
 
             // register
             if ( registered === undefined ) {
@@ -581,26 +601,39 @@ async function registerInjectables() {
         toRemove,
     };
 
-    registerDeclarative(context);
-    registerProcedural(context);
-    registerScriptlet(context, scriptletDetails);
-    registerSpecific(context);
-    registerGeneric(context, genericDetails);
-    registerHighGeneric(context, genericDetails);
-    registerToolbarIconToggler(context);
+    await Promise.all([
+        registerDeclarative(context),
+        registerProcedural(context),
+        registerScriptlet(context, scriptletDetails),
+        registerSpecific(context),
+        registerGeneric(context, genericDetails),
+        registerHighGeneric(context, genericDetails),
+        registerCustomFilters(context),
+        registerToolbarIconToggler(context),
+    ]);
 
     toRemove.push(...Array.from(before.keys()));
 
     if ( toRemove.length !== 0 ) {
         ubolLog(`Unregistered ${toRemove} content (css/js)`);
-        await browser.scripting.unregisterContentScripts({ ids: toRemove })
-            .catch(reason => { console.info(reason); });
+        try {
+            await browser.scripting.unregisterContentScripts({ ids: toRemove });
+            localRemove('$scripting.unregisterContentScripts');
+        } catch(reason) {
+            localWrite('$scripting.unregisterContentScripts', `${reason}`);
+            console.info(reason);
+        }
     }
 
     if ( toAdd.length !== 0 ) {
         ubolLog(`Registered ${toAdd.map(v => v.id)} content (css/js)`);
-        await browser.scripting.registerContentScripts(toAdd)
-            .catch(reason => { console.info(reason); });
+        try {
+            await browser.scripting.registerContentScripts(toAdd);
+            localRemove('$scripting.registerContentScripts');
+        } catch(reason) {
+            localWrite('$scripting.registerContentScripts', `${reason}`);
+            console.info(reason);
+        }
     }
 
     registerInjectables.barrier = false;

@@ -22,7 +22,6 @@
 import { browser, sendMessage } from './ext.js';
 import { dom, qs$ } from './dom.js';
 import { hashFromIterable } from './dashboard.js';
-import punycode from './punycode.js';
 import { renderFilterLists } from './filter-lists.js';
 
 /******************************************************************************/
@@ -48,7 +47,6 @@ function renderWidgets() {
     }
 
     renderDefaultMode();
-    renderTrustedSites();
 
     qs$('#autoReload input[type="checkbox"]').checked = cachedRulesetData.autoReload;
 
@@ -70,12 +68,10 @@ function renderWidgets() {
     }
 
     {
-        dom.prop('#developerMode input[type="checkbox"]', 'checked',
-            Boolean(cachedRulesetData.developerMode)
-        );
-        if ( cachedRulesetData.isSideloaded ) {
-            dom.attr('#developerMode', 'hidden', null);
-        }
+        const state = Boolean(cachedRulesetData.developerMode) &&
+            cachedRulesetData.disabledFeatures?.includes('develop') !== true;
+        dom.body.dataset.develop = `${state}`;
+        dom.prop('#developerMode input[type="checkbox"]', 'checked', state);
     }
 }
 
@@ -158,49 +154,10 @@ dom.on('#strictBlockMode input[type="checkbox"]', 'change', ev => {
 });
 
 dom.on('#developerMode input[type="checkbox"]', 'change', ev => {
-    sendMessage({
-        what: 'setDeveloperMode',
-        state: ev.target.checked,
-    });
+    const state = ev.target.checked;
+    sendMessage({ what: 'setDeveloperMode', state });
+    dom.body.dataset.develop = `${state}`;
 });
-
-/******************************************************************************/
-
-function renderTrustedSites() {
-    const textarea = qs$('#trustedSites');
-    const hostnames = cachedRulesetData.trustedSites || [];
-    textarea.value = hostnames.map(hn => punycode.toUnicode(hn)).join('\n');
-    if ( textarea.value !== '' ) {
-        textarea.value += '\n';
-    }
-}
-
-function changeTrustedSites() {
-    const hostnames = getStagedTrustedSites();
-    const hash = hashFromIterable(cachedRulesetData.trustedSites || []);
-    if ( hashFromIterable(hostnames) === hash ) { return; }
-    sendMessage({
-        what: 'setTrustedSites',
-        hostnames,
-    });
-}
-
-function getStagedTrustedSites() {
-    const textarea = qs$('#trustedSites');
-    return textarea.value.split(/\s/).map(hn => {
-        try {
-            return punycode.toASCII(
-                (new URL(`https://${hn}/`)).hostname
-            );
-        } catch {
-        }
-        return '';
-    }).filter(hn => hn !== '');
-}
-
-dom.on('#trustedSites', 'blur', changeTrustedSites);
-
-self.addEventListener('beforeunload', changeTrustedSites);
 
 /******************************************************************************/
 
@@ -214,21 +171,6 @@ listen.onmessage = ev => {
     if ( message instanceof Object === false ) { return; }
     const local = cachedRulesetData;
     let render = false;
-
-    // Keep added sites which have not yet been committed
-    if ( message.trustedSites !== undefined ) {
-        if ( hashFromIterable(message.trustedSites) !== hashFromIterable(local.trustedSites) ) {
-            const current = new Set(local.trustedSites);
-            const staged = new Set(getStagedTrustedSites());
-            for ( const hn of staged ) {
-                if ( current.has(hn) === false ) { continue; }
-                staged.delete(hn);
-            }
-            const combined = Array.from(new Set([ ...message.trustedSites, ...staged ]));
-            local.trustedSites = combined;
-            render = true;
-        }
-    }
 
     if ( message.hasOmnipotence !== undefined ) {
         if ( message.hasOmnipotence !== local.hasOmnipotence ) {
@@ -265,6 +207,13 @@ listen.onmessage = ev => {
         }
     }
 
+    if ( message.developerMode !== undefined ) {
+        if ( message.developerMode !== local.developerMode ) {
+            local.developerMode = message.developerMode;
+            render = true;
+        }
+    }
+
     if ( message.adminRulesets !== undefined ) {
         if ( hashFromIterable(message.adminRulesets) !== hashFromIterable(local.adminRulesets) ) {
             local.adminRulesets = message.adminRulesets;
@@ -296,7 +245,8 @@ sendMessage({
         renderFilterLists(cachedRulesetData);
         renderWidgets();
         dom.cl.remove(dom.body, 'loading');
-    } catch {
+    } catch(reason) {
+        console.error(reason);
     }
     listen();
 }).catch(reason => {

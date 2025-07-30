@@ -20,8 +20,7 @@
 */
 
 import { dom, qs$ } from './dom.js';
-import { dnr } from './ext-compat.js';
-import { runtime } from './ext.js';
+import { getTroubleshootingInfo } from './troubleshooting.js';
 import { sendMessage } from './ext.js';
 
 /******************************************************************************/
@@ -66,56 +65,6 @@ function reportSpecificFilterType() {
 
 /******************************************************************************/
 
-function renderData(data, depth = 0) {
-    const indent = ' '.repeat(depth);
-    if ( Array.isArray(data) ) {
-        const out = [];
-        for ( const value of data ) {
-            out.push(renderData(value, depth));
-        }
-        return out.join('\n');
-    }
-    if ( typeof data !== 'object' || data === null ) {
-        return `${indent}${data}`;
-    }
-    const out = [];
-    for ( const [ name, value ] of Object.entries(data) ) {
-        if ( typeof value === 'object' && value !== null ) {
-            out.push(`${indent}${name}:`);
-            out.push(renderData(value, depth + 1));
-            continue;
-        }
-        out.push(`${indent}${name}: ${value}`);
-    }
-    return out.join('\n');
-}
-
-/******************************************************************************/
-
-async function getConfigData() {
-    const manifest = runtime.getManifest();
-    const [
-        rulesets,
-        defaultMode,
-    ] = await Promise.all([
-        dnr.getEnabledRulesets(),
-        sendMessage({ what: 'getDefaultFilteringMode' }),
-    ]);
-    const modes = [ 'no filtering', 'basic', 'optimal', 'complete' ];
-    const config = {
-        name: manifest.name,
-        version: manifest.version,
-        filtering: {
-            'site': `${modes[reportedPage.mode]}`,
-            'default': `${modes[defaultMode]}`,
-        },
-        rulesets,
-    };
-    return renderData(config);
-}
-
-/******************************************************************************/
-
 async function reportSpecificFilterIssue() {
     const githubURL = new URL(
         'https://github.com/uBlockOrigin/uAssets/issues/new?template=specific_report_from_ubol.yml'
@@ -144,7 +93,7 @@ async function reportSpecificFilterIssue() {
 
 /******************************************************************************/
 
-getConfigData().then(config => {
+getTroubleshootingInfo(reportedPage.mode).then(config => {
     qs$('[data-i18n="supportS5H"] + pre').textContent = config;
 
     dom.on('[data-url]', 'click', ev => {
