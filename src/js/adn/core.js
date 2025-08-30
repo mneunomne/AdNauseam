@@ -71,7 +71,8 @@ import {
   BlockingDisabled,
   ClickingDisabled,
   HidingDisabled,
-  NewerVersionAvailable
+  NewerVersionAvailable,
+  OpenLetter
 } from './notifications.js';
 
 import {
@@ -1689,6 +1690,8 @@ const adnauseam = (function () {
     verifySettings();
     verifyLists();
     verifyVersion();
+
+    addNotification(notifications, OpenLetter);
 
     dnt.updateFilters();
 
