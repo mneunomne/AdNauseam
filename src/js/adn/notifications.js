@@ -176,6 +176,10 @@ const openLatestRelease = function () {
 	openPage("https://github.com/dhowe/AdNauseam/releases/latest");
 };
 
+const navigateToOpenLetter = function () {
+  openPage("https://adnauseam.io/letter.html");
+}
+
 const reloadOptions = function () {
 	browser.tabs.query({}, (tabs) => {
 		tabs.filter((t) => t.url.endsWith("options.html")).forEach((t) => browser.tabs.reload(t.id));
@@ -370,7 +374,7 @@ export const OpenLetter = new Notification({
 	button: "adnOpenLetterButton",
 	type: INFO,
 });
-NewerVersionAvailable.func = openLatestRelease.bind(NewerVersionAvailable);
+OpenLetter.func = navigateToOpenLetter.bind(OpenLetter);
 
 export const Notifications = [
 	AdBlockerEnabled,
