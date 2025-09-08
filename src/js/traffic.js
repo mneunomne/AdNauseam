@@ -212,20 +212,8 @@ const hasDNT = function (headers) {
 
 /******************************************************************************/
 
-// Platform-specific behavior.
-
-// https://github.com/uBlockOrigin/uBlock-issues/issues/42
-// https://bugzilla.mozilla.org/show_bug.cgi?id=1376932
-//   Add proper version number detection once issue is fixed in Firefox.
-let dontCacheResponseHeaders =
-    vAPI.webextFlavor.soup.has('firefox');
-
-// The real actual webextFlavor value may not be set in stone, so listen
-// for possible future changes.
-window.addEventListener('webextFlavor', function() {
-    dontCacheResponseHeaders =
-        vAPI.webextFlavor.soup.has('firefox');
-}, { once: true });
+// For platform-specific behavior.
+const isGecko = vAPI.webextFlavor.isGecko;
 
 /******************************************************************************/
 
@@ -237,7 +225,7 @@ const patchLocalRedirectURL = url => url.charCodeAt(0) === 0x2F /* '/' */
 
 // Intercept and filter web requests.
 
-const onBeforeRequest = function(details) {
+function onBeforeRequest(details) {
     const fctxt = µb.filteringContext.fromWebrequestDetails(details);
 
     // Special handling for root document.
@@ -308,7 +296,7 @@ const onBeforeRequest = function(details) {
 
 /******************************************************************************/
 
-const onBeforeRootFrameRequest = function(fctxt) {
+function onBeforeRootFrameRequest(fctxt) {
     const requestURL = fctxt.url;
 
     // Special handling for root document.
@@ -412,8 +400,15 @@ const onBeforeRootFrameRequest = function(fctxt) {
 
     // Blocked
 
+    let reason = logData.reason;
+
     // Find out the URL navigated to should the document not be strict-blocked
     pageStore.skipMainDocument(fctxt, false);
+
+    if ( reason === undefined && Array.isArray(fctxt.filter) ) {
+        const filter = fctxt.filter.find(a => a.reason !== undefined);
+        reason = filter?.reason;
+    }
 
     const query = {
         url: requestURL,
@@ -422,8 +417,8 @@ const onBeforeRootFrameRequest = function(fctxt) {
         hn: requestHostname,
         to: fctxt.redirectURL || '',
     };
-    if ( logData.reason ) {
-        query.reason = logData.reason;
+    if ( reason ) {
+        query.reason = reason;
     }
 
     vAPI.tabs.replace(
@@ -431,7 +426,8 @@ const onBeforeRootFrameRequest = function(fctxt) {
         `${vAPI.getURL('document-blocked.html?details=')}${encodeURIComponent(JSON.stringify(query))}`
     );
 
-};
+    return { cancel: true };
+}
 
 /******************************************************************************/
 
@@ -461,7 +457,7 @@ const onBeforeRootFrameRequest = function(fctxt) {
 //         |   2    |   rg   |   rg   |   rs   |   rs   |
 // --------+--------+--------+--------+--------+--------+
 
-const shouldStrictBlock = function(fctxt, loggerEnabled) {
+function shouldStrictBlock(fctxt, loggerEnabled) {
     const snfe = staticNetFilteringEngine;
 
     // Explicit filtering: `document` option
@@ -521,7 +517,7 @@ const shouldStrictBlock = function(fctxt, loggerEnabled) {
     //         |   2    |   -    |   -    |   -    |   x    |
     // --------+--------+--------+--------+--------+--------+
     return { result: rs, logData: lds };
-};
+}
 
 /******************************************************************************/
 
@@ -531,7 +527,7 @@ const shouldStrictBlock = function(fctxt, loggerEnabled) {
 //   Do not strict-block if the filter pattern does not contain at least one
 //   token character.
 
-const validateStrictBlock = function(fctxt, logData) {
+function validateStrictBlock(fctxt, logData) {
     if ( typeof logData.regex !== 'string' ) { return false; }
     if ( typeof logData.raw === 'string' && /\w/.test(logData.raw) === false ) {
         return false;
@@ -552,16 +548,14 @@ const validateStrictBlock = function(fctxt, logData) {
     const hnlen = hostname.length;
     const end = match.index + match[0].length - hnpos - hnlen;
     return end === 0 || end === 1 ||
-        end === 2 && url.charCodeAt(hnpos + hnlen) === 0x2E /* '.' */;
-};
+           end === 2 && url.charCodeAt(hnpos + hnlen) === 0x2E /* '.' */;
+}
 
 /******************************************************************************/
 
 // Intercept and filter behind-the-scene requests.
-
-const onBeforeBehindTheSceneRequest = function(fctxt) {
+function onBeforeBehindTheSceneRequest(fctxt) {
     if ( µb.userSettings.blockingMalware === false ) return; // ADN
-
     const pageStore = µb.pageStoreFromTabId(fctxt.tabId);
     if ( pageStore === null ) { return; }
 
@@ -628,7 +622,7 @@ const onBeforeBehindTheSceneRequest = function(fctxt) {
         logNetBlock('BehindTheScene', fctxt.url, `(${fctxt.type})`); // ADN: Blocked xhr
         return { cancel: true };
     }
-};
+}
 
 // https://github.com/uBlockOrigin/uBlock-issues/issues/1204
 //   Report the tabless network requests to all page stores matching the
@@ -739,7 +733,7 @@ const adnOnHeadersRecieved = function (details) {
     if (changedByUBlock || changedHeadersForAdnAllowed) return responseHeaders // DH: fix for #1013
 }
 
-const onHeadersReceived = function(details) {
+function onHeadersReceived(details) {
 
     const fctxt = µb.filteringContext.fromWebrequestDetails(details);
     const isRootDoc = fctxt.itype === fctxt.MAIN_FRAME;
@@ -750,6 +744,12 @@ const onHeadersReceived = function(details) {
         pageStore = µb.bindTabToPageStore(fctxt.tabId, 'beforeRequest');
     }
     if ( pageStore.getNetFilteringSwitch(fctxt) === false ) { return; }
+
+    // To enforce strict-blocking with ipaddress option
+    if ( isRootDoc && fctxt.ipaddress ) {
+        const r = onBeforeRootFrameRequest(fctxt);
+        if ( r ) { return ( r ); }
+    }
 
     if ( (fctxt.itype & foilLargeMediaElement.TYPE_BITS) !== 0 ) {
         const result = foilLargeMediaElement(details, fctxt, pageStore);
@@ -838,7 +838,7 @@ const onHeadersReceived = function(details) {
     // https://github.com/uBlockOrigin/uBlock-issues/issues/229
     //   Use `no-cache` instead of `no-cache, no-store, must-revalidate`, this
     //   allows Firefox's offline mode to work as expected.
-    if ( modifiedHeaders && dontCacheResponseHeaders ) {
+    if ( modifiedHeaders && isGecko ) {
         const cacheControl = µb.hiddenSettings.cacheControlForFirefox1376932;
         if ( cacheControl !== 'unset' ) {
             let i = headerIndexFromName('cache-control', responseHeaders);
@@ -854,7 +854,7 @@ const onHeadersReceived = function(details) {
     if ( modifiedHeaders ) {
         return { responseHeaders };
     }
-};
+}
 
 const reMediaContentTypes = /^(?:audio|image|video)\/|(?:\/ogg)$/;
 
@@ -900,8 +900,9 @@ function textResponseFilterer(session, directives) {
             const json = session.getString();
             let obj;
             try { obj = JSON.parse(json); } catch { break; }
-            if ( cache.jsonp.apply(obj) === 0 ) { break; }
-            session.setString(cache.jsonp.toJSON(obj));
+            const objAfter = cache.jsonp.apply(obj);
+            if ( objAfter === undefined ) { break; }
+            session.setString(cache.jsonp.toJSON(objAfter));
             applied.push(directive);
             break;
         }
@@ -915,11 +916,12 @@ function textResponseFilterer(session, directives) {
                     linesAfter.push(lineBefore);
                     continue;
                 }
-                if ( cache.jsonp.apply(obj) === 0 ) {
+                const objAfter = cache.jsonp.apply(obj);
+                if ( objAfter === undefined ) {
                     linesAfter.push(lineBefore);
                     continue;
                 }
-                linesAfter.push(cache.jsonp.toJSON(obj));
+                linesAfter.push(cache.jsonp.toJSON(objAfter));
             }
             session.setString(linesAfter.join('\n'));
             break;
@@ -1258,7 +1260,7 @@ const bodyFilterer = (( ) => {
 
 /******************************************************************************/
 
-const injectCSP = function(fctxt, pageStore, responseHeaders) {
+function injectCSP(fctxt, pageStore, responseHeaders) {
     const cspSubsets = [];
     const requestType = fctxt.type;
 
@@ -1385,11 +1387,11 @@ const injectCSP = function(fctxt, pageStore, responseHeaders) {
     });
 
     return true;
-};
+}
 
 /******************************************************************************/
 
-const injectPP = function(fctxt, pageStore, responseHeaders) {
+function injectPP(fctxt, pageStore, responseHeaders) {
     const permissions = [];
     const directives = staticNetFilteringEngine.matchAndFetchModifiers(fctxt, 'permissions');
     if ( directives !== undefined ) {
@@ -1415,7 +1417,7 @@ const injectPP = function(fctxt, pageStore, responseHeaders) {
     });
 
     return true;
-};
+}
 
 /******************************************************************************/
 
@@ -1426,7 +1428,7 @@ const injectPP = function(fctxt, pageStore, responseHeaders) {
 //   cache. This works only when the webext API supports the `fromCache`
 //   property (Firefox).
 
-const foilLargeMediaElement = function(details, fctxt, pageStore) {
+function foilLargeMediaElement(details, fctxt, pageStore) {
     if ( details.fromCache === true ) { return; }
 
     onDemandHeaders.setHeaders(details.responseHeaders);
@@ -1442,7 +1444,7 @@ const foilLargeMediaElement = function(details, fctxt, pageStore) {
     }
 
     return { cancel: true };
-};
+}
 
 foilLargeMediaElement.TYPE_BITS = fc.IMAGE | fc.MEDIA | fc.XMLHTTPREQUEST;
 
@@ -1527,6 +1529,23 @@ const strictBlockBypasser = {
 
 /******************************************************************************/
 
+function onResponseStarted(details) {
+    if ( details.tabId === -1 ) { return; }
+    const pageStore = µb.pageStoreFromTabId(details.tabId);
+    if ( pageStore === null ) { return; }
+    if ( pageStore.getNetFilteringSwitch() === false ) { return; }
+    // To enforce strict-blocking with ipaddress option
+    if ( isGecko === false && details.type === 'main_frame' ) {
+        const fctxt = µb.filteringContext.fromWebrequestDetails(details);
+        const r = onBeforeRootFrameRequest(fctxt);
+        if ( r?.cancel ) { return; }
+    }
+    details.ancestors = pageStore.getFrameAncestorDetails(details.frameId);
+    scriptletFilteringEngine.injectNow(details);
+}
+
+/******************************************************************************/
+
 // https://github.com/uBlockOrigin/uBlock-issues/issues/2350
 //   Added scriptlet injection attempt at onResponseStarted time as per
 //   https://github.com/AdguardTeam/AdguardBrowserExtension/issues/1029 and
@@ -1565,21 +1584,10 @@ const webRequest = {
                  navigator.userAgent.includes('Firefox/') ? [ 'blocking', 'requestHeaders'] : ['blocking', 'requestHeaders', 'extraHeaders'] //ADN
              );
             // end of ADN
-            vAPI.net.addListener(
-                'onResponseStarted',
-                details => {
-                    if ( details.tabId === -1 ) { return; }
-                    const pageStore = µb.pageStoreFromTabId(details.tabId);
-                    if ( pageStore === null ) { return; }
-                    if ( pageStore.getNetFilteringSwitch() === false ) { return; }
-                    details.ancestors = pageStore.getFrameAncestorDetails(details.frameId);
-                    scriptletFilteringEngine.injectNow(details);
-                },
-                {
-                    types: [ 'main_frame', 'sub_frame' ],
-                    urls: [ 'http://*/*', 'https://*/*' ]
-                }
-            );
+            vAPI.net.addListener('onResponseStarted', onResponseStarted, {
+                types: [ 'main_frame', 'sub_frame' ],
+                urls: [ 'http://*/*', 'https://*/*' ]
+            });
             vAPI.defer.once({ sec: µb.hiddenSettings.toolbarWarningTimeout }).then(( ) => {
                 if ( vAPI.net.hasUnprocessedRequest() === false ) { return; }
                 vAPI.net.removeUnprocessedRequest();

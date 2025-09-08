@@ -1,3 +1,28 @@
+- [Improve `prevent-fetch` scriptlet](https://github.com/gorhill/uBlock/commit/d2bce26e7d)
+- [Add support to strict-block from `ipaddress=` option](https://github.com/gorhill/uBlock/commit/6327aae56c)
+- [Improve rendering with high-contrast theme](https://github.com/gorhill/uBlock/commit/5d7e5ee3a0) (fix suggested by @emv33)
+- [Fix undue fetch from remote server at first install](https://github.com/gorhill/uBlock/commit/9327e19233)
+- [Improve compatibility of `uritransform=` with DNR syntax](https://github.com/gorhill/uBlock/commit/aaf35d9d71)
+- [Allow usage of `csp=`/`permissions=` with resource type object](https://github.com/gorhill/uBlock/commit/07e9f805bb)
+- [JSONPath: Add ability to select root node for appending/modifying](https://github.com/gorhill/uBlock/commit/faff035203)
+- [JSONPath: Add ability to substitute a pattern within a string value](https://github.com/gorhill/uBlock/commit/38ca6d41ff)
+- [Remove "CERT.PL's Warning List" from stock lists](https://github.com/gorhill/uBlock/commit/e713e133eb)
+- [Fix incorrect CNAME-related test in advanced settings](https://github.com/gorhill/uBlock/commit/171ddd3e06)
+- [Remove "AdGuard Tracking Protection"from stock list](https://github.com/gorhill/uBlock/commit/14a9572c86)
+- [Add filter list for experimental filters](https://github.com/gorhill/uBlock/commit/d88814bc12)
+- [Improve `fingerprint2.js` shim](https://github.com/gorhill/uBlock/commit/7d9317bb17)
+- [Make `google-ima` a valid injectable scriptlet](https://github.com/gorhill/uBlock/commit/47cbb43a0e)
+- [Improve `abort-current-script` scriptlet](https://github.com/gorhill/uBlock/commit/fef50e59f2)
+- [Fix potential exception in procedural operator `:matches-attr`](https://github.com/gorhill/uBlock/commit/e07e7bbd09)
+- [Improve reporting of `reason` option in strict-blocked pages](https://github.com/gorhill/uBlock/commit/b7510eee61)
+- [Improve `prevent-innerHTML` scriptlet](https://github.com/gorhill/uBlock/commit/b0396029bd)
+
+----------
+
+# 1.65.0
+
+## Fixes / changes
+
 - [Reset `important` option flag at `header` evaluation time](https://github.com/gorhill/uBlock/commit/66b68b4442)
 - [Fix broken reverse lookup of filter lists](https://github.com/gorhill/uBlock/commit/527b4a201f)
 - [Add `[trusted-]edit-inbound-object` scriptlets](https://github.com/gorhill/uBlock/commit/6e466cf945)

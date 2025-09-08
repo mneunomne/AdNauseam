@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock Origin - a comprehensive, efficient content blocker
+    uBlock Origin Lite - a comprehensive, MV3-compliant content blocker
     Copyright (C) 2025-present Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -21,26 +21,27 @@
 
 import { dom, qs$, qsa$ } from './dom.js';
 import { localRead, localWrite } from './ext.js';
+import { ExtSelectorCompiler } from './static-filtering-parser.js';
 import { toolOverlay } from './tool-overlay-ui.js';
 
 /******************************************************************************/
 
+const selectorCompiler = new ExtSelectorCompiler({ nativeCssHas: true });
+
 let selectorPartsDB = new Map();
 let sliderParts = [];
-let previewCSS = '';
+let sliderPartsPos = -1;
 
 /******************************************************************************/
 
-function isValidSelector(selector) {
-    isValidSelector.error = undefined;
-    if ( selector === '' ) { return false; }
-    try {
-        void document.querySelector(`${selector},a`);
-    } catch (reason) {
-        isValidSelector.error = reason;
-        return false;
+function validateSelector(selector) {
+    validateSelector.error = undefined;
+    if ( selector === '' ) { return; }
+    const result = {};
+    if ( selectorCompiler.compile(selector, result) ) {
+        return result.compiled;
     }
-    return true;
+    validateSelector.error = 'Error';
 }
 
 /******************************************************************************/
@@ -172,11 +173,12 @@ function selectorFromCandidates() {
 /******************************************************************************/
 
 function onSliderChanged(ev) {
-    updateSlider(ev.target.valueAsNumber);
+    updateSlider(Math.round(ev.target.valueAsNumber));
 }
 
 function updateSlider(i) {
-    qs$('#slider').value = i;
+    if ( i === sliderPartsPos ) { return; }
+    sliderPartsPos = i;
     dom.cl.remove('#candidateFilters [data-part]', 'on');
     const parts = sliderParts[i];
     for ( const address of parts ) {
@@ -217,31 +219,22 @@ function updatePreview(state) {
     } else {
         dom.cl.toggle(dom.root, 'preview', state)
     }
-    if ( previewCSS !== '' ) {
-        toolOverlay.postMessage({ what: 'removeCSS', css: previewCSS });
-        previewCSS = '';
-    }
-    if ( state === false ) { return; }
-    const selector = qs$('textarea').value;
-    if ( isValidSelector(selector) === false ) { return; }
-    previewCSS = `${selector}{display:none!important;}`;
-    toolOverlay.postMessage({ what: 'insertCSS', css: previewCSS });
+    const selector = state && validateSelector(qs$('textarea').value) || '';
+    return toolOverlay.postMessage({ what: 'previewSelector', selector });
 }
 
 /******************************************************************************/
 
 async function onCreateClicked() {
-    const selector = qs$('textarea').value;
-    if ( isValidSelector(selector) === false ) { return; }
-    await toolOverlay.postMessage({ what: 'uninjectCustomFilters' }).then(( ) =>
-        toolOverlay.sendMessage({
-            what: 'addCustomFilter',
-            hostname: toolOverlay.url.hostname,
-            selector,
-        })
-    ).then(( ) =>
-        toolOverlay.postMessage({ what: 'injectCustomFilters' })
-    );
+    const selector = validateSelector(qs$('textarea').value);
+    if ( selector === undefined ) { return; }
+    await toolOverlay.postMessage({ what: 'terminateCustomFilters' });
+    await toolOverlay.sendMessage({
+        what: 'addCustomFilter',
+        hostname: toolOverlay.url.hostname,
+        selector,
+    });
+    await toolOverlay.postMessage({ what: 'startCustomFilters' });
     qs$('textarea').value = '';
     dom.cl.remove(dom.root, 'preview');
     quitPicker();
@@ -314,21 +307,23 @@ function showDialog(msg) {
     }
 
     /* global */sliderParts = msg.sliderParts;
+    /* global */sliderPartsPos = -1;
     const slider = qs$('#slider');
     const last = sliderParts.length - 1;
     dom.attr(slider, 'max', last);
     dom.attr(slider, 'value', last);
     dom.attr(slider, 'disabled', last !== 0 ? null : '');
+    slider.value = last;
     updateSlider(last);
 }
 
 /******************************************************************************/
 
 function highlightCandidate() {
-    const selector = qs$('textarea').value;
-    if ( isValidSelector(selector) === false ) {
+    const selector = validateSelector(qs$('textarea').value);
+    if ( selector === undefined ) {
         toolOverlay.postMessage({ what: 'unhighlight' });
-        updateElementCount({ count: 0, error: isValidSelector.error });
+        updateElementCount({ count: 0, error: validateSelector.error });
         return;
     }
     toolOverlay.postMessage({
@@ -362,11 +357,7 @@ function pausePicker() {
 function unpausePicker() {
     dom.cl.remove(dom.root, 'paused', 'preview');
     dom.cl.add(dom.root, 'minimized');
-    updatePreview();
-    toolOverlay.postMessage({
-        what: 'togglePreview',
-        state: false,
-    });
+    updatePreview(false);
     toolOverlay.highlightElementUnderMouse(true);
 }
 

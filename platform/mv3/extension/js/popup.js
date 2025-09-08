@@ -32,12 +32,6 @@ const tabURL = new URL(runtime.getURL('/'));
 
 /******************************************************************************/
 
-function normalizedHostname(hn) {
-    return hn.replace(/^www\./, '');
-}
-
-/******************************************************************************/
-
 function renderAdminRules() {
     const { disabledFeatures: forbid = [] } = popupPanelData;
     if ( forbid.length === 0 ) { return; }
@@ -63,7 +57,7 @@ function setFilteringMode(level, commit = false) {
 
 async function commitFilteringMode() {
     if ( tabURL.hostname === '' ) { return; }
-    const targetHostname = normalizedHostname(tabURL.hostname);
+    const targetHostname = tabURL.hostname;
     const modeSlider = qs$('.filteringModeSlider');
     const afterLevel = parseInt(modeSlider.dataset.level, 10);
     const beforeLevel = parseInt(modeSlider.dataset.levelBefore, 10);
@@ -239,7 +233,7 @@ dom.on('#gotoReport', 'click', ev => {
     }
     if ( url === undefined ) { return; }
     const reportURL = new URL(runtime.getURL('/report.html'));
-    reportURL.searchParams.set('url', url.href);
+    reportURL.searchParams.set('url', tabURL.href);
     reportURL.searchParams.set('mode', popupPanelData.level);
     sendMessage({
         what: 'gotoURL',
@@ -271,7 +265,11 @@ dom.on('#gotoZapper', 'click', ( ) => {
 dom.on('#gotoPicker', 'click', ( ) => {
     if ( browser.scripting === undefined ) { return; }
     browser.scripting.executeScript({
-        files: [ '/js/scripting/tool-overlay.js', '/js/scripting/picker.js' ],
+        files: [
+            '/js/scripting/css-procedural-api.js',
+            '/js/scripting/tool-overlay.js',
+            '/js/scripting/picker.js',
+        ],
         target: { tabId: currentTab.id },
     });
     self.close();
@@ -282,7 +280,10 @@ dom.on('#gotoPicker', 'click', ( ) => {
 dom.on('#gotoUnpicker', 'click', ( ) => {
     if ( browser.scripting === undefined ) { return; }
     browser.scripting.executeScript({
-        files: [ '/js/scripting/tool-overlay.js', '/js/scripting/unpicker.js' ],
+        files: [
+            '/js/scripting/tool-overlay.js',
+            '/js/scripting/unpicker.js',
+        ],
         target: { tabId: currentTab.id },
     });
     self.close();
@@ -314,7 +315,6 @@ async function init() {
         const response = await sendMessage({
             what: 'popupPanelData',
             origin: url.origin,
-            normalHostname: normalizedHostname(tabURL.hostname),
             hostname: tabURL.hostname,
         });
         if ( response instanceof Object ) {
@@ -340,8 +340,6 @@ async function init() {
 
     dom.cl.toggle('#gotoUnpicker', 'enabled', popupPanelData.hasCustomFilters);
 
-    dom.cl.remove(dom.body, 'loading');
-
     return true;
 }
 
@@ -350,6 +348,8 @@ async function tryInit() {
         await init();
     } catch {
         setTimeout(tryInit, 100);
+    } finally {
+        dom.cl.remove(dom.body, 'loading');
     }
 }
 

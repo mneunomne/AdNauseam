@@ -37,7 +37,8 @@ import {
     injectCustomFilters,
     removeCustomFilter,
     selectorsFromCustomFilters,
-    uninjectCustomFilters,
+    startCustomFilters,
+    terminateCustomFilters,
 } from './filter-manager.js';
 
 import {
@@ -57,6 +58,7 @@ import {
     browser,
     localRead, localRemove, localWrite,
     runtime,
+    webextFlavor,
 } from './ext.js';
 
 import {
@@ -77,6 +79,7 @@ import {
     getMatchedRules,
     isSideloaded,
     toggleDeveloperMode,
+    ubolErr,
     ubolLog,
 } from './debug.js';
 
@@ -88,6 +91,7 @@ import {
 } from './config.js';
 
 import { dnr } from './ext-compat.js';
+import { getTroubleshootingInfo } from './troubleshooting.js';
 import { registerInjectables } from './scripting-manager.js';
 import { toggleToolbarIcon } from './action.js';
 
@@ -103,6 +107,18 @@ let pendingPermissionRequest;
 
 function getCurrentVersion() {
     return runtime.getManifest().version;
+}
+
+// The goal is just to be able to find out whether a specific version is older
+// than another one.
+
+function intFromVersion(version) {
+    const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(version);
+    if ( match === null ) { return 0; }
+    const year = parseInt(match[1], 10);
+    const monthday = parseInt(match[2], 10);
+    const min = parseInt(match[3], 10);
+    return (year - 2022) * (1232 * 2400) + monthday * 2400 + min;
 }
 
 /******************************************************************************/
@@ -170,12 +186,14 @@ function onMessage(request, sender, callback) {
 
     case 'insertCSS': {
         if ( frameId === false ) { return false; }
+        // https://bugs.webkit.org/show_bug.cgi?id=262491
+        if ( frameId !== 0 && webextFlavor === 'safari' ) { return false; }
         browser.scripting.insertCSS({
             css: request.css,
             origin: 'USER',
             target: { tabId, frameIds: [ frameId ] },
         }).catch(reason => {
-            console.log(reason);
+            ubolErr(`insertCSS/${reason}`);
         });
         return false;
     }
@@ -187,7 +205,7 @@ function onMessage(request, sender, callback) {
             origin: 'USER',
             target: { tabId, frameIds: [ frameId ] },
         }).catch(reason => {
-            console.log(reason);
+            ubolErr(`removeCSS/${reason}`);
         });
         return false;
     }
@@ -199,6 +217,20 @@ function onMessage(request, sender, callback) {
         return false;
     }
 
+    case 'startCustomFilters':
+        if ( frameId === false ) { return false; }
+        startCustomFilters(tabId, frameId).then(( ) => {
+            callback();
+        });
+        return true;
+
+    case 'terminateCustomFilters':
+        if ( frameId === false ) { return false; }
+        terminateCustomFilters(tabId, frameId).then(( ) => {
+            callback();
+        });
+        return true;
+
     case 'injectCustomFilters':
         if ( frameId === false ) { return false; }
         injectCustomFilters(tabId, frameId, request.hostname).then(selectors => {
@@ -206,9 +238,14 @@ function onMessage(request, sender, callback) {
         });
         return true;
 
-    case 'uninjectCustomFilters':
-        if ( frameId === false ) { return false; }
-        uninjectCustomFilters(tabId, frameId, request.hostname).then(( ) => {
+    case 'injectCSSProceduralAPI':
+        browser.scripting.executeScript({
+            files: [ '/js/scripting/css-procedural-api.js' ],
+            target: { tabId, frameIds: [ frameId ] },
+            injectImmediately: true,
+        }).catch(reason => {
+            ubolErr(`executeScript/${reason}`);
+        }).then(( ) => {
             callback();
         });
         return true;
@@ -228,15 +265,19 @@ function onMessage(request, sender, callback) {
     switch ( request.what ) {
 
     case 'applyRulesets': {
-        enableRulesets(request.enabledRulesets).then(( ) => {
-            rulesetConfig.enabledRulesets = request.enabledRulesets;
-            return saveRulesetConfig();
-        }).then(( ) => {
-            registerInjectables();
-            callback();
-            return dnr.getEnabledRulesets();
-        }).then(enabledRulesets => {
-            broadcastMessage({ enabledRulesets });
+        enableRulesets(request.enabledRulesets).then(result => {
+            if ( result === undefined || result.error ) {
+                callback(result);
+                return;
+            }
+            rulesetConfig.enabledRulesets = result.enabledRulesets;
+            return saveRulesetConfig().then(( ) => {
+                return registerInjectables();
+            }).then(( ) => {
+                callback(result);
+            });
+        }).finally(( ) => {
+            broadcastMessage({ enabledRulesets: rulesetConfig.enabledRulesets });
         });
         return true;
     }
@@ -321,7 +362,7 @@ function onMessage(request, sender, callback) {
     case 'popupPanelData': {
         Promise.all([
             hasBroadHostPermissions(),
-            getFilteringMode(request.normalHostname),
+            getFilteringMode(request.hostname),
             adminReadEx('disabledFeatures'),
             hasCustomFilters(request.hostname),
         ]).then(results => {
@@ -470,6 +511,12 @@ function onMessage(request, sender, callback) {
         });
         return true;
 
+    case 'getTroubleshootingInfo':
+        getTroubleshootingInfo(request.siteMode).then(info => {
+            callback(info);
+        });
+        return true;
+
     default:
         break;
     }
@@ -492,7 +539,11 @@ function onCommand(command, tab) {
     case 'enter-picker-mode': {
         if ( browser.scripting === undefined ) { return; }
         browser.scripting.executeScript({
-            files: [ '/js/scripting/tool-overlay.js', '/js/scripting/picker.js' ],
+            files: [
+                '/js/scripting/css-procedural-api.js',
+                '/js/scripting/tool-overlay.js',
+                '/js/scripting/picker.js',
+            ],
             target: { tabId: tab.id },
         });
         break;
@@ -515,6 +566,13 @@ async function startSession() {
     // obsolete ruleset to remove.
     if ( isNewVersion ) {
         ubolLog(`Version change: ${rulesetConfig.version} => ${currentVersion}`);
+        // https://github.com/uBlockOrigin/uBOL-home/issues/428#issuecomment-3172663563
+        if ( webextFlavor === 'safari' && rulesetConfig.strictBlockMode ) {
+            const before = intFromVersion(rulesetConfig.version);
+            if ( before <= intFromVersion('2025.804.2359') ) {
+                rulesetConfig.strictBlockMode = false;
+            }
+        }
         rulesetConfig.version = currentVersion;
         await patchDefaultRulesets();
         saveRulesetConfig();
@@ -523,7 +581,7 @@ async function startSession() {
     const rulesetsUpdated = await enableRulesets(rulesetConfig.enabledRulesets);
 
     // We need to update the regex rules only when ruleset version changes.
-    if ( rulesetsUpdated === false ) {
+    if ( rulesetsUpdated === undefined ) {
         if ( isNewVersion ) {
             updateDynamicRules();
         } else {
@@ -592,7 +650,7 @@ const isFullyInitialized = start().then(( ) => {
     localRemove('goodStart');
     return false;
 }).catch(reason => {
-    console.trace(reason);
+    ubolErr(reason);
     if ( process.wakeupRun ) { return; }
     return localRead('goodStart').then(goodStart => {
         if ( goodStart === false ) {

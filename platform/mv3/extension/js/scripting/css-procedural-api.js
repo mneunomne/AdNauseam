@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock Origin - a comprehensive, efficient content blocker
+    uBlock Origin Lite - a comprehensive, MV3-compliant content blocker
     Copyright (C) 2014-present Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -19,13 +19,23 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-if (
-    typeof vAPI === 'object' &&
-    typeof vAPI.DOMProceduralFilterer !== 'object'
-) {
-// >>>>>>>> start of local scope
+// Important!
+// Isolate from global scope
+(function uBOL_cssProceduralAPI() {
+
+if ( self.ProceduralFiltererAPI !== undefined ) {
+    if ( self.ProceduralFiltererAPI instanceof Promise === false ) { return; }
+}
 
 /******************************************************************************/
+
+const uBOL_injectCSS = css => {
+    chrome.runtime.sendMessage({
+        what: 'insertCSS',
+        css,
+    }).catch(( ) => {
+    });
+};
 
 const nonVisualElements = {
     head: true,
@@ -45,17 +55,31 @@ const regexFromString = (s, exact = false) => {
     return new RegExp(exact ? `^${reStr}$` : reStr);
 };
 
+const randomToken = ( ) => {
+    const n = Math.random();
+    return String.fromCharCode(n * 25 + 97) +
+        Math.floor(
+            (0.25 + n * 0.75) * Number.MAX_SAFE_INTEGER
+        ).toString(36).slice(-8);
+};
+
+/******************************************************************************/
+
 // 'P' stands for 'Procedural'
 
 class PSelectorTask {
+    destructor() {
+    }
     begin() {
     }
     end() {
     }
 }
 
+/******************************************************************************/
+
 class PSelectorVoidTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
         console.info(`uBO: :${task[0]}() operator does not exist`);
     }
@@ -63,8 +87,10 @@ class PSelectorVoidTask extends PSelectorTask {
     }
 }
 
+/******************************************************************************/
+
 class PSelectorHasTextTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
         this.needle = regexFromString(task[1]);
     }
@@ -75,25 +101,29 @@ class PSelectorHasTextTask extends PSelectorTask {
     }
 }
 
+/******************************************************************************/
+
 class PSelectorIfTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
-        this.pselector = new PSelector(task[1]);
+        this.pselector = new PSelector(filterer, task[1]);
     }
     transpose(node, output) {
         if ( this.pselector.test(node) === this.target ) {
             output.push(node);
         }
     }
+    target = true;
 }
-PSelectorIfTask.prototype.target = true;
 
 class PSelectorIfNotTask extends PSelectorIfTask {
+    target = false;
 }
-PSelectorIfNotTask.prototype.target = false;
+
+/******************************************************************************/
 
 class PSelectorMatchesAttrTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
         this.reAttr = regexFromString(task[1].attr, true);
         this.reValue = regexFromString(task[1].value, true);
@@ -109,8 +139,10 @@ class PSelectorMatchesAttrTask extends PSelectorTask {
     }
 }
 
+/******************************************************************************/
+
 class PSelectorMatchesCSSTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
         this.name = task[1].name;
         this.pseudo = task[1].pseudo ? `::${task[1].pseudo}` : null;
@@ -128,40 +160,48 @@ class PSelectorMatchesCSSTask extends PSelectorTask {
     }
 }
 class PSelectorMatchesCSSAfterTask extends PSelectorMatchesCSSTask {
-    constructor(task) {
-        super(task);
+    constructor(filterer, task) {
+        super(filterer, task);
         this.pseudo = '::after';
     }
 }
 
 class PSelectorMatchesCSSBeforeTask extends PSelectorMatchesCSSTask {
-    constructor(task) {
-        super(task);
+    constructor(filterer, task) {
+        super(filterer, task);
         this.pseudo = '::before';
     }
 }
 
+/******************************************************************************/
+
 class PSelectorMatchesMediaTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
+        this.filterer = filterer;
         this.mql = window.matchMedia(task[1]);
         if ( this.mql.media === 'not all' ) { return; }
-        this.mql.addEventListener('change', ( ) => {
-            if ( typeof vAPI !== 'object' ) { return; }
-            if ( vAPI === null ) { return; }
-            const filterer = vAPI.domFilterer && vAPI.domFilterer.proceduralFilterer;
-            if ( filterer instanceof Object === false ) { return; }
-            filterer.onDOMChanged([ null ]);
-        });
+        this.boundHandler = this.handler.bind(this);
+        this.mql.addEventListener('change', this.boundHandler);
+    }
+    destructor() {
+        super.destructor();
+        this.mql.removeEventListener('change', this.boundHandler);
     }
     transpose(node, output) {
         if ( this.mql.matches === false ) { return; }
         output.push(node);
     }
+    handler() {
+        if ( this.filterer instanceof Object === false ) { return; }
+        this.filterer.uBOL_DOMChanged();
+    }
 }
 
+/******************************************************************************/
+
 class PSelectorMatchesPathTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
         this.needle = regexFromString(
             task[1].replace(/\P{ASCII}/gu, s => encodeURIComponent(s))
@@ -174,8 +214,10 @@ class PSelectorMatchesPathTask extends PSelectorTask {
     }
 }
 
+/******************************************************************************/
+
 class PSelectorMatchesPropTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
         this.props = task[1].attr.split('.');
         this.reValue = task[1].value !== ''
@@ -198,8 +240,10 @@ class PSelectorMatchesPropTask extends PSelectorTask {
     }
 }
 
+/******************************************************************************/
+
 class PSelectorMinTextLengthTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
         this.min = task[1];
     }
@@ -209,6 +253,8 @@ class PSelectorMinTextLengthTask extends PSelectorTask {
         }
     }
 }
+
+/******************************************************************************/
 
 class PSelectorOthersTask extends PSelectorTask {
     constructor() {
@@ -265,8 +311,10 @@ class PSelectorOthersTask extends PSelectorTask {
     }
 }
 
+/******************************************************************************/
+
 class PSelectorShadowTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
         this.selector = task[1];
     }
@@ -295,10 +343,12 @@ class PSelectorShadowTask extends PSelectorTask {
     }
 }
 
+/******************************************************************************/
+
 // https://github.com/AdguardTeam/ExtendedCss/issues/31#issuecomment-302391277
 //   Prepend `:scope ` if needed.
 class PSelectorSpathTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
         this.spath = task[1];
         this.nth = /^(?:\s*[+~]|:)/.test(this.spath);
@@ -331,8 +381,10 @@ class PSelectorSpathTask extends PSelectorTask {
     }
 }
 
+/******************************************************************************/
+
 class PSelectorUpwardTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
         const arg = task[1];
         if ( typeof arg === 'number' ) {
@@ -358,13 +410,16 @@ class PSelectorUpwardTask extends PSelectorTask {
         }
         output.push(node);
     }
+    i = 0;
+    s = '';
 }
-PSelectorUpwardTask.prototype.i = 0;
-PSelectorUpwardTask.prototype.s = '';
+
+/******************************************************************************/
 
 class PSelectorWatchAttrs extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
+        this.filterer = filterer;
         this.observer = null;
         this.observed = new WeakSet();
         this.observerOptions = {
@@ -376,27 +431,32 @@ class PSelectorWatchAttrs extends PSelectorTask {
             this.observerOptions.attributeFilter = task[1];
         }
     }
-    // TODO: Is it worth trying to re-apply only the current selector?
-    handler() {
-        const filterer =
-            vAPI.domFilterer && vAPI.domFilterer.proceduralFilterer;
-        if ( filterer instanceof Object ) {
-            filterer.onDOMChanged([ null ]);
+    destructor() {
+        super.destructor();
+        if ( this.observer ) {
+            this.observer.takeRecords();
+            this.observer.disconnect();
+            this.observer = null;
         }
     }
     transpose(node, output) {
         output.push(node);
+        if ( this.filterer instanceof Object === false ) { return; }
         if ( this.observed.has(node) ) { return; }
         if ( this.observer === null ) {
-            this.observer = new MutationObserver(this.handler);
+            this.observer = new MutationObserver(( ) => {
+                this.filterer.uBOL_DOMChanged();
+            });
         }
         this.observer.observe(node, this.observerOptions);
         this.observed.add(node);
     }
 }
 
+/******************************************************************************/
+
 class PSelectorXpathTask extends PSelectorTask {
-    constructor(task) {
+    constructor(filterer, task) {
         super();
         this.xpe = document.createExpression(task[1], null);
         this.xpr = null;
@@ -417,17 +477,24 @@ class PSelectorXpathTask extends PSelectorTask {
     }
 }
 
+/******************************************************************************/
+
 class PSelector {
-    constructor(o) {
+    constructor(filterer, o) {
         this.selector = o.selector;
         this.tasks = [];
         const tasks = [];
         if ( Array.isArray(o.tasks) === false ) { return; }
         for ( const task of o.tasks ) {
-            const ctor = this.operatorToTaskMap.get(task[0]) || PSelectorVoidTask;
-            tasks.push(new ctor(task));
+            const ctor = PSelector.operatorToTaskMap.get(task[0]) || PSelectorVoidTask;
+            tasks.push(new ctor(filterer, task));
         }
         this.tasks = tasks;
+    }
+    destructor() {
+        for ( const task of this.tasks ) {
+            task.destructor();
+        }
     }
     prime(input) {
         const root = input || document;
@@ -474,32 +541,34 @@ class PSelector {
         }
         return false;
     }
+    static operatorToTaskMap = new Map([
+        [ 'has', PSelectorIfTask ],
+        [ 'has-text', PSelectorHasTextTask ],
+        [ 'if', PSelectorIfTask ],
+        [ 'if-not', PSelectorIfNotTask ],
+        [ 'matches-attr', PSelectorMatchesAttrTask ],
+        [ 'matches-css', PSelectorMatchesCSSTask ],
+        [ 'matches-css-after', PSelectorMatchesCSSAfterTask ],
+        [ 'matches-css-before', PSelectorMatchesCSSBeforeTask ],
+        [ 'matches-media', PSelectorMatchesMediaTask ],
+        [ 'matches-path', PSelectorMatchesPathTask ],
+        [ 'matches-prop', PSelectorMatchesPropTask ],
+        [ 'min-text-length', PSelectorMinTextLengthTask ],
+        [ 'not', PSelectorIfNotTask ],
+        [ 'others', PSelectorOthersTask ],
+        [ 'shadow', PSelectorShadowTask ],
+        [ 'spath', PSelectorSpathTask ],
+        [ 'upward', PSelectorUpwardTask ],
+        [ 'watch-attr', PSelectorWatchAttrs ],
+        [ 'xpath', PSelectorXpathTask ],
+    ]);
 }
-PSelector.prototype.operatorToTaskMap = new Map([
-    [ 'has', PSelectorIfTask ],
-    [ 'has-text', PSelectorHasTextTask ],
-    [ 'if', PSelectorIfTask ],
-    [ 'if-not', PSelectorIfNotTask ],
-    [ 'matches-attr', PSelectorMatchesAttrTask ],
-    [ 'matches-css', PSelectorMatchesCSSTask ],
-    [ 'matches-css-after', PSelectorMatchesCSSAfterTask ],
-    [ 'matches-css-before', PSelectorMatchesCSSBeforeTask ],
-    [ 'matches-media', PSelectorMatchesMediaTask ],
-    [ 'matches-path', PSelectorMatchesPathTask ],
-    [ 'matches-prop', PSelectorMatchesPropTask ],
-    [ 'min-text-length', PSelectorMinTextLengthTask ],
-    [ 'not', PSelectorIfNotTask ],
-    [ 'others', PSelectorOthersTask ],
-    [ 'shadow', PSelectorShadowTask ],
-    [ 'spath', PSelectorSpathTask ],
-    [ 'upward', PSelectorUpwardTask ],
-    [ 'watch-attr', PSelectorWatchAttrs ],
-    [ 'xpath', PSelectorXpathTask ],
-]);
+
+/******************************************************************************/
 
 class PSelectorRoot extends PSelector {
-    constructor(o) {
-        super(o);
+    constructor(filterer, o) {
+        super(filterer, o);
         this.budget = 200; // I arbitrary picked a 1/5 second
         this.raw = o.raw;
         this.cost = 0;
@@ -513,40 +582,55 @@ class PSelectorRoot extends PSelector {
         }
         return [];
     }
+    exec(input) {
+        try {
+            return super.exec(input);
+        } catch {
+        }
+        return [];
+    }
 }
-PSelectorRoot.prototype.hit = false;
+
+/******************************************************************************/
 
 class ProceduralFilterer {
-    constructor(domFilterer) {
-        this.domFilterer = domFilterer;
-        this.mustApplySelectors = false;
-        this.selectors = new Map();
-        this.masterToken = vAPI.randomToken();
+    constructor() {
+        this.selectors = [];
         this.styleTokenMap = new Map();
         this.styledNodes = new Set();
-        if ( vAPI.domWatcher instanceof Object ) {
-            vAPI.domWatcher.addListener(this);
-        }
+        this.timer = undefined;
+        this.hideStyle = 'display:none!important;';
     }
 
-    addProceduralSelectors(selectors) {
-        const addedSelectors = [];
-        let mustCommit = false;
-        for ( const selector of selectors ) {
-            if ( this.selectors.has(selector.raw) ) { continue; }
-            const pselector = new PSelectorRoot(selector);
-            this.primeProceduralSelector(pselector);
-            this.selectors.set(selector.raw, pselector);
-            addedSelectors.push(pselector);
-            mustCommit = true;
+    async reset() {
+        if ( this.timer ) {
+            self.cancelAnimationFrame(this.timer);
+            this.timer = undefined;
         }
-        if ( mustCommit === false ) { return; }
-        this.mustApplySelectors = this.selectors.size !== 0;
-        this.domFilterer.commit();
-        if ( this.domFilterer.hasListeners() ) {
-            this.domFilterer.triggerListeners({
-                procedural: addedSelectors
-            });
+        for ( const pselector of this.selectors.values() ) {
+            pselector.destructor();
+        }
+        this.selectors.length = 0;
+        const promises = [];
+        for ( const [ style, token ] of this.styleTokenMap ) {
+            for ( const elem of this.styledNodes ) {
+                elem.removeAttribute(token);
+            }
+            const css = `[${token}]\n{${style}}\n`;
+            promises.push(
+                chrome.runtime.sendMessage({ what: 'removeCSS', css }).catch(( ) => { })
+            );
+        }
+        this.styleTokenMap.clear();
+        this.styledNodes.clear();
+        return Promise.all(promises);
+    }
+
+    addSelectors(selectors) {
+        for ( const selector of selectors ) {
+            const pselector = new PSelectorRoot(this, selector);
+            this.primeProceduralSelector(pselector);
+            this.selectors.push(pselector);
         }
     }
 
@@ -554,17 +638,18 @@ class ProceduralFilterer {
     // before the filters are ready to be applied.
     primeProceduralSelector(pselector) {
         if ( pselector.action === undefined ) {
-            this.styleTokenFromStyle(vAPI.hideStyle);
+            this.styleTokenFromStyle(this.hideStyle);
         } else if ( pselector.action[0] === 'style' ) {
             this.styleTokenFromStyle(pselector.action[1]);
         }
         return pselector;
     }
 
-    commitNow() {
-        if ( this.selectors.size === 0 ) { return; }
-
-        this.mustApplySelectors = false;
+    uBOL_commit() {
+        if ( this.timer !== undefined ) {
+            self.cancelAnimationFrame(this.timer);
+            this.timer = undefined;
+        }
 
         // https://github.com/uBlockOrigin/uBlock-issues/issues/341
         //   Be ready to unhide nodes which no longer matches any of
@@ -583,23 +668,14 @@ class ProceduralFilterer {
             }
             if ( pselector.budget <= 0 ) { continue; }
             const nodes = pselector.exec();
-            /* ADN parse procedural selector hits */
-            if ( nodes.length > 0) {
-                console.log("[ADN] parse procedural selector hits", nodes)
-                for ( const node of nodes ) {
-                    vAPI.adCheck && vAPI.adCheck(node);
-                }
-            }
-            /* end ADN */
             const t1 = Date.now();
             pselector.budget += t0 - t1;
             if ( pselector.budget < -500 ) {
-                console.info('uBO: disabling %s', pselector.raw);
+                console.info('uBOL: disabling %s', pselector.raw);
                 pselector.budget = -0x7FFFFFFF;
             }
             t0 = t1;
             if ( nodes.length === 0 ) { continue; }
-            pselector.hit = true;
             this.processNodes(nodes, pselector.action);
         }
 
@@ -610,12 +686,9 @@ class ProceduralFilterer {
         if ( style === undefined ) { return; }
         let styleToken = this.styleTokenMap.get(style);
         if ( styleToken !== undefined ) { return styleToken; }
-        styleToken = vAPI.randomToken();
+        styleToken = randomToken();
         this.styleTokenMap.set(style, styleToken);
-        this.domFilterer.addCSS(
-            `[${this.masterToken}][${styleToken}]\n{${style}}`,
-            { silent: true, mustInject: true }
-        );
+        uBOL_injectCSS(`[${styleToken}]\n{${style}}\n`);
         return styleToken;
     }
 
@@ -627,10 +700,9 @@ class ProceduralFilterer {
             /* fall through */
         case 'style': {
             const styleToken = this.styleTokenFromStyle(
-                arg === '' ? vAPI.hideStyle : arg
+                arg === '' ? this.hideStyle : arg
             );
             for ( const node of nodes ) {
-                node.setAttribute(this.masterToken, '');
                 node.setAttribute(styleToken, '');
                 this.styledNodes.add(node);
             }
@@ -669,58 +741,81 @@ class ProceduralFilterer {
         }
     }
 
-    // TODO: Current assumption is one style per hit element. Could be an
-    //       issue if an element has multiple styling and one styling is
-    //       brought back. Possibly too rare to care about this for now.
     unprocessNodes(nodes) {
+        const tokens = Array.from(this.styleTokenMap.values());
         for ( const node of nodes ) {
             if ( this.styledNodes.has(node) ) { continue; }
-            node.removeAttribute(this.masterToken);
+            for ( const token of tokens ) {
+                node.removeAttribute(token);
+            }
         }
     }
 
-    createProceduralFilter(o) {
-        return this.primeProceduralSelector(
-            new PSelectorRoot(typeof o === 'string' ? JSON.parse(o) : o)
-        );
-    }
-
-    onDOMCreated() {
-    }
-
-    onDOMChanged(addedNodes, removedNodes) {
-        if ( this.selectors.size === 0 ) { return; }
-        this.mustApplySelectors =
-            this.mustApplySelectors ||
-            addedNodes.length !== 0 ||
-            removedNodes;
-        this.domFilterer.commit();
+    uBOL_DOMChanged() {
+        if ( this.timer !== undefined ) { return; }
+        this.timer = self.requestAnimationFrame(( ) => {
+            this.timer = undefined;
+            this.uBOL_commit();
+        });
     }
 }
-
-vAPI.DOMProceduralFilterer = ProceduralFilterer;
 
 /******************************************************************************/
 
-// >>>>>>>> end of local scope
-}
+self.ProceduralFiltererAPI = class {
+    constructor() {
+        this.proceduralFilterer = null;
+        this.domObserver = null;
+    }
 
+    async reset() {
+        if ( this.domObserver ) {
+            this.domObserver.takeRecords();
+            this.domObserver.disconnect();
+            this.domObserver = null;
+        }
+        if ( this.proceduralFilterer ) {
+            await this.proceduralFilterer.reset();
+            this.proceduralFilterer = null;
+        }
+    }
 
+    addSelectors(selectors) {
+        if ( this.proceduralFilterer === null ) {
+            this.proceduralFilterer = new ProceduralFilterer();
+        }
+        if ( this.domObserver === null ) {
+            this.domObserver = new MutationObserver(mutations => {
+                this.onDOMChanged(mutations);
+            });
+            this.domObserver.observe(document, { childList: true, subtree: true });
+        }
+        this.proceduralFilterer.addSelectors(selectors);
+        this.proceduralFilterer.uBOL_commit();
+    }
 
+    qsa(selector) {
+        const o = JSON.parse(selector);
+        const pselector = new PSelectorRoot(null, o);
+        return pselector.exec();
+    }
 
+    onDOMChanged(mutations) {
+        for ( const mutation of mutations ) {
+            for ( const added of mutation.addedNodes ) {
+                if ( added.nodeType !== 1 ) { continue; }
+                return this.proceduralFilterer.uBOL_DOMChanged();
+            }
+            for ( const removed of mutation.removedNodes ) {
+                if ( removed.nodeType !== 1 ) { continue; }
+                return this.proceduralFilterer.uBOL_DOMChanged();
+            }
+        }
+    }
+};
 
+/******************************************************************************/
 
-
-
-/*******************************************************************************
-
-    DO NOT:
-    - Remove the following code
-    - Add code beyond the following code
-    Reason:
-    - https://github.com/gorhill/uBlock/pull/3721
-    - uBO never uses the return value from injected content scripts
-
-**/
+})();
 
 void 0;

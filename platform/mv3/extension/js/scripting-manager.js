@@ -21,18 +21,14 @@
 
 import * as ut from './utils.js';
 
-import {
-    browser,
-    localRemove,
-    localWrite,
-} from './ext.js';
+import { browser, localRemove } from './ext.js';
+import { ubolErr, ubolLog } from './debug.js';
 
 import { fetchJSON } from './fetch.js';
 import { getEnabledRulesetsDetails } from './ruleset-manager.js';
 import { getFilteringModeDetails } from './mode-manager.js';
 import { registerCustomFilters } from './filter-manager.js';
 import { registerToolbarIconToggler } from './action.js';
-import { ubolLog } from './debug.js';
 
 /******************************************************************************/
 
@@ -354,70 +350,6 @@ function registerProcedural(context) {
 
 /******************************************************************************/
 
-function registerDeclarative(context) {
-    const { before, filteringModeDetails, rulesetsDetails } = context;
-
-    const js = [];
-    for ( const rulesetDetails of rulesetsDetails ) {
-        const count = rulesetDetails.css?.declarative || 0;
-        if ( count === 0 ) { continue; }
-        js.push(`/rulesets/scripting/declarative/${rulesetDetails.id}.js`);
-    }
-    if ( js.length === 0 ) { return; }
-
-    const { none, basic, optimal, complete } = filteringModeDetails;
-    const matches = [
-        ...ut.matchesFromHostnames(optimal),
-        ...ut.matchesFromHostnames(complete),
-    ];
-    if ( matches.length === 0 ) { return; }
-
-    normalizeMatches(matches);
-
-    js.unshift('/js/scripting/isolated-api.js');
-    js.push('/js/scripting/css-declarative.js');
-
-    const excludeMatches = [];
-    if ( none.has('all-urls') === false ) {
-        excludeMatches.push(...ut.matchesFromHostnames(none));
-    }
-    if ( basic.has('all-urls') === false ) {
-        excludeMatches.push(...ut.matchesFromHostnames(basic));
-    }
-
-    const registered = before.get('css-declarative');
-    before.delete('css-declarative'); // Important!
-
-    const directive = {
-        id: 'css-declarative',
-        js,
-        matches,
-        allFrames: true,
-        runAt: 'document_start',
-    };
-    if ( excludeMatches.length !== 0 ) {
-        directive.excludeMatches = excludeMatches;
-    }
-
-    // register
-    if ( registered === undefined ) {
-        context.toAdd.push(directive);
-        return;
-    }
-
-    // update
-    if (
-        ut.strArrayEq(registered.js, js, false) === false ||
-        ut.strArrayEq(registered.matches, matches) === false ||
-        ut.strArrayEq(registered.excludeMatches, excludeMatches) === false
-    ) {
-        context.toRemove.push('css-declarative');
-        context.toAdd.push(directive);
-    }
-}
-
-/******************************************************************************/
-
 function registerSpecific(context) {
     const { before, filteringModeDetails, rulesetsDetails } = context;
 
@@ -602,7 +534,6 @@ async function registerInjectables() {
     };
 
     await Promise.all([
-        registerDeclarative(context),
         registerProcedural(context),
         registerScriptlet(context, scriptletDetails),
         registerSpecific(context),
@@ -620,8 +551,7 @@ async function registerInjectables() {
             await browser.scripting.unregisterContentScripts({ ids: toRemove });
             localRemove('$scripting.unregisterContentScripts');
         } catch(reason) {
-            localWrite('$scripting.unregisterContentScripts', `${reason}`);
-            console.info(reason);
+            ubolErr(`unregisterContentScripts/${reason}`);
         }
     }
 
@@ -631,8 +561,7 @@ async function registerInjectables() {
             await browser.scripting.registerContentScripts(toAdd);
             localRemove('$scripting.registerContentScripts');
         } catch(reason) {
-            localWrite('$scripting.registerContentScripts', `${reason}`);
-            console.info(reason);
+            ubolErr(`registerContentScripts/${reason}`);
         }
     }
 
