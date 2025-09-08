@@ -248,7 +248,7 @@
     "description": "Label for a checkbox in the options page"
   },
   "developerModeLegend": {
-    "message": "Teknik kullanıcılara uygun özelliklere erişime izin ver",
+    "message": "Teknik kullanıcılara uygun özelliklere erişime izin ver.",
     "description": "Short description for a checkbox in the options page"
   },
   "findListsPlaceholder": {
@@ -364,7 +364,7 @@
     "description": "Text for the button to re-enter element-picking mode"
   },
   "pickerPreview": {
-    "message": "Önizle",
+    "message": "Ön İzle",
     "description": "Text for the button to activate preview mode"
   },
   "pickerCreate": {

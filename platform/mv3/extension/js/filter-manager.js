@@ -34,6 +34,12 @@ import {
     subtractHostnameIters,
 } from './utils.js';
 
+import { ubolErr } from './debug.js';
+
+/******************************************************************************/
+
+const perSitePendingIO = new Map();
+
 /******************************************************************************/
 
 export async function selectorsFromCustomFilters(hostname) {
@@ -50,7 +56,9 @@ export async function selectorsFromCustomFilters(hostname) {
     for ( let i = 0; i < promises.length; i++ ) {
         const selectors = results[i];
         if ( selectors === undefined ) { continue; }
-        selectors.forEach(selector => { out.push(selector.slice(1)); });
+        selectors.forEach(selector => {
+            out.push(selector.startsWith('0') ? selector.slice(1) : selector);
+        });
     }
     return out.sort();
 }
@@ -64,38 +72,74 @@ export async function hasCustomFilters(hostname) {
 
 /******************************************************************************/
 
-export async function injectCustomFilters(tabId, frameId, hostname) {
-    const selectors = await selectorsFromCustomFilters(hostname);
-    if ( selectors.length === 0 ) { return; }
-    await browser.scripting.insertCSS({
-        css: `${selectors.join(',\n')}{display:none!important;}`,
-        origin: 'USER',
-        target: { tabId, frameIds: [ frameId ] },
-    }).catch(reason => {
-        console.log(reason);
-    });
-    return selectors;
+async function getAllCustomFilterKeys() {
+    const storageKeys = await localKeys() || [];
+    return storageKeys.filter(a => a.startsWith('site.'));
 }
 
 /******************************************************************************/
 
-export async function uninjectCustomFilters(tabId, frameId, hostname) {
+export function startCustomFilters(tabId, frameId) {
+    return browser.scripting.executeScript({
+        files: [ '/js/scripting/css-user.js' ],
+        target: { tabId, frameIds: [ frameId ] },
+        injectImmediately: true,
+    }).catch(reason => {
+        ubolErr(`startCustomFilters/${reason}`);
+    })
+}
+
+export function terminateCustomFilters(tabId, frameId) {
+    return browser.scripting.executeScript({
+        files: [ '/js/scripting/css-user-terminate.js' ],
+        target: { tabId, frameIds: [ frameId ] },
+        injectImmediately: true,
+    }).catch(reason => {
+        ubolErr(`terminateCustomFilters/${reason}`);
+    })
+}
+
+/******************************************************************************/
+
+export async function injectCustomFilters(tabId, frameId, hostname) {
     const selectors = await selectorsFromCustomFilters(hostname);
     if ( selectors.length === 0 ) { return; }
-    return browser.scripting.removeCSS({
-        css: `${selectors.join(',\n')}{display:none!important;}`,
-        origin: 'USER',
-        target: { tabId, frameIds: [ frameId ] },
-    }).catch(reason => {
-        console.log(reason);
-    });
+    const promises = [];
+    const plainSelectors = selectors.filter(a => a.startsWith('{') === false);
+    if ( plainSelectors.length !== 0 ) {
+        promises.push(
+            browser.scripting.insertCSS({
+                css: `${plainSelectors.join(',\n')}{display:none!important;}`,
+                origin: 'USER',
+                target: { tabId, frameIds: [ frameId ] },
+            }).catch(reason => {
+                ubolErr(`injectCustomFilters/insertCSS/${reason}`);
+            })
+        );
+    }
+    const proceduralSelectors = selectors.filter(a => a.startsWith('{'));
+    if ( proceduralSelectors.length !== 0 ) {
+        promises.push(
+            browser.scripting.executeScript({
+                files: [ '/js/scripting/css-procedural-api.js' ],
+                target: { tabId, frameIds: [ frameId ] },
+                injectImmediately: true,
+            }).catch(reason => {
+                ubolErr(`injectCustomFilters/executeScript/${reason}`);
+            })
+        );
+    }
+    await Promise.all(promises);
+    return { plainSelectors, proceduralSelectors };
 }
 
 /******************************************************************************/
 
 export async function registerCustomFilters(context) {
-    const storageKeys = await localKeys() || [];
-    const siteKeys = storageKeys.filter(a => a.startsWith('site.'));
+    if ( perSitePendingIO.size !== 0 ) {
+        await Promise.all(Array.from(perSitePendingIO.values()));
+    }
+    const siteKeys = await getAllCustomFilterKeys();
     if ( siteKeys.length === 0 ) { return; }
 
     const { none } = context.filteringModeDetails;
@@ -131,11 +175,24 @@ export async function registerCustomFilters(context) {
 /******************************************************************************/
 
 export async function addCustomFilter(hostname, selector) {
+    const pending = perSitePendingIO.get(hostname);
+    const promise = pending
+        ? pending.then(( ) => addCustomFilterByHostname(hostname, selector))
+        : addCustomFilterByHostname(hostname, selector);
+    perSitePendingIO.set(hostname, promise);
+    promise.then(( ) => {
+        if ( promise !== perSitePendingIO.get(hostname) ) { return; }
+        perSitePendingIO.delete(hostname);
+    });
+    return promise;
+}
+
+async function addCustomFilterByHostname(hostname, selector) {
+    if ( hostname === '' ) { return false; }
     const key = `site.${hostname}`;
     const selectors = await localRead(key) || [];
-    const filter = `0${selector}`;
-    if ( selectors.includes(filter) ) { return false; }
-    selectors.push(filter);
+    if ( selectors.includes(selector) ) { return false; }
+    selectors.push(selector);
     selectors.sort();
     await localWrite(key, selectors);
     return true;
@@ -144,14 +201,45 @@ export async function addCustomFilter(hostname, selector) {
 /******************************************************************************/
 
 export async function removeCustomFilter(hostname, selector) {
+    const promises = [];
+    let hn = hostname;
+    while ( hn !== '' ) {
+        promises.push(removeCustomFilterByHostname(hn, selector));
+        const pos = hn.indexOf('.');
+        if ( pos === -1 ) { break; }
+        hn = hn.slice(pos + 1);
+    }
+    const results = await Promise.all(promises);
+    return results.some(a => a);
+}
+
+async function removeCustomFilterByHostname(hostname, selector) {
+    const pending = perSitePendingIO.get(hostname);
     const key = `site.${hostname}`;
+    const promise = pending
+        ? pending.then(( ) => removeCustomFilterByKey(key, selector))
+        : removeCustomFilterByKey(key, selector);
+    perSitePendingIO.set(hostname, promise);
+    promise.then(( ) => {
+        if ( promise !== perSitePendingIO.get(hostname) ) { return; }
+        perSitePendingIO.delete(hostname);
+    });
+    return promise;
+}
+
+async function removeCustomFilterByKey(key, selector) {
     const selectors = await localRead(key);
     if ( selectors === undefined ) { return false; }
-    const i = selectors.indexOf(`0${selector}`);
-    if ( i === -1 ) { return false; }
+    let i = selectors.indexOf(selector);
+    if ( i === -1 ) {
+        i = selectors.indexOf(`0${selector}`);
+        if ( i === -1 ) { return false; }
+    }
     selectors.splice(i, 1);
-    await selectors.length !== 0
-        ? localWrite(key, selectors)
-        : localRemove(key);
+    if ( selectors.length !== 0 ) {
+        await localWrite(key, selectors);
+    } else {
+        await localRemove(key);
+    }
     return true;
 }

@@ -26,7 +26,7 @@ for i in "$@"; do
     safari)
       PLATFORM="safari"
       ;;
-    uBOLite_+([0-9]).+([0-9]).+([0-9]))
+    +([0-9]).+([0-9]).+([0-9]))
       TAGNAME="$i"
       FULL="yes"
       ;;
@@ -102,6 +102,7 @@ cp platform/mv3/extension/css/* "$UBOL_DIR"/css/
 cp -R platform/mv3/extension/js/* "$UBOL_DIR"/js/
 cp platform/mv3/"$PLATFORM"/ext-compat.js "$UBOL_DIR"/js/ 2>/dev/null || :
 cp platform/mv3/extension/img/* "$UBOL_DIR"/img/
+cp platform/mv3/"$PLATFORM"/img/* "$UBOL_DIR"/img/ 2>/dev/null || :
 cp -R platform/mv3/extension/_locales "$UBOL_DIR"/
 cp platform/mv3/README.md "$UBOL_DIR/"
 
@@ -147,23 +148,22 @@ echo "*** uBOLite.$PLATFORM: extension ready"
 echo "Extension location: $UBOL_DIR/"
 
 # Local build
+tmp_manifest=$(mktemp)
+chmod '=rw' "$tmp_manifest"
 if [ -z "$TAGNAME" ]; then
-    TAGNAME="uBOLite_$(jq -r .version "$UBOL_DIR"/manifest.json)"
+    TAGNAME="$(jq -r .version "$UBOL_DIR"/manifest.json)"
     # Enable DNR rule debugging
-    tmp=$(mktemp)
     jq '.permissions += ["declarativeNetRequestFeedback"]' \
-        "$UBOL_DIR/manifest.json" > "$tmp" \
-        && mv "$tmp" "$UBOL_DIR/manifest.json"
+        "$UBOL_DIR/manifest.json" > "$tmp_manifest" \
+        && mv "$tmp_manifest" "$UBOL_DIR/manifest.json"
     # Use a different extension id than the official one
     if [ "$PLATFORM" = "firefox" ]; then
-        tmp=$(mktemp)
-        jq '.browser_specific_settings.gecko.id = "uBOLite.dev@raymondhill.net"' "$UBOL_DIR/manifest.json"  > "$tmp" \
-            && mv "$tmp" "$UBOL_DIR/manifest.json"
+        jq '.browser_specific_settings.gecko.id = "uBOLite.dev@raymondhill.net"' "$UBOL_DIR/manifest.json"  > "$tmp_manifest" \
+            && mv "$tmp_manifest" "$UBOL_DIR/manifest.json"
     fi
 else
-    tmp=$(mktemp)
-    jq --arg version "${TAGNAME:8}" '.version = $version' "$UBOL_DIR/manifest.json"  > "$tmp" \
-        && mv "$tmp" "$UBOL_DIR/manifest.json"
+    jq --arg version "${TAGNAME}" '.version = $version' "$UBOL_DIR/manifest.json"  > "$tmp_manifest" \
+        && mv "$tmp_manifest" "$UBOL_DIR/manifest.json"
 fi
 
 # Platform-specific steps
@@ -184,7 +184,7 @@ if [ "$FULL" = "yes" ]; then
         EXTENSION="xpi"
     fi
     echo "*** uBOLite.mv3: Creating publishable package..."
-    UBOL_PACKAGE_NAME="$TAGNAME.$PLATFORM.mv3.$EXTENSION"
+    UBOL_PACKAGE_NAME="uBOLite_$TAGNAME.$PLATFORM.$EXTENSION"
     UBOL_PACKAGE_DIR=$(mktemp -d)
     mkdir -p "$UBOL_PACKAGE_DIR"
     cp -R "$UBOL_DIR"/* "$UBOL_PACKAGE_DIR"/
