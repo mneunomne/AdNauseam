@@ -28,7 +28,6 @@ import logger from './logger.js';
 import { orphanizeString } from './text-utils.js';
 import µb from './background.js';
 // adn
-import adnauseam from './adn/core.js'
 import dnt from './adn/dnt.js'
 import { ubolog } from './console.js';
 

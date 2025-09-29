@@ -433,12 +433,13 @@ import { broadcast, onBroadcast } from '../broadcast.js';
   const getPopupData = function (tabId) {
     const onPopupData = function (response) {
       console.log("response", response)
-      cachePopupData(response);
+      let _popupData = cachePopupData(response);
       vAPI.messaging.send(
         'adnauseam', {
         what: 'adsForPage',
-        tabId: popupData.tabId
+        tabId: _popupData.tabId
       }).then(details => {
+        console.log("details", details)
         renderPage(details);
       })
     };
@@ -822,14 +823,12 @@ import { broadcast, onBroadcast } from '../broadcast.js';
 
   (function () {
 
-    let tabId = null;
+    const selfURL = new URL(self.location.href);
+    const tabId = parseInt(selfURL.searchParams.get('tabId'), 10) || null;
 
-    // Extract the tab id of the page this popup is for
-    const matches = window.location.search.match(/[\?&]tabId=([^&]+)/);
-    if (matches && matches.length === 2) {
-      tabId = matches[1];
-    }
-    getPopupData(tabId);
+    setTimeout(function () {
+      getPopupData(tabId);
+    }, 100);
 
     // add click events
     uDom('.adn_state_radio').on('change', onChangeState)
