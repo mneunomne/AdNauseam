@@ -1691,7 +1691,8 @@ const adnauseam = (function () {
     verifyLists();
     verifyVersion();
 
-    addNotification(notifications, OpenLetter);
+    const modified = addNotification(notifications, OpenLetter);
+    modified && sendNotifications(notifications);
 
     dnt.updateFilters();
 
@@ -2408,20 +2409,14 @@ const adnauseam = (function () {
   'use strict';
 
   const onMessage = function (request, sender, callback) {
-    //console.log("adnauseam.MSG: "+request.what, sender.frameId);
+    //console.log("adnauseam.MSG: "+request.what);
 
     switch (request.what) {
       default: break;
     } // Async
 
-    let pageStore, tabId, frameId;
-
-    if (sender && sender.tabId) {
-
-      tabId = sender.tabId;
-      frameId = sender.frameId;
-      pageStore = µb.pageStoreFromTabId(tabId);
-    }
+    let tabId = request.tabId || (sender && sender.tabId) || null;
+    let pageStore = µb.pageStoreFromTabId(tabId);
 
     if (typeof adnauseam[request.what] === 'function') {
 
@@ -2429,7 +2424,7 @@ const adnauseam = (function () {
         // Why do we do this?
         request.url && (request.url = trimChar(request.url, '/')); // no trailing slash
       }
-      callback(adnauseam[request.what](request, pageStore, tabId, frameId));
+      callback(adnauseam[request.what](request, pageStore, tabId));
       adnauseam.markUserAction(); // assume user-initiated and thus no longer 'idle'
 
     } else {
