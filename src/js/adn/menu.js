@@ -826,9 +826,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
     const selfURL = new URL(self.location.href);
     const tabId = parseInt(selfURL.searchParams.get('tabId'), 10) || null;
 
-    setTimeout(function () {
-      getPopupData(tabId);
-    }, 100);
+    getPopupData(tabId);
 
     // add click events
     uDom('.adn_state_radio').on('change', onChangeState)
