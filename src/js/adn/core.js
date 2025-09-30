@@ -1691,7 +1691,8 @@ const adnauseam = (function () {
     verifyLists();
     verifyVersion();
 
-    addNotification(notifications, OpenLetter);
+    const modified = addNotification(notifications, OpenLetter);
+    modified && sendNotifications(notifications);
 
     dnt.updateFilters();
 
