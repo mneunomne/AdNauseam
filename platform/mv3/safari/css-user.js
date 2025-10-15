@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     uBlock Origin Lite - a comprehensive, MV3-compliant content blocker
-    Copyright (C) 2025-present Raymond Hill
+    Copyright (C) 2019-present Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,39 +19,41 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-(async ( ) => {
+(async function uBOL_cssUser() {
 
 /******************************************************************************/
 
-const ubolOverlay = self.ubolOverlay;
-if ( ubolOverlay === undefined ) { return; }
-if ( ubolOverlay.file === '/unpicker-ui.html' ) { return; }
+const docURL = new URL(document.baseURI);
+const details = await chrome.runtime.sendMessage({
+    what: 'injectCustomFilters',
+    hostname: docURL.hostname,
+}).catch(( ) => {
+});
 
-/******************************************************************************/
-
-function onMessage(msg) {
-    switch ( msg.what ) {
-    case 'startCustomFilters':
-        return ubolOverlay.sendMessage({ what: 'startCustomFilters' });
-    case 'terminateCustomFilters':
-        return ubolOverlay.sendMessage({ what: 'terminateCustomFilters' });
-    case 'removeCustomFilters':
-        return ubolOverlay.sendMessage({ what: 'removeCustomFilters',
-            hostname: ubolOverlay.url.hostname,
-            selectors: [ msg.selector ],
-        });
-    default:
-        break;
+if ( details?.proceduralSelectors?.length ) {
+    if ( self.ProceduralFiltererAPI ) {
+        self.customProceduralFiltererAPI = new self.ProceduralFiltererAPI();
+        self.customProceduralFiltererAPI.addSelectors(
+            details.proceduralSelectors.map(a => JSON.parse(a))
+        );
     }
 }
 
-/******************************************************************************/
+if ( details?.plainSelectors?.length ) {
+    const selectors = details.plainSelectors;
+    self.addEventListener('pageshow', ( ) => {
+        chrome.runtime.sendMessage({
+            what: 'insertCSS',
+            css: `${selectors.join(',\n')}{display:none!important;}`,
+        }).catch(( ) => {
+        });
+    });
+}
 
-await ubolOverlay.install('/unpicker-ui.html', onMessage);
+self.customFilters = details;
 
 /******************************************************************************/
 
 })();
-
 
 void 0;
