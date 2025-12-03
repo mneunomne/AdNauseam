@@ -2383,6 +2383,7 @@ const adnauseam = (function () {
     const allAds = adlist()
     const json = adsForUI(reqPageStore.rawURL);
     json.total = allAds.length;
+    json.clicked = allAds.filter(ad => ad.visitedTs).length;
 
     // if we have no page ads, use the most recent (6)
     // avoid sending data for too many ads in messaging
