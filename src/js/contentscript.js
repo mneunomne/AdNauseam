@@ -470,15 +470,18 @@ vAPI.SafeAnimationFrame = class {
 
 */
 
-vAPI.hideStyle = 'display:none!important;';
+// ADN: Dynamic hiding style based on showAdsDebug setting
+const hidingStyleDebug = 'opacity:0.5!important;border:2px solid red!important;'; // ADN
+const hidingStyleNormal = 'opacity:0!important;height:1px!important;'; // ADN
+vAPI.hideStyle = hidingStyleNormal; // ADN - default, will be updated when showAdsDebug is fetched
+vAPI.notHideStyle = '/*display:none!important;*/'; // ADN
+vAPI.showAdsDebug = false; // ADN
 
-/* Adn */
-vAPI.notHideStyle = '/*display:none!important;*/'; 
-vAPI.showAdsDebug = false;
+// ADN: Fetch showAdsDebug setting and update hideStyle accordingly
 vAPI.messaging.send('contentscript', {what:'getShowAdsDebug'}).then(response => {
-    vAPI.showAdsDebug = response
+    vAPI.showAdsDebug = response;
+    vAPI.hideStyle = response ? hidingStyleDebug : hidingStyleNormal; // ADN
 });
-/* end of Adn */
 
 vAPI.DOMFilterer = class {
     constructor() {
@@ -1142,6 +1145,7 @@ vAPI.DOMFilterer = class {
             let nodes;
             if (allSelectors != "") {
               nodes = document.querySelectorAll(allSelectors);
+              // console.log("[ADN] processing selectors: " + allSelectors);    
               for ( const node of nodes ) {
                   vAPI.adCheck && vAPI.adCheck(node);
               }
@@ -1306,8 +1310,10 @@ const isSelectorValid = (selector) => {
 
 
 const processFilters = function (selectors) {
+    // debug selectors
+    // console.log("[ADN] processing selectors: " + selectors);
     if (!isSelectorValid(selectors)) {
-        //console.warn("[ADN] invalid selector: " + selectors);
+        console.warn("[ADN] invalid selector: " + selectors);
         return;
     }
     let nodes = document.querySelectorAll(selectors);
