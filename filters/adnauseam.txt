@@ -903,6 +903,7 @@ www.google.*#@#+js(set-attr, c-wiz[data-p] [data-query] a[target="_blank"][role=
 ##.posterImage-link
 ##.ads-column-container
 ##.ad .contentImg
+##.alignClickable[onclick*="adclick"]:has(.imageholder)
 
 # ads.eu.criteo
 ads.eu.criteo.com##div:has(.imageholder)
