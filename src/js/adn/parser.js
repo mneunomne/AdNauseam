@@ -33,10 +33,26 @@
     }
     elem && vAPI.adParser.process(elem);
   }
+  
 
   const ignorableImages = ['mgid_logo_mini_43x20.png', 'data:image/gif;base64,R0lGODlh7AFIAfAAAAAAAAAAACH5BAEAAAAALAAAAADsAUgBAAL+hI+py+0Po5y02ouz3rz7D4biSJbmiabqyrbuC8fyTNf2jef6zvf+DwwKh8Si8YhMKpfMpvMJjUqn1Kr1is1qt9yu9wsOi8fksvmMTqvX7Lb7DY/L5/S6/Y7P6/f8vv8PGCg4SFhoeIiYqLjI2Oj4CBkpOUlZaXmJmam5ydnp+QkaKjpKWmp6ipqqusra6voKGys7S1tre4ubq7vL2+v7CxwsPExcbHyMnKy8zNzs/AwdLT1NXW19jZ2tvc3d7f0NHi4+Tl5ufo6err7O3u7+Dh8vP09fb3+Pn6+/z9/v/w8woMCBBAsaPIgwocKFDBs6fAgxosSJFCtavIgxo8b+jRw7evwIMqTIkSRLmjyJMqXKlSxbunwJM6bMmTRr2ryJM6fOnTx7+vwJNKjQoUSLGj2KNKnSpUybOn0KNarUqVSrWr2KNavWrVy7ev0KNqzYsWTLmj2LNq3atWzbun0LN67cuXTr2r2LN6/evXz7+v0LOLDgwYQLGz6MOLHixYwbO34MObLkyZQrW76MObPmzZw7e/4MOrTo0aRLmz6NOrXq1axbu34NO7bs2bRr276NO7fu3bx7+/4NPLjw4cSLGz+OPLny5cybO38OPbr06dSrW7+OPbv27dy7e/8OPrz48eTLmz+PPr369ezbu38PP778+fTr27+PP7/+/fxR+/v/D2CAAg5IYIEGHohgggouyGCDDj4IYYQSTkhhhRZeiGGGGm7IYYcefghiiCKOSGKJJp6IYooqrshiiy6+CGOMMs5IY4023ohjjjruCFYBADs='];
   const ocRegex = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/gi;
   const urlRegex = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm;
+
+  const imgSelectors = [
+    'img',
+    'amp-img',
+    '.cropped-image-intermedia-box',
+    '.imageholder',
+    '[data-imgsrc]',
+    '[data-src]',
+    '[data-lazy-src]',
+    '[data-original]',
+    '[data-original-src]',
+    '[data-bgset]',
+    '[data-background-image]',
+    '.posterImage-link'
+  ];
 
   const createParser = function () {
 
@@ -83,25 +99,51 @@
 
     const findBgImage = function (elem) {
       logP("findBgImage", elem)
-      var attribute = elem.style.backgroundImage ? elem.style.backgroundImage : elem.style.background;
-      if (attribute && clickableParent(elem)) {
-        const targetUrl = getTargetUrl(elem);
+      // Try inline style first, then computed style
+      var attribute = elem.style.backgroundImage || elem.style.background;
+      if (!attribute || attribute === 'none') {
+        const computedStyle = getComputedStyle(elem);
+        attribute = computedStyle.backgroundImage || computedStyle.background;
+      }
+      
+      // Check for clickable parent OR clickable child
+      const clickable = clickableParent(elem) || clickableChild(elem);
+      
+      if (attribute && attribute !== 'none' && clickable) {
+        const targetUrl = getTargetUrlFromClickable(clickable);
         if (attribute && targetUrl) {
           // create Image element for ad size
           const img = document.createElement("img");
           const src = getSrcFromAttribute(attribute);
+          if (!src) {
+            logP("Fail: no src found in background attribute", attribute);
+            return;
+          }
           img.src = src
           
           return createImageAd(img, src, targetUrl);
         } else {
-          var bgElements = elem.querySelector("[style*='background-image']")
-          attribute = bgElements.style.backgroundImage ? bgElements.style.backgroundImage : bgElements.style.background;
-          if (attribute && bgElements) {
-            const img = document.createElement("img");
-            const src = getSrcFromAttribute(attribute);
-            img.src = src
-            
-            return createImageAd(img, src, targetUrl);
+          // No targetUrl from main element, check children with background-image
+          var bgElements = elem.querySelector("[style*='background-image'], [style*='background']")
+          if (bgElements) {
+            // Try inline style first, then computed style for child element
+            attribute = bgElements.style.backgroundImage || bgElements.style.background;
+            if (!attribute || attribute === 'none') {
+              const computedStyle = getComputedStyle(bgElements);
+              attribute = computedStyle.backgroundImage || computedStyle.background;
+            }
+            if (attribute && attribute !== 'none') {
+              const childClickable = clickableParent(bgElements) || clickableChild(bgElements);
+              const childTargetUrl = childClickable ? getTargetUrlFromClickable(childClickable) : null;
+              if (childTargetUrl) {
+                const img = document.createElement("img");
+                const src = getSrcFromAttribute(attribute);
+                if (src) {
+                  img.src = src
+                  return createImageAd(img, src, childTargetUrl);
+                }
+              }
+            }
           }
         }
       }
@@ -118,17 +160,48 @@
     };
 
     const clickableParent = function (node) {
-
-      let checkNode = node;
-      while (checkNode && checkNode.nodeType === 1) {
-
-        //checkNode && console.log('CHECKING: '+checkNode.tagName, checkNode);
-        if (checkNode.tagName === 'A' || checkNode.hasAttribute('onclick')) {
-          return checkNode;
-        }
-
-        checkNode = checkNode.parentNode;
+    let checkNode = node;
+    let depth = 0;
+    while (checkNode && checkNode.nodeType === 1 && depth < 15) {
+      if (checkNode.tagName === 'A' || checkNode.hasAttribute('href')) {
+        return checkNode;
       }
+      // Only consider onclick if it contains a valid URL
+      if (checkNode.hasAttribute('onclick') && onclickHasUrl(checkNode.getAttribute('onclick'))) {
+        return checkNode;
+      }
+      checkNode = checkNode.parentNode;
+      depth++;
+    }
+    return null;
+  }
+
+    // Find clickable element within a node (child anchor tags)
+    const clickableChild = function (node) {
+      if (!node || node.nodeType !== 1) return null;
+      // First check if the node itself is clickable
+      if (node.tagName === 'A' || node.hasAttribute('href')) {
+        return node;
+      }
+      // Look for anchor tags within the element
+      const anchors = node.querySelectorAll('a[href]');
+      if (anchors.length > 0) {
+        return anchors[0]; // Return the first clickable child
+      }
+      // Check for elements with onclick handlers containing URLs
+      const clickables = node.querySelectorAll('[onclick]');
+      for (let i = 0; i < clickables.length; i++) {
+        if (onclickHasUrl(clickables[i].getAttribute('onclick'))) {
+          return clickables[i];
+        }
+      }
+      return null;
+    }
+
+    // Helper to check if onclick attribute contains a URL
+    const onclickHasUrl = function (onclick) {
+      if (!onclick) return false;
+      return urlRegex.test(onclick) || ocRegex.test(onclick);
     }
 
     const Ad = function (network, targetUrl, data) {
@@ -146,16 +219,27 @@
       this.pageUrl = null;
     };
 
+    const REPROCESS_DELAY = 5000; // 10 seconds in milliseconds
+
+    const canProcess = function (elem) {
+      const lastProcessed = elem.getAttribute('process-adn');
+      if (!lastProcessed) return true;
+      const elapsed = Date.now() - parseInt(lastProcessed, 10);
+      return elapsed >= REPROCESS_DELAY;
+    }
+
+    const markProcessed = function (elem) {
+      elem.setAttribute('process-adn', Date.now().toString());
+    }
+
     const processImage = function (img) {
 
-      if(img.hasAttribute('process-adn')) {
-        logP('Image already processed by parser')
+      if (!canProcess(img)) {
         return false;
-      } else {
-        img.setAttribute('process-adn', true)
       }
+      markProcessed(img);
 
-      var src = img.src || img.getAttribute("src");
+      var src = img.src || img.getAttribute("src") || img.getAttribute("data-src") || img.getAttribute("data-bgset") || img.getAttribute("data-imgsrc");
 
       // ignore this element which only server to generate div size. It is a transparent png image. Fixing https://github.com/dhowe/AdNauseam/issues/1843
       if (img.className === 'i-amphtml-intrinsic-sizer') {
@@ -170,9 +254,16 @@
 
       if (!src) { // no image src
 
-        logP("Fail: no image src", img);
-        return;
+        // try to get from background-image style
+        let attribute = img.style.backgroundImage || img.style.background;
+        if (!attribute || attribute === 'none') {
+          const computedStyle = getComputedStyle(img);
+          attribute = computedStyle.backgroundImage || computedStyle.background;
+          src = extractUrlSrc(attribute);
+        }
       }
+      
+      if (!src) return warnP("Fail: no image src", img);
 
       let targetUrl = getTargetUrl(img);
 
@@ -198,43 +289,48 @@
       }
     }
 
-    const getTargetUrl = function (elem) {
-
-      const target = clickableParent(elem), loc = window.location;
+    // Get URL from a known clickable element
+    const getTargetUrlFromClickable = function (target) {
+      const loc = window.location;
       let targetUrl;
 
-      if (!target) { // no clickable parent
-
-        logP("Fail: no ClickableParent", elem, elem.parentNode);
-        return;
-      }
+      if (!target) return null;
 
       if (target.hasAttribute('href')) {
-
         targetUrl = target.getAttribute("href");
 
         // do we have a relative url
-        if (targetUrl.indexOf("/") === 0) {
-
+        if (targetUrl && targetUrl.indexOf("/") === 0) {
           // in case the ad is from an iframe
           if (target.hasAttribute('data-original-click-url')) {
-
             const targetDomain = parseDomain(target.getAttribute("data-original-click-url"));
             const proto = window.location.protocol || 'http';
             targetUrl = normalizeUrl(proto, targetDomain, targetUrl);
           }
-
-          // TODO: do we want to use the pageDomain here?
         }
-
       } else if (target.hasAttribute('onclick')) {
-
         const onclickInfo = target.getAttribute("onclick");
         if (onclickInfo && onclickInfo.length) {
-
           targetUrl = parseOnClick(onclickInfo, loc.hostname, loc.protocol);
         }
       }
+
+      return targetUrl;
+    }
+
+    const getTargetUrl = function (elem) {
+
+      // Check for clickable parent first, then clickable child
+      const target = clickableParent(elem) || clickableChild(elem);
+      let targetUrl;
+
+      if (!target) { // no clickable parent or child
+
+        logP("Fail: no ClickableParent or ClickableChild", elem, elem.parentNode);
+        return;
+      }
+
+      targetUrl = getTargetUrlFromClickable(target);
 
       if (!targetUrl) { // no clickable tag in our target
 
@@ -243,7 +339,6 @@
 
       return targetUrl;
     }
-
 
     const createImageAd = function (el, src, targetUrl) {
       let wFallback = parseInt(el.getAttribute("width") || -1)
@@ -299,12 +394,11 @@
 
     const processVideo = function (el) {
 
-      if(el.hasAttribute('process-adn')) {
-        logP('Video already processed by parser')
+      if (!canProcess(el)) {
+        logP('Video recently processed by parser, skipping')
         return false;
-      } else {
-        el.setAttribute('process-adn', true)
       }
+      markProcessed(el);
 
       if (!el.hasAttribute('poster')) {
         logP('Fail: video element has no poster attribute, continue' + el);
@@ -402,15 +496,14 @@
 
     const process = function (elem) {
 
-      if(elem.hasAttribute('process-adn')) {
-        logP(`Element (${elem.tagName}) already processed by parser.`)
+      if (!canProcess(elem)) {
+        logP(`Element (${elem.tagName}) recently processed, skipping.`)
         return;
-      } else {
-        elem.setAttribute('process-adn', true)
-        logP('Process(' + elem.tagName + ')',
-          elem.tagName === 'IFRAME' && elem.hasAttribute('src')
-            ? elem.getAttribute('src') : elem);
       }
+      markProcessed(elem);
+      logP('Process(' + elem.tagName + ')',
+        elem.tagName === 'IFRAME' && elem.hasAttribute('src')
+          ? elem.getAttribute('src') : elem);
 
       var tagName = elem.tagName
 
@@ -435,7 +528,7 @@
           logP('Checking children of', elem);
           
           var found = false
-          const imgs = elem.querySelectorAll('img, amp-img');
+          const imgs = elem.querySelectorAll(imgSelectors.join(', '));
           if (imgs.length) {
             found = findImageAds(imgs);
             if (found) return;
@@ -443,19 +536,38 @@
 
           const videos = elem.querySelectorAll('video[poster]');
           if (videos.length) {
-            found = findVideoAds(imgs);
+            found = findVideoAds(videos);
             if (found) return;
           }
+        
+          
+          // Also try findBgImage directly on the element itself
+          if (findBgImage(elem)) return;
           
 
           logP('No img found, check other cases', elem);
 
           // if no img found within the element
-          findGoogleResponsiveDisplayAd(elem) || findBgImage(elem) || GoogleActiveViewElement(elem) || findYoutubeTextAd(elem)
+          findGoogleResponsiveDisplayAd(elem) || GoogleActiveViewElement(elem) || findYoutubeTextAd(elem)
             || logP('No images in children of', elem);
 
           // and finally check for text ads
           vAPI.textAdParser.process(elem);
+
+          // Check for child iframes and process them
+          const iframes = elem.querySelectorAll('iframe');
+          if (iframes.length) {
+            for (let i = 0; i < iframes.length; i++) {
+              if (canProcess(iframes[i])) {
+                markProcessed(iframes[i]);
+                iframes[i].addEventListener('load', processIFrame, false);
+                // If iframe is already loaded, process it immediately
+                if (iframes[i].contentDocument && iframes[i].contentDocument.readyState === 'complete') {
+                  processIFrame.call(iframes[i]);
+                }
+              }
+            }
+          }
 
         break;
       }
@@ -626,6 +738,8 @@
 
     const processIFrame = function () {
 
+      // console.log('[PARSER] processIFrame', this.getAttribute('src'));
+
       let doc;
       try {
         doc = this.contentDocument || this.contentWindow.document || this.document;
@@ -635,7 +749,7 @@
         return;
       }
 
-      const imgs = doc.querySelectorAll('img');
+      const imgs = doc.querySelectorAll(imgSelectors.join(', '));
       if (imgs.length) {
         findImageAds(imgs);
       }

@@ -31,6 +31,12 @@ import adnauseam from './adn/core.js'
 /******************************************************************************/
 /******************************************************************************/
 
+//const hidingStyle = 'opacity:0!important;height:1px!important;width:1px!important;overflow:hidden!important;margin:0!important;padding:0!important;border:0!important;position:absolute!important;';
+// ADN: Dynamic hiding style based on showAdsDebug setting
+const hidingStyleDebug = 'opacity:0.5!important;border:2px solid red!important;';
+const hidingStyleNormal = 'opacity:0!important;height:1px!important;';
+const getHidingStyle = () => µb.hiddenSettings.showAdsDebug ? hidingStyleDebug : hidingStyleNormal;
+
 //ADN google adsense collection
 //ublock also added something similar to address google ads at src/web_accessible_resources/googlesyndication_adsbygoogle.js
 // TO DO - add these entries to a separate config file 
@@ -676,7 +682,7 @@ CosmeticFilteringEngine.prototype.cssRuleFromProcedural = function(pfilter) {
         return `${selector}\n{${style}}`;
     }
     if ( style === undefined ) {
-        return `@media ${mq} {\n${selector}\n{display:none!important;}\n}`;
+        return `@media ${mq} {\n${selector}\n{${getHidingStyle()}}\n}`;
     }
     return `@media ${mq} {\n${selector}\n{${style}}\n}`;
 };
@@ -733,10 +739,7 @@ CosmeticFilteringEngine.prototype.retrieveGenericSelectors = function(request) {
     if ( selectors.length === 0 ) { return out; }
     
     if (!adnauseam.contentPrefs(request.hostname).hidingDisabled) { // ADN Don't inject user stylesheets if hiding is disabled
-        out.injectedCSS = `${selectors.join(',\n')}\n{display:none!important;}`;
-        if (µb.hiddenSettings.showAdsDebug) {
-            out.injectedCSS = `${selectors.join(',\n')}\n{/*display:none!important;*/}`; // ADN showAdsDebug option
-        }
+        out.injectedCSS = `${selectors.join(',\n')}\n{${getHidingStyle()}}`;
         vAPI.tabs.insertCSS(request.tabId, {
             code: out.injectedCSS,
             frameId: request.frameId,
@@ -829,7 +832,7 @@ CosmeticFilteringEngine.prototype.retrieveSpecificSelectors = function(
 
         if ( specificSet.size !== 0 ) {
             injectedCSS.push(
-                `${Array.from(specificSet).join(',\n')}\n{display:none!important;}`
+                `${Array.from(specificSet).join(',\n')}\n{${getHidingStyle()}}`
             );
         }
 
@@ -893,7 +896,7 @@ CosmeticFilteringEngine.prototype.retrieveSpecificSelectors = function(
                     out.exceptedFilters.push(...str.excepted);
                 }
                 if ( str.s.length !== 0 ) {
-                    injectedCSS.push(`${str.s}\n{display:none!important;}`);
+                    injectedCSS.push(`${str.s}\n{${getHidingStyle()};}`);
                 }
             }
         }
@@ -924,11 +927,7 @@ CosmeticFilteringEngine.prototype.retrieveSpecificSelectors = function(
     if ( cacheEntry ) {
         const networkFilters = [];
         if ( cacheEntry.retrieveNet(networkFilters) ) {
-            if (!µb.hiddenSettings.showAdsDebug) { // Adn
-                details.code = `${networkFilters.join('\n')}\n{display:none!important;}`;
-            } else {
-                details.code = `${networkFilters.join('\n')}\n{/*display:none!important;*/}`;
-            }
+            details.code = `${networkFilters.join('\n')}\n{${getHidingStyle()}}`;
             if ( request.tabId !== undefined && options.dontInject !== true ) {
                 vAPI.tabs.insertCSS(request.tabId, details);
             }
