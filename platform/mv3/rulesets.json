@@ -111,14 +111,24 @@
   },
   {
     "id": "adguard-spyware-url",
-    "name": "AdGuard URL Tracking Protection",
+    "name": "AdGuard/uBO – URL Tracking Protection",
     "group": "privacy",
     "enabled": false,
     "excludedPlatforms": [ "safari" ],
     "urls": [
-      "https://filters.adtidy.org/extension/ublock/filters/17.txt"
+      "https://ublockorigin.github.io/uAssets/filters/privacy-removeparam.txt"
     ],
-    "homeURL": "https://github.com/AdguardTeam/AdguardFilters#adguard-filters"
+    "homeURL": "https://github.com/uBlockOrigin/uAssets"
+  },
+  {
+    "id": "annoyances-ai",
+    "name": "EasyList – AI Widgets",
+    "group": "annoyances",
+    "enabled": false,
+    "urls": [
+      "https://ublockorigin.github.io/uAssets/thirdparties/easylist-ai.txt"
+    ],
+    "homeURL": "https://github.com/easylist/easylist#fanboy-lists"
   },
   {
     "id": "annoyances-cookies",
@@ -223,6 +233,18 @@
       "https://raw.githubusercontent.com/AnXh3L0/blocklist/master/albanian-easylist-addition/Albania.txt"
     ],
     "homeURL": "https://github.com/AnXh3L0/blocklist"
+  },
+  {
+    "id": "ara-0",
+    "group": "regions",
+    "lang": "ar kab",
+    "name": "🇪🇬eg 🇸🇦sa 🇲🇦ma 🇩🇿dz: Liste AR",
+    "tags": "ads arabic اَلْعَرَبِيَّةُ",
+    "enabled": false,
+    "urls": [
+      "https://raw.githubusercontent.com/easylist/listear/master/Liste_AR.txt"
+    ],
+    "homeURL": "https://forums.lanik.us/viewforum.php?f=98"
   },
   {
     "id": "bgr-0",

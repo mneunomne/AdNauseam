@@ -1,3 +1,25 @@
+- [Add `adthrive` shim](https://github.com/gorhill/uBlock/commit/b8bf0bbab4)
+- [Add `elem.shadowRoot` fallback in `getShadowRoot`](https://github.com/gorhill/uBlock/commit/c8b42ea819) (by @antonok-edm)
+- [Fix merging of uncommitted filters](https://github.com/gorhill/uBlock/commit/c8004c4b02)
+- [Improve `urlskip` implementation](https://github.com/gorhill/uBlock/commit/41ced43f03)
+- [Improve `set-attr`/`trusted-set-attr` scriptlets](https://github.com/gorhill/uBlock/commit/3f3d4768b6)
+- [Improve `trusted-create-html` scriptlet](https://github.com/gorhill/uBlock/commit/3c7eb3497d)
+- [Add Anti-AI Suggestions list](https://github.com/gorhill/uBlock/commit/a0a7a99675) (by @ryanbr)
+- [Unescape unduly escaped `|` in regex-based domain options](https://github.com/gorhill/uBlock/commit/bb34a4b83b)
+- [Mind id/class changes in generic cosmetic filtering surveyor](https://github.com/gorhill/uBlock/commit/c053361d30)
+- [Fix `specifichide` option](https://github.com/gorhill/uBlock/commit/024019094f)
+- [Improve `prevent-addEventListener` scriptlet](https://github.com/gorhill/uBlock/commit/1977196abe)
+- [Add `nitropay_ads.js` shim](https://github.com/gorhill/uBlock/commit/6af8a457ed)
+- [Improve scriptlets proxying `fetch`](https://github.com/gorhill/uBlock/commit/13612d1d29)
+- [Improve google-ima shim](https://github.com/gorhill/uBlock/commit/3fc281adf1)
+- [[firefox] Change minimum required version to 115](https://github.com/gorhill/uBlock/commit/d5793b83f2)
+- [Fix regression in `prevent-fetch` scriptlet](https://github.com/gorhill/uBlock/commit/be78200c2f)
+- [Add `prevent-dialog` scriptlet](https://github.com/gorhill/uBlock/commit/fd12d01928)
+
+----------
+
+# 1.68.0
+
 - [Improve `prevent-fetch` scriptlet](https://github.com/gorhill/uBlock/commit/b46572e938)
 - [Fix regression in `trusted-replace-argument` scriptlet](https://github.com/gorhill/uBlock/commit/2e509d42fc)
 - [Add web-accessible resource for sensors analytics](https://github.com/gorhill/uBlock/commit/cd0f5be12c)
