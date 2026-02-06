@@ -241,10 +241,16 @@
 		"content": "filters",
 		"group": "privacy",
 		"off": true,
-		"title": "AdGuard URL Tracking Protection",
+		"title": "AdGuard/uBO – URL Tracking Protection",
 		"tags": "privacy",
-		"contentURL": "https://filters.adtidy.org/extension/ublock/filters/17.txt",
-		"supportURL": "https://github.com/AdguardTeam/AdguardFilters#adguard-filters"
+		"contentURL": "https://ublockorigin.github.io/uAssets/filters/privacy-removeparam.txt",
+		"cdnURLs": [
+			"https://ublockorigin.github.io/uAssetsCDN/filters/privacy-removeparam.txt",
+			"https://ublockorigin.pages.dev/filters/privacy-removeparam.txt",
+			"https://cdn.jsdelivr.net/gh/uBlockOrigin/uAssetsCDN@main/filters/privacy-removeparam.txt",
+			"https://cdn.statically.io/gh/uBlockOrigin/uAssetsCDN/main/filters/privacy-removeparam.txt"
+		],
+		"supportURL": "https://github.com/uBlockOrigin/uAssets"
 	},
 	"block-lan": {
 		"content": "filters",
@@ -492,6 +498,23 @@
 			"https://ublockorigin.pages.dev/thirdparties/easylist-chat.txt",
 			"https://cdn.jsdelivr.net/gh/uBlockOrigin/uAssetsCDN@main/thirdparties/easylist-chat.txt",
 			"https://cdn.statically.io/gh/uBlockOrigin/uAssetsCDN/main/thirdparties/easylist-chat.txt"
+		],
+		"supportURL": "https://github.com/easylist/easylist#fanboy-lists"
+	},
+	"fanboy-ai-suggestions": {
+		"content": "filters",
+		"group": "annoyances",
+		"parent": "EasyList – Annoyances",
+		"off": true,
+		"title": "EasyList – AI Widgets",
+		"tags": "annoyances",
+		"preferred": true,
+		"contentURL": "https://ublockorigin.github.io/uAssets/thirdparties/easylist-ai.txt",
+		"cdnURLs": [
+			"https://ublockorigin.github.io/uAssetsCDN/thirdparties/easylist-ai.txt",
+			"https://ublockorigin.pages.dev/thirdparties/easylist-ai.txt",
+			"https://cdn.jsdelivr.net/gh/uBlockOrigin/uAssetsCDN@main/thirdparties/easylist-ai.txt",
+			"https://cdn.statically.io/gh/uBlockOrigin/uAssetsCDN/main/thirdparties/easylist-ai.txt"
 		],
 		"supportURL": "https://github.com/easylist/easylist#fanboy-lists"
 	},

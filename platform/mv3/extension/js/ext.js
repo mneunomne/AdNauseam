@@ -63,9 +63,9 @@ export async function localWrite(key, value) {
     return browser.storage.local.set({ [key]: value });
 }
 
-export async function localRemove(key) {
+export async function localRemove(keys) {
     if ( notAnObject(browser?.storage?.local) ) { return; }
-    return browser.storage.local.remove(key);
+    return browser.storage.local.remove(keys);
 }
 
 export async function localKeys() {
@@ -95,9 +95,27 @@ export async function sessionWrite(key, value) {
     return browser.storage.session.set({ [key]: value });
 }
 
-export async function sessionRemove(key) {
+export async function sessionRemove(keys) {
     if ( notAnObject(browser?.storage?.session) ) { return; }
-    return browser.storage.session.remove(key);
+    return browser.storage.session.remove(keys);
+}
+
+export async function sessionKeys() {
+    if ( notAnObject(browser?.storage?.session) ) { return; }
+    if ( browser.storage.session.getKeys ) {
+        return browser.storage.session.getKeys();
+    }
+    const bin = await browser.storage.session.get(null);
+    if ( notAnObject(bin) ) { return; }
+    return Object.keys(bin);
+}
+
+export async function sessionAccessLevel(level) {
+    try {
+        browser.storage.session.setAccessLevel(level);
+    } catch {
+    }
+    
 }
 
 /******************************************************************************/
