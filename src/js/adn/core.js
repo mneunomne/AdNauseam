@@ -1725,17 +1725,20 @@ const adnauseam = (function () {
   }
 
   exports.lookupAd = function (url, requestId) {
-
-    const ads = adlist();
-    for (let i = 0; i < ads.length; i++) {
-
-      if (ads[i].attemptedTs) {
-        //console.log('check: '+ads[i].requestId+'/'+ads[i].targetUrl+' ?= '+requestId+'/'+url);
-        if (ads[i].requestId === requestId || ads[i].targetUrl === url) {
-          return ads[i];
-        }
-      }
-    }
+		if (requestId) {
+			const ads = adlist();
+			for (let i = 0; i < ads.length; i++) {
+	
+				if (ads[i].attemptedTs) {
+					//console.log('check: '+ads[i].requestId+'/'+ads[i].targetUrl+' ?= '+requestId+'/'+url);
+					if (ads[i].requestId === requestId || ads[i].targetUrl === url) {
+						return ads[i];
+					}
+				}
+			}
+		} else {
+			return false; 
+		}
   };
 
   exports.registerAd = function (request, pageStore, tabId) {

@@ -28,14 +28,16 @@ import logger from './logger.js';
 import µb from './background.js';
 import adnauseam from './adn/core.js'
 
+
 /******************************************************************************/
 /******************************************************************************/
 
 //const hidingStyle = 'opacity:0!important;height:1px!important;width:1px!important;overflow:hidden!important;margin:0!important;padding:0!important;border:0!important;position:absolute!important;';
 // ADN: Dynamic hiding style based on showAdsDebug setting
-const hidingStyleDebug = 'opacity:0.5!important;border:2px solid red!important;';
-const hidingStyleNormal = 'opacity:0!important;height:1px!important;';
+const hidingStyleDebug = '/*opacity:0.5!important;border:2px solid red!important;*/';
+const hidingStyleNormal = 'display: none!important;'; 
 const getHidingStyle = () => µb.hiddenSettings.showAdsDebug ? hidingStyleDebug : hidingStyleNormal;
+const getCSSDelay = () => µb.hiddenSettings.cssInjectionDelay || 0; // Adn delay for css injection to ensure it happens after the page has loaded and ads have been collected
 
 //ADN google adsense collection
 //ublock also added something similar to address google ads at src/web_accessible_resources/googlesyndication_adsbygoogle.js
@@ -738,15 +740,17 @@ CosmeticFilteringEngine.prototype.retrieveGenericSelectors = function(request) {
 
     if ( selectors.length === 0 ) { return out; }
     
+		out.injectedCSS = `${selectors.join(',\n')}\n{${getHidingStyle()}}`;
     if (!adnauseam.contentPrefs(request.hostname).hidingDisabled) { // ADN Don't inject user stylesheets if hiding is disabled
-        out.injectedCSS = `${selectors.join(',\n')}\n{${getHidingStyle()}}`;
-        vAPI.tabs.insertCSS(request.tabId, {
-            code: out.injectedCSS,
-            frameId: request.frameId,
-            matchAboutBlank: true,
-            runAt: 'document_start',
-        });
-    }
+				setTimeout(() => {
+					vAPI.tabs.insertCSS(request.tabId, {
+							code: out.injectedCSS,
+							frameId: request.frameId,
+							matchAboutBlank: true,
+							runAt: 'document_start',
+					});
+			}, getCSSDelay());
+		}
 
     return out;
 };
@@ -908,14 +912,13 @@ CosmeticFilteringEngine.prototype.retrieveSpecificSelectors = function(
 
     // ADN Don't inject user stylesheets if hiding is disabled
     // Inject all declarative-based filters as a single stylesheet.
-    if (
-        !adnauseam.contentPrefs(request.hostname).hidingDisabled &&
-        injectedCSS.length !== 0
-    ) {
+    if (injectedCSS.length !== 0) {
         out.injectedCSS = injectedCSS.join('\n\n');
         details.code = out.injectedCSS;
-        if ( request.tabId !== undefined && options.dontInject !== true ) {
-            vAPI.tabs.insertCSS(request.tabId, details);
+        if ( request.tabId !== undefined && options.dontInject !== true  && !adnauseam.contentPrefs(request.hostname).hidingDisabled) {
+          setTimeout(() => {  
+						vAPI.tabs.insertCSS(request.tabId, details);
+					}, getCSSDelay());
         }
     }
 
@@ -925,14 +928,20 @@ CosmeticFilteringEngine.prototype.retrieveSpecificSelectors = function(
         const networkFilters = [];
         if ( cacheEntry.retrieveNet(networkFilters) ) {
             details.code = `${networkFilters.join('\n')}\n{${getHidingStyle()}}`;
-            if ( request.tabId !== undefined && options.dontInject !== true ) {
-                vAPI.tabs.insertCSS(request.tabId, details);
+            if ( request.tabId !== undefined && options.dontInject !== true) {
+                setTimeout(() => {
+									vAPI.tabs.insertCSS(request.tabId, details);
+								}, getCSSDelay());
             }
         }
 
-        if ( out.fake.length !== 0 ) {
-            details.code = out.fake + '\n{height:0px!important;}';
-            vAPI.tabs.insertCSS(request.tabId, details);
+        if ( out.fake.length !== 0 ) { // ADN inject fake hide rules to trigger hiding of blocked elements even if there are no cosmetic filters
+            details.code = out.fake + `\n{${getHidingStyle()}}`;
+						if (!adnauseam.contentPrefs(request.hostname).hidingDisabled) { // ADN
+							setTimeout(() => {
+								vAPI.tabs.insertCSS(request.tabId, details);
+							}, getCSSDelay());
+						}
             out.networkFilters = '';
         }
 

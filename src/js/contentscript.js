@@ -467,8 +467,8 @@ vAPI.SafeAnimationFrame = class {
 */
 
 // ADN: Dynamic hiding style based on showAdsDebug setting
-const hidingStyleDebug = 'opacity:0.5!important;border:2px solid red!important;'; // ADN
-const hidingStyleNormal = 'opacity:0!important;height:1px!important;'; // ADN
+const hidingStyleDebug = 'opacity:0.5!important;border:1px solid red!important;'; // ADN
+const hidingStyleNormal = 'display:none!important;'; // ADN
 vAPI.hideStyle = hidingStyleNormal; // ADN - default, will be updated when showAdsDebug is fetched
 vAPI.notHideStyle = '/*display:none!important;*/'; // ADN
 vAPI.showAdsDebug = false; // ADN
@@ -496,10 +496,6 @@ vAPI.DOMFilterer = class {
     explodeCSS(css) {
         const out = [];
         var cssHide = `{${vAPI.hideStyle}}`;
-        // ADN
-        if (vAPI.showAdsDebug) {
-            cssHide = `{${vAPI.notHideStyle}}`;
-        }
         const blocks = css.trim().split(/\n\n+/);
         for ( const block of blocks ) {
             if ( block.endsWith(cssHide) === false ) { continue; }
@@ -718,7 +714,7 @@ vAPI.DOMFilterer = class {
         if ( collapseToken === undefined ) {
             collapseToken = vAPI.randomToken();
             vAPI.userStylesheet.add(
-                `[${collapseToken}]\n{${vAPI.showAdsDebug ? vAPI.notHideStyle : vAPI.hideStyle}}`, // Adn
+                `[${collapseToken}]\n{${vAPI.hideStyle}}`, // Adn
                 true
             );
         }
@@ -1131,11 +1127,7 @@ vAPI.DOMFilterer = class {
                 let injected = result[key];
                 let selectors;
                 if (typeof injected === 'string') {
-                    if (vAPI.showAdsDebug) {
-                        selectors = injected.split(`\n{${vAPI.notHideStyle}}`)[0]
-                    } else {
-                        selectors = injected.split(`\n{${vAPI.hideStyle}}`)[0] // ADN
-                    }
+									selectors = injected.split(`\n{${vAPI.hideStyle}}`)[0] // ADN
                 } else {
                     selectors = injected.join(",")
                 }
@@ -1431,7 +1423,7 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
         vAPI.noSpecificCosmeticFiltering = noSpecificCosmeticFiltering;
         vAPI.noGenericCosmeticFiltering = noGenericCosmeticFiltering;
 
-        if ( noSpecificCosmeticFiltering && noGenericCosmeticFiltering || response.prefs.hidingDisabled) { // ADN
+        if ( noSpecificCosmeticFiltering && noGenericCosmeticFiltering) { // ADN
             vAPI.domFilterer = null;
             vAPI.domSurveyor = null;
         } else {
