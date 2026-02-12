@@ -49,8 +49,9 @@ metacritic.com##.sitewide_promo
 spiegel.de##div[id*="google_ads_iframe"]
 spiegel.de##div[class*="Anzeige"]
 
-! www.nytimes.com##.e12j3pa50
-! www.nytimes.com###top-wrapper:has(.ad)
+www.nytimes.com###app > div:has(.dfp-ad-top-wrapper)
+www.nytimes.com##[data-hierarchy=feed] > div:has(.ad)
+www.nytimes.com##[id^=story-ad]
 
 search.yahoo.com##.layoutMiddle
 search.yahoo.com##.kr5yi684e6
