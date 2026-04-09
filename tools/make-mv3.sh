@@ -121,6 +121,9 @@ cp platform/mv3/extension/lib/codemirror/codemirror-ubol/LICENSE \
 mkdir -p "$ADNL_DIR"/lib/csstree
 cp "$ADN_DIR"/src/lib/csstree/* "$ADNL_DIR"/lib/csstree/
 
+# AdNauseam libraries
+cp platform/mv3/extension/lib/yamd5.js "$ADNL_DIR"/lib/
+
 echo "*** uBOLite.mv3: Generating rulesets"
 UBOL_BUILD_DIR=$(mktemp -d)
 mkdir -p "$UBOL_BUILD_DIR"

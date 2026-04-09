@@ -25,22 +25,28 @@
 
 let eventLogging = true;
 
-// Load logging preference from storage
-chrome.storage.local.get(['adnSettings'], data => {
-  if (data.adnSettings && typeof data.adnSettings.eventLogging === 'boolean') {
-    eventLogging = data.adnSettings.eventLogging;
-  }
-});
+// Load logging preference from storage (defensive: chrome may not be available
+// in all contexts, e.g. content scripts loaded before APIs are ready)
+try {
+  if (typeof chrome !== 'undefined' && chrome.storage) {
+    chrome.storage.local.get(['adnSettings']).then(data => {
+      if (data.adnSettings && typeof data.adnSettings.eventLogging === 'boolean') {
+        eventLogging = data.adnSettings.eventLogging;
+      }
+    }).catch(() => {});
 
-// Listen for settings changes
-chrome.storage.onChanged.addListener((changes) => {
-  if (changes.adnSettings && changes.adnSettings.newValue) {
-    const newSettings = changes.adnSettings.newValue;
-    if (typeof newSettings.eventLogging === 'boolean') {
-      eventLogging = newSettings.eventLogging;
-    }
+    chrome.storage.onChanged.addListener((changes) => {
+      if (changes.adnSettings && changes.adnSettings.newValue) {
+        const newSettings = changes.adnSettings.newValue;
+        if (typeof newSettings.eventLogging === 'boolean') {
+          eventLogging = newSettings.eventLogging;
+        }
+      }
+    });
   }
-});
+} catch (e) {
+  // Silently ignore - logging defaults to enabled
+}
 
 export const log = function () {
   if (eventLogging) {
