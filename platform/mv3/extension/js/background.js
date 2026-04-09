@@ -111,6 +111,7 @@ import { toggleToolbarIcon } from './action.js';
 
 // Import AdNauseam modules
 import { adnauseam } from './adn/core.js';
+import { log } from './adn/log.js';
 
 
 /******************************************************************************/
@@ -301,33 +302,66 @@ function onMessage(request, sender, callback) {
         return true;
 			
 		// start of ADN cases
-		case 'adFound': {
+		case 'adFound':
+		case 'registerAd': {
 			if (!request.ad) return false;
-			adnauseam.saveAd(request.ad).then(ad => {
-				if (ad && ad.targetUrl) {
-					adnauseam.clickAd(ad, 'fetch');
+			adnauseam.registerAd(request.ad, sender.tab).then(ad => {
+				if (ad) {
+					log('[ADN] Registered Ad#' + ad.id);
 				}
 			});
 			return false;
 		}
-		
+
 		case 'getAdNauseamStats': {
 			adnauseam.getStats().then(stats => callback(stats));
 			return true;
 		}
-		
+
+		case 'adsForVault':
 		case 'getVault': {
-			chrome.storage.local.get(['vault'], data => {
-				callback(data.vault || []);
-			});
+			adnauseam.adsForVault().then(ads => callback(ads));
 			return true;
 		}
-		
+
+		case 'adsForPage': {
+			adnauseam.adsForPage(request.pageUrl).then(data => callback(data));
+			return true;
+		}
+
+		case 'clearAds':
 		case 'clearVault': {
-			chrome.storage.local.set({
-				vault: [],
-				stats: { totalAds: 0, totalClicks: 0 }
-			}, () => callback({ success: true }));
+			adnauseam.clearAds().then(() => callback({ success: true }));
+			return true;
+		}
+
+		case 'deleteAdSet': {
+			adnauseam.deleteAdSet(request.ids).then(() => callback({ success: true }));
+			return true;
+		}
+
+		case 'exportAds': {
+			adnauseam.exportAds(request.includeImages).then(data => callback(data));
+			return true;
+		}
+
+		case 'importAds': {
+			adnauseam.importAds(request.data).then(result => callback(result));
+			return true;
+		}
+
+		case 'getAdnSettings': {
+			adnauseam.getSettings().then(settings => callback(settings));
+			return true;
+		}
+
+		case 'setAdnSettings': {
+			chrome.storage.local.get(['adnSettings'], data => {
+				const settings = Object.assign(data.adnSettings || {}, request.settings);
+				chrome.storage.local.set({ adnSettings: settings }, () => {
+					callback({ success: true });
+				});
+			});
 			return true;
 		}
 		// end of ADN cases
@@ -688,15 +722,9 @@ async function startSession() {
     const currentVersion = getCurrentVersion();
     const isNewVersion = currentVersion !== rulesetConfig.version;
 
-		// ADN start vault
-		const { vault } = await chrome.storage.local.get(['vault']);
-		if (!vault) {
-			await chrome.storage.local.set({
-				vault: [],
-				stats: { totalAds: 0, totalClicks: 0 }
-			});
-			console.log('[ADN] Initialized storage');
-		}
+		// ADN: initialize core (loads admap from storage)
+		await adnauseam.ready();
+		log('[ADN] Core initialized');
 
     // Admin settings override user settings
     await loadAdminConfig();

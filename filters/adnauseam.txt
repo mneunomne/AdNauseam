@@ -571,7 +571,7 @@ opensubtitles.org###fcninnerbox
 
 #Trackers[Verified]
 ||scorecardresearch.com^$third-party
-||assets.adobedtm.com^third-party
+||assets.adobedtm.com^$third-party
 ||postrelease.com^
 ||grvcdn.com/moth-min.js
 ||pointroll.com^
@@ -594,7 +594,7 @@ opensubtitles.org###fcninnerbox
 
 # Tracking pixel
 ||ad.turn.com/server/pixel.htm^$important
-||atpixel.alephd.com/post_adtech$image^$important
+||atpixel.alephd.com/post_adtech^$image,important
 ||cache.btrll.com/default/Pix-1x1.gif^$important
 
 # Rubicon tracking section

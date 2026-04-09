@@ -197,19 +197,28 @@
         
         const adData = extractAdData(element);
         if (adData && adData.targetUrl) {
+          // Build ad in MV2-compatible format with contentType/contentData
+          const isTextAd = !adData.imgSrc && adData.text;
           const ad = {
-            id: `ad-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             pageUrl: window.location.href,
             pageDomain: window.location.hostname,
+            pageTitle: document.title,
+            targetUrl: adData.targetUrl,
             foundTs: Date.now(),
-            ...adData
+            contentType: isTextAd ? 'text' : 'img',
+            contentData: isTextAd
+              ? { title: adData.title || '', text: adData.text || '', site: window.location.hostname }
+              : { src: adData.imgSrc || '', width: adData.imgWidth || -1, height: adData.imgHeight || -1 },
+            title: adData.title || (isTextAd ? adData.text.substring(0, 80) : 'Ad'),
+            attempts: 0,
+            visitedTs: 0,
           };
-          
-          console.log('[ADN Parser] Found ad:', ad);
-          
-          // Send to background
+
+          console.log('[ADN Parser] Found ad:', ad.contentType, ad.targetUrl);
+
+          // Send to background for registration (dedup, validation, storage)
           chrome.runtime.sendMessage({
-            what: 'adFound',
+            what: 'registerAd',
             ad: ad
           }).catch(err => {
             console.warn('[ADN Parser] Failed to send ad:', err);
