@@ -45,12 +45,10 @@ import {
   generateCaptureSvg
 } from './adn-utils.js';
 
-// note: this code is a mess and needs to be refactored
-
-const States = ['pending', 'visited', 'failed', 'dnt-allowed', 'image-error'],
-  Zooms = [400, 200, 150, 100, 75, 50, 25, 12.5, 7.5, 5],
-  EnableContextMenu = 1,
-  MaxStartNum = 300;
+const States = ['pending', 'visited', 'failed', 'dnt-allowed', 'image-error'];
+const Zooms = [400, 200, 150, 100, 75, 50, 25, 12.5, 7.5, 5];
+const EnableContextMenu = 1;
+const MaxStartNum = 300;
 
 const margin = {
   top: 50,
@@ -63,11 +61,8 @@ const animateMs = 2000;
 const viewState = {};
 const messager = vAPI.messaging;
 
-// determined by mousewheel
-let userZoomScale = Zooms[Zooms.indexOf(100)];
-
-// determined by zoom in / out buttons
-let zoomIdx = 0;
+let userZoomScale = 100; // determined by mousewheel
+let zoomIdx = 0; // determined by zoom in / out buttons
 
 let animatorId, resizeId, selectedAdSet;
 let showInterface = true;
@@ -75,15 +70,15 @@ let draggingVault = false;
 let vaultLoading = false;
 
 const container_div = document.getElementById('container');
-const $container = $('#container')
-const $ratio = $('#ratio')
+const $container = $('#container');
+const $ratio = $('#ratio');
 
-var transitionTimeout = null
+let transitionTimeout = null;
 
 let gAds, gAdSets, gMin, gMax, gSliderRight, gSliderLeft, settings, pack;
-let lastAdDetectedTime, waitingAds = []; // stateful
+let lastAdDetectedTime, waitingAds = [];
 
-var hideDeadAds = false;
+let hideDeadAds = false;
 
 onBroadcast(request => {
   //console.log("GOT BROADCAST", request);
@@ -214,17 +209,14 @@ const renderAds = function (json, purge) {
 
 const autoUpdateVault = function () {
   const gap = new Date() - lastAdDetectedTime;
-  if (waitingAds != [] && gap >= 3000) {
+  if (waitingAds.length > 0 && gap >= 3000) {
     updateVault(waitingAds, true);
-    // console.log("autoupdate", gap)
-  } else {
-    // console.log("skip-update", gap)
   }
-}
+};
 
 const getHash = function (ad) {
   return ad.hash ? ad.hash : computeHash(ad);
-}
+};
 
 const updateVault = function (ads, newAdsOnly) {
   if (vaultLoading) return;
@@ -234,7 +226,6 @@ const updateVault = function (ads, newAdsOnly) {
     return;
   }
 
-  // console.log('updateAds: ', json);
   if (newAdsOnly) {
     gAds = gAds.concat(ads);
     for (let i = 0; i < ads.length; i++) {
@@ -242,26 +233,25 @@ const updateVault = function (ads, newAdsOnly) {
       const key = getHash(ad);
       if (!key) continue;
 
+      let found = false;
       for (let j = 0; j < gAdSets.length; j++) {
         if (gAdSets[j].gid === key) {
-          gAdSets[j].children.append(ad);
-          ad = null
+          gAdSets[j].children.push(ad);
+          found = true;
+          break;
         }
       }
 
-      ad != null && gAdSets.push(new AdSet(ad));
+      if (!found) gAdSets.push(new AdSet(ad));
     }
-    // clear waitingAds
-    waitingAds = []
   } else {
-    // replace all gAds
-    gAds = ads; // store
-    gAdSets = null; // reset
+    gAds = ads;
+    gAdSets = null;
   }
 
   createSlider("update");
   waitingAds = [];
-}
+};
 
 const updateAd = function (json) {
   doUpdate(json.ad);
@@ -343,7 +333,7 @@ function analyze(adsets) {
 }
 
 function extractData(adsets) {
-  let data = {
+  const data = {
     totalImg: 0,
     totalText: 0,
     sites: {},
@@ -351,16 +341,11 @@ function extractData(adsets) {
   };
 
   for (let i = 0, j = adsets && adsets.length; i < j; i++) {
-    //gAds
     if (!adsets[i].children) {
-      const ad = adsets[i];
-      data = parseAd(ad, data);
+      parseAd(adsets[i], data);
     } else {
-      //adsets
-      console.log(i + ') multiple');
       for (const key in adsets[i].children) {
-        const ad = adsets[i].children[key];
-        data = parseAd(ad, data);
+        parseAd(adsets[i].children[key], data);
       }
     }
   }
@@ -368,7 +353,6 @@ function extractData(adsets) {
   data.adNetworks = sortDict(data.adNetworks);
   data.total = data.totalImg + data.totalText;
 
-  //console.log(data);
   return data;
 }
 
@@ -384,7 +368,7 @@ function displayStatistics(data) {
 
   // Top Ad Network
 
-  for (var i = 0; i < data.adNetworks.length; i++) {
+  for (let i = 0; i < data.adNetworks.length; i++) {
     const $li = $('<li/>', {
       class: 'entry',
     }).appendTo('#topAdnetworks');
@@ -400,7 +384,7 @@ function displayStatistics(data) {
   }
 
   // Top Site
-  for (var i = 0; i < data.sites.length; i++) {
+  for (let i = 0; i < data.sites.length; i++) {
     const $li = $('<li/>', {
       class: 'entry',
     }).appendTo('#topSites');
@@ -451,16 +435,9 @@ function displayStatistics(data) {
 }
 
 function sortDict(dict) {
-  var items = Object.keys(dict).map(function (key) {
-    return [key, dict[key]];
-  });
-
-  // Sort the array based on the second element
-  items.sort(function (first, second) {
-    return second[1] - first[1];
-  });
-
-  return items.slice(0, 3)
+  return Object.entries(dict)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
 }
 
 function addToDict(key, dict) {
@@ -578,11 +555,7 @@ function doUpdate(updated) {
 }
 
 function setItemClass($item, state) {
-
-  States.map(function (d) {
-    $item.removeClass(d);
-  }); // remove-all
-
+  States.forEach(s => $item.removeClass(s));
   $item.addClass(state);
 }
 
@@ -735,43 +708,32 @@ function bulletIndex($div, adset) {
   }
 }
 
-var loadImageTimeout;
-
 function appendDisplayTo($div, adset) {
 
-  var type = adset.type();
-  var domain = adset.domain();
-  var pageTitle = adset.pageTitle();
-  var pageUrl = adset.pageUrl();
-  var targetHostname = adset.targetHostname();
-  var failedCount = adset.failedCount();
-  var dntCount = adset.dntCount();
-  var visitedCount = adset.visitedCount();
-  var deadCount = adset.deadCount();
-  var foundTs = adset.foundTs();
-  var w = adset.width();
-  var h = adset.height();
-  let img_src = adset.child(0).contentData.src;
+  const domain = adset.domain();
+  const pageTitle = adset.pageTitle();
+  const pageUrl = adset.pageUrl();
+  const targetHostname = adset.targetHostname();
+  const deadCount = adset.deadCount();
+  const foundTs = adset.foundTs();
+  let w = adset.width();
+  let h = adset.height();
+  const img_src = adset.child(0).contentData.src;
 
   if (deadCount > 0 && hideDeadAds) {
     // still try to load the image in case it is not dead
-    let img = new Image();
+    const img = new Image();
     img.src = img_src;
     img.onload = function () {
       messager.send('adnauseam', {
         what: 'notDeadAd',
         ad: adset.children[0]
       });
-    }
-    // dont display add
+    };
     return;
-  } 
-  
-
-  var hasSize = w && h;
+  }
 
   const max_size = 800;
-  // Adjust dimensions to max size
   if (w > max_size) {
     const prop = max_size / w;
     w = max_size;
@@ -782,7 +744,6 @@ function appendDisplayTo($div, adset) {
     w = w * prop;
   }
 
-  // set attributes
   $div.attr('data-width', w);
   $div.attr('data-height', h);
   $div.attr('data-domain', domain);
@@ -813,10 +774,8 @@ function appendDisplayTo($div, adset) {
 
   }).appendTo($ad).hide();
 
-  // add white background to transparent ads that are saved data strings 
-  // https://github.com/dhowe/AdNauseam/issues/1978
-  var isPNGdata = img_src.includes('data:image/png');
-  var cl = isPNGdata ? "white-bg" : "";
+  // add white background to transparent ads saved as data strings (#1978)
+  const cl = img_src.includes('data:image/png') ? "white-bg" : "";
   const $img = $('<img/>', {
     src: img_src,
     class: cl,
@@ -824,28 +783,15 @@ function appendDisplayTo($div, adset) {
     height: h
   }).appendTo($ad);
 
-  $img.width(w);
-  $img.height(h);
-
-  let isLoaded = false;
-
   $img.on("error", function () {
-    isLoaded = true;
     setItemClass($div, 'image-error');
-    $img.attr('src', 'img/placeholder.svg');
-    $img.attr('alt', 'Unable to load image');
-    $img.attr('data-error', 'error');
+    $img.attr({ src: 'img/placeholder.svg', alt: 'Unable to load image', 'data-error': 'error' });
     $img.off("error");
     $div.addClass('loaded');
-    // tell the addon
-    messager.send('adnauseam', {
-      what: 'deadAd',
-      ad: adset.children[0]
-    });
+    messager.send('adnauseam', { what: 'deadAd', ad: adset.children[0] });
   });
 
   $img.on('load', function () {
-    isLoaded = true;
     $div.addClass('loaded');
   });
 }
@@ -1049,36 +995,23 @@ function numTotal() {
   return gAds.length;
 }
 
-function sinceTime(adsets) {
-  let oldest = +new Date();
+function getTimeBound(adsets, findMin) {
+  let result = findMin ? +new Date() : 0;
   for (let i = 0, j = adsets && adsets.length; i < j; i++) {
-    let foundTs;
-    if (!adsets[i].children) {
-      foundTs = adsets[i].foundTs;
-    } else {
-      foundTs = adsets[i].child(0).foundTs;
-    }
-    if (foundTs < oldest) {
-      oldest = foundTs;
+    const foundTs = adsets[i].children ? adsets[i].child(0).foundTs : adsets[i].foundTs;
+    if (findMin ? foundTs < result : foundTs > result) {
+      result = foundTs;
     }
   }
-  return formatDate(oldest);
+  return formatDate(result);
+}
+
+function sinceTime(adsets) {
+  return getTimeBound(adsets, true);
 }
 
 function untilTime(adsets) {
-  let youngest = 0;
-  for (let i = 0, j = adsets && adsets.length; i < j; i++) {
-    let foundTs;
-    if (!adsets[i].children) {
-      foundTs = adsets[i].foundTs;
-    } else {
-      foundTs = adsets[i].child(0).foundTs;
-    }
-    if (foundTs > youngest) {
-      youngest = foundTs;
-    }
-  }
-  return formatDate(youngest);
+  return getTimeBound(adsets, false);
 }
 
 function formatTargetDate(ad) {
@@ -1183,109 +1116,98 @@ function computeZoom(items) {
   // OK at current size, done
 }
 
+// Starts a CSS transition on the container and cleans up after it completes
+function beginTransition(durationMs) {
+  if (transitionTimeout !== null) {
+    clearTimeout(transitionTimeout);
+  }
+  $container.addClass("posTransition");
+  transitionTimeout = setTimeout(() => {
+    $container.removeClass("posTransition");
+    // Clean up translate(0,0) from FLIP animations so setScale works cleanly
+    const currentScale = userZoomScale / 100;
+    $container.css({ transform: 'scale(' + currentScale + ')' });
+    transitionTimeout = null;
+  }, durationMs || 600);
+}
+
+// Smoothly animate the container from current position/scale to a target using FLIP:
+// 1. Instantly set target margins (no visual change yet thanks to translate offset)
+// 2. Animate transform from translate(offset)+scale(old) → translate(0)+scale(new)
+function animateContainerTo(ml_target, mt_target, scaleTarget) {
+  const ml_current = parseFloat(container_div.style.marginLeft) || -10000;
+  const mt_current = parseFloat(container_div.style.marginTop) || -10000;
+  const scaleCurrent = userZoomScale / 100;
+
+  // FLIP step 1: set target margins instantly
+  $container.addClass('notransition');
+  $container.css({
+    "margin-left": ml_target + "px",
+    "margin-top": mt_target + "px"
+  });
+  // Compensate with translate so visually nothing changes yet
+  const tx = ml_current - ml_target;
+  const ty = mt_current - mt_target;
+  $container.css({
+    transform: 'translate(' + tx + 'px,' + ty + 'px) scale(' + scaleCurrent + ')'
+  });
+  $container[0].offsetHeight; // force reflow to lock the "before" frame
+  $container.removeClass('notransition');
+
+  // FLIP step 2: animate to final transform (translate 0, target scale)
+  beginTransition(600);
+  $container.css({
+    transform: 'translate(0px,0px) scale(' + scaleTarget + ')'
+  });
+}
+
 function centerZoom($ele) {
 
   if ($ele) {
 
-    // compute target positions for transform
-    let dm;
-
-    const spacing = 10;
     const metaOffset = 110;
-    const center = -10000;
-    // const elPos = itemPosition($ele);
-
-    // now compute the centered position based on item-offset
-    // let mleft = center - pos.left, mtop = center - pos.top;
-
-    // can these 2 be removed?
     const elWidth = parseInt($ele.attr('data-width'));
     const elHeight = parseInt($ele.attr('data-height'));
+    const element_div = $ele[0];
 
-    let element_div = $ele[0]
+    // Save current view state before changing
+    storeViewState(true);
 
-    // make sure left/bottom corner of meta-data is onscreen (#180)
-    /*
-    if (iw > ww - (metaOffset * 2 + spacing)) {
+    // Compute scale to fit the ad in the viewport
+    const posX = element_div.offsetLeft + elWidth / 2;
+    const posY = element_div.offsetTop + (elHeight + metaOffset) / 2;
 
-      //log('HITX:  iw='+iw+" ww="+ww+" diff="+(iw - ww)  + "  offx="+offx);
-      mleft += ((iw - ww) / 2) + (metaOffset + spacing);
-    }
-    if (ih > wh - (metaOffset * 2 + spacing)) {
+    let rescale = Math.min(window.innerHeight / elHeight, window.innerWidth / elWidth);
+    rescale = Math.min(rescale, 1) * 0.8;
 
-      //log('HITY:  ih='+ih+" wh="+wh+" diff="+(ih - wh)  + "  offy="+offy);
-      mtop -= ((ih - wh) / 2) + (metaOffset + spacing); // bottom-margin
-    }
-    */
+    // Target margins that center the ad
+    const ml_target = -10000 - (posX - 10000) * rescale;
+    const mt_target = -10000 - (posY - 10000) * rescale;
 
-    $container.addClass("posTransition")
-    // transition to center
+    // Smoothly animate from current position/scale to target
+    animateContainerTo(ml_target, mt_target, rescale);
 
-    // reset zoom based on ads size
-    let stdHeight = window.innerHeight;
-    let stdWidth = window.innerWidth;
-
-    let posX = element_div.offsetLeft + elWidth / 2
-    let posY = element_div.offsetTop + (elHeight + metaOffset) / 2
-
-    let rescale = stdHeight / elHeight < stdWidth / elWidth ? stdHeight / elHeight : stdWidth / elWidth;
-    rescale = rescale > 1 ? 1 : rescale;
-
-    //some space to leave
-    rescale *= 0.8;
-
-    let marginLeft = -10000 - (posX - 10000) * rescale;
-    let marginTop = -10000 - (posY - 10000) * rescale;
-
-    storeViewState(rescale);
-
-    setScale(rescale * 100, { marginLeft, marginTop })
-
-
-
-    //////////
-
-    if (transitionTimeout !== null) {
-      clearTimeout(transitionTimeout)
-      transitionTimeout = null
-    }
-
-    transitionTimeout = setTimeout(() => {
-      $container.removeClass("posTransition")
-      transitionTimeout = null
-    }, 1000)
+    userZoomScale = rescale * 100;
+    $ratio.text(Math.round(userZoomScale) + '%');
 
   } else { // restore zoom-state
-
-    storeViewState(-1);
+    storeViewState(false);
   }
 }
 
-// stores zoom/drag-offset for container
-function storeViewState(focusScale) {
+// stores zoom/drag-offset for container, or restores it
+function storeViewState(saving) {
 
-  if (focusScale > 0) {
+  if (saving) {
     viewState.zoomScale = userZoomScale;
-    viewState.focusScale = focusScale * 100;
-    userZoomScale = viewState.focusScale;
-    viewState.left = $container.css('margin-left');
-    viewState.top = $container.css('margin-top');
-  } else { // restore
-
-    $container.addClass("posTransition")
-    if (transitionTimeout !== null) {
-      clearTimeout(transitionTimeout)
-      transitionTimeout = null
-    }
-
-    transitionTimeout = setTimeout(() => {
-      $container.removeClass("posTransition")
-      transitionTimeout = null
-    }, 1000)
-
-    // restore zoom scale to userZoomScale
-    dynamicZoom(viewState.zoomScale - viewState.focusScale,
-      { marginLeft: viewState.left, marginTop: viewState.top });
+    viewState.left = parseFloat(container_div.style.marginLeft) || -10000;
+    viewState.top = parseFloat(container_div.style.marginTop) || -10000;
+  } else {
+    // Smoothly animate back to saved position/scale
+    const s_target = viewState.zoomScale / 100;
+    animateContainerTo(viewState.left, viewState.top, s_target);
+    userZoomScale = viewState.zoomScale;
+    $ratio.text(Math.round(userZoomScale) + '%');
   }
 }
 
@@ -1426,16 +1348,8 @@ function findAdById(id) {
 }
 
 function findItemDivByGid(gid) {
-  let $item;
-  const items = $('.item');
-  for (let i = 0; i < items.length; i++) {
-
-    $item = $(items[i]);
-    if (parseInt($item.attr('data-gid')) === gid)
-      return $item;
-  }
-
-  return null; // item may not be available if filtered
+  const $item = $('.item[data-gid="' + gid + '"]');
+  return $item.length ? $item : null;
 }
 
 function findAdSetByGid(gid) {
@@ -1482,45 +1396,32 @@ function zoomOut(immediate) {
 }
 
 function setScale(scale, targetPos) {
-
-  let _scale = scale / 100
-
-  $container.css({
-    transform: 'scale(' + _scale + ')'
-  });
-
+  const s = scale / 100;
+  $container.css({ transform: 'scale(' + s + ')' });
   $ratio.text(Math.round(scale) + '%');
 
   let marginLeft, marginTop;
 
   if (targetPos) {
-    marginLeft = targetPos.marginLeft
-    marginTop = targetPos.marginTop
+    marginLeft = targetPos.marginLeft;
+    marginTop = targetPos.marginTop;
   } else {
-    let center = -10000
+    const center = -10000;
+    const ml = parseFloat(container_div.style.marginLeft) || center;
+    const mt = parseFloat(container_div.style.marginTop) || center;
+    const prevZoom = $container.data("zoom") || 100;
+    const zoomProp = scale / prevZoom;
 
-    let ml = parseFloat(container_div.style.getPropertyValue("margin-left"));
-    let mt = parseFloat(container_div.style.getPropertyValue("margin-top"));
+    $container.data("zoom", scale);
 
-    let prevZoom = $container.data("zoom") || 100
-    let zoomProp = scale / prevZoom
+    const offsetLeft = (center - ml) * (1 - zoomProp);
+    const offsetTop = (center - mt) * (1 - zoomProp);
 
-    $container.data("zoom", scale)
-
-    let distToCenterX = (center - ml)
-    let distToCenterY = (center - mt)
-
-    let offsetLeft = distToCenterX * (1 - zoomProp)
-    let offsetTop = distToCenterY * (1 - zoomProp)
-
-    marginLeft = ml + offsetLeft + "px";
-    marginTop = mt + offsetTop + "px";
+    marginLeft = (ml + offsetLeft) + "px";
+    marginTop = (mt + offsetTop) + "px";
   }
 
-  $container.css({
-    "margin-left": marginLeft,
-    "margin-top": marginTop
-  });
+  $container.css({ "margin-left": marginLeft, "margin-top": marginTop });
 }
 
 function dynamicZoom(scaleInterval, targetPos) {
@@ -1642,37 +1543,31 @@ function addInterfaceHandlers(ads) {
   }
 
   function mouseOnAd(mouseX, mouseY) {
-    const ads = $(".ad");
+    const ads = document.querySelectorAll(".ad");
     for (let i = 0; i < ads.length; i++) {
-      const itemTop = ads[i].getBoundingClientRect().top;
-      const itemRight = ads[i].getBoundingClientRect().left + ads[i].getBoundingClientRect().width;
-      const itemBottom = ads[i].getBoundingClientRect().top + ads[i].getBoundingClientRect().height;
-      const itemLeft = ads[i].getBoundingClientRect().left;
-      if (mouseX > itemLeft && mouseX < itemRight && mouseY > itemTop && mouseY < itemBottom) return true;
+      const rect = ads[i].getBoundingClientRect();
+      if (mouseX > rect.left && mouseX < rect.right && mouseY > rect.top && mouseY < rect.bottom) return true;
     }
     return false;
   }
 
 
   const divMove = function (evt) {
-    var e = evt.targetTouches ? evt.targetTouches[0] : evt
-    draggingVault = false;
-    if (mouseOnAd(e.pageX, e.pageY)) {
-      draggingVault = true;
-    }
+    const e = evt.targetTouches ? evt.targetTouches[0] : evt;
+    draggingVault = mouseOnAd(e.pageX, e.pageY);
 
     const x_change = e.pageX - offsetX;
     const y_change = e.pageY - offsetY;
 
-    let ml = parseInt(container_div.style.getPropertyValue("margin-left"));
-    let mt = parseInt(container_div.style.getPropertyValue("margin-top"));
+    const ml = parseFloat(container_div.style.marginLeft) || -10000;
+    const mt = parseFloat(container_div.style.marginTop) || -10000;
 
-    container_div.style.marginLeft = (ml += x_change) + 'px';
-    container_div.style.marginTop = (mt += y_change) + 'px';
+    container_div.style.marginLeft = (ml + x_change) + 'px';
+    container_div.style.marginTop = (mt + y_change) + 'px';
 
     offsetX = e.pageX;
     offsetY = e.pageY;
-  }
+  };
 
   /////////// ZOOM-STAGE ///////////
 
@@ -2085,17 +1980,16 @@ function createSlider(mode) {
   }
 
   function filterAdSets(ads) {
-
-    //console.log('Vault-slider.filterAdSets: ' + ads.length + '/' + gAds.length + ' ads');
-
+    const adIdSet = new Set(ads.map(ad => ad.id));
+    const seen = new Set();
     const sets = [];
-    for (let i = 0, j = ads.length; i < j; i++) {
-      for (let k = 0, l = gAdSets.length; k < l; k++) {
-
-        if (gAdSets[k].childIdxForId(ads[i].id) > -1) {
-
-          if (sets.indexOf(gAdSets[k]) < 0)
-            sets.push(gAdSets[k]);
+    for (let k = 0, l = gAdSets.length; k < l; k++) {
+      if (seen.has(gAdSets[k].gid)) continue;
+      for (let c = 0; c < gAdSets[k].children.length; c++) {
+        if (adIdSet.has(gAdSets[k].children[c].id)) {
+          sets.push(gAdSets[k]);
+          seen.add(gAdSets[k].gid);
+          break;
         }
       }
     }
@@ -2264,13 +2158,11 @@ function onCapture() { // save screenshot
 };
 
 function onPurgeDeadAds() {
-  let deadAds = getDeadAds()
+  const deadAds = getDeadAds();
   if (deadAds.length > 0) {
-    purgeDeadAds(getDeadAds(), function (response) {
-      renderAds(response, true)
-    })
-  } else {
-    console.log("no dead ads to purge")
+    purgeDeadAds(deadAds, function (response) {
+      renderAds(response, true);
+    });
   }
 }
 
@@ -2346,18 +2238,15 @@ AdSet.prototype.targetHostname = function () {
 }
 
 AdSet.prototype.failedCount = function () {
-  const containerObj = this;
-  return this.children.filter((d) => containerObj.state(d) === 'failed').length;
+  return this.children.filter(d => this.state(d) === 'failed').length;
 };
 
 AdSet.prototype.deadCount = function () {
-  const containerObj = this;
   return this.children[0]?.dead;
 };
 
 AdSet.prototype.dntCount = function () {
-  const containerObj = this;
-  return this.children.filter((d) => containerObj.state(d) === 'dnt-allowed').length;
+  return this.children.filter(d => this.state(d) === 'dnt-allowed').length;
 };
 
 AdSet.prototype.visitedCount = function () {
