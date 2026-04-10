@@ -333,7 +333,7 @@ export const computeHash = function (ad) {
     return;
   }
 
-  let hash = ad.pageDomain || ad.pageUrl;
+  let hash = ad.targetUrl || ad.pageDomain || ad.pageUrl;
 
   const keys = Object.keys(ad.contentData).sort();
 
