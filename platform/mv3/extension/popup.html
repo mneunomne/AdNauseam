@@ -1,89 +1,72 @@
 <!DOCTYPE html>
-<html id="uBO-popup-panel" class="desktop">
-
+<html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark" />
-<link rel="stylesheet" href="css/default.css">
-<link rel="stylesheet" href="css/common.css">
-<link rel="stylesheet" href="css/fa-icons.css">
-<link rel="stylesheet" href="css/filtering-mode.css">
-<link rel="stylesheet" href="css/popup.css">
-<title data-i18n="extName"></title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdNauseam</title>
+<link rel="icon" type="image/png" href="img/icon_32.png">
+<link rel="stylesheet" href="css/menu.css">
 </head>
 
-<body class="loading busy">
+<body class="active">
+<div class="container">
+  <div id="main" class="page">
 
-<main>
-    <div id="hostname"><span></span>&shy;<span></span></div>
-    <!-- -------- -->
-    <div class="filteringModeSlider">
-        <div class="filteringModeButton"><div></div></div>
-        <span data-level="0"></span>
-        <span data-level="1"></span>
-        <span data-level="2"></span>
-        <span data-level="3"></span>
-    </div>
-    <!-- -------- -->
-    <div id="filteringModeText"><label data-i18n="popupFilteringModeLabel">_</label><br><span>_</span><span></span></div>
-    <!-- -------- -->
-    <div class="toolMenu localTools needHTTP">
-        <label data-i18n="popupLocalToolsLabel"></label>
-        <span id="gotoZapper" class="tool enabled" tabindex="0">
-            <span class="fa-icon">bolt</span>
-            <span data-i18n="zapperTipEnter">_</span>
-        </span>
-        <span id="gotoPicker" class="tool enabled" tabindex="0">
-            <span class="fa-icon">eye-slash</span>
-            <span data-i18n="pickerTipEnter">_</span>
-        </span>
-        <span id="gotoUnpicker" class="tool" tabindex="0">
-            <span class="fa-icon">eye-open</span>
-            <span data-i18n="unpickerTipEnter">_</span>
-        </span>
-        <span id="gotoReport" class="tool enabled" tabindex="0">
-            <span class="fa-icon">comment-alt</span>
-            <span data-i18n="popupTipReport">_</span>
-        </span>
-    </div>
-    <!-- -------- -->
-    <div class="toolRibbon globalTools">
-        <span id="gotoMatchedRules" class="fa-icon tool" tabindex="0" title="Show matched rules">list-alt<span class="caption">Show matched rules</span></span>
-        <span id="gotoDashboard" class="fa-icon tool enabled" tabindex="0" data-i18n-title="popupTipDashboard">cogs<span class="caption" data-i18n="popupTipDashboard"></span></span>
+    <header>
+      <div id="toggle-button">
+        <img src="img/icon_128.png" alt="AdNauseam" id="adn-icon">
+      </div>
+      <div id="stats">
+        <div class="stats-line">
+          <span id="visited" class="visited">0</span>
+          <span class="separator">/</span>
+          <span id="found" class="found">0</span>
+          <span class="label">ads clicked / found</span>
+        </div>
+        <div id="vault-btn">
+          <button id="vault-button">Ad Vault</button>
+        </div>
+      </div>
+    </header>
+
+    <div id="ad-list">
+      <div id="alert-noads" class="alert">
+        <p>No ads found on this page</p>
+      </div>
+      <ul id="ad-list-items"></ul>
     </div>
 
-		<!-- AdNauseam Vault Section -->
-		<div id="adn-vault-section" class="adn-section">
-				<div class="adn-header">
-						<label>AdNauseam Vault</label>
-						<span id="adn-stats">
-								<span id="adn-total-ads">0</span> ads • 
-								<span id="adn-total-clicks">0</span> clicks
-						</span>
-				</div>
-				
-				<div class="adn-actions">
-						<span id="adn-toggle-vault" class="tool enabled" tabindex="0">
-								<span class="fa-icon">folder-open</span>
-								<span>View Vault</span>
-						</span>
-						<span id="adn-clear-vault" class="tool enabled" tabindex="0">
-								<span class="fa-icon">trash</span>
-								<span>Clear</span>
-						</span>
-				</div>
-				<div id="adn-vault-list" class="adn-vault-list hidden">
-						<!-- Vault items will be inserted here -->
-				</div>
-		</div>
+    <footer>
+      <!-- uBlock Origin Button -->
+      <span id="btn-ublock" class="footer-btn" title="Open uBlock Origin panel">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0)">
+            <path d="M16.2175 4.02258C20.7133 7.02043 22.2119 7.02043 26.7207 7.02043C26.7207 15.1872 26.7207 18.9044 25.0397 21.5559C23.6354 23.771 21.0578 25.2424 16.327 27.9429L16.2175 28.0053C11.4223 25.268 8.81633 23.7804 7.40012 21.5405C5.71436 18.8743 5.71436 15.1423 5.71436 6.96783L5.94356 6.96786C10.2754 6.96874 11.7988 6.96905 16.2175 4.02258Z" stroke="#999" stroke-width="1.5"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M16.2461 15.152C16.2713 13.9342 17.2663 12.9548 18.49 12.9548C19.7296 12.9548 20.7344 13.9596 20.7344 15.1992C20.7344 16.4387 19.7296 17.4436 18.49 17.4436C17.2688 17.4436 16.2754 16.4682 16.2463 15.254L16.2461 15.152ZM16.2412 12.2097C16.8672 11.7381 17.6459 11.4586 18.49 11.4586C20.5559 11.4586 22.2306 13.1333 22.2306 15.1992C22.2306 17.2651 20.5559 18.9398 18.49 18.9398C17.4591 18.9398 16.5255 18.5227 15.8489 17.8481C15.3949 18.6321 14.5437 19.0009 13.2476 19.0009C11.1832 19.0009 10.2476 18.0634 10.2476 16.0069V11.5159H11.7457V16.0069C11.7457 17.3187 11.9328 17.5058 13.2438 17.5058C14.5544 17.5058 14.7419 17.3187 14.7419 16.0069V11.5159H16.2401L16.2412 12.2097Z" fill="#999"/>
+          </g>
+          <defs><clipPath id="clip0"><rect width="24" height="24" fill="white" transform="translate(4 4)"/></clipPath></defs>
+        </svg>
+      </span>
+
+      <!-- Three State Button -->
+      <span id="state-btn-wrapper" class="footer-btn">
+        <button id="btn-strict" class="state-btn" data-state="strict">Strict</button>
+        <button id="btn-active" class="state-btn selected" data-state="active">Active</button>
+        <button id="btn-disable" class="state-btn" data-state="disable">Off</button>
+      </span>
+
+      <!-- Settings gear -->
+      <span id="btn-settings" class="footer-btn" title="Open Settings">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z" stroke="#999" stroke-width="1.5"/>
+          <path d="M19.14 12.94C19.18 12.64 19.2 12.33 19.2 12C19.2 11.68 19.18 11.36 19.13 11.06L21.16 9.48C21.34 9.34 21.39 9.07 21.28 8.87L19.36 5.55C19.24 5.33 18.99 5.26 18.77 5.33L16.38 6.29C15.88 5.91 15.35 5.59 14.76 5.35L14.4 2.81C14.36 2.57 14.16 2.4 13.92 2.4H10.08C9.84 2.4 9.65 2.57 9.61 2.81L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33C5.02 5.25 4.77 5.33 4.65 5.55L2.74 8.87C2.62 9.08 2.66 9.34 2.86 9.48L4.89 11.06C4.84 11.36 4.8 11.69 4.8 12C4.8 12.31 4.82 12.64 4.87 12.94L2.84 14.52C2.66 14.66 2.61 14.93 2.72 15.13L4.64 18.45C4.76 18.67 5.01 18.74 5.23 18.67L7.62 17.71C8.12 18.09 8.65 18.41 9.24 18.65L9.6 21.19C9.65 21.43 9.84 21.6 10.08 21.6H13.92C14.16 21.6 14.36 21.43 14.39 21.19L14.75 18.65C15.34 18.41 15.88 18.09 16.37 17.71L18.76 18.67C18.98 18.75 19.23 18.67 19.35 18.45L21.27 15.13C21.39 14.91 21.34 14.66 21.15 14.52L19.14 12.94Z" stroke="#999" stroke-width="1.5"/>
+        </svg>
+      </span>
+    </footer>
+
+  </div>
 </div>
 
-<script src="js/theme.js" type="module"></script>
-<script src="js/fa-icons.js" type="module"></script>
-<script src="js/i18n.js" type="module"></script>
-<script src="js/popup.js" type="module"></script>
-
+<script src="js/adn/menu.js"></script>
 </body>
-
 </html>

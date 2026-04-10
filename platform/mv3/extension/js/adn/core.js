@@ -445,10 +445,36 @@ async function adsForVault() {
 
 async function adsForPage(pageUrl) {
   await ready();
+  const allAds = adlist();
+
+  // First try exact URL match
+  let pageAds = adlist(pageUrl);
+
+  // If no exact match, try matching by hostname
+  if (pageAds.length === 0 && pageUrl) {
+    try {
+      const hostname = new URL(pageUrl).hostname;
+      pageAds = allAds.filter(ad => {
+        try { return new URL(ad.pageUrl).hostname === hostname; }
+        catch { return false; }
+      });
+    } catch {}
+  }
+
+  const recent = pageAds.length === 0;
+
+  // If still no page ads, show most recent (like MV2)
+  if (recent) {
+    pageAds = allAds.sort((a, b) => (b.foundTs || 0) - (a.foundTs || 0)).slice(0, 20);
+  }
+
   return {
-    data: adlist(pageUrl),
+    data: pageAds,
     pageUrl,
-    current: null // no active visit tracking yet in MV3
+    total: allAds.length,
+    clicked: allAds.filter(a => a.visitedTs > 0).length,
+    recent,
+    current: null
   };
 }
 
