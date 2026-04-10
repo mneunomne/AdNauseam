@@ -1635,7 +1635,13 @@
             }
             this.spaces = revisedSpaces;
             Packer.mergeRects(this.spaces);
-            this.spaces.sort(this.sorter)
+            this.spaces.sort(this.sorter);
+            // Cap spaces to prevent unbounded growth — sorted by relevance,
+            // so truncating drops the least useful (farthest from center) spaces
+            var maxSpaces = this.maxSpaces || 500;
+            if (this.spaces.length > maxSpaces) {
+                this.spaces.length = maxSpaces
+            }
         };
         Packer.prototype.measureNearestCornerDistance = function(spaces) {
             if (!this.center) {
@@ -1657,23 +1663,28 @@
             return Math.sqrt(dx * dx + dy * dy)
         }
         Packer.mergeRects = function(rects) {
-            for (var i = 0, len = rects.length; i < len; i++) {
-                var rect = rects[i];
-                if (!rect) {
-                    continue
-                }
-                var compareRects = rects.slice(0);
-                compareRects.splice(i, 1);
-                var removedCount = 0;
-                for (var j = 0, jLen = compareRects.length; j < jLen; j++) {
-                    var compareRect = compareRects[j];
-                    var indexAdjust = i > j ? 0 : 1;
-                    if (rect.contains(compareRect)) {
-                        rects.splice(j + indexAdjust - removedCount, 1);
-                        removedCount++
+            // O(n²) mark-and-compact: no array copies or splices in the hot loop
+            for (var i = 0; i < rects.length; i++) {
+                if (!rects[i]) continue;
+                for (var j = i + 1; j < rects.length; j++) {
+                    if (!rects[j]) continue;
+                    if (rects[i].contains(rects[j])) {
+                        rects[j] = null
+                    } else if (rects[j].contains(rects[i])) {
+                        rects[i] = null;
+                        break
                     }
                 }
             }
+            // Compact: remove nulls in-place
+            var write = 0;
+            for (var k = 0; k < rects.length; k++) {
+                if (rects[k] !== null) {
+                    if (write !== k) rects[write] = rects[k];
+                    write++
+                }
+            }
+            rects.length = write;
             return rects
         };
         var sorters = {
@@ -1854,7 +1865,7 @@
             return item.rect
         };
         Packery.prototype._packItem = function(item) {
-            this._setRectSize(item.element, item.rect);
+            this._setRectSize(item.element, item.rect, item.size);
             this.packer.pack(item.rect);
             this._setMaxXY(item.rect)
         };
@@ -1862,8 +1873,8 @@
             this.maxX = Math.max(rect.x + rect.width, this.maxX);
             this.maxY = Math.max(rect.y + rect.height, this.maxY)
         };
-        Packery.prototype._setRectSize = function(elem, rect) {
-            var size = getSize(elem);
+        Packery.prototype._setRectSize = function(elem, rect, cachedSize) {
+            var size = cachedSize || getSize(elem);
             var w = size.outerWidth;
             var h = size.outerHeight;
             var colW = this.columnWidth + this.gutter;
@@ -1953,6 +1964,43 @@
                 return
             }
             this.layout()
+        };
+        // Progressive layout: packs items in batches, yielding to the browser
+        // between batches so the UI doesn't freeze with large item counts.
+        Packery.prototype.layoutAsync = function(batchSize, callback) {
+            this._resetLayout();
+            this._manageStamps();
+            var items = this._getItemsForLayout(this.items);
+            if (!items || !items.length) {
+                this._postLayout();
+                this._isLayoutInited = true;
+                if (callback) callback();
+                return
+            }
+            // Phase 1: batch-read all element sizes in one pass (single reflow)
+            for (var i = 0; i < items.length; i++) {
+                items[i].getSize()
+            }
+            var self = this;
+            var idx = 0;
+            batchSize = batchSize || 50;
+            function processBatch() {
+                var end = Math.min(idx + batchSize, items.length);
+                for (; idx < end; idx++) {
+                    var item = items[idx];
+                    var position = self._getItemLayoutPosition(item);
+                    item.goTo(position.x, position.y)
+                }
+                if (idx < items.length) {
+                    setTimeout(processBatch, 0)
+                } else {
+                    self._postLayout();
+                    self._isLayoutInited = true;
+                    self.emitEvent("layoutComplete", [self, items]);
+                    if (callback) callback()
+                }
+            }
+            processBatch()
         };
         Packery.prototype.itemDragStart = function(elem) {
             this.stamp(elem);

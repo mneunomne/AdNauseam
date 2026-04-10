@@ -1708,36 +1708,48 @@ function createAdSets(ads) {
   return adsets;
 }
 
+function repackDone($items) {
+  if ($items.length > 1) computeZoom($items);
+  $('#loading-img').hide();
+  $container.css('opacity', '1');
+  vaultLoading = false;
+}
+
 function repack() {
   $container.css('opacity', '0');
   document.querySelector('#loading-img').style = '';
   const $items = $(".item");
   const visible = $items.length;
-  // it seems that the packing needs to happen on a separate thread so that the css 
-  // changes can be applied before the packery is initiated, therefore the setTimeout
+  // packing needs a separate frame so CSS changes apply before packery runs
   setTimeout(function () {
     showVaultAlert(visible ? false : 'no ads found');
     if (visible > 1) {
       pack = new Packery('#container', {
-        centered: {
-          y: 10000
-        }, // centered at half min-height
+        centered: { y: 10000 },
         itemSelector: '.item',
-        gutter: 1
-      })
-      computeZoom($items);
+        gutter: 1,
+        isInitLayout: false // we'll call layout ourselves
+      });
+
+      if (visible > 100) {
+        // Progressive layout for large vaults — yields to browser between batches
+        pack.layoutAsync(50, function () {
+          repackDone($items);
+        });
+      } else {
+        pack.layout();
+        repackDone($items);
+      }
 
     } else if (visible === 1) {
-      $items.css({ // center single
+      $items.css({
         top: (10000 - $items.height() / 2) + 'px',
         left: (10000 - $items.width() / 2) + 'px'
       });
+      repackDone($items);
+    } else {
+      repackDone($items);
     }
-    $('#loading-img').hide();
-    // Show #container after repack
-    $container.css('opacity', '1');
-    vaultLoading = false;
-
   }, 1000);
 }
 
