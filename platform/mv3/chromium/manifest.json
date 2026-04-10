@@ -43,6 +43,7 @@
   "permissions": [
     "activeTab",
     "declarativeNetRequest",
+    "offscreen",
     "scripting",
     "storage"
   ],

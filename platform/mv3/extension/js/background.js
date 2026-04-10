@@ -112,6 +112,7 @@ import { toggleToolbarIcon } from './action.js';
 // Import AdNauseam modules
 import { adnauseam } from './adn/core.js';
 import { log } from './adn/log.js';
+import { startVisitQueue } from './adn/visitor.js';
 
 
 /******************************************************************************/
@@ -725,6 +726,9 @@ async function startSession() {
 		// ADN: initialize core (loads admap from storage)
 		await adnauseam.ready();
 		log('[ADN] Core initialized');
+
+		// ADN: start the ad visit queue
+		startVisitQueue();
 
     // Admin settings override user settings
     await loadAdminConfig();
