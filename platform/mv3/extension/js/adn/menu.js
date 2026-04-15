@@ -51,6 +51,11 @@ async function updateStats() {
     if (stats) {
       $('#visited').textContent = stats.totalClicks || 0;
       $('#found').textContent = stats.totalAds || 0;
+      const count = stats.totalAds || 0;
+      const vaultCount = $('#vault-count');
+      if (vaultCount) {
+        vaultCount.textContent = count > 0 ? count : '';
+      }
     }
   } catch (e) {
     console.warn('[ADN Menu] Stats error:', e);
@@ -115,52 +120,80 @@ async function renderAdList() {
 
 function createAdElement(ad) {
   const li = document.createElement('li');
-  li.className = 'ad-item ' + adStatusClass(ad);
   li.id = 'ad' + ad.id;
 
   const isImg = ad.contentType === 'img';
   const src = isImg ? (ad.contentData && ad.contentData.src) : null;
   const title = ad.title || (ad.contentData && ad.contentData.title) || 'Ad #' + ad.id;
 
-  // Thumbnail
-  const thumb = document.createElement('span');
-  thumb.className = 'thumb';
-  if (src) {
+  if (isImg && src) {
+    // Image ad — matches original .ad-item structure
+    li.className = ('ad-item ' + adStatusClass(ad)).trim();
+
+    const a = document.createElement('a');
+    a.target = 'new';
+    a.href = ad.targetUrl || '#';
+
+    const thumb = document.createElement('span');
+    thumb.className = 'thumb';
+    const thumbContainer = document.createElement('span');
+    thumbContainer.className = 'thumb-container';
     const img = document.createElement('img');
     img.src = src;
     img.className = 'ad-item-img';
     img.onerror = function() {
-      this.style.display = 'none';
-      thumb.textContent = '?';
-      thumb.classList.add('text-thumb');
+      this.style.width = '80px';
+      this.style.height = '40px';
+      this.src = 'img/placeholder.svg';
+      this.onerror = null;
     };
-    thumb.appendChild(img);
+    thumbContainer.appendChild(img);
+    thumb.appendChild(thumbContainer);
+    a.appendChild(thumb);
+
+    const status = document.createElement('span');
+    status.className = 'adStatus';
+    status.textContent = adStatusLabel(ad);
+    a.appendChild(status);
+
+    const titleEl = document.createElement('span');
+    titleEl.className = 'title';
+    titleEl.textContent = title.substring(0, 60);
+    a.appendChild(titleEl);
+
+    const cite = document.createElement('cite');
+    cite.textContent = pageDomain(ad);
+    a.appendChild(cite);
+
+    li.appendChild(a);
   } else {
-    thumb.textContent = ad.contentType === 'text' ? 'T' : '?';
-    thumb.classList.add('text-thumb');
+    // Text ad — matches original .ad-item-text structure
+    li.className = ('ad-item-text ' + adStatusClass(ad)).trim();
+
+    const thumb = document.createElement('span');
+    thumb.className = 'thumb';
+    thumb.textContent = 'Text Ad';
+    li.appendChild(thumb);
+
+    const status = document.createElement('span');
+    status.className = 'adStatus';
+    status.textContent = adStatusLabel(ad);
+    li.appendChild(status);
+
+    const h3 = document.createElement('h3');
+    const a = document.createElement('a');
+    a.target = 'new';
+    a.href = ad.targetUrl || '#';
+    a.className = 'title';
+    a.textContent = title.substring(0, 60);
+    h3.appendChild(a);
+    li.appendChild(h3);
+
+    const cite = document.createElement('cite');
+    cite.textContent = pageDomain(ad);
+    li.appendChild(cite);
   }
-  li.appendChild(thumb);
 
-  // Info
-  const info = document.createElement('div');
-  info.className = 'ad-info';
-
-  const titleEl = document.createElement('span');
-  titleEl.className = 'ad-title';
-  titleEl.textContent = title.substring(0, 60);
-  info.appendChild(titleEl);
-
-  // Show page origin domain (where the ad was found), not target
-  const cite = document.createElement('cite');
-  cite.textContent = pageDomain(ad);
-  info.appendChild(cite);
-
-  const status = document.createElement('span');
-  status.className = 'ad-status ' + adStatusClass(ad);
-  status.textContent = adStatusLabel(ad);
-  info.appendChild(status);
-
-  li.appendChild(info);
   return li;
 }
 
@@ -199,9 +232,11 @@ function pageDomain(ad) {
 // State buttons (Strict / Active / Off)
 
 function setActiveState(state) {
-  $$('.state-btn').forEach(btn => btn.classList.remove('selected'));
-  const btn = $(`.state-btn[data-state="${state}"]`);
-  if (btn) btn.classList.add('selected');
+  // Use radio inputs matching the original menu.html structure
+  const radios = $$('input[name="state_btn"]');
+  radios.forEach(radio => { radio.checked = false; });
+  const radio = $(`input[name="state_btn"][value="${state}"]`);
+  if (radio) radio.checked = true;
 
   // Update body class for styling
   document.body.className = state === 'disable' ? 'disabled' : state;
@@ -237,10 +272,10 @@ async function commitState(state) {
 // Event listeners
 
 function setupEvents() {
-  // State buttons
-  $$('.state-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      commitState(btn.dataset.state);
+  // State buttons (radio inputs in original menu.html structure)
+  $$('input[name="state_btn"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      commitState(radio.value);
     });
   });
 
@@ -256,10 +291,9 @@ function setupEvents() {
     window.close();
   });
 
-  // Vault button → placeholder (will open vault page later)
+  // Vault button → open vault page
   $('#vault-button').addEventListener('click', () => {
-    // TODO: open vault.html when implemented
-    chrome.tabs.create({ url: chrome.runtime.getURL('popup-ubol.html') });
+    chrome.tabs.create({ url: chrome.runtime.getURL('vault.html') });
     window.close();
   });
 

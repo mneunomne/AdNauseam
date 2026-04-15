@@ -365,6 +365,78 @@ function onMessage(request, sender, callback) {
 			});
 			return true;
 		}
+
+		case 'getHideDeadAds': {
+			adnauseam.getHideDeadAds().then(val => callback(val));
+			return true;
+		}
+
+		case 'setHideDeadAds': {
+			adnauseam.setHideDeadAds(request.value).then(() => callback());
+			return true;
+		}
+
+		case 'getBlurCollectedAds': {
+			adnauseam.getSettings().then(s => callback(s.blurCollectedAds || false));
+			return true;
+		}
+
+		case 'getCostPerClick': {
+			adnauseam.getSettings().then(s => callback(s.costPerClick || 1.58));
+			return true;
+		}
+
+		case 'purgeDeadAds': {
+			adnauseam.purgeDeadAds(request.deadAds).then(data => callback(data));
+			return true;
+		}
+
+		case 'verifyAdBlockers': {
+			// Stub: not applicable in MV3 (no competing ad blocker detection)
+			callback(0);
+			return true;
+		}
+
+		case 'getNotifications': {
+			// Stub: notifications system not yet ported to MV3
+			callback({ notifications: [] });
+			return true;
+		}
+
+		case 'getWarningDisabled': {
+			adnauseam.getSettings().then(s => callback(s.disableWarnings || false));
+			return true;
+		}
+
+		case 'deleteAd': {
+			adnauseam.deleteAd(request.id).then(() => callback({ success: true }));
+			return true;
+		}
+
+		case 'backupUserData': {
+			// Return ad data in backup format
+			Promise.all([
+				adnauseam.getSettings(),
+				adnauseam.exportAds()
+			]).then(([settings, adData]) => {
+				callback({
+					userData: {
+						userSettings: Object.assign({}, settings, {
+							admap: JSON.parse(adData)
+						})
+					}
+				});
+			});
+			return true;
+		}
+
+		case 'gotoURL': {
+			if (request.details && request.details.url) {
+				chrome.tabs.create({ url: request.details.url });
+			}
+			callback();
+			return true;
+		}
 		// end of ADN cases
     default:
         break;

@@ -440,7 +440,48 @@ async function clearAds() {
 
 async function adsForVault() {
   await ready();
-  return adlist();
+  const settings = await getSettings();
+  return {
+    data: adlist(),
+    prefs: {
+      hidingDisabled: !settings.hidingAds,
+      clickingDisabled: !settings.clickingAds,
+      textAdsDisabled: !settings.parseTextAds,
+      logEvents: settings.eventLogging,
+      devMode: false,
+    },
+    current: null,
+    notifications: []
+  };
+}
+
+async function getHideDeadAds() {
+  const data = await chrome.storage.local.get(['adnHideDeadAds']);
+  return data.adnHideDeadAds || false;
+}
+
+async function setHideDeadAds(value) {
+  await chrome.storage.local.set({ adnHideDeadAds: value });
+}
+
+async function purgeDeadAds(deadAdIds) {
+  await ready();
+  let purged = 0;
+  for (const pageHash of Object.keys(admap)) {
+    for (const hash of Object.keys(admap[pageHash])) {
+      const ad = admap[pageHash][hash];
+      if (deadAdIds && deadAdIds.includes(ad.id)) {
+        delete admap[pageHash][hash];
+        purged++;
+      }
+    }
+    if (Object.keys(admap[pageHash]).length === 0) {
+      delete admap[pageHash];
+    }
+  }
+  adsetSize = adCount();
+  await storeAdData(true);
+  return { data: adlist() };
 }
 
 async function adsForPage(pageUrl) {
@@ -618,6 +659,9 @@ const adnauseam = {
   exportAds,
   importAds,
   getSettings,
+  getHideDeadAds,
+  setHideDeadAds,
+  purgeDeadAds,
   storeAdData,
   broadcastMessage,
   validateTarget,
