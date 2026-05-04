@@ -33,6 +33,37 @@
     }
     elem && vAPI.adParser.process(elem);
   }
+
+  // When running inside a sub-frame, scan all images on load and watch for dynamic updates.
+  // Handles cross-origin iframes where the parent cannot access contentDocument.
+  // manifest.json all_frames:true ensures this code runs inside every iframe.
+  if (window !== window.top) {
+    let iframeScanDone = false;
+    const runIframeScan = function () {
+      if (iframeScanDone) return;
+      iframeScanDone = true;
+      if (typeof vAPI.adParser === 'undefined') {
+        vAPI.adParser = createParser();
+      }
+      vAPI.adParser.scanDocument();
+      // Watch for content injected after the initial scan (many ad iframes load creatives dynamically)
+      new MutationObserver(function (mutations) {
+        for (const mutation of mutations) {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              vAPI.adCheck(node);
+            }
+          }
+        }
+      }).observe(document.body, { childList: true, subtree: true });
+    };
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      runIframeScan();
+    } else {
+      window.addEventListener('DOMContentLoaded', runIframeScan);
+      window.addEventListener('load', runIframeScan);
+    }
+  }
   
 
   const ignorableImages = ['mgid_logo_mini_43x20.png', 'data:image/gif;base64,R0lGODlh7AFIAfAAAAAAAAAAACH5BAEAAAAALAAAAADsAUgBAAL+hI+py+0Po5y02ouz3rz7D4biSJbmiabqyrbuC8fyTNf2jef6zvf+DwwKh8Si8YhMKpfMpvMJjUqn1Kr1is1qt9yu9wsOi8fksvmMTqvX7Lb7DY/L5/S6/Y7P6/f8vv8PGCg4SFhoeIiYqLjI2Oj4CBkpOUlZaXmJmam5ydnp+QkaKjpKWmp6ipqqusra6voKGys7S1tre4ubq7vL2+v7CxwsPExcbHyMnKy8zNzs/AwdLT1NXW19jZ2tvc3d7f0NHi4+Tl5ufo6err7O3u7+Dh8vP09fb3+Pn6+/z9/v/w8woMCBBAsaPIgwocKFDBs6fAgxosSJFCtavIgxo8b+jRw7evwIMqTIkSRLmjyJMqXKlSxbunwJM6bMmTRr2ryJM6fOnTx7+vwJNKjQoUSLGj2KNKnSpUybOn0KNarUqVSrWr2KNavWrVy7ev0KNqzYsWTLmj2LNq3atWzbun0LN67cuXTr2r2LN6/evXz7+v0LOLDgwYQLGz6MOLHixYwbO34MObLkyZQrW76MObPmzZw7e/4MOrTo0aRLmz6NOrXq1axbu34NO7bs2bRr276NO7fu3bx7+/4NPLjw4cSLGz+OPLny5cybO38OPbr06dSrW7+OPbv27dy7e/8OPrz48eTLmz+PPr369ezbu38PP778+fTr27+PP7/+/fxR+/v/D2CAAg5IYIEGHohgggouyGCDDj4IYYQSTkhhhRZeiGGGGm7IYYcefghiiCKOSGKJJp6IYooqrshiiy6+CGOMMs5IY4023ohjjjruCFYBADs='];
@@ -270,6 +301,51 @@
       return null;
     }
 
+    // Find the closest meaningful text near an element.
+    // Walks up the DOM, checking siblings after the element first (below),
+    // then siblings before (above), preferring text found lower in the page.
+    const closestText = function (el) {
+      const MIN_LEN = 3;
+      const MAX_LEN = 100;
+      const SKIP_TAGS = new Set(['IMG', 'VIDEO', 'CANVAS', 'PICTURE', 'SVG', 'IFRAME', 'SCRIPT', 'STYLE', 'NOSCRIPT']);
+
+      const extractText = function (node) {
+        if (!node || node.nodeType !== Node.ELEMENT_NODE) return '';
+        if (SKIP_TAGS.has(node.tagName)) return '';
+        const text = (node.innerText || node.textContent || '').trim().replace(/\s+/g, ' ');
+        if (text.length < MIN_LEN) return '';
+        // Recurse into children to find the first specific text leaf,
+        // avoiding concatenation of unrelated sibling texts (e.g. heading + provider).
+        if (node.children.length > 0) {
+          for (const child of node.children) {
+            const childText = extractText(child);
+            if (childText) return childText;
+          }
+        }
+        return text.substring(0, MAX_LEN);
+      };
+
+      let current = el;
+      for (let level = 0; level < 5; level++) {
+        const parent = current.parentElement;
+        if (!parent) break;
+        const siblings = Array.from(parent.children);
+        const idx = siblings.indexOf(current);
+        // Prefer siblings after (below the image)
+        for (let i = idx + 1; i < siblings.length; i++) {
+          const text = extractText(siblings[i]);
+          if (text) return text;
+        }
+        // Fall back to siblings before (above)
+        for (let i = idx - 1; i >= 0; i--) {
+          const text = extractText(siblings[i]);
+          if (text) return text;
+        }
+        current = parent;
+      }
+      return '';
+    };
+
     // Helper to check if onclick attribute contains a URL
     const onclickHasUrl = function (onclick) {
       if (!onclick) return false;
@@ -284,7 +360,7 @@
       this.attemptedTs = 0;
       this.contentData = data;
       this.contentType = data.src ? 'img' : 'text';
-      this.title = data.title || 'Pending';
+      this.title = data.title || 'No Title';
       this.foundTs = +new Date();
       this.targetUrl = targetUrl;
       this.pageTitle = null;
@@ -538,10 +614,15 @@
       }
 
       logP('[IMG-AD] All filters passed, creating Ad object');
-      let ad = createAd(document.domain, targetUrl, { src: src, width: iw, height: ih });
+      const adTitle = closestText(el);
+      if (!adTitle) {
+        logP('[IMG-AD] FILTERED: No title found near image, skipping');
+        return;
+      }
+      let ad = createAd(document.domain, targetUrl, { src: src, width: iw, height: ih, title: adTitle });
 
       if (ad) {
-        logP('[PARSED] IMG-AD created successfully:', ad);
+        logP('[PARSED] IMG-AD created successfully:', el, ad);
         notifyAddon(ad);
         return true;
       } else {
@@ -1055,7 +1136,13 @@
       notifyAddon: notifyAddon,
       useShadowDOM: useShadowDOM,
       parseOnClick: parseOnClick,
-      normalizeUrl: normalizeUrl
+      normalizeUrl: normalizeUrl,
+      scanDocument: function () {
+        const imgs = document.querySelectorAll(imgSelectors.join(', '));
+        if (imgs.length) {
+          findImageAds(imgs);
+        }
+      }
     };
 
   };

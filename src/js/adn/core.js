@@ -1706,8 +1706,9 @@ const adnauseam = (function () {
     verifyLists();
     verifyVersion();
 
-    const modified = addNotification(notifications, OpenLetter);
-    modified && sendNotifications(notifications);
+    // remove open letter notification
+    // const modified = addNotification(notifications, OpenLetter);
+    // modified && sendNotifications(notifications);
 
     dnt.updateFilters();
 
