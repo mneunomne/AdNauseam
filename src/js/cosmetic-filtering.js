@@ -33,10 +33,8 @@ import adnauseam from './adn/core.js'
 /******************************************************************************/
 
 //const hidingStyle = 'opacity:0!important;height:1px!important;width:1px!important;overflow:hidden!important;margin:0!important;padding:0!important;border:0!important;position:absolute!important;';
-// ADN: Dynamic hiding style based on showAdsDebug setting
-const hidingStyleDebug = '/*opacity:0.5!important;border:2px solid red!important;*/';
-const hidingStyleNormal = 'display: none!important;'; 
-const getHidingStyle = () => µb.hiddenSettings.showAdsDebug ? hidingStyleDebug : hidingStyleNormal;
+// ADN: Dynamic hiding style based on showAdsDebug and hiddenSettings
+const getHidingStyle = () => µb.hiddenSettings.showAdsDebug ? µb.hiddenSettings.hidingStyleDebug : µb.hiddenSettings.hidingStyleNormal; // Adn
 const getCSSDelay = () => µb.hiddenSettings.cssInjectionDelay || 0; // Adn delay for css injection to ensure it happens after the page has loaded and ads have been collected
 
 //ADN google adsense collection
@@ -720,11 +718,11 @@ CosmeticFilteringEngine.prototype.retrieveGenericSelectors = function(request) {
         }
     }
 
-    if ( selectorsSet.size === 0 && excepted.length === 0 ) { 
-      // ADN: return fake hide anyway
-      const out = {fake: fakeEntries.join(", ")}
-      return out;
-    }
+    // if ( selectorsSet.size === 0 && excepted.length === 0 ) { 
+    //   // ADN: return fake hide anyway
+    //   const out = {fake: fakeEntries.join(", ")}
+    //   return out;
+    // }
 
     const out = { injectedCSS: '', excepted, };
     const selectors = Array.from(selectorsSet);
@@ -751,7 +749,7 @@ CosmeticFilteringEngine.prototype.retrieveGenericSelectors = function(request) {
 					});
 			}, getCSSDelay());
 		}
-
+        
     return out;
 };
 
@@ -898,7 +896,7 @@ CosmeticFilteringEngine.prototype.retrieveSpecificSelectors = function(
                 out.exceptedFilters.push(...str.excepted);
             }
             if ( str.s.length !== 0 ) {
-                injectedCSS.push(`${str.s}\n{display:none!important;}`);
+                injectedCSS.push(`${str.s}\n{${getHidingStyle()}}`);
             }
         }
     }
