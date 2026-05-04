@@ -466,17 +466,16 @@ vAPI.SafeAnimationFrame = class {
 
 */
 
-// ADN: Dynamic hiding style based on showAdsDebug setting
-const hidingStyleDebug = 'opacity:0.5!important;border:1px solid red!important;'; // ADN
-const hidingStyleNormal = 'display: none!important;'; // ADN
-vAPI.hideStyle = hidingStyleNormal; // ADN - default, will be updated when showAdsDebug is fetched
+// ADN: Dynamic hiding style based on showAdsDebug and hiddenSettings
+vAPI.hideStyle = 'display:none!important;'; // ADN - default, will be updated when showAdsDebug is fetched
 vAPI.notHideStyle = '/*display:none!important;*/'; // ADN
 vAPI.showAdsDebug = false; // ADN
 
 // ADN: Fetch showAdsDebug setting and update hideStyle accordingly
 vAPI.messaging.send('contentscript', {what:'getShowAdsDebug'}).then(response => {
-    vAPI.showAdsDebug = response;
-    vAPI.hideStyle = response ? hidingStyleDebug : hidingStyleNormal; // ADN
+    if ( response === undefined ) { return; }
+    vAPI.showAdsDebug = response.showAdsDebug;
+    vAPI.hideStyle = response.showAdsDebug ? response.hidingStyleDebug : response.hidingStyleNormal; // ADN
 });
 
 vAPI.DOMFilterer = class {

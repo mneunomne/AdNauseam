@@ -747,7 +747,7 @@ const retrieveContentScriptParameters = async function(sender, request) {
         )
     ) {
         await vAPI.tabs.executeScript(tabId, {
-            allFrames: false,
+            allFrames: true, // adn
             file: '/js/contentscript-extra.js',
             frameId,
             matchAboutBlank: true,
@@ -874,7 +874,11 @@ const onMessage = function(request, sender, callback) {
 
     /* Adn */
     case 'getShowAdsDebug':
-        response = µb.hiddenSettings.showAdsDebug;
+        response = {
+            showAdsDebug: µb.hiddenSettings.showAdsDebug,
+            hidingStyleDebug: µb.hiddenSettings.hidingStyleDebug,
+            hidingStyleNormal: µb.hiddenSettings.hidingStyleNormal,
+        };
         break;
     /* end of Adn */
 
@@ -912,7 +916,7 @@ const onMessage = function(request, sender, callback) {
     // type-in custom filters.
     case 'elementPickerArguments':
         return vAPI.tabs.executeScript(sender.tabId, {
-            allFrames: false,
+            allFrames: true, // adn
             file: '/js/contentscript-extra.js',
             frameId: sender.frameId,
             matchAboutBlank: true,
