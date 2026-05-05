@@ -22,5 +22,5 @@
 /* $rulesetId$ */
 
 $selectorList$ {
-    display: none !important;
+    opacity: 0 !important; // ADN
 }

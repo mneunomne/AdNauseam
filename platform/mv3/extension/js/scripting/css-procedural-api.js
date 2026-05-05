@@ -591,7 +591,7 @@ class ProceduralFilterer {
         this.styleTokenMap = new Map();
         this.styledNodes = new Set();
         this.timer = undefined;
-        this.hideStyle = 'display:none!important;';
+        this.hideStyle = 'opacity:0!important;'; // ADN
     }
 
     async reset() {

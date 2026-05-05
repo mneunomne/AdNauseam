@@ -44,7 +44,7 @@ if ( details?.plainSelectors?.length ) {
     self.addEventListener('pageshow', ( ) => {
         chrome.runtime.sendMessage({
             what: 'insertCSS',
-            css: `${selectors.join(',\n')}{display:none!important;}`,
+            css: `${selectors.join(',\n')}{opacity:0!important;}`, // ADN
         }).catch(( ) => {
         });
     });

@@ -27,7 +27,7 @@ const plainSelectors = self.customFilters?.plainSelectors;
 if ( plainSelectors ) {
     chrome.runtime.sendMessage({
         what: 'removeCSS',
-        css: `${plainSelectors.join(',\n')}{display:none!important;}`,
+        css: `${plainSelectors.join(',\n')}{opacity:0!important;}`, // ADN
     }).catch(( ) => {
     });
 }

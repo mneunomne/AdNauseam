@@ -146,7 +146,7 @@ export async function injectCustomFilters(tabId, frameId, hostname) {
     if ( plainSelectors.length !== 0 ) {
         promises.push(
             browser.scripting.insertCSS({
-                css: `${plainSelectors.join(',\n')}{display:none!important;}`,
+                css: `${plainSelectors.join(',\n')}{opacity:0!important;}`, // adn
                 origin: 'USER',
                 target: { tabId, frameIds: [ frameId ] },
             }).catch(reason => {

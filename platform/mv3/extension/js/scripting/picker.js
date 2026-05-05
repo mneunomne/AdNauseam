@@ -260,7 +260,7 @@ async function previewSelector(selector) {
         self.pickerProceduralFilteringAPI.addSelectors([ JSON.parse(selector) ]);
         return;
     }
-    previewedCSS = `${selector}{display:none!important;}`;
+    previewedCSS = `${selector}{opacity:0!important;}`; // ADN
     await ubolOverlay.sendMessage({ what: 'insertCSS', css: previewedCSS });
 }
 

@@ -33,7 +33,7 @@ self.specificImports = undefined;
 const selectors = await self.cosmeticAPI.getSelectors('specific', specificImports);
 self.cosmeticAPI.release();
 if ( selectors.length === 0 ) { return; }
-self.cssAPI.insert(`${selectors.join(',\n')}{display:none!important;}`);
+self.cssAPI.insert(`${selectors.join(',\n')}{opacity:0!important;}`); // ADN
 
 /******************************************************************************/
 
