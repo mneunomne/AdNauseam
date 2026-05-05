@@ -190,7 +190,7 @@ const genericDetails = new Map();
 const requiredRedirectResources = new Set();
 const adnAllowRules = [];
 const ADN_ALLOW_LIST_IDS = new Set(['adnauseam', 'easylist', 'ublock-filters', 'pgl']);
-const ADN_ALLOW_RESOURCE_TYPES = ['image', 'media', 'object', 'sub_frame'];
+const ADN_ALLOW_RESOURCE_TYPES = ['image', 'media', 'object', 'script', 'sub_frame', 'xmlhttprequest'];
 let networkBad = new Set();
 
 // This will be used to sign our inserted `!#trusted on` directives
@@ -593,7 +593,8 @@ async function processNetworkFilters(assetDetails, network) {
         toJSONRuleset(staticRules)
     );
 
-    if ( ADN_ALLOW_LIST_IDS.has(assetDetails.id) ) {
+    // start of adn-allow ruleset processing
+		if ( ADN_ALLOW_LIST_IDS.has(assetDetails.id) ) {
         const allowRules = [];
         for ( const rule of staticRules ) {
             if ( rule.action?.type !== 'block' ) { continue; }
@@ -603,17 +604,22 @@ async function processNetworkFilters(assetDetails, network) {
             delete cloned.id;
             if ( cloned.condition === undefined ) { cloned.condition = {}; }
             const existingTypes = cloned.condition.resourceTypes;
-            if ( existingTypes !== undefined ) {
-                cloned.condition.resourceTypes = existingTypes.filter(t => ADN_ALLOW_RESOURCE_TYPES.includes(t));
-                if ( cloned.condition.resourceTypes.length === 0 ) { continue; }
-            } else {
-                cloned.condition.resourceTypes = [...ADN_ALLOW_RESOURCE_TYPES];
+            const excludedTypes = cloned.condition.excludedResourceTypes;
+            let resourceTypes = existingTypes !== undefined
+                ? existingTypes.filter(t => ADN_ALLOW_RESOURCE_TYPES.includes(t))
+                : [...ADN_ALLOW_RESOURCE_TYPES];
+            if ( excludedTypes !== undefined ) {
+                resourceTypes = resourceTypes.filter(t => !excludedTypes.includes(t));
+                delete cloned.condition.excludedResourceTypes;
             }
+            if ( resourceTypes.length === 0 ) { continue; }
+            cloned.condition.resourceTypes = resourceTypes;
             allowRules.push(cloned);
         }
         adnAllowRules.push(...allowRules);
         log(`\tadn-allow rules from ${assetDetails.id}: ${allowRules.length}`);
     }
+		// end of adn-allow ruleset processing
 
     if ( regexRules.length !== 0 ) {
         writeFile(`${rulesetDir}/regex/${assetDetails.id}.json`,
