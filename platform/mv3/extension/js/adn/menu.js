@@ -249,7 +249,6 @@ async function commitState(state) {
   setActiveState(state);
 
   try {
-    // Set filtering mode for current hostname
     const hostname = currentHostname || 'all-urls';
     const actualLevel = await sendMessage({
       what: 'setFilteringMode',
@@ -259,7 +258,8 @@ async function commitState(state) {
 
     currentLevel = actualLevel !== undefined ? actualLevel : level;
 
-    // Reload current tab if mode changed
+    await sendMessage({ what: 'setAdnAllow', enabled: state === 'active' });
+
     if (currentTab && currentTab.id) {
       chrome.tabs.reload(currentTab.id);
     }

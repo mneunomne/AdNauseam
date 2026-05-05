@@ -188,6 +188,9 @@ const rulesetDetails = [];
 const scriptletStats = new Map();
 const genericDetails = new Map();
 const requiredRedirectResources = new Set();
+const adnAllowRules = [];
+const ADN_ALLOW_LIST_IDS = new Set(['adnauseam', 'easylist', 'ublock-filters', 'pgl']);
+const ADN_ALLOW_RESOURCE_TYPES = ['image', 'media', 'object', 'sub_frame'];
 let networkBad = new Set();
 
 // This will be used to sign our inserted `!#trusted on` directives
@@ -589,6 +592,28 @@ async function processNetworkFilters(assetDetails, network) {
     writeFile(`${rulesetDir}/main/${assetDetails.id}.json`,
         toJSONRuleset(staticRules)
     );
+
+    if ( ADN_ALLOW_LIST_IDS.has(assetDetails.id) ) {
+        const allowRules = [];
+        for ( const rule of staticRules ) {
+            if ( rule.action?.type !== 'block' ) { continue; }
+            const cloned = JSON.parse(JSON.stringify(rule));
+            cloned.action = { type: 'allow' };
+            cloned.priority = 20;
+            delete cloned.id;
+            if ( cloned.condition === undefined ) { cloned.condition = {}; }
+            const existingTypes = cloned.condition.resourceTypes;
+            if ( existingTypes !== undefined ) {
+                cloned.condition.resourceTypes = existingTypes.filter(t => ADN_ALLOW_RESOURCE_TYPES.includes(t));
+                if ( cloned.condition.resourceTypes.length === 0 ) { continue; }
+            } else {
+                cloned.condition.resourceTypes = [...ADN_ALLOW_RESOURCE_TYPES];
+            }
+            allowRules.push(cloned);
+        }
+        adnAllowRules.push(...allowRules);
+        log(`\tadn-allow rules from ${assetDetails.id}: ${allowRules.length}`);
+    }
 
     if ( regexRules.length !== 0 ) {
         writeFile(`${rulesetDir}/regex/${assetDetails.id}.json`,
@@ -1137,6 +1162,12 @@ async function main() {
     for ( const ruleset of rulesets ) {
         if ( ruleset.excludedPlatforms?.includes(platform) ) { continue; }
         await rulesetFromURLs(ruleset);
+    }
+
+    if ( adnAllowRules.length !== 0 ) {
+        writeFile(`${rulesetDir}/main/adn-allow.json`, toJSONRuleset(adnAllowRules));
+        ruleResources.push({ id: 'adn-allow', enabled: false, path: `/rulesets/main/adn-allow.json` });
+        log(`adn-allow ruleset: ${adnAllowRules.length} total allow rules`, false);
     }
 
     logProgress('');
