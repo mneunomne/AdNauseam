@@ -60,6 +60,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
   }, 10)
 
   onBroadcast(request => {
+    console.log('[MENU] onBroadcast received:', request.what);
     
     switch (request.what) {
 
@@ -68,6 +69,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
         break;
 
       case 'adDetected':
+        console.log('[MENU] adDetected received, re-rendering');
         // for now, just re-render
         renderPage(request);
         adjustBlockHeight();

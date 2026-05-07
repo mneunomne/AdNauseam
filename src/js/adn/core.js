@@ -1132,18 +1132,13 @@ const adnauseam = (function () {
 
     log('[FOUND] ' + adinfo(ad), ad);
 
-    const vaultOpen = typeof getExtPageTabId('vault.html') !== 'undefined';
-    if (vaultOpen || isPopupOpen()) {
+    // broadcast the new ad to vault/menu if open
+    const json = adsForUI(ad.pageUrl);
+    json.what = 'adDetected';
+    json.ad = ad;
 
-      // if vault/menu is open, send the new ad
-      const json = adsForUI(ad.pageUrl);
-      json.what = 'adDetected';
-      json.ad = ad;
-
-      //if (automatedMode) json.automated = true; // not used ?
-
-      vAPI.messaging.broadcast(json);
-    }
+    log('[BROADCAST] adDetected', adinfo(ad));
+    broadcast(json);
 
     if (µb.userSettings.showIconBadge)
       µb.updateToolbarIcon(tabId);
