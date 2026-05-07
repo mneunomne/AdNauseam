@@ -91,8 +91,8 @@ const hiddenSettingsDefault = {
     updateAssetBypassBrowserCache: false,
     userResourcesLocation: 'unset',
     showAdsDebug: false, // Adn set "true" to show ads that can be potentially be collected #2136
-    hidingStyleDebug: 'opacity:0.5!important;border:1px solid red!important;', // Adn style applied to hidden elements when showAdsDebug is true
-    hidingStyleNormal: 'display:none!important;', // Adn style applied to hidden elements normally
+    hidingStyleDebug: 'opacity:0.5!important;border:1px solid red!important;pointer-events:none!important;', // Adn style applied to hidden elements when showAdsDebug is true
+    hidingStyleNormal: 'opacity:0!important;pointer-events:none!important;', // Adn style applied to hidden elements normally
     costPerClick: 1.03, // Adn https://github.com/dhowe/AdNauseam/issues/2131
     internalLinkDomains: internalLinkDomainsDefault.join(','), // Adn
 };
