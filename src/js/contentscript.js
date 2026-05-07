@@ -916,13 +916,28 @@ vAPI.DOMFilterer = class {
                 if ( node.localName === 'iframe' ) {
                     addIFrame(node);
                 }
+                // remove process-adn attri, allowing for parsing again #2236
+                node.removeAttribute('process-adn')
+                // ADN: If node was added inside a previously-processed container,
+                // clear the ancestor's process-adn so it gets reprocessed
+                let ancestor = node.parentElement;
+                while ( ancestor && ancestor !== document.body ) {
+                    if ( ancestor.hasAttribute('process-adn') ) {
+                        if ( vAPI.prefs && vAPI.prefs.logEvents ) {
+                            console.log('[ADN-MUTATION] Ancestor changed, clearing process-adn for reprocessing:',
+                                ancestor.tagName, ancestor.id || ancestor.className);
+                        }
+                        ancestor.removeAttribute('process-adn');
+                        vAPI.adCheck && vAPI.adCheck(ancestor);
+                        break;
+                    }
+                    ancestor = ancestor.parentElement;
+                }
                 if ( node.firstElementChild === null ) { continue; }
                 const iframes = node.getElementsByTagName('iframe');
                 if ( iframes.length !== 0 ) {
                     addIFrames(iframes);
                 }
-                // remove process-adn attri, allowing for parsing again #2236
-                node.removeAttribute('process-adn')
             }
             process();
         }
