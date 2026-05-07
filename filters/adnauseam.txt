@@ -51,6 +51,8 @@ spiegel.de##div[class*="Anzeige"]
 
 www.nytimes.com##[id^=story-ad]
 
+@@||sb.scorecardresearch.com^$script
+
 search.yahoo.com##.layoutMiddle
 search.yahoo.com##.kr5yi684e6
 search.yahoo.com###right
@@ -352,9 +354,12 @@ www.pcmag.com###campaign_261312_lightbox
 
 batmanstream.com##iframe[src*="bannerflow"]
 
-cnn.com##div[id*='skinImgDiv']
 cnn.com##*[class^="Promo"]
 cnn.com##*[class$="promo"]
+cnn.com#@#.ad-slot-header__wrapper:style(display: none !important; top: 0 !important)
+cnn.com##.ad-slot-header__wrapper
+cnn.com##.adSlotHeaderContainer
+cnn.com##.ad-slot
 ##*[class^="Ad_"]
 
 www.jobsnhire.com##div[class*="teads"]

@@ -47,7 +47,7 @@
       }
       vAPI.adParser.scanDocument();
       // Watch for content injected after the initial scan (many ad iframes load creatives dynamically)
-      new MutationObserver(function (mutations) {
+      new MutationObserver(function (mutations) { // is this working?
         for (const mutation of mutations) {
           for (const node of mutation.addedNodes) {
             if (node.nodeType === Node.ELEMENT_NODE) {
@@ -460,7 +460,7 @@
         }
       }
       
-      if (!src) return warnP("[IMG] FAIL: No image src found anywhere", img);
+      if (!src) return warnP("[IMG] FAIL: No image src found anywhere", img.tagName, img.id || img.className || '');
 
       logP('[IMG] Found src:', src.substring(0, 80));
 
@@ -614,10 +614,23 @@
       }
 
       logP('[IMG-AD] All filters passed, creating Ad object');
-      const adTitle = closestText(el);
+      let adTitle = closestText(el);
+
+      // Validate title: reject URLs, JSON, code-like strings
+      if (adTitle && (/^https?:\/\//.test(adTitle) || /^{/.test(adTitle) || /^javascript/i.test(adTitle) || /^www\./i.test(adTitle))) {
+        logP('[IMG-AD] Title looks like URL/JSON/code, ignoring:', adTitle.substring(0, 60));
+        adTitle = '';
+      }
+
+      // In iframes, ads often have no nearby text — use 'Pending' so the visit can resolve it
       if (!adTitle) {
-        logP('[IMG-AD] FILTERED: No title found near image, skipping');
-        return;
+        if (window !== window.top) {
+          adTitle = 'Pending';
+          logP('[IMG-AD] No title in iframe, using Pending');
+        } else {
+          logP('[IMG-AD] FILTERED: No title found near image, skipping');
+          return;
+        }
       }
       let ad = createAd(document.domain, targetUrl, { src: src, width: iw, height: ih, title: adTitle });
 
