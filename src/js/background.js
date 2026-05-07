@@ -94,7 +94,6 @@ const hiddenSettingsDefault = {
     hidingStyleDebug: 'opacity:0.5!important;border:1px solid red!important;', // Adn style applied to hidden elements when showAdsDebug is true
     hidingStyleNormal: 'display:none!important;', // Adn style applied to hidden elements normally
     costPerClick: 1.03, // Adn https://github.com/dhowe/AdNauseam/issues/2131
-		cssInjectionDelay: 1, // Adn delay for css injection to ensure it happens after the page has loaded and ads have been collected
     internalLinkDomains: internalLinkDomainsDefault.join(','), // Adn
 };
 

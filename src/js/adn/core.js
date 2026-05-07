@@ -138,9 +138,6 @@ const adnauseam = (function () {
 
   const removableBlockLists = ['hphosts', 'mvps-0', 'plowe-0'];
 
-  // mark ad visits as failure if any of these are included in title
-  const errorStrings = ['file not found', 'website is currently unavailable', 'not found on this server'];
-
   const reSpecialChars = /[\*\^\t\v\n]/, remd5 = /[a-fA-F0-9]{32}/;
 
   /**************************** functions ******************************/
@@ -485,25 +482,7 @@ const adnauseam = (function () {
     let title = html.match(/<title[^>]*>([^<]+)<\/title>/i);
 
     if (title && title.length > 1) {
-
-      title = unescapeHTML(title[1].trim());
-
-      for (let i = 0; i < errorStrings.length; i++) {
-
-        // check the title isn't something like 'file not found'
-        if (title.toLowerCase().indexOf(errorStrings[i]) > -1) {
-
-          onVisitError.call(xhr, {
-            title: title,
-            status: xhr.status,
-            responseText: html
-          });
-
-          throw Error('Bad-title: ' + title + " from: " + xhr.requestUrl);
-        }
-      }
-
-      return title;
+      return unescapeHTML(title[1].trim());
     }
 
     const shtml = html.length > 100 ? html.substring(0, 100) + '...' : html;
@@ -518,7 +497,7 @@ const adnauseam = (function () {
 
     if (ad) {
 
-      if (title) ad.title = title;
+      if (title && ad.title === 'Pending') ad.title = title;
 
       if (ad.title === 'Pending')
         ad.title = parseDomain(xhr.requestUrl, true);
@@ -1793,7 +1772,7 @@ const adnauseam = (function () {
 
       if (msSinceFound < repeatVisitInterval) {
 
-        log('[EXISTS] ' + adinfo(ad) + ' found ' + msSinceFound + ' ms ago');
+        log('[DUPLICATE] ' + adinfo(ad) + ' found ' + msSinceFound + ' ms ago');
         return;
       }
     }
