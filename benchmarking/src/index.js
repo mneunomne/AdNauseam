@@ -2,6 +2,7 @@ import { launchBrowser } from './browser.js';
 import { DataExtractor } from './dataExtractor.js';
 import { Reporter } from './reporter.js';
 import { setupAutoDismiss } from './cookieConsent.js';
+import { initLogger, attachPageLogger, attachBackgroundLogger, closeLogger } from './logger.js';
 import { runNewsSitesScenario } from './scenarios/newsSites.js';
 import { runMixedSessionScenario } from './scenarios/mixedSession.js';
 import { runCustomUrlsScenario } from './scenarios/customUrls.js';
@@ -26,9 +27,13 @@ async function main() {
   const scenario = args.scenario || config.session.scenario;
   if (args.duration) config.session.duration = args.duration;
 
+  // Start logging to file (must be before any console output we want captured)
+  const logFile = initLogger(scenario);
+
   console.log(`[main] AdNauseam Benchmark`);
   console.log(`[main] Scenario: ${scenario}`);
   console.log(`[main] Duration: ${config.session.duration} minutes`);
+  console.log(`[main] Log file: ${logFile}`);
   console.log(`[main] Extension: ${config.extensionPath}`);
   console.log(`[main] Profile: ${config.profileDir}`);
   console.log('');
@@ -37,11 +42,22 @@ async function main() {
   console.log('[main] Launching browser...');
   const { browser, backgroundPage } = await launchBrowser();
 
+  // Attach logger to extension background page (captures [ADN] logs and errors)
+  attachBackgroundLogger(backgroundPage);
+
   // Set up data extraction
   const extractor = new DataExtractor(backgroundPage);
   const reporter = new Reporter(scenario);
   const timeline = [];
   const pageVisits = [];
+
+  // Collect environment info (location, version, browser)
+  console.log('[main] Collecting environment info...');
+  const env = await extractor.getEnvironment(browser);
+  reporter.setEnvironment(env);
+  console.log(`[main] AdNauseam v${env.adnauseamVersion} | ${env.browser}`);
+  console.log(`[main] Location: ${env.location.city || env.location.timezone}, ${env.location.country || ''}`);
+  console.log('');
 
   // Start periodic data snapshots
   const snapshotInterval = setInterval(async () => {
@@ -59,6 +75,9 @@ async function main() {
 
   // Auto-dismiss GDPR/cookie consent banners on every page load
   setupAutoDismiss(page);
+
+  // Attach logger to browsing page (captures JS errors, failed requests)
+  attachPageLogger(page, 'tab');
 
   // Track page visits
   page.on('framenavigated', async (frame) => {
@@ -119,6 +138,11 @@ async function main() {
   console.log('[main] Closing browser...');
   await browser.close();
   console.log(`[main] Done. Results: ${filepath}`);
+
+  // Close log file
+  const finalLogPath = closeLogger();
+  // Use original console since logger is closed
+  process.stdout.write(`[main] Log saved to: ${finalLogPath}\n`);
 }
 
 main().catch(e => {

@@ -11,6 +11,44 @@ export class DataExtractor {
   }
 
   /**
+   * Get environment info: AdNauseam version, browser version, location.
+   */
+  async getEnvironment(browser) {
+    const version = await browser.version();
+
+    // Get AdNauseam version from the extension's manifest
+    const adnVersion = await this.bgPage.evaluate(() => {
+      try {
+        return chrome.runtime.getManifest().version;
+      } catch { return 'unknown'; }
+    });
+
+    // Get location via IP geolocation (free API, no key needed)
+    let location = null;
+    const pages = await browser.pages();
+    const page = pages[0] || await browser.newPage();
+    try {
+      await page.goto('https://ipinfo.io/json', { waitUntil: 'domcontentloaded', timeout: 10000 });
+      location = await page.evaluate(() => {
+        try { return JSON.parse(document.body.innerText); }
+        catch { return null; }
+      });
+    } catch { /* location will be null */ }
+
+    return {
+      adnauseamVersion: adnVersion,
+      browser: version,
+      location: location ? {
+        ip: location.ip,
+        city: location.city,
+        region: location.region,
+        country: location.country,
+        timezone: location.timezone,
+      } : { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+    };
+  }
+
+  /**
    * Get the full export of all collected ads.
    */
   async exportAds() {

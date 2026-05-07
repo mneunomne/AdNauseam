@@ -6,6 +6,11 @@ export class Reporter {
   constructor(scenario) {
     this.scenario = scenario;
     this.startTime = Date.now();
+    this.environment = null;
+  }
+
+  setEnvironment(env) {
+    this.environment = env;
   }
 
   /**
@@ -26,6 +31,7 @@ export class Reporter {
         endTime: new Date(endTime).toISOString(),
         durationSeconds: Math.round((endTime - this.startTime) / 1000),
         configuredDurationMinutes: config.session.duration,
+        ...this.environment,
       },
       pages: pageVisits,
       ads: results.summary,
