@@ -912,3 +912,6 @@ www.google.*#@#+js(set-attr, c-wiz[data-p] [data-query] a[target="_blank"][role=
 
 # ads.eu.criteo
 ads.eu.criteo.com##div:has(.imageholder)
+
+# avoid wrong style on artnet.com
+artnet.com#@#.ads-loaded
