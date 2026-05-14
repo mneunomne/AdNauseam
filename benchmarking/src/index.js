@@ -133,6 +133,7 @@ async function main() {
   // Report
   reporter.printSummary(results, pageVisits);
   const filepath = reporter.save(results, timeline, pageVisits);
+  reporter.saveSummary(results, pageVisits);
 
   // Close browser
   console.log('[main] Closing browser...');

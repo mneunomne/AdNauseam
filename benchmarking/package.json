@@ -8,7 +8,8 @@
     "benchmark": "node src/index.js",
     "benchmark:news": "node src/index.js --scenario news",
     "benchmark:mixed": "node src/index.js --scenario mixed",
-    "benchmark:custom": "node src/index.js --scenario custom"
+    "benchmark:custom": "node src/index.js --scenario custom",
+    "test-ext": "node test-extension.js"
   },
   "dependencies": {
     "ghost-cursor": "^1.3.0",

@@ -51,6 +51,74 @@ export class Reporter {
   }
 
   /**
+   * Save a human-readable summary to a separate .txt file.
+   */
+  saveSummary(results, pageVisits) {
+    fs.mkdirSync(config.resultsDir, { recursive: true });
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `summary-${this.scenario}-${timestamp}.txt`;
+    const filepath = path.join(config.resultsDir, filename);
+
+    const { summary } = results;
+    const duration = Math.round((Date.now() - this.startTime) / 1000);
+    const adsByDomain = results.adsByDomain || {};
+
+    // Build set of all visited domains from pageVisits
+    const visitedDomains = new Map(); // domain -> visit count
+    for (const visit of pageVisits) {
+      try {
+        const domain = new URL(visit.url).hostname.replace(/^www\./, '');
+        visitedDomains.set(domain, (visitedDomains.get(domain) || 0) + 1);
+      } catch { /* skip invalid URLs */ }
+    }
+
+    // Merge visited domains with ad domains
+    const allDomains = new Set([...visitedDomains.keys(), ...Object.keys(adsByDomain)]);
+    const domainRows = [...allDomains]
+      .map(domain => ({
+        domain,
+        visits: visitedDomains.get(domain) || 0,
+        ads: adsByDomain[domain] ? adsByDomain[domain].length : 0,
+      }))
+      .sort((a, b) => b.ads - a.ads || b.visits - a.visits);
+
+    const lines = [];
+    lines.push('BENCHMARK SUMMARY');
+    lines.push('='.repeat(60));
+    lines.push(`Scenario:          ${this.scenario}`);
+    lines.push(`Duration:          ${Math.floor(duration / 60)}m ${duration % 60}s`);
+    lines.push(`Pages visited:     ${pageVisits.length}`);
+    lines.push('');
+    lines.push('--- Ads ---');
+    lines.push(`Total detected:    ${summary.totalAds}`);
+    lines.push(`  Image ads:       ${summary.imageAds}`);
+    lines.push(`  Text ads:        ${summary.textAds}`);
+    lines.push(`Clicked:           ${summary.clickedAds}`);
+    lines.push(`Failed clicks:     ${summary.failedClicks}`);
+    lines.push(`Pending:           ${summary.pendingAds}`);
+    lines.push(`Click success:     ${(summary.clickSuccessRate * 100).toFixed(1)}%`);
+    lines.push('');
+    lines.push('--- Blocking ---');
+    if (results.blockingStats) {
+      lines.push(`Requests blocked:  ${results.blockingStats.requestStats.blockedCount}`);
+      lines.push(`Requests allowed:  ${results.blockingStats.requestStats.allowedCount}`);
+    }
+    lines.push('');
+    lines.push('--- Ads per Site ---');
+    lines.push(`${'Site'.padEnd(35)} ${'Visits'.padStart(6)} ${'Ads'.padStart(6)}`);
+    lines.push('-'.repeat(50));
+    for (const row of domainRows) {
+      lines.push(`${row.domain.padEnd(35)} ${String(row.visits).padStart(6)} ${String(row.ads).padStart(6)}`);
+    }
+    lines.push('='.repeat(60));
+
+    fs.writeFileSync(filepath, lines.join('\n') + '\n');
+    console.log(`[reporter] Summary saved to: ${filepath}`);
+    return filepath;
+  }
+
+  /**
    * Print a summary to the console.
    */
   printSummary(results, pageVisits) {

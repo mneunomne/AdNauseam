@@ -1,3 +1,4 @@
 node_modules/
 profiles/default/
 results/*.json
+results/*.txt
