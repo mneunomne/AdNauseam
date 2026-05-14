@@ -3,3 +3,4 @@ profiles/default/
 results/*.json
 results/*.txt
 results/*.md
+adn_config.json

@@ -22,16 +22,10 @@ const config = {
     dwellTime: { min: 8, max: 40, mean: 15 },
     // Pause between page navigations (seconds)
     betweenPages: { min: 1, max: 4 },
-    // How many internal links to click per page
-    subPageClicks: { min: 1, max: 2 },
-    // Probability of using back button instead of clicking a new link
-    backButtonProbability: 0.2,
     // Scroll speed (pixels per scroll step)
     scrollStep: { min: 400, max: 1000 },
     // Pause during scrolling (ms)
     scrollPause: { min: 100, max: 400 },
-    // Typing speed per character (ms)
-    typingDelay: { min: 30, max: 120 },
   },
 
   // Results output directory

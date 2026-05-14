@@ -25,15 +25,15 @@ export class DataExtractor {
 
     // Get location via IP geolocation (free API, no key needed)
     let location = null;
-    const pages = await browser.pages();
-    const page = pages[0] || await browser.newPage();
+    const tempPage = await browser.newPage();
     try {
-      await page.goto('https://ipinfo.io/json', { waitUntil: 'domcontentloaded', timeout: 10000 });
-      location = await page.evaluate(() => {
+      await tempPage.goto('https://ipinfo.io/json', { waitUntil: 'domcontentloaded', timeout: 10000 });
+      location = await tempPage.evaluate(() => {
         try { return JSON.parse(document.body.innerText); }
         catch { return null; }
       });
     } catch { /* location will be null */ }
+    await tempPage.close();
 
     return {
       adnauseamVersion: adnVersion,

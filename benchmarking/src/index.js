@@ -6,7 +6,7 @@ import { DataExtractor } from './dataExtractor.js';
 import { Reporter } from './reporter.js';
 import { setupAutoDismiss } from './cookieConsent.js';
 import { initLogger, attachPageLogger, attachBackgroundLogger, closeLogger } from './logger.js';
-import { humanScroll, humanDwell, humanPause, clickRandomLink, installCursor } from './humanBehavior.js';
+import { humanScroll, humanDwell, humanPause } from './humanBehavior.js';
 import config from '../config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -35,6 +35,15 @@ async function main() {
   const env = await extractor.getEnvironment(browser);
   reporter.setEnvironment(env);
   console.log(`[main] AdNauseam v${env.adnauseamVersion} | ${env.browser}`);
+
+  // Clear the vault before starting
+  await backgroundPage.evaluate(() => {
+    const adnauseam = self.adnauseam;
+    if (adnauseam && typeof adnauseam.clearAds === 'function') {
+      adnauseam.clearAds();
+    }
+  });
+  console.log('[main] Vault cleared');
   console.log('');
 
   // Get browsing tab
@@ -42,7 +51,6 @@ async function main() {
   const page = pages[0] || await browser.newPage();
   setupAutoDismiss(page);
   attachPageLogger(page, 'tab');
-  const cursor = await installCursor(page);
 
   // Track page visits
   page.on('framenavigated', async (frame) => {
@@ -56,9 +64,9 @@ async function main() {
 
   // Run the script
   for (const step of steps) {
-    const { url, stay = 10, subpages = 0 } = step;
+    const { url, stay = 10 } = step;
 
-    console.log(`\n→ ${url} (${stay}s, ${subpages} subpages)`);
+    console.log(`\n→ ${url} (${stay}s)`);
 
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -68,18 +76,11 @@ async function main() {
       continue;
     }
 
+    // Wait for consent banners then dismiss
+    await new Promise(r => setTimeout(r, 2000));
+
     await humanScroll(page);
     await humanDwell(page);
-
-    // Optional: click into subpages
-    for (let i = 0; i < subpages; i++) {
-      const href = await clickRandomLink(page, cursor, { preferInternal: true });
-      if (href) {
-        console.log(`  subpage ${i + 1}: ${href}`);
-        await humanScroll(page, { maxScrolls: 15 });
-        await humanDwell(page);
-      }
-    }
 
     // Respect the "stay" time (minus what we already spent scrolling/dwelling)
     const remaining = Math.max(0, stay * 1000 - (Date.now() - (pageVisits.at(-1)?.timestamp || Date.now())));

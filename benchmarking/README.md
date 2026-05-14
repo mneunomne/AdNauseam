@@ -30,7 +30,7 @@ npm run test-ext
 npm start
 ```
 
-This reads `script.json`, visits each site, scrolls, optionally clicks subpages, then collects results.
+This reads `script.json`, visits each site, scrolls, then collects results.
 
 ## script.json
 
@@ -38,16 +38,15 @@ Define what sites to visit:
 
 ```json
 [
-  { "url": "https://www.nytimes.com",  "stay": 10, "subpages": 2 },
-  { "url": "https://www.bbc.com/news", "stay": 10, "subpages": 0 }
+  { "url": "https://www.nytimes.com",  "stay": 10 },
+  { "url": "https://www.bbc.com/news", "stay": 10 }
 ]
 ```
 
-| Field      | Description                              | Default |
-|------------|------------------------------------------|---------|
-| `url`      | Site to visit                            | —       |
-| `stay`     | Seconds to spend on the page             | `10`    |
-| `subpages` | Number of internal links to click into   | `0`     |
+| Field  | Description                    | Default |
+|--------|--------------------------------|---------|
+| `url`  | Site to visit                  | —       |
+| `stay` | Seconds to spend on the page   | `10`    |
 
 ## AdNauseam settings
 
