@@ -5,10 +5,7 @@
   "type": "module",
   "scripts": {
     "build-ext": "cd .. && bash tools/make-chromium.sh",
-    "benchmark": "node src/index.js",
-    "benchmark:news": "node src/index.js --scenario news",
-    "benchmark:mixed": "node src/index.js --scenario mixed",
-    "benchmark:custom": "node src/index.js --scenario custom",
+    "start": "node src/index.js",
     "test-ext": "node test-extension.js"
   },
   "dependencies": {

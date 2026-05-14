@@ -16,7 +16,7 @@ export class Reporter {
   /**
    * Save the full benchmark results to a JSON file.
    */
-  save(results, timeline, pageVisits) {
+  save(results, pageVisits) {
     fs.mkdirSync(config.resultsDir, { recursive: true });
 
     const endTime = Date.now();
@@ -30,7 +30,6 @@ export class Reporter {
         startTime: new Date(this.startTime).toISOString(),
         endTime: new Date(endTime).toISOString(),
         durationSeconds: Math.round((endTime - this.startTime) / 1000),
-        configuredDurationMinutes: config.session.duration,
         ...this.environment,
       },
       pages: pageVisits,
@@ -41,7 +40,6 @@ export class Reporter {
         snapshots: results.snapshots,
         adGrowthOverTime: this.computeAdGrowth(results.snapshots),
       },
-      timeline,
       allAds: results.allAds,
     };
 
@@ -57,7 +55,7 @@ export class Reporter {
     fs.mkdirSync(config.resultsDir, { recursive: true });
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `summary-${this.scenario}-${timestamp}.txt`;
+    const filename = `summary-${this.scenario}-${timestamp}.md`;
     const filepath = path.join(config.resultsDir, filename);
 
     const { summary } = results;
@@ -83,35 +81,42 @@ export class Reporter {
       }))
       .sort((a, b) => b.ads - a.ads || b.visits - a.visits);
 
+    const now = new Date();
     const lines = [];
-    lines.push('BENCHMARK SUMMARY');
-    lines.push('='.repeat(60));
-    lines.push(`Scenario:          ${this.scenario}`);
-    lines.push(`Duration:          ${Math.floor(duration / 60)}m ${duration % 60}s`);
-    lines.push(`Pages visited:     ${pageVisits.length}`);
+    lines.push('# Benchmark Summary');
     lines.push('');
-    lines.push('--- Ads ---');
-    lines.push(`Total detected:    ${summary.totalAds}`);
-    lines.push(`  Image ads:       ${summary.imageAds}`);
-    lines.push(`  Text ads:        ${summary.textAds}`);
-    lines.push(`Clicked:           ${summary.clickedAds}`);
-    lines.push(`Failed clicks:     ${summary.failedClicks}`);
-    lines.push(`Pending:           ${summary.pendingAds}`);
-    lines.push(`Click success:     ${(summary.clickSuccessRate * 100).toFixed(1)}%`);
+    lines.push(`**Date:** ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`);
+    lines.push(`**Duration:** ${Math.floor(duration / 60)}m ${duration % 60}s`);
+    lines.push(`**Pages visited:** ${pageVisits.length}`);
     lines.push('');
-    lines.push('--- Blocking ---');
+    lines.push('## Ads');
+    lines.push('');
+    lines.push(`| Metric | Count |`);
+    lines.push(`|--------|------:|`);
+    lines.push(`| Total detected | ${summary.totalAds} |`);
+    lines.push(`| Image ads | ${summary.imageAds} |`);
+    lines.push(`| Text ads | ${summary.textAds} |`);
+    lines.push(`| Clicked | ${summary.clickedAds} |`);
+    lines.push(`| Failed clicks | ${summary.failedClicks} |`);
+    lines.push(`| Pending | ${summary.pendingAds} |`);
+    lines.push(`| Click success | ${(summary.clickSuccessRate * 100).toFixed(1)}% |`);
+    lines.push('');
     if (results.blockingStats) {
-      lines.push(`Requests blocked:  ${results.blockingStats.requestStats.blockedCount}`);
-      lines.push(`Requests allowed:  ${results.blockingStats.requestStats.allowedCount}`);
+      lines.push('## Blocking');
+      lines.push('');
+      lines.push(`| Metric | Count |`);
+      lines.push(`|--------|------:|`);
+      lines.push(`| Requests blocked | ${results.blockingStats.requestStats.blockedCount} |`);
+      lines.push(`| Requests allowed | ${results.blockingStats.requestStats.allowedCount} |`);
+      lines.push('');
     }
+    lines.push('## Ads per Site');
     lines.push('');
-    lines.push('--- Ads per Site ---');
-    lines.push(`${'Site'.padEnd(35)} ${'Visits'.padStart(6)} ${'Ads'.padStart(6)}`);
-    lines.push('-'.repeat(50));
+    lines.push('| Site | Visits | Ads |');
+    lines.push('|------|-------:|----:|');
     for (const row of domainRows) {
-      lines.push(`${row.domain.padEnd(35)} ${String(row.visits).padStart(6)} ${String(row.ads).padStart(6)}`);
+      lines.push(`| ${row.domain} | ${row.visits} | ${row.ads} |`);
     }
-    lines.push('='.repeat(60));
 
     fs.writeFileSync(filepath, lines.join('\n') + '\n');
     console.log(`[reporter] Summary saved to: ${filepath}`);

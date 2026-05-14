@@ -1,148 +1,109 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { launchBrowser } from './browser.js';
 import { DataExtractor } from './dataExtractor.js';
 import { Reporter } from './reporter.js';
 import { setupAutoDismiss } from './cookieConsent.js';
 import { initLogger, attachPageLogger, attachBackgroundLogger, closeLogger } from './logger.js';
-import { runNewsSitesScenario } from './scenarios/newsSites.js';
-import { runMixedSessionScenario } from './scenarios/mixedSession.js';
-import { runCustomUrlsScenario } from './scenarios/customUrls.js';
+import { humanScroll, humanDwell, humanPause, clickRandomLink, installCursor } from './humanBehavior.js';
 import config from '../config.js';
 
-// Parse CLI arguments
-function parseArgs() {
-  const args = process.argv.slice(2);
-  const parsed = {};
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--scenario' && args[i + 1]) {
-      parsed.scenario = args[++i];
-    } else if (args[i] === '--duration' && args[i + 1]) {
-      parsed.duration = parseInt(args[++i], 10);
-    }
-  }
-  return parsed;
-}
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const SCRIPT_PATH = path.resolve(__dirname, '../script.json');
 
 async function main() {
-  const args = parseArgs();
-  const scenario = args.scenario || config.session.scenario;
-  if (args.duration) config.session.duration = args.duration;
+  const steps = JSON.parse(fs.readFileSync(SCRIPT_PATH, 'utf-8'));
 
-  // Start logging to file (must be before any console output we want captured)
-  const logFile = initLogger(scenario);
+  const logFile = initLogger('script');
 
-  console.log(`[main] AdNauseam Benchmark`);
-  console.log(`[main] Scenario: ${scenario}`);
-  console.log(`[main] Duration: ${config.session.duration} minutes`);
+  console.log('[main] AdNauseam Benchmark');
+  console.log(`[main] Script: ${steps.length} sites`);
   console.log(`[main] Log file: ${logFile}`);
-  console.log(`[main] Extension: ${config.extensionPath}`);
-  console.log(`[main] Profile: ${config.profileDir}`);
   console.log('');
 
   // Launch browser with extension
   console.log('[main] Launching browser...');
   const { browser, backgroundPage } = await launchBrowser();
-
-  // Attach logger to extension background page (captures [ADN] logs and errors)
   attachBackgroundLogger(backgroundPage);
 
-  // Set up data extraction
+  // Data extraction
   const extractor = new DataExtractor(backgroundPage);
-  const reporter = new Reporter(scenario);
-  const timeline = [];
+  const reporter = new Reporter('script');
   const pageVisits = [];
 
-  // Collect environment info (location, version, browser)
-  console.log('[main] Collecting environment info...');
   const env = await extractor.getEnvironment(browser);
   reporter.setEnvironment(env);
   console.log(`[main] AdNauseam v${env.adnauseamVersion} | ${env.browser}`);
-  console.log(`[main] Location: ${env.location.city || env.location.timezone}, ${env.location.country || ''}`);
   console.log('');
 
-  // Start periodic data snapshots
-  const snapshotInterval = setInterval(async () => {
-    try {
-      const snapshot = await extractor.takeSnapshot();
-      console.log(`[snapshot] Ads: ${snapshot.adCount} | Blocked: ${snapshot.blockingStats?.requestStats?.blockedCount || 0}`);
-    } catch (e) {
-      console.log(`[snapshot] Error: ${e.message}`);
-    }
-  }, config.extractionInterval * 1000);
-
-  // Get the first tab (or create one)
+  // Get browsing tab
   const pages = await browser.pages();
   const page = pages[0] || await browser.newPage();
-
-  // Auto-dismiss GDPR/cookie consent banners on every page load
   setupAutoDismiss(page);
-
-  // Attach logger to browsing page (captures JS errors, failed requests)
   attachPageLogger(page, 'tab');
+  const cursor = await installCursor(page);
 
   // Track page visits
   page.on('framenavigated', async (frame) => {
     if (frame === page.mainFrame()) {
       const url = frame.url();
       if (url && url.startsWith('http')) {
-        pageVisits.push({
-          url,
-          timestamp: Date.now(),
-          title: await page.title().catch(() => ''),
-        });
+        pageVisits.push({ url, timestamp: Date.now(), title: await page.title().catch(() => '') });
       }
     }
   });
 
-  // Run the selected scenario
-  try {
-    switch (scenario) {
-      case 'news':
-        await runNewsSitesScenario(page, timeline);
-        break;
-      case 'mixed':
-        await runMixedSessionScenario(page, timeline);
-        break;
-      case 'custom':
-        await runCustomUrlsScenario(page, timeline);
-        break;
-      default:
-        console.error(`[main] Unknown scenario: ${scenario}. Use: news, mixed, custom`);
-        process.exit(1);
+  // Run the script
+  for (const step of steps) {
+    const { url, stay = 10, subpages = 0 } = step;
+
+    console.log(`\n→ ${url} (${stay}s, ${subpages} subpages)`);
+
+    try {
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    } catch (e) {
+      console.log(`  ⚠ Failed to load: ${e.message}`);
+      await humanPause();
+      continue;
     }
-  } catch (e) {
-    console.error(`[main] Scenario error: ${e.message}`);
-    console.error(e.stack);
+
+    await humanScroll(page);
+    await humanDwell(page);
+
+    // Optional: click into subpages
+    for (let i = 0; i < subpages; i++) {
+      const href = await clickRandomLink(page, cursor, { preferInternal: true });
+      if (href) {
+        console.log(`  subpage ${i + 1}: ${href}`);
+        await humanScroll(page, { maxScrolls: 15 });
+        await humanDwell(page);
+      }
+    }
+
+    // Respect the "stay" time (minus what we already spent scrolling/dwelling)
+    const remaining = Math.max(0, stay * 1000 - (Date.now() - (pageVisits.at(-1)?.timestamp || Date.now())));
+    if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
+
+    await humanPause();
   }
-
-  // Stop snapshots
-  clearInterval(snapshotInterval);
-
-  // Take final snapshot
-  await extractor.takeSnapshot();
 
   // Collect final results
   console.log('\n[main] Collecting final results...');
+  await extractor.takeSnapshot();
   const results = await extractor.getFinalResults();
-
-  // Get page performance for the last page
-  const perfMetrics = await extractor.getPageMetrics(page);
-  if (perfMetrics) {
-    results.lastPageMetrics = perfMetrics;
-  }
 
   // Report
   reporter.printSummary(results, pageVisits);
-  const filepath = reporter.save(results, timeline, pageVisits);
+  const filepath = reporter.save(results, pageVisits);
   reporter.saveSummary(results, pageVisits);
 
-  // Close browser
+  // Close
   console.log('[main] Closing browser...');
   await browser.close();
   console.log(`[main] Done. Results: ${filepath}`);
 
-  // Close log file
   const finalLogPath = closeLogger();
-  // Use original console since logger is closed
   process.stdout.write(`[main] Log saved to: ${finalLogPath}\n`);
 }
 

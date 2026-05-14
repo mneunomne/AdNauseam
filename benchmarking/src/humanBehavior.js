@@ -48,9 +48,14 @@ export async function humanScroll(page, options = {}) {
     const direction = Math.random() < scrollDownProbability ? 1 : -1;
     const distance = randomInt(behavior.scrollStep.min, behavior.scrollStep.max) * direction;
 
-    await page.evaluate((dist) => {
-      window.scrollBy({ top: dist, behavior: 'smooth' });
-    }, distance);
+    try {
+      await page.evaluate((dist) => {
+        window.scrollBy({ top: dist, behavior: 'smooth' });
+      }, distance);
+    } catch {
+      // Page navigated or context destroyed mid-scroll
+      return;
+    }
 
     // Pause between scrolls (reading simulation)
     const pause = randomBetween(behavior.scrollPause.min, behavior.scrollPause.max);

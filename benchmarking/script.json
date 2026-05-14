@@ -1,8 +1,8 @@
 [
-  { "url": "https://www.nytimes.com",    "stay": 10 },
-  { "url": "https://www.bbc.com/news",   "stay": 10 },
-  { "url": "https://www.cnn.com",        "stay": 8  },
-  { "url": "https://www.theguardian.com", "stay": 8  },
-  { "url": "https://www.reddit.com",     "stay": 12 },
-  { "url": "https://www.youtube.com",    "stay": 15 }
+  { "url": "https://www.nytimes.com",     "stay": 10, "subpages": 2 },
+  { "url": "https://www.bbc.com/news",    "stay": 10, "subpages": 1 },
+  { "url": "https://www.cnn.com",         "stay": 8,  "subpages": 1 },
+  { "url": "https://www.theguardian.com", "stay": 8,  "subpages": 1 },
+  { "url": "https://www.reddit.com",      "stay": 12, "subpages": 0 },
+  { "url": "https://www.youtube.com",     "stay": 15, "subpages": 0 }
 ]
