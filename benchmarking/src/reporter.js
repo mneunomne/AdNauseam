@@ -62,24 +62,9 @@ export class Reporter {
     const duration = Math.round((Date.now() - this.startTime) / 1000);
     const adsByDomain = results.adsByDomain || {};
 
-    // Build set of all visited domains from pageVisits
-    const visitedDomains = new Map(); // domain -> visit count
-    for (const visit of pageVisits) {
-      try {
-        const domain = new URL(visit.url).hostname.replace(/^www\./, '');
-        visitedDomains.set(domain, (visitedDomains.get(domain) || 0) + 1);
-      } catch { /* skip invalid URLs */ }
-    }
-
-    // Merge visited domains with ad domains
-    const allDomains = new Set([...visitedDomains.keys(), ...Object.keys(adsByDomain)]);
-    const domainRows = [...allDomains]
-      .map(domain => ({
-        domain,
-        visits: visitedDomains.get(domain) || 0,
-        ads: adsByDomain[domain] ? adsByDomain[domain].length : 0,
-      }))
-      .sort((a, b) => b.ads - a.ads || b.visits - a.visits);
+    const domainRows = Object.entries(adsByDomain)
+      .map(([domain, ads]) => ({ domain, ads: ads.length }))
+      .sort((a, b) => b.ads - a.ads);
 
     const now = new Date();
     const lines = [];
@@ -112,10 +97,10 @@ export class Reporter {
     }
     lines.push('## Ads per Site');
     lines.push('');
-    lines.push('| Site | Visits | Ads |');
-    lines.push('|------|-------:|----:|');
+    lines.push('| Site | Ads |');
+    lines.push('|------|----:|');
     for (const row of domainRows) {
-      lines.push(`| ${row.domain} | ${row.visits} | ${row.ads} |`);
+      lines.push(`| ${row.domain} | ${row.ads} |`);
     }
 
     fs.writeFileSync(filepath, lines.join('\n') + '\n');
