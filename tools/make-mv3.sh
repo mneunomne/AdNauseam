@@ -116,6 +116,32 @@ cp platform/mv3/"$PLATFORM"/css-user.js "$ADNL_DIR"/js/scripting/ 2>/dev/null ||
 cp platform/mv3/extension/img/* "$ADNL_DIR"/img/
 cp platform/mv3/"$PLATFORM"/img/* "$ADNL_DIR"/img/ 2>/dev/null || :
 cp -R platform/mv3/extension/_locales "$ADNL_DIR"/
+
+# Merge MV2 locale messages (messages.json + adnauseam.json) into MV3 locales
+# Priority: MV3 messages.json > MV2 adnauseam.json > MV2 messages.json
+echo "*** AdNauseamLite.mv3: Merging MV2 locales into MV3"
+for mv3_locale_dir in "$ADNL_DIR"/_locales/*/; do
+    locale=$(basename "$mv3_locale_dir")
+    mv2_messages="$ADN_DIR/src/_locales/$locale/messages.json"
+    mv2_adnauseam="$ADN_DIR/src/_locales/$locale/adnauseam.json"
+    mv3_messages="$mv3_locale_dir/messages.json"
+    if [ -f "$mv3_messages" ]; then
+        tmp_merged=$(mktemp)
+        if [ -f "$mv2_messages" ] && [ -f "$mv2_adnauseam" ]; then
+            jq -s '.[0] * .[1] * .[2]' "$mv2_messages" "$mv2_adnauseam" "$mv3_messages" > "$tmp_merged" \
+                && mv "$tmp_merged" "$mv3_messages"
+        elif [ -f "$mv2_messages" ]; then
+            jq -s '.[0] * .[1]' "$mv2_messages" "$mv3_messages" > "$tmp_merged" \
+                && mv "$tmp_merged" "$mv3_messages"
+        elif [ -f "$mv2_adnauseam" ]; then
+            jq -s '.[0] * .[1]' "$mv2_adnauseam" "$mv3_messages" > "$tmp_merged" \
+                && mv "$tmp_merged" "$mv3_messages"
+        else
+            rm -f "$tmp_merged"
+        fi
+    fi
+done
+
 cp platform/mv3/README.md "$ADNL_DIR/"
 
 # Libraries

@@ -165,6 +165,7 @@
     const imgs = element.querySelectorAll(imgSelectors.join(', '));
     logP('  Found', imgs.length, 'image elements matching selectors');
 
+    let chosenImg = null;
     for (const img of imgs) {
       const src = resolveImageSrc(img);
       if (src) {
@@ -180,6 +181,7 @@
           data.imgSrc = src;
           data.imgWidth = dims.w;
           data.imgHeight = dims.h;
+          chosenImg = img;
         }
       }
     }
@@ -236,11 +238,33 @@
 
     // --- Text extraction (for text ads or as fallback) ---
 
-    // Title
+    // Title — try multiple sources so we have a real title before any visit.
     const titleEl = element.querySelector(titleSelectors.join(', '));
     if (titleEl) {
       data.title = titleEl.textContent.trim();
     }
+    if (!data.title && chosenImg) {
+      data.title = (chosenImg.getAttribute('alt')
+        || chosenImg.getAttribute('title')
+        || chosenImg.getAttribute('aria-label')
+        || '').trim();
+    }
+    if (!data.title && clickable) {
+      data.title = (clickable.getAttribute('aria-label')
+        || clickable.getAttribute('title')
+        || '').trim();
+      if (!data.title && clickable.tagName === 'A') {
+        // Link text, but skip if it's just the image's alt we already tried
+        const linkText = clickable.textContent.trim().replace(/\s+/g, ' ');
+        if (linkText && linkText.length <= 120) data.title = linkText;
+      }
+    }
+    if (!data.title) {
+      data.title = (element.getAttribute('aria-label')
+        || element.getAttribute('title')
+        || '').trim();
+    }
+    if (data.title.length > 120) data.title = data.title.substring(0, 120).trim();
 
     // Description text
     if (!data.imgSrc) {
@@ -408,7 +432,7 @@
             contentData: isTextAd
               ? { title: adData.title || '', text: adData.text || '', site: window.location.hostname }
               : { src: adData.imgSrc || '', width: adData.imgWidth || -1, height: adData.imgHeight || -1 },
-            title: adData.title || (isTextAd ? (adData.text || '').substring(0, 80) : 'Ad'),
+            title: adData.title || (adData.text || '').substring(0, 80) || window.location.hostname,
             attempts: 0,
             visitedTs: 0,
           };

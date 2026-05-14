@@ -35,6 +35,7 @@ export const rulesetConfig = {
     strictBlockMode: webextFlavor !== 'safari',
     developerMode: false,
     hasBroadHostPermissions: true,
+    adnAllowEnabled: true,
 };
 
 export const defaultConfig = Object.assign({}, rulesetConfig);

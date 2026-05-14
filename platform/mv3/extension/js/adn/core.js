@@ -341,17 +341,20 @@ async function registerAd(ad, tab) {
   ad.visitedTs = ad.visitedTs || 0;
   ad.version = chrome.runtime.getManifest().version;
 
-  // Ensure proper pageUrl from tab if available
-  if (tab) {
-    ad.pageUrl = ad.pageUrl || tab.url;
-    ad.pageTitle = ad.pageTitle || tab.title;
+  // Always source page identity from the top-level tab. Content scripts
+  // run inside every frame, so ad.pageUrl from a cross-origin sub-frame
+  // (e.g. *.safeframe.googlesyndication.com) would otherwise leak into
+  // the saved record instead of the tab the user is actually on.
+  if (tab && tab.url) {
+    ad.pageUrl = tab.url;
+    ad.pageTitle = tab.title || ad.pageTitle;
   }
 
   if (!ad.pageUrl) {
     return warn('[ADN] registerAd: no pageUrl');
   }
 
-  ad.pageDomain = ad.pageDomain || parseDomain(ad.pageUrl) || ad.pageUrl;
+  ad.pageDomain = parseDomain(ad.pageUrl) || ad.pageUrl;
 
   if (!validate(ad)) return warn('[ADN] Invalid ad', ad);
 

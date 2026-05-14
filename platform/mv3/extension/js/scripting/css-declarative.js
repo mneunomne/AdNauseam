@@ -88,7 +88,7 @@ const cssRuleFromProcedural = details => {
         return `${selector}\n{${style}}`;
     }
     if ( style === undefined ) {
-        return `@media ${mq} {\n${selector}\n{display:none!important;}\n}`;
+        return `@media ${mq} {\n${selector}\n{opacity:0!important;}\n}`; // ADN
     }
     return `@media ${mq} {\n${selector}\n{${style}}\n}`;
 };

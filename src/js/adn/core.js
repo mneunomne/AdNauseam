@@ -2487,6 +2487,9 @@ if (!String.prototype.hasOwnProperty('includes')) {
 
 /*************************************************************************/
 
+// Expose globally for benchmarking/automation tools (mirrors self.µBlock pattern)
+self.adnauseam = adnauseam;
+
 export default adnauseam
 
 /*************************************************************************/

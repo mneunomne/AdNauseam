@@ -439,6 +439,28 @@ function onMessage(request, sender, callback) {
 			callback();
 			return true;
 		}
+
+		case 'setAdnAllow': {
+			const { enabled } = request;
+			dnr.updateEnabledRulesets({
+				enableRulesetIds: enabled ? ['adn-allow'] : [],
+				disableRulesetIds: enabled ? [] : ['adn-allow'],
+			}).then(() => {
+				rulesetConfig.adnAllowEnabled = enabled;
+				return saveRulesetConfig();
+			}).then(() => {
+				broadcastMessage({ adnAllowEnabled: enabled });
+				callback({ success: true });
+			}).catch(err => {
+				callback({ success: false, error: String(err) });
+			});
+			return true;
+		}
+
+		case 'getAdnAllow': {
+			callback({ enabled: rulesetConfig.adnAllowEnabled });
+			return true;
+		}
 		// end of ADN cases
     default:
         break;
@@ -865,6 +887,11 @@ async function startSession() {
     }
 
     const rulesetsUpdated = await enableRulesets(rulesetConfig.enabledRulesets);
+
+    await dnr.updateEnabledRulesets({
+        enableRulesetIds: rulesetConfig.adnAllowEnabled ? ['adn-allow'] : [],
+        disableRulesetIds: rulesetConfig.adnAllowEnabled ? [] : ['adn-allow'],
+    }).catch(() => {});
 
     // We need to update the regex rules only when ruleset version changes.
     if ( rulesetsUpdated === undefined ) {
