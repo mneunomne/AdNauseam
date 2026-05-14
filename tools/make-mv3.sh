@@ -58,6 +58,7 @@ cd - > /dev/null
 mkdir -p "$ADNL_DIR"/css/fonts
 mkdir -p "$ADNL_DIR"/js
 mkdir -p "$ADNL_DIR"/img
+mkdir -p "$ADNL_DIR"/lib
 
 if [ -n "$ADN_VERSION" ]; then
     ADN_REPO="https://github.com/dhowe/AdNauseam.git"
@@ -96,6 +97,8 @@ cp "$ADN_DIR"/src/js/redirect-resources.js "$ADNL_DIR"/js/
 cp "$ADN_DIR"/src/js/static-filtering-parser.js "$ADNL_DIR"/js/
 cp "$ADN_DIR"/src/js/urlskip.js "$ADNL_DIR"/js/
 cp "$ADN_DIR"/src/lib/punycode.js "$ADNL_DIR"/js/
+cp -R "$ADN_DIR"/src/lib/regexanalyzer "$ADN_DIR"/lib/
+
 
 cp -R "$ADN_DIR/src/img/flags-of-the-world" "$ADNL_DIR"/img
 
@@ -201,10 +204,14 @@ cp platform/mv3/*.json "$UBOL_BUILD_DIR"/
 cp platform/mv3/*.js "$UBOL_BUILD_DIR"/
 cp platform/mv3/*.mjs "$UBOL_BUILD_DIR"/
 cp platform/mv3/extension/js/utils.js "$UBOL_BUILD_DIR"/js/
+cp platform/mv3/extension/js/make-scriptlets.js "$UBOL_BUILD_DIR"/js/
+cp platform/mv3/extension/js/safe-replace.js "$UBOL_BUILD_DIR"/js/
 cp "$ADN_DIR"/src/js/regex-analyzer.js "$UBOL_BUILD_DIR"/js/
 cp -R "$ADN_DIR"/src/lib/regexanalyzer "$UBOL_BUILD_DIR"/
 cp -R "$ADN_DIR"/src/js/resources "$UBOL_BUILD_DIR"/js/
+
 cp -R platform/mv3/scriptlets "$UBOL_BUILD_DIR"/
+cp platform/mv3/extension/js/scriptlet.template.js "$UBOL_BUILD_DIR"/scriptlets/
 mkdir -p "$UBOL_BUILD_DIR"/web_accessible_resources
 cp "$ADN_DIR"/src/web_accessible_resources/* "$UBOL_BUILD_DIR"/web_accessible_resources/
 cp -R platform/mv3/"$PLATFORM" "$UBOL_BUILD_DIR"/
@@ -240,6 +247,7 @@ if [ -z "$TAGNAME" ]; then
 else
     jq --arg version "${TAGNAME}" '.version = $version' "$ADNL_DIR/manifest.json"  > "$tmp_manifest" \
         && mv "$tmp_manifest" "$ADNL_DIR/manifest.json"
+    rm -rf "$ADNL_DIR/rulesets/debug"
 fi
 
 # Platform-specific steps

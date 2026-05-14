@@ -47,7 +47,7 @@
       }
       vAPI.adParser.scanDocument();
       // Watch for content injected after the initial scan (many ad iframes load creatives dynamically)
-      new MutationObserver(function (mutations) {
+      new MutationObserver(function (mutations) { // is this working?
         for (const mutation of mutations) {
           for (const node of mutation.addedNodes) {
             if (node.nodeType === Node.ELEMENT_NODE) {
@@ -98,15 +98,13 @@
 
       let hits = 0;
       for (let i = 0; i < imgs.length; i++) {
-        logP('[FIND-IMG] Processing image ' + i + ' of ' + imgs.length);
         if (processImage(imgs[i])) hits++;
       }
 
       if (hits < 1) {
-        logP('[FIND-IMG] No (loaded) image Ads found in ' + imgs.length + ' images');
         return false
       } else {
-        logP('[FIND-IMG] Found ' + hits + ' image ads');
+        logP('[FIND-IMG] Found ' + hits + ' image ads in ' + imgs.length + ' images');
         return true
       }
     };
@@ -115,14 +113,13 @@
       
       let hits = 0;
       for (let i = 0; i < elements.length; i++) {
-        logP('[FIND-VIDEO] Processing video ' + i + ' of ' + elements.length);
         if (processVideo(elements[i])) hits++;
       }
 
       if (hits < 1) {
-        logP('[FIND-VIDEO] No (loaded) video Ads found in ' + elements.length + ' videos');
+        return false
       } else {
-        logP('[FIND-VIDEO] Found ' + hits + ' video ads');
+        logP('[FIND-VIDEO] Found ' + hits + ' video ads in ' + elements.length + ' videos');
         return true
       }
     };
@@ -166,7 +163,6 @@
     } 
 
     const findBgImage = function (elem) {
-      logP("[BG-IMG] Finding background image on", elem.tagName, elem.id, elem.className)
       // Try inline style first, then computed style
       var attribute = elem.style.backgroundImage || elem.style.background;
       if (!attribute || attribute === 'none') {
@@ -175,19 +171,18 @@
       }
       
       if (!attribute || attribute === 'none') {
-        logP('[BG-IMG] FAIL: No background-image found on element');
         return;
       }
       
-      logP('[BG-IMG] Found background attribute:', attribute.substring(0, 100))
       
-      // Check for clickable parent OR clickable child
-      const clickable = clickableParent(elem) || clickableChild(elem);
+      // Check for clickable parent OR clickable child, then try siblings via parent
+      let clickable = clickableParent(elem) || clickableChild(elem);
+      if (!clickable && elem.parentNode && elem.parentNode.nodeType === 1) {
+        clickable = clickableChild(elem.parentNode);
+      }
       if (!clickable) {
-        logP('[BG-IMG] FAIL: No clickable parent or child found');
         return;
       }
-      logP('[BG-IMG] Found clickable:', clickable.tagName)
       
       if (attribute && attribute !== 'none' && clickable) {
         const targetUrl = getTargetUrlFromClickable(clickable);
@@ -256,7 +251,6 @@
       // Check data-href, data-url, data-link, etc.
       for (let i = 0; i < dataClickAttrs.length; i++) {
         if (checkNode.hasAttribute(dataClickAttrs[i])) {
-          logP('[URL] Found data click attribute:', dataClickAttrs[i], checkNode.getAttribute(dataClickAttrs[i])?.substring(0, 50));
           return checkNode;
         }
       }
@@ -288,7 +282,6 @@
       const dataClickSelector = dataClickAttrs.map(function(a) { return '[' + a + ']'; }).join(', ');
       const dataClickEls = node.querySelectorAll(dataClickSelector);
       if (dataClickEls.length > 0) {
-        logP('[URL] Found child with data click attribute:', dataClickEls[0].tagName);
         return dataClickEls[0];
       }
       // Check for elements with onclick handlers containing URLs
@@ -367,7 +360,7 @@
       this.pageUrl = null;
     };
 
-    const REPROCESS_DELAY = 5000; // 10 seconds in milliseconds
+    const REPROCESS_DELAY = 3000; // 10 seconds in milliseconds
 
     const canProcess = function (elem) {
       const lastProcessed = elem.getAttribute('process-adn');
@@ -382,10 +375,7 @@
 
     const processImage = function (img) {
 
-      logP('[IMG] Starting processImage for', img.tagName, 'src:', img.src?.substring(0, 50));
-
       if (!canProcess(img)) {
-        logP('[IMG] SKIP: Image recently processed (within REPROCESS_DELAY)', img);
         return false;
       }
       markProcessed(img);
@@ -397,7 +387,6 @@
         const innerImg = img.querySelector('img');
         if (innerImg) {
           src = innerImg.currentSrc || innerImg.src || innerImg.getAttribute('src');
-          logP('[IMG] Got src from <picture> > <img>:', src?.substring(0, 60));
           // Use the inner img for dimension checking later
           if (src) img = innerImg;
         }
@@ -405,7 +394,6 @@
           const source = img.querySelector('source[srcset]');
           if (source) {
             src = parseSrcset(source.getAttribute('srcset'));
-            logP('[IMG] Got src from <picture> > <source srcset>:', src?.substring(0, 60));
           }
         }
       }
@@ -413,7 +401,6 @@
       // Handle <source> element directly (from querySelectorAll matching 'picture > source[srcset]')
       if (!src && img.tagName === 'SOURCE' && img.hasAttribute('srcset')) {
         src = parseSrcset(img.getAttribute('srcset'));
-        logP('[IMG] Got src from <source srcset>:', src?.substring(0, 60));
         // Navigate to parent picture's img for dimensions
         if (img.parentElement && img.parentElement.tagName === 'PICTURE') {
           const innerImg = img.parentElement.querySelector('img');
@@ -424,7 +411,6 @@
       // Fallback: check srcset attribute on <img> itself
       if (!src && img.getAttribute && img.getAttribute('srcset')) {
         src = parseSrcset(img.getAttribute('srcset'));
-        logP('[IMG] Got src from img srcset:', src?.substring(0, 60));
       }
 
       // Fallback: check native ad data attributes
@@ -433,58 +419,45 @@
           || img.getAttribute('data-image-url') || img.getAttribute('data-image')
           || img.getAttribute('data-lazy-src') || img.getAttribute('data-original')
           || img.getAttribute('data-original-src');
-        if (src) logP('[IMG] Got src from native ad data attribute:', src.substring(0, 60));
       }
 
       // ignore this element which only server to generate div size. It is a transparent png image. Fixing https://github.com/dhowe/AdNauseam/issues/1843
       if (img.className === 'i-amphtml-intrinsic-sizer') {
-        logP("[IMG] FILTERED: transparent fake detection from AMP-IMG", img);
         return;
       }
 
       if (!src && img.dataset.src) { // try to get data-src which is the case for some images
         let data_src = img.dataset.src
-        logP('[IMG] Found data-src attribute:', data_src?.substring(0, 50));
         src = (data_src.indexOf("http://") == 0 || data_src.indexOf("https://") == 0) ? data_src : window.location.host + data_src
       }
 
       if (!src) { // no image src
-        logP('[IMG] No standard src found, checking background-image');
         // try to get from background-image style
         let attribute = img.style.backgroundImage || img.style.background;
         if (!attribute || attribute === 'none') {
           const computedStyle = getComputedStyle(img);
           attribute = computedStyle.backgroundImage || computedStyle.background;
-          logP('[IMG] Computed style background:', attribute?.substring(0, 80));
           src = extractUrlSrc(attribute);
         }
       }
       
-      if (!src) return warnP("[IMG] FAIL: No image src found anywhere", img);
-
-      logP('[IMG] Found src:', src.substring(0, 80));
+      if (!src) return warnP("[IMG] No image src found", img.tagName, img.id || img.className || '');
 
       let targetUrl = getTargetUrl(img);
 
       if (!targetUrl) {
-        logP('[IMG] FAIL: No target URL found for image');
         return;
       }
-
-      logP('[IMG] Found target URL:', targetUrl.substring(0, 80));
 
       // we have an image and a click-target now 
       // OR the image is from type AMP-IMG which doesn't have a "complete parameter", so we let it go through... https://github.com/dhowe/AdNauseam/issues/1843
       if (img.complete || img.tagName === "AMP-IMG" ) {
-        logP('[IMG] Image complete or AMP-IMG, processing immediately');
         // process the image now
         return createImageAd(img, src, targetUrl);
 
       } else {
-        logP('[IMG] Image not loaded yet, waiting for onload event');
         // wait for loading to finish
         img.onload = function () {
-          logP('[IMG] Image onload fired, now creating ad');
           // can't return true here, so findImageAds() will still report
           // 'No Ads found' for the image, but a hit will be still be logged
           // in createImageAd() below
@@ -524,7 +497,6 @@
         for (let i = 0; i < dataClickAttrs.length; i++) {
           const val = target.getAttribute(dataClickAttrs[i]);
           if (val && val.length > 1) {
-            logP('[URL] Extracted URL from ' + dataClickAttrs[i] + ':', val.substring(0, 60));
             targetUrl = val;
             break;
           }
@@ -538,35 +510,20 @@
 
       // Check for clickable parent first, then clickable child
       const target = clickableParent(elem);
-      if (!target) {
-        logP('[URL] No clickable parent found, checking for clickable child');
-      } else {
-        logP('[URL] Found clickable parent:', target.tagName, target.getAttribute('href')?.substring(0, 50));
-      }
-      
       const childTarget = !target ? clickableChild(elem) : null;
-      if (childTarget && !target) {
-        logP('[URL] Found clickable child:', childTarget.tagName, childTarget.getAttribute('href')?.substring(0, 50));
-      } else if (!target && !childTarget) {
-        logP('[URL] No clickable child found either');
-      }
-      
       const finalTarget = target || childTarget;
       let targetUrl;
 
       if (!finalTarget) { // no clickable parent or child
-        logP("[URL] FAIL: No ClickableParent or ClickableChild found", 'elem:', elem.tagName, 'parent:', elem.parentNode?.tagName);
         return;
       }
 
       targetUrl = getTargetUrlFromClickable(finalTarget);
 
       if (!targetUrl) { // no clickable tag in our target
-        logP("[URL] FAIL: No URL from clickable target (no href or onclick with URL)", 'target:', finalTarget.tagName, 'onclick:', finalTarget.getAttribute('onclick')?.substring(0, 50));
-        return warnP("Fail: no href for anchor", finalTarget, elem);
+        return;
       }
 
-      logP('[URL] Successfully extracted target URL:', targetUrl.substring(0, 80));
       return targetUrl;
     }
 
@@ -578,8 +535,6 @@
       const ih = el.naturalHeight || hFallback || el.getAttribute("clientHeight");
       const minDim = Math.min(iw, ih);
       const maxDim = Math.max(iw, ih);
-
-      logP('[IMG-AD] Creating image ad: size=' + iw + 'x' + ih + ', src=' + src.substring(0, 60) + ', url=' + targetUrl.substring(0, 60));
 
       function isIgnorable(imgSrc) {
         for (let i = 0; i < ignorableImages.length; i++) {
@@ -599,85 +554,76 @@
       // Check size: require a min-size of 30X64 (if we found a size)
       // avoid collecting ad-choice logos
       if (iw > -1 && ih > -1 && (minDim < 31 || maxDim < 65)) {
-        logP('[IMG-AD] FILTERED: Size too small (min=' + minDim + ', max=' + maxDim + '), minDim<31 or maxDim<65');
-        return warnP('Ignoring Ad with size ' + iw + 'x' + ih + ': ', src, targetUrl);
+        return;
       }
 
       if (isIgnorable(src)) {
-        logP('[IMG-AD] FILTERED: Image in ignorable list (logo, transparent gif, etc)');
-        return warnP('Ignorable image: ' + src);
+        return;
       }
 
       if (isFacebookProfilePic(src, iw)) {
-        logP('[IMG-AD] FILTERED: Facebook profile pic detected (fbcdn.net + scontent + width<150)');
-        return warnP('Ignore fbProf: ' + src + ', w=' + iw);
+        return;
       }
 
-      logP('[IMG-AD] All filters passed, creating Ad object');
-      const adTitle = closestText(el);
+      let adTitle = closestText(el);
+
+      // Validate title: reject URLs, JSON, code-like strings
+      if (adTitle && (/^https?:\/\//.test(adTitle) || /^{/.test(adTitle) || /^javascript/i.test(adTitle) || /^www\./i.test(adTitle))) {
+        adTitle = '';
+      }
+
+      // In iframes, ads often have no nearby text — use 'Pending' so the visit can resolve it
       if (!adTitle) {
-        logP('[IMG-AD] FILTERED: No title found near image, skipping');
-        return;
+        if (window !== window.top) {
+          adTitle = 'Pending';
+        } else {
+          return;
+        }
       }
       let ad = createAd(document.domain, targetUrl, { src: src, width: iw, height: ih, title: adTitle });
 
       if (ad) {
-        logP('[PARSED] IMG-AD created successfully:', el, ad);
+        logP('[PARSED] IMG-AD:', src.substring(0, 60), targetUrl.substring(0, 60));
         notifyAddon(ad);
         return true;
       } else {
-        logP('[IMG-AD] FAIL: createAd returned null/falsy');
         warnP("Fail: Unable to create Ad", document.domain, targetUrl, src);
       }
     }
 
     const processVideo = function (el) {
 
-      logP('[VIDEO] Processing video element');
-
       if (!canProcess(el)) {
-        logP('[VIDEO] SKIP: Recently processed (within REPROCESS_DELAY)');
         return false;
       }
       markProcessed(el);
 
       if (!el.hasAttribute('poster')) {
-        logP('[VIDEO] FAIL: No poster attribute found', el);
         return;
       }
-
-      logP('[VIDEO] Has poster attribute, processing as image');
 
       let src = el.getAttribute('poster');
 
       if (!src || src.length < 1 ) {
-        logP('[VIDEO] FAIL: Empty poster src');
         return;
       }
 
-      logP('[VIDEO] Poster src:', src.substring(0, 80));
-
       if (src.indexOf('http') === 0) {
-        logP('[VIDEO] FILTERED: Internal poster URL (starts with http)');
         return; // do not internal ads for videos 
       }
 
       // do not collect video ads from same origin 
       var url = new URL(src)
       if (url && url.origin == window.location.origin) {
-        logP('[VIDEO] FILTERED: Same-origin poster URL');
         return;
       }
 
-      logP('[VIDEO] Poster from external domain, getting target URL');
       let targetUrl = getTargetUrl(el);
 
       if (!targetUrl) {
-        logP('[VIDEO] FAIL: No target URL found');
         return;
       }
 
-      logP('[VIDEO] Creating ad from video');
       return createImageAd(el, src, targetUrl);
     }
 
@@ -748,100 +694,73 @@
     const process = function (elem) {
 
       if (!canProcess(elem)) {
-        logP(`[PROCESS] Element (${elem.tagName}) recently processed, skipping.`)
         return;
       }
       markProcessed(elem);
-      logP('[PROCESS] Processing ' + elem.tagName + ' id=' + (elem.id || 'none') + ' class=' + (elem.className || 'none'));
 
       var tagName = elem.tagName
 
       switch (tagName) {
         case 'IFRAME':
-          logP('[PROCESS] -> IFRAME: Adding load event listener, src=' + elem.getAttribute('src')?.substring(0, 80));
           elem.addEventListener('load', processIFrame, false);
         break;
         case 'AMP-IMG':
         case 'IMG':
-          logP('[PROCESS] -> IMG/AMP-IMG: Calling findImageAds');
           findImageAds([elem]);
         break;
 
         case 'VIDEO':
-          logP('[PROCESS] -> VIDEO: Calling findVideoAds');
           findVideoAds([elem]);
         break;
         case 'BODY':
         case 'HTML':
-          logP('[PROCESS] -> BODY/HTML: Only checking background-image (not children)');
           // If element is body/html don't check children, it doens't make sense to check the whole document
           findBgImage(elem);
         break;
         default:
-          logP('[PROCESS] -> DEFAULT: Checking children for images/videos/ads');
-          
           var found = false
           const imgs = elem.querySelectorAll(imgSelectors.join(', '));
-          logP('[PROCESS] -> Found ' + imgs.length + ' image elements matching selectors');
           if (imgs.length) {
             found = findImageAds(imgs);
             if (found) {
-              logP('[PROCESS] -> Image ads found, returning');
               return;
             }
           }
 
           const videos = elem.querySelectorAll('video[poster]');
-          logP('[PROCESS] -> Found ' + videos.length + ' video elements with poster');
           if (videos.length) {
             found = findVideoAds(videos);
             if (found) {
-              logP('[PROCESS] -> Video ads found, returning');
               return;
             }
           }
         
           
           // Also try findBgImage directly on the element itself
-          logP('[PROCESS] -> Checking element itself for background-image');
           if (findBgImage(elem)) {
-            logP('[PROCESS] -> Background image ad found, returning');
             return;
           }
 
-          // Check children with background-image (recursive, up to 3 levels deep)
-          logP('[PROCESS] -> Checking children for background-image ads');
+          // Check children with background-image
           const bgChildren = elem.querySelectorAll('[style*="background"]');
           if (bgChildren.length) {
-            logP('[PROCESS] -> Found ' + bgChildren.length + ' children with background style');
             for (let i = 0; i < bgChildren.length; i++) {
               if (findBgImage(bgChildren[i])) {
-                logP('[PROCESS] -> Background image ad found in child, returning');
                 return;
               }
             }
           }
 
-          logP('[PROCESS] -> No img/video found, checking other ad types');
-
           // if no img found within the element
           const googleResp = findGoogleResponsiveDisplayAd(elem);
           const googleActive = GoogleActiveViewElement(elem);
           const youtubeAd = findYoutubeTextAd(elem);
-          
-          if (!googleResp && !googleActive && !youtubeAd) {
-            logP('[PROCESS] -> No Google/YouTube text ads found, checking vAPI.textAdParser');
-          } else {
-            logP('[PROCESS] -> Found special ad format (Google Responsive=' + !!googleResp + ', GoogleActive=' + !!googleActive + ', YouTube=' + !!youtubeAd + ')');
-          }
 
           // and finally check for text ads
-          logP('[PROCESS] -> Calling vAPI.textAdParser.process');
           vAPI.textAdParser.process(elem);
 
           // Check for child iframes and process them
           const iframes = elem.querySelectorAll('iframe');
-          logP('[PROCESS] -> Found ' + iframes.length + ' child iframes to process');
           if (iframes.length) {
             for (let i = 0; i < iframes.length; i++) {
               if (canProcess(iframes[i])) {
@@ -849,13 +768,8 @@
                 iframes[i].addEventListener('load', processIFrame, false);
                 // If iframe is already loaded, process it immediately
                 if (iframes[i].contentDocument && iframes[i].contentDocument.readyState === 'complete') {
-                  logP('[PROCESS] -> iframe[' + i + '] already loaded, processing immediately');
                   processIFrame.call(iframes[i]);
-                } else {
-                  logP('[PROCESS] -> iframe[' + i + '] not loaded yet, waiting for load event');
                 }
-              } else {
-                logP('[PROCESS] -> iframe[' + i + '] was recently processed, skipping');
               }
             }
           }

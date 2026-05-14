@@ -92,9 +92,8 @@ const hiddenSettingsDefault = {
     userResourcesLocation: 'unset',
     showAdsDebug: false, // Adn set "true" to show ads that can be potentially be collected #2136
     hidingStyleDebug: 'opacity:0.5!important;border:1px solid red!important;', // Adn style applied to hidden elements when showAdsDebug is true
-    hidingStyleNormal: 'display:none!important;', // Adn style applied to hidden elements normally
+    hidingStyleNormal: 'opacity:0!important;pointer-events:none!important;', // Adn style applied to hidden elements normally
     costPerClick: 1.03, // Adn https://github.com/dhowe/AdNauseam/issues/2131
-		cssInjectionDelay: 1, // Adn delay for css injection to ensure it happens after the page has loaded and ads have been collected
     internalLinkDomains: internalLinkDomainsDefault.join(','), // Adn
 };
 
@@ -244,8 +243,8 @@ const µBlock = {  // jshint ignore:line
 
     // Read-only
     systemSettings: {
-        compiledMagic: 60,  // Increase when compiled format changes
-        selfieMagic: 60,    // Increase when selfie format changes
+        compiledMagic: 72,  // Increase when compiled format changes
+        selfieMagic: 72,    // Increase when selfie format changes
     },
 
     // https://github.com/uBlockOrigin/uBlock-issues/issues/759#issuecomment-546654501
