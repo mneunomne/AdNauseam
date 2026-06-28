@@ -116,6 +116,57 @@ import { adnauseam } from './adn/core.js';
 import { log } from './adn/log.js';
 import { startVisitQueue } from './adn/visitor.js';
 
+// ADN: cached hiding-style preference. 'opacity' keeps ads rendered and
+// collectable (default); 'display' uses display:none. Applied to all cosmetic
+// CSS as it passes through insertCSS/removeCSS.
+let adnHidingStyle = 'opacity';
+function applyHidingStyle(css) {
+    return adnHidingStyle === 'display'
+        ? css.replaceAll('opacity:0!important', 'display:none!important')
+        : css;
+}
+
+// ADN: per-site "strict" — block major ad-network requests on the listed sites
+// so fewer ads render there (adn-allow no longer wins). Collection and cosmetic
+// filtering keep running, so cosmetic-hidden (non-blocked) ads are still caught.
+// One session rule at priority 25 (above adn-allow's 20, below malware's 30),
+// scoped to the strict pages via initiatorDomains. Dedicated id keeps it clear
+// of uBOL's own session rules.
+const ADN_STRICT_RULE_ID = 900001;
+const ADN_AD_DOMAINS = [
+    'doubleclick.net', 'googlesyndication.com', 'googleadservices.com',
+    'amazon-adsystem.com', 'adnxs.com', 'rubiconproject.com', 'pubmatic.com',
+    'criteo.com', 'criteo.net', 'taboola.com', 'outbrain.com', 'adsrvr.org',
+    'casalemedia.com', 'openx.net', '3lift.com', 'sharethrough.com',
+    'smartadserver.com', 'scorecardresearch.com', 'moatads.com', 'adform.net',
+    'teads.tv', 'mediago.io', 'bidswitch.net', 'yieldmo.com', 'gumgum.com',
+    'indexww.com', 'adsafeprotected.com',
+];
+
+async function applyStrictRules() {
+    const data = await chrome.storage.local.get('adnStrictSites');
+    const sites = data.adnStrictSites || [];
+    const addRules = [];
+    if ( sites.length !== 0 ) {
+        addRules.push({
+            id: ADN_STRICT_RULE_ID,
+            priority: 25,
+            action: { type: 'block' },
+            condition: {
+                initiatorDomains: sites,
+                requestDomains: ADN_AD_DOMAINS,
+                resourceTypes: [
+                    'script', 'sub_frame', 'xmlhttprequest', 'image', 'media', 'object',
+                ],
+            },
+        });
+    }
+    await dnr.updateSessionRules({
+        removeRuleIds: [ ADN_STRICT_RULE_ID ],
+        addRules,
+    }).catch(reason => ubolErr(`applyStrictRules/${reason}`));
+}
+
 
 /******************************************************************************/
 
@@ -243,7 +294,7 @@ function onMessage(request, sender, callback) {
         // https://bugs.webkit.org/show_bug.cgi?id=262491
         if ( frameId !== 0 && webextFlavor === 'safari' ) { return false; }
         browser.scripting.insertCSS({
-            css: request.css,
+            css: applyHidingStyle(request.css), // adn
             origin: 'USER',
             target: { tabId, frameIds: [ frameId ] },
         }).catch(reason => {
@@ -256,7 +307,7 @@ function onMessage(request, sender, callback) {
         // https://bugs.webkit.org/show_bug.cgi?id=262491
         if ( frameId !== 0 && webextFlavor === 'safari' ) { return false; }
         browser.scripting.removeCSS({
-            css: request.css,
+            css: applyHidingStyle(request.css), // adn
             origin: 'USER',
             target: { tabId, frameIds: [ frameId ] },
         }).catch(reason => {
@@ -362,6 +413,7 @@ function onMessage(request, sender, callback) {
 			chrome.storage.local.get(['adnSettings'], data => {
 				const settings = Object.assign(data.adnSettings || {}, request.settings);
 				chrome.storage.local.set({ adnSettings: settings }, () => {
+					if ( settings.hidingStyle ) { adnHidingStyle = settings.hidingStyle; } // adn
 					callback({ success: true });
 				});
 			});
@@ -459,6 +511,27 @@ function onMessage(request, sender, callback) {
 
 		case 'getAdnAllow': {
 			callback({ enabled: rulesetConfig.adnAllowEnabled });
+			return true;
+		}
+
+		case 'setAdnStrict': {
+			const { hostname, enabled } = request;
+			chrome.storage.local.get('adnStrictSites', data => {
+				const set = new Set(data.adnStrictSites || []);
+				if ( enabled ) { set.add(hostname); } else { set.delete(hostname); }
+				chrome.storage.local.set({ adnStrictSites: Array.from(set) }, async () => {
+					await applyStrictRules();
+					callback({ success: true });
+				});
+			});
+			return true;
+		}
+
+		case 'getAdnStrict': {
+			chrome.storage.local.get('adnStrictSites', data => {
+				const sites = data.adnStrictSites || [];
+				callback({ enabled: sites.includes(request.hostname) });
+			});
 			return true;
 		}
 		// end of ADN cases
@@ -845,6 +918,8 @@ async function startSession() {
 
 		// ADN: initialize core (loads admap from storage)
 		await adnauseam.ready();
+		adnHidingStyle = (await adnauseam.getSettings()).hidingStyle || 'opacity';
+		await applyStrictRules();
 		log('[ADN] Core initialized');
 
 		// ADN: start the ad visit queue
@@ -889,8 +964,7 @@ async function startSession() {
     const rulesetsUpdated = await enableRulesets(rulesetConfig.enabledRulesets);
 
     await dnr.updateEnabledRulesets({
-        enableRulesetIds: rulesetConfig.adnAllowEnabled ? ['adn-allow'] : [],
-        disableRulesetIds: rulesetConfig.adnAllowEnabled ? [] : ['adn-allow'],
+        enableRulesetIds: ['adn-allow'],   // adn
     }).catch(() => {});
 
     // We need to update the regex rules only when ruleset version changes.
