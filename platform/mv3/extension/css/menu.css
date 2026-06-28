@@ -163,6 +163,10 @@ header {
   border-radius: 3px;
 }
 
+.recent-ads {
+	margin: 125px 30px 0px 0px;
+}
+
 /* Alert */
 .alert {
   display: flex;
