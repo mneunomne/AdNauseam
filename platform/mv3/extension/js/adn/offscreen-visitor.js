@@ -35,17 +35,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     xhr.timeout = visitTimeout;
     xhr.responseType = '';
 
-    // Set headers to look like a real browser navigation
+    // Set headers to look like a real browser navigation. Note: Referer,
+    // Upgrade-Insecure-Requests, etc. are forbidden headers and cannot be set
+    // here — the browser ignores them. Setting a real Referer requires a DNR
+    // modifyHeaders rule (see note in visitor.js).
     xhr.setRequestHeader('Accept',
       'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8'
     );
     xhr.setRequestHeader('Accept-Language', navigator.language || 'en-US,en;q=0.9');
-    xhr.setRequestHeader('Upgrade-Insecure-Requests', '1');
-
-    // Set the Referer to the page where the ad was found
-    if (ad.pageUrl) {
-      xhr.setRequestHeader('Referer', ad.pageUrl);
-    }
 
     xhr.onload = function () {
       const status = xhr.status || 200;
