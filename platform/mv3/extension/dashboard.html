@@ -26,7 +26,7 @@
 <!-- -------- -->
 <header>
     <nav id="dashboard-nav">
-        <span class="logo"><img data-i18n-title="extName" src="img/ublock.svg" alt="uBO Lite"></span><!--
+        <span class="logo"><img data-i18n-title="extName" src="img/ublock.svg" alt="AdNauseam"></span><!--
      --><button class="tabButton" type="button" data-pane="settings" data-i18n="settingsPageName" tabindex="0"></button><!--
      --><button class="tabButton" type="button" data-pane="rulesets" data-i18n="aboutFilterLists" tabindex="0"></button><!--
      --><button class="tabButton" type="button" data-pane="filters" data-i18n="customFiltersPageName"tabindex="0"></button><!--
@@ -34,22 +34,15 @@
      --><button class="tabButton" type="button" data-pane="about" data-i18n="aboutPageName" tabindex="0"></button>
     </nav>
     <!-- -------- -->
-    <header>
-        <nav id="dashboard-nav">
-            <span class="logo"><img data-i18n-title="extName" src="img/ublock.svg" alt="AdNauseam"></span><!--
-         --><button class="tabButton" type="button" data-pane="settings" data-i18n="settingsPageName" tabindex="0"></button><!--
-         --><button class="tabButton" type="button" data-pane="rulesets" data-i18n="aboutFilterLists" tabindex="0"></button><!--
-         --><button class="tabButton" type="button" data-pane="filters" data-i18n="customFiltersPageName"tabindex="0"></button><!--
-         --><button class="tabButton" type="button" data-pane="develop" data-i18n="developPageName"tabindex="0"></button><!--
-         --><button class="tabButton" type="button" data-pane="about" data-i18n="aboutPageName" tabindex="0"></button>
-        </nav>
-        <!-- -------- -->
-        <div data-pane-related="rulesets">
-            <p><span id="commit-spinner" class="fa-icon">spinner</span> <span id="listsOfBlockedHostsPrompt"></span></p>
-            <p id="dnrError"></p>
-            <p><input id="findInLists" type="search" spellcheck="false" placeholder="findListsPlaceholder" /></p>
-        </div>
+    <div data-pane-related="rulesets">
+        <p><span id="commit-spinner" class="fa-icon">spinner</span> <span id="listsOfBlockedHostsPrompt"></span></p>
+        <p id="dnrError"></p>
+        <p><input id="findInLists" type="search" spellcheck="false" placeholder="findListsPlaceholder" /></p>
     </div>
+</header>
+
+<!-- -------- -->
+<section data-pane="settings">
     <div>
         <h3 data-i18n="behaviorSectionLabel"></h3>
         <p><label id="autoReload" data-i18n="autoReloadLabel"><span class="input checkbox"><input type="checkbox"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span>_</label>
@@ -57,6 +50,7 @@
         <p><label id="showBlockedCount" data-i18n="showBlockedCountLabel"><span class="input checkbox"><input type="checkbox"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span>_</label>
         <p data-platform-exclude="safari"><label id="strictBlockMode" data-i18n="enableStrictBlockLabel"><span class="input checkbox"><input type="checkbox"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span>_</label><legend data-i18n="enableStrictBlockLegend"></legend>
         <p id="developerMode"><label data-i18n="developerModeLabel"><span class="input checkbox"><input type="checkbox"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span>_</label><legend data-i18n="developerModeLegend"></legend>
+        <p id="adnHidingStyle"><label><span class="input checkbox"><input type="checkbox"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span>Hide ads with display:none instead of opacity:0</label><legend>Removes hidden ads from the page layout. Note: fewer ads may load or be collected for clicking.</legend>
     </div>
     <div>
         <h3 data-i18n="settingsBackupRestoreLabel">_</h3>
@@ -246,6 +240,7 @@
 <script src="js/i18n.js" type="module"></script>
 <script src="js/dashboard.js" type="module"></script>
 <script src="js/settings.js" type="module"></script>
+<script src="js/adn/options.js" type="module"></script>
 <script src="js/filter-manager-ui.js" type="module"></script>
 <script src="js/develop.js" type="module"></script>
 
