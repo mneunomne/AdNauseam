@@ -34,6 +34,8 @@ const selectors = await self.cosmeticAPI.getSelectors('specific', specificImport
 self.cosmeticAPI.release();
 if ( selectors.length === 0 ) { return; }
 self.cssAPI.insert(`${selectors.join(',\n')}{opacity:0!important;}`); // ADN
+const adnSet = (self.adnAdSelectors ||= new Set()); // ADN: expose ad selectors to parser
+for ( const s of selectors ) { adnSet.add(s); } // ADN
 
 /******************************************************************************/
 

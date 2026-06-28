@@ -609,6 +609,7 @@ class ProceduralFilterer {
                 elem.removeAttribute(token);
             }
             const css = `[${token}]\n{${style}}\n`;
+            if ( chrome.runtime?.id === undefined ) { continue; } // ADN: context invalidated
             promises.push(
                 chrome.runtime.sendMessage({ what: 'removeCSS', css }).catch(( ) => { })
             );
@@ -805,7 +806,7 @@ self.ProceduralFiltererAPI = class {
                 return `${selector}\n{${style}}`;
             }
             if ( style === undefined ) {
-                return `@media ${mq} {\n${selector}\n{display:none!important;}\n}`;
+                return `@media ${mq} {\n${selector}\n{opacity:0!important;}\n}`; // ADN
             }
             return `@media ${mq} {\n${selector}\n{${style}}\n}`;
         };
