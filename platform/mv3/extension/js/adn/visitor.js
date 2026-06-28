@@ -119,7 +119,9 @@ async function visitAd(ad) {
       // Success
       ad.visitedTs = Date.now();
       ad.resolvedTargetUrl = response.resolvedTargetUrl || ad.targetUrl;
-      if (response.title) ad.title = response.title;
+      // Resolve a real title only when we don't have one yet (MV2 parity).
+      if (response.title && ad.title === 'Pending') ad.title = response.title;
+      if (ad.title === 'Pending') ad.title = ad.targetDomain || ad.title;
       ad.attemptedTs = 0;
 
       log('[ADN Visitor] Visited Ad#' + ad.id + ' -> ' +
