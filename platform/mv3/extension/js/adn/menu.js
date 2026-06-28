@@ -3,8 +3,7 @@
 
     Handles the AdNauseam popup (extension icon click).
     Maps state buttons to MV3 filtering modes:
-      - Strict  → MODE_COMPLETE (3) — maximum blocking
-      - Active  → MODE_OPTIMAL (2)  — standard blocking
+      - Active  → MODE_COMPLETE (3) — full cosmetic filtering (hide all ads)
       - Off     → MODE_NONE (0)     — no blocking
 *******************************************************************************/
 
@@ -13,16 +12,18 @@ const MODE_OPTIMAL = 2;
 const MODE_COMPLETE = 3;
 
 const stateToLevel = {
-  strict: MODE_COMPLETE,
-  active: MODE_OPTIMAL,
+  active: MODE_COMPLETE,   // ADN: Complete enables generic cosmetic filtering
+  strict: MODE_COMPLETE,   // ADN: Complete + per-site ad re-block (see commitState)
   disable: MODE_NONE,
 };
 
+// Strict shares the Complete level with Active — it's distinguished by the
+// per-site strict list, so init() overrides to 'strict' when the site is strict.
 const levelToState = {
   [MODE_NONE]: 'disable',
-  1: 'active',             // MODE_BASIC → treat as active
+  1: 'active',             // MODE_BASIC
   [MODE_OPTIMAL]: 'active',
-  [MODE_COMPLETE]: 'strict',
+  [MODE_COMPLETE]: 'active',
 };
 
 let currentTab = null;
@@ -99,6 +100,7 @@ async function renderAdList() {
   }
 
   list.innerHTML = '';
+  list.classList.remove('recent-ads');
 
   if (!ads || ads.length === 0) {
     alert.classList.remove('hide');
@@ -109,6 +111,7 @@ async function renderAdList() {
   if (showingRecent) {
     alert.classList.remove('hide');
     alert.querySelector('p').textContent = 'No ads on this page — showing recent';
+    list.classList.add('recent-ads');
   } else {
     alert.classList.add('hide');
   }
@@ -258,7 +261,9 @@ async function commitState(state) {
 
     currentLevel = actualLevel !== undefined ? actualLevel : level;
 
-    await sendMessage({ what: 'setAdnAllow', enabled: state === 'active' });
+    // ADN: strict adds a per-site ad re-block overlay (collection still runs);
+    // any other state (active/disable) clears it.
+    await sendMessage({ what: 'setAdnStrict', hostname, enabled: state === 'strict' });
 
     if (currentTab && currentTab.id) {
       chrome.tabs.reload(currentTab.id);
@@ -279,10 +284,9 @@ function setupEvents() {
     });
   });
 
-  // uBlock button → open original uBOLite popup in new tab
+  // uBlock button → show the original uBOLite popup inline (stay in popup)
   $('#btn-ublock').addEventListener('click', () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('popup-ubol.html') });
-    window.close();
+    window.location.href = 'popup-ubol.html';
   });
 
   // Settings → open dashboard
@@ -337,8 +341,12 @@ async function init() {
     }
   } catch {}
 
-  // Set initial state from filtering level
-  const state = levelToState[currentLevel] || 'active';
+  // Set initial state from filtering level; strict overlay takes precedence.
+  let state = levelToState[currentLevel] || 'active';
+  if (state !== 'disable' && currentHostname) {
+    const strict = await sendMessage({ what: 'getAdnStrict', hostname: currentHostname });
+    if (strict && strict.enabled) state = 'strict';
+  }
   setActiveState(state);
 
   // Load stats and ads  
