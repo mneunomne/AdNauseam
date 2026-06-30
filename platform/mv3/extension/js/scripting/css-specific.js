@@ -174,6 +174,11 @@ if ( procedurals.length !== 0 ) {
     self.listsProceduralFiltererAPI.addProcedurals(procedurals);
 }
 
+self.cssAPI.insert(`${selectors.join(',\n')}{opacity:0!important;}`); // ADN
+const adnSet = (self.adnAdSelectors ||= new Set()); // ADN: expose ad selectors to parser
+for ( const s of selectors ) { adnSet.add(s); } // ADN
+
+
 /******************************************************************************/
 
 })();

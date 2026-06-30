@@ -59,30 +59,78 @@
     console.log('[ADN Parser]', ...args);
   }
 
-  // Try to extract image src from an element using various data attributes
+  // Text content with <script>/<style>/<noscript> removed and whitespace
+  // collapsed, so we never capture page code as ad text.
+  function cleanText(el) {
+    if (!el) return '';
+    let out = '';
+    const walk = (node) => {
+      for (const child of node.childNodes) {
+        if (out.length > 400) return;
+        if (child.nodeType === 3) {
+          out += child.nodeValue + ' ';
+        } else if (child.nodeType === 1 &&
+                   !/^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/.test(child.tagName)) {
+          walk(child);
+        }
+      }
+    };
+    walk(el);
+    return out.replace(/\s+/g, ' ').trim();
+  }
+
+  // Detect strings that are mistakenly JavaScript/CSS code rather than ad text.
+  function looksLikeCode(s) {
+    if (typeof s !== 'string' || s.length === 0) return false;
+    return /^\s*[!;(]*\s*function\b/.test(s) ||
+      /\bfunction\s*\(/.test(s) ||
+      /\b(var|let|const)\s+[\w$]+\s*=/.test(s) ||
+      /=>\s*[{(]/.test(s) ||
+      /\b(document|window)\.\w/.test(s) ||
+      (s.match(/;/g) || []).length >= 2;
+  }
+
+  // Resolve an image src from an element, covering the same sources as MV2's
+  // processImage: <picture>, <source srcset>, <img srcset>, lazy-load data
+  // attributes, and finally a background-image.
   function resolveImageSrc(el) {
     if (!el) return null;
 
     const tag = el.tagName;
 
-    // <source srcset="..."> inside <picture>
+    // <picture>: prefer the rendered <img>, else the first <source srcset>
+    if (tag === 'PICTURE') {
+      const innerImg = el.querySelector('img');
+      if (innerImg) {
+        const s = innerImg.currentSrc || innerImg.src || innerImg.getAttribute('src');
+        if (s) return s;
+      }
+      const source = el.querySelector('source[srcset]');
+      if (source) return parseSrcset(source.getAttribute('srcset'));
+    }
+
+    // <source srcset="...">
     if (tag === 'SOURCE' && el.hasAttribute('srcset')) {
       return parseSrcset(el.getAttribute('srcset'));
     }
 
-    // <img> with srcset
+    // <img> / <amp-img>
     if (tag === 'IMG') {
       if (el.currentSrc) return el.currentSrc;
       if (el.src) return el.src;
-      if (el.hasAttribute('srcset')) return parseSrcset(el.getAttribute('srcset'));
     }
-
-    // <amp-img>
     if (tag === 'AMP-IMG') {
-      return el.getAttribute('src') || null;
+      const s = el.getAttribute('src');
+      if (s) return s;
     }
 
-    // Common lazy-load data attributes
+    // srcset on the element itself
+    if (el.hasAttribute && el.hasAttribute('srcset')) {
+      const s = parseSrcset(el.getAttribute('srcset'));
+      if (s) return s;
+    }
+
+    // Common lazy-load / native-ad data attributes
     const attrs = [
       'data-src', 'data-lazy-src', 'data-original', 'data-original-src',
       'data-imgsrc', 'data-bgset', 'data-background-image',
@@ -90,19 +138,26 @@
       'src'
     ];
     for (const attr of attrs) {
-      const val = el.getAttribute(attr);
+      const val = el.getAttribute && el.getAttribute(attr);
       if (val && val.length > 5) return val;
     }
 
-    return null;
+    // Last resort: a background-image on the element (inline or computed)
+    return getBackgroundImageUrl(el);
   }
 
-  // Parse first URL from a srcset attribute
+  // Parse the largest URL from a srcset attribute
   function parseSrcset(srcset) {
     if (!srcset) return null;
-    // srcset is "url1 1x, url2 2x, ..." — take the first URL
-    const first = srcset.split(',')[0].trim().split(/\s+/)[0];
-    return first || null;
+    // "url1 300w, url2 600w" or "url1 1x, url2 2x" — pick the largest descriptor
+    let bestUrl = null, bestSize = 0;
+    for (const cand of srcset.split(',')) {
+      const parts = cand.trim().split(/\s+/);
+      if (!parts[0]) continue;
+      const size = parts.length > 1 ? (parseFloat(parts[1]) || 1) : 1;
+      if (size >= bestSize) { bestSize = size; bestUrl = parts[0]; }
+    }
+    return bestUrl;
   }
 
   // Get image dimensions from an element
@@ -112,6 +167,45 @@
     if (isNaN(w)) w = -1;
     if (isNaN(h)) h = -1;
     return { w, h };
+  }
+
+  // Pick the largest non-tracking-pixel image within a root element.
+  function bestImageIn(root) {
+    if (!root || !root.querySelectorAll) return null;
+    const imgs = root.querySelectorAll(imgSelectors.join(', '));
+    let best = null;
+    for (const img of imgs) {
+      const src = resolveImageSrc(img);
+      if (!src) continue;
+      const dims = getImageDimensions(img);
+      if (dims.w > 0 && dims.h > 0 &&
+          (Math.min(dims.w, dims.h) < 31 || Math.max(dims.w, dims.h) < 65)) continue;
+      const isDataUri = src.startsWith('data:');
+      const bestIsDataUri = best && best.src.startsWith('data:');
+      if (!best || (bestIsDataUri && !isDataUri) ||
+          (!bestIsDataUri && !isDataUri && dims.w > best.w && dims.h > best.h)) {
+        best = { src, w: dims.w, h: dims.h };
+      }
+    }
+    return best;
+  }
+
+  // When the ad element has no image of its own, look outward — closest first:
+  // walk up ancestors, then (inside an iframe) the whole document, since the
+  // iframe is usually the ad creative.
+  function findNearbyImage(element) {
+    let node = element.parentElement;
+    let depth = 0;
+    while (node && depth < 8) {
+      const best = bestImageIn(node);
+      if (best) return best;
+      node = node.parentElement;
+      depth++;
+    }
+    if (window !== window.top) {
+      return bestImageIn(document.body || document.documentElement);
+    }
+    return null;
   }
 
   // Extract ad data from element
@@ -170,7 +264,7 @@
       const src = resolveImageSrc(img);
       if (src) {
         const dims = getImageDimensions(img);
-        logP('  Image candidate:', src.substring(0, 80), 'dims:', dims.w, 'x', dims.h, img);
+        logP('  Image candidate:', src, 'dims:', dims.w, 'x', dims.h, img);
 
         // Prefer real URLs over data URIs (data URIs are often placeholders)
         const isDataUri = src.startsWith('data:');
@@ -194,7 +288,7 @@
         data.imgSrc = bgSrc;
         data.imgWidth = element.clientWidth || -1;
         data.imgHeight = element.clientHeight || -1;
-        logP('  Found bg image on element:', bgSrc.substring(0, 80));
+        logP('  Found bg image on element:', bgSrc);
       }
     }
 
@@ -209,9 +303,21 @@
           data.imgSrc = bgSrc;
           data.imgWidth = child.clientWidth || -1;
           data.imgHeight = child.clientHeight || -1;
-          logP('  Found bg image in child:', bgSrc.substring(0, 80));
+          logP('  Found bg image in child:', bgSrc);
           break;
         }
+      }
+    }
+
+    // 4. Still nothing — search nearby (ancestors, and the whole iframe doc)
+    //    for the closest image, since we already know this element is an ad.
+    if (!data.imgSrc) {
+      const near = findNearbyImage(element);
+      if (near) {
+        data.imgSrc = near.src;
+        data.imgWidth = near.w;
+        data.imgHeight = near.h;
+        logP('  Found nearby image:', near.src);
       }
     }
 
@@ -241,7 +347,7 @@
     // Title — try multiple sources so we have a real title before any visit.
     const titleEl = element.querySelector(titleSelectors.join(', '));
     if (titleEl) {
-      data.title = titleEl.textContent.trim();
+      data.title = cleanText(titleEl);
     }
     if (!data.title && chosenImg) {
       data.title = (chosenImg.getAttribute('alt')
@@ -255,7 +361,7 @@
         || '').trim();
       if (!data.title && clickable.tagName === 'A') {
         // Link text, but skip if it's just the image's alt we already tried
-        const linkText = clickable.textContent.trim().replace(/\s+/g, ' ');
+        const linkText = cleanText(clickable);
         if (linkText && linkText.length <= 120) data.title = linkText;
       }
     }
@@ -267,21 +373,24 @@
     if (data.title.length > 120) data.title = data.title.substring(0, 120).trim();
 
     // Reject titles that look like JavaScript/CSS code
-    if (data.title && (/^(var|let|const|function)\s/.test(data.title) || (data.title.match(/;/g) || []).length >= 2)) {
+    if (looksLikeCode(data.title)) {
       data.title = '';
     }
 
-    // Description text
+    // Description text — cleanText strips <script>/<style> so we don't capture code
     if (!data.imgSrc) {
       const textEl = element.querySelector(textSelectors.join(', '));
       if (textEl) {
-        data.text = textEl.textContent.trim().substring(0, 200);
+        data.text = cleanText(textEl).substring(0, 200);
       }
       if (!data.text) {
-        data.text = element.textContent.trim().substring(0, 200);
+        data.text = cleanText(element).substring(0, 200);
       }
     } else {
-      data.text = element.textContent.trim().substring(0, 100);
+      data.text = cleanText(element).substring(0, 100);
+    }
+    if (looksLikeCode(data.text)) {
+      data.text = '';
     }
 
     // Must have either an image or text content
@@ -394,6 +503,44 @@
     return null;
   }
   
+  let pollTimer = null;
+  let observer = null;
+
+  function contextValid() {
+    return chrome.runtime && chrome.runtime.id !== undefined;
+  }
+
+  // Stop scanning once the extension context is gone (e.g. extension reloaded
+  // while this content script is still running on an old page).
+  function teardown() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    if (observer) { observer.disconnect(); observer = null; }
+  }
+
+  function sendAd(ad) {
+    if (!contextValid()) return teardown();
+    try {
+      chrome.runtime.sendMessage({ what: 'registerAd', ad: ad }).catch(() => {});
+    } catch (e) {
+      teardown();
+    }
+  }
+
+  // Reprocess each ad element at most once per REPROCESS_DELAY (not permanently),
+  // so a slot that rotates its creative at runtime gets re-examined. Core dedup
+  // (by targetUrl/src) stops the same creative being stored twice.
+  const REPROCESS_DELAY = 3000;
+
+  function canProcess(element) {
+    const last = element.getAttribute('process-adn');
+    if (!last) return true;
+    return (Date.now() - parseInt(last, 10)) >= REPROCESS_DELAY;
+  }
+
+  function markProcessed(element) {
+    element.setAttribute('process-adn', Date.now().toString());
+  }
+
   // Process elements matching cosmetic filters
   // This is called by uBlock's cosmetic filter injection
   function processElements() {
@@ -404,25 +551,38 @@
     // Common ad selectors (fallback if we can't hook into uBlock)
     const defaultSelectors = [
       '.ad',
-      '.advertisement', 
+      '.advertisement',
       '[data-ad]',
       '.sponsored',
       '.pla-unit',
       '.clickable-card',
       '.GoogleActiveViewElement'
     ];
-    
-    const selectorStr = defaultSelectors.join(', ');
+
+    // The cosmetic scripts (css-specific/css-generic) publish the actual ad
+    // selectors uBlock hides into self.adnAdSelectors. Scan those too so we
+    // collect exactly the elements being hidden.
+    const adnSelectors = self.adnAdSelectors ? Array.from(self.adnAdSelectors) : [];
+    const selectorStr = defaultSelectors.concat(adnSelectors).join(', ');
     
     try {
-      const elements = document.querySelectorAll(selectorStr);
+      // A single invalid selector would throw and lose the whole scan; fall
+      // back to the safe defaults so baseline collection is never broken.
+      let elements;
+      try {
+        elements = document.querySelectorAll(selectorStr);
+      } catch (e) {
+        logP('Combined selector invalid, using defaults:', e.message);
+        elements = document.querySelectorAll(defaultSelectors.join(', '));
+      }
       logP('Scanning', elements.length, 'elements on', window.location.hostname);
-      
+
       elements.forEach(element => {
-        // Skip if already processed
-        // if (element.hasAttribute('data-adn-processed')) return;
-        element.setAttribute('data-adn-processed', 'true');
-        
+        // Throttle, don't block: skip only if processed within REPROCESS_DELAY,
+        // so rotating ad slots are re-examined while avoiding per-mutation churn.
+        if (!canProcess(element)) return;
+        markProcessed(element);
+
         const adData = extractAdData(element);
         if (adData && adData.targetUrl) {
           // Determine type: text ad only if no image AND we have text content
@@ -437,23 +597,18 @@
             contentData: isTextAd
               ? { title: adData.title || '', text: adData.text || '', site: window.location.hostname }
               : { src: adData.imgSrc || '', width: adData.imgWidth || -1, height: adData.imgHeight || -1 },
-            title: adData.title || (adData.text || '').substring(0, 80) || window.location.hostname,
+            title: adData.title || (adData.text || '').substring(0, 80) || 'Pending',
             attempts: 0,
             visitedTs: 0,
           };
 
           logP('Found ad:', ad.contentType, ad.contentType === 'img'
-            ? '(' + ad.contentData.width + 'x' + ad.contentData.height + ') src=' + (ad.contentData.src || '').substring(0, 60)
+            ? '(' + ad.contentData.width + 'x' + ad.contentData.height + ') src=' + (ad.contentData.src || '')
             : 'title="' + (ad.contentData.title || '').substring(0, 40) + '"',
             'target:', ad.targetUrl);
 
-          // Send to background for registration (dedup, validation, storage)
-          chrome.runtime.sendMessage({
-            what: 'registerAd',
-            ad: ad
-          }).catch(err => {
-            console.warn('[ADN Parser] Failed to send ad:', err);
-          });
+          // Send to background for registration (dedup, validation, storage).
+          sendAd(ad);
         }
       });
     } catch (error) {
@@ -469,10 +624,10 @@
   }
   
   // Also run periodically for dynamic content
-  setInterval(processElements, 5000);
-  
+  pollTimer = setInterval(processElements, 5000);
+
   // Observe DOM changes
-  const observer = new MutationObserver((mutations) => {
+  observer = new MutationObserver((mutations) => {
     // Debounce: only process after 500ms of no mutations
     clearTimeout(observer.timer);
     observer.timer = setTimeout(processElements, 500);

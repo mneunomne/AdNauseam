@@ -142,6 +142,57 @@ import { adnauseam } from './adn/core.js';
 import { log } from './adn/log.js';
 import { startVisitQueue } from './adn/visitor.js';
 
+// ADN: cached hiding-style preference. 'opacity' keeps ads rendered and
+// collectable (default); 'display' uses display:none. Applied to all cosmetic
+// CSS as it passes through insertCSS/removeCSS.
+let adnHidingStyle = 'opacity';
+function applyHidingStyle(css) {
+    return adnHidingStyle === 'display'
+        ? css.replaceAll('opacity:0!important', 'display:none!important')
+        : css;
+}
+
+// ADN: per-site "strict" — block major ad-network requests on the listed sites
+// so fewer ads render there (adn-allow no longer wins). Collection and cosmetic
+// filtering keep running, so cosmetic-hidden (non-blocked) ads are still caught.
+// One session rule at priority 25 (above adn-allow's 20, below malware's 30),
+// scoped to the strict pages via initiatorDomains. Dedicated id keeps it clear
+// of uBOL's own session rules.
+const ADN_STRICT_RULE_ID = 900001;
+const ADN_AD_DOMAINS = [
+    'doubleclick.net', 'googlesyndication.com', 'googleadservices.com',
+    'amazon-adsystem.com', 'adnxs.com', 'rubiconproject.com', 'pubmatic.com',
+    'criteo.com', 'criteo.net', 'taboola.com', 'outbrain.com', 'adsrvr.org',
+    'casalemedia.com', 'openx.net', '3lift.com', 'sharethrough.com',
+    'smartadserver.com', 'scorecardresearch.com', 'moatads.com', 'adform.net',
+    'teads.tv', 'mediago.io', 'bidswitch.net', 'yieldmo.com', 'gumgum.com',
+    'indexww.com', 'adsafeprotected.com',
+];
+
+async function applyStrictRules() {
+    const data = await chrome.storage.local.get('adnStrictSites');
+    const sites = data.adnStrictSites || [];
+    const addRules = [];
+    if ( sites.length !== 0 ) {
+        addRules.push({
+            id: ADN_STRICT_RULE_ID,
+            priority: 25,
+            action: { type: 'block' },
+            condition: {
+                initiatorDomains: sites,
+                requestDomains: ADN_AD_DOMAINS,
+                resourceTypes: [
+                    'script', 'sub_frame', 'xmlhttprequest', 'image', 'media', 'object',
+                ],
+            },
+        });
+    }
+    await dnr.updateSessionRules({
+        removeRuleIds: [ ADN_STRICT_RULE_ID ],
+        addRules,
+    }).catch(reason => ubolErr(`applyStrictRules/${reason}`));
+}
+
 
 /******************************************************************************/
 
@@ -292,7 +343,7 @@ async function onMessage(request, sender) {
         // https://bugs.webkit.org/show_bug.cgi?id=262491
         if ( frameId !== 0 && webextFlavor === 'safari' ) { return; }
         return browser.scripting.insertCSS({
-            css: request.css,
+            css: applyHidingStyle(request.css), // adn
             origin: 'USER',
             target: { tabId, frameIds: [ frameId ] },
         }).catch(reason => {
@@ -304,7 +355,7 @@ async function onMessage(request, sender) {
         // https://bugs.webkit.org/show_bug.cgi?id=262491
         if ( frameId !== 0 && webextFlavor === 'safari' ) { return; }
         return browser.scripting.removeCSS({
-            css: request.css,
+            css: applyHidingStyle(request.css), // adn
             origin: 'USER',
             target: { tabId, frameIds: [ frameId ] },
         }).catch(reason => {
@@ -333,132 +384,113 @@ async function onMessage(request, sender) {
 		}
 
 		case 'getAdNauseamStats': {
-			adnauseam.getStats().then(stats => callback(stats));
-			return true;
+			return adnauseam.getStats();
 		}
 
 		case 'adsForVault':
 		case 'getVault': {
-			adnauseam.adsForVault().then(ads => callback(ads));
-			return true;
+			return adnauseam.adsForVault();
 		}
 
 		case 'adsForPage': {
-			adnauseam.adsForPage(request.pageUrl).then(data => callback(data));
-			return true;
+			return adnauseam.adsForPage(request.pageUrl);
 		}
 
 		case 'clearAds':
 		case 'clearVault': {
-			adnauseam.clearAds().then(() => callback({ success: true }));
-			return true;
+			return adnauseam.clearAds().then(() => ({ success: true }));
 		}
 
 		case 'deleteAdSet': {
-			adnauseam.deleteAdSet(request.ids).then(() => callback({ success: true }));
-			return true;
+			return adnauseam.deleteAdSet(request.ids).then(() => ({ success: true }));
 		}
 
 		case 'exportAds': {
-			adnauseam.exportAds(request.includeImages).then(data => callback(data));
-			return true;
+			return adnauseam.exportAds(request.includeImages);
 		}
 
 		case 'importAds': {
-			adnauseam.importAds(request.data).then(result => callback(result));
-			return true;
+			return adnauseam.importAds(request.data);
 		}
 
 		case 'getAdnSettings': {
-			adnauseam.getSettings().then(settings => callback(settings));
-			return true;
+			return adnauseam.getSettings();
 		}
 
 		case 'setAdnSettings': {
-			chrome.storage.local.get(['adnSettings'], data => {
-				const settings = Object.assign(data.adnSettings || {}, request.settings);
-				chrome.storage.local.set({ adnSettings: settings }, () => {
-					callback({ success: true });
+			return new Promise(resolve => {
+				chrome.storage.local.get(['adnSettings'], data => {
+					const settings = Object.assign(data.adnSettings || {}, request.settings);
+					chrome.storage.local.set({ adnSettings: settings }, () => {
+						if ( settings.hidingStyle ) { adnHidingStyle = settings.hidingStyle; } // adn
+						resolve({ success: true });
+					});
 				});
 			});
-			return true;
 		}
 
 		case 'getHideDeadAds': {
-			adnauseam.getHideDeadAds().then(val => callback(val));
-			return true;
+			return adnauseam.getHideDeadAds();
 		}
 
 		case 'setHideDeadAds': {
-			adnauseam.setHideDeadAds(request.value).then(() => callback());
-			return true;
+			return adnauseam.setHideDeadAds(request.value).then(() => {});
 		}
 
 		case 'getBlurCollectedAds': {
-			adnauseam.getSettings().then(s => callback(s.blurCollectedAds || false));
-			return true;
+			return adnauseam.getSettings().then(s => s.blurCollectedAds || false);
 		}
 
 		case 'getCostPerClick': {
-			adnauseam.getSettings().then(s => callback(s.costPerClick || 1.58));
-			return true;
+			return adnauseam.getSettings().then(s => s.costPerClick || 1.58);
 		}
 
 		case 'purgeDeadAds': {
-			adnauseam.purgeDeadAds(request.deadAds).then(data => callback(data));
-			return true;
+			return adnauseam.purgeDeadAds(request.deadAds);
 		}
 
 		case 'verifyAdBlockers': {
 			// Stub: not applicable in MV3 (no competing ad blocker detection)
-			callback(0);
-			return true;
+			return 0;
 		}
 
 		case 'getNotifications': {
 			// Stub: notifications system not yet ported to MV3
-			callback({ notifications: [] });
-			return true;
+			return { notifications: [] };
 		}
 
 		case 'getWarningDisabled': {
-			adnauseam.getSettings().then(s => callback(s.disableWarnings || false));
-			return true;
+			return adnauseam.getSettings().then(s => s.disableWarnings || false);
 		}
 
 		case 'deleteAd': {
-			adnauseam.deleteAd(request.id).then(() => callback({ success: true }));
-			return true;
+			return adnauseam.deleteAd(request.id).then(() => ({ success: true }));
 		}
 
 		case 'backupUserData': {
 			// Return ad data in backup format
-			Promise.all([
+			return Promise.all([
 				adnauseam.getSettings(),
 				adnauseam.exportAds()
-			]).then(([settings, adData]) => {
-				callback({
-					userData: {
-						userSettings: Object.assign({}, settings, {
-							admap: JSON.parse(adData)
-						})
-					}
-				});
-			});
-			return true;
+			]).then(([settings, adData]) => ({
+				userData: {
+					userSettings: Object.assign({}, settings, {
+						admap: JSON.parse(adData)
+					})
+				}
+			}));
 		}
 
 		case 'gotoURL': {
 			if (request.details && request.details.url) {
 				chrome.tabs.create({ url: request.details.url });
 			}
-			callback();
-			return true;
+			return;
 		}
 
 		case 'setAdnAllow': {
 			const { enabled } = request;
-			dnr.updateEnabledRulesets({
+			return dnr.updateEnabledRulesets({
 				enableRulesetIds: enabled ? ['adn-allow'] : [],
 				disableRulesetIds: enabled ? [] : ['adn-allow'],
 			}).then(() => {
@@ -466,16 +498,35 @@ async function onMessage(request, sender) {
 				return saveRulesetConfig();
 			}).then(() => {
 				broadcastMessage({ adnAllowEnabled: enabled });
-				callback({ success: true });
-			}).catch(err => {
-				callback({ success: false, error: String(err) });
-			});
-			return true;
+				return { success: true };
+			}).catch(err => ({ success: false, error: String(err) }));
 		}
 
 		case 'getAdnAllow': {
-			callback({ enabled: rulesetConfig.adnAllowEnabled });
-			return true;
+			return { enabled: rulesetConfig.adnAllowEnabled };
+		}
+
+		case 'setAdnStrict': {
+			const { hostname, enabled } = request;
+			return new Promise(resolve => {
+				chrome.storage.local.get('adnStrictSites', data => {
+					const set = new Set(data.adnStrictSites || []);
+					if ( enabled ) { set.add(hostname); } else { set.delete(hostname); }
+					chrome.storage.local.set({ adnStrictSites: Array.from(set) }, async () => {
+						await applyStrictRules();
+						resolve({ success: true });
+					});
+				});
+			});
+		}
+
+		case 'getAdnStrict': {
+			return new Promise(resolve => {
+				chrome.storage.local.get('adnStrictSites', data => {
+					const sites = data.adnStrictSites || [];
+					resolve({ enabled: sites.includes(request.hostname) });
+				});
+			});
 		}
 		// end of ADN cases
     default:
@@ -888,6 +939,8 @@ async function startSession() {
 
 		// ADN: initialize core (loads admap from storage)
 		await adnauseam.ready();
+		adnHidingStyle = (await adnauseam.getSettings()).hidingStyle || 'opacity';
+		await applyStrictRules();
 		log('[ADN] Core initialized');
 
 		// ADN: start the ad visit queue
@@ -916,8 +969,7 @@ async function startSession() {
     }
 
     await dnr.updateEnabledRulesets({
-        enableRulesetIds: rulesetConfig.adnAllowEnabled ? ['adn-allow'] : [],
-        disableRulesetIds: rulesetConfig.adnAllowEnabled ? [] : ['adn-allow'],
+        enableRulesetIds: ['adn-allow'],   // adn
     }).catch(() => {});
 
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/declarativeNetRequest#rulesets

@@ -192,7 +192,17 @@ const scriptletStats = new Map();
 const genericDetails = new Map();
 const requiredRedirectResources = new Set();
 const adnAllowRules = [];
-const ADN_ALLOW_LIST_IDS = new Set(['adnauseam', 'easylist', 'ublock-filters', 'pgl']);
+;;;;// MV2 parity: keep blocking ONLY malware/badware/anti-adblock/social/AdNauseam
+// lists; adn-allow inverts block rules from every OTHER enabled list so ads
+// load and can be collected/clicked (this includes easylist, easyprivacy, etc.).
+const ADN_BLOCK_LIST_IDS = new Set([
+    'adnauseam',          // AdNauseam filters
+    'ublock-badware',     // uBlock filters – Badware risks
+    'urlhaus-full',       // Malware domains
+    'adguard-spyware-url',// Spyware/tracking-service URLs
+    'block-lan',          // Anti-LAN intrusion
+    'annoyances-social',  // Social blocking (Anti-ThirdpartySocial / Fanboy Social)
+]);
 const ADN_ALLOW_RESOURCE_TYPES = ['image', 'media', 'object', 'script', 'sub_frame', 'xmlhttprequest'];
 let networkBad = new Set();
 
@@ -639,12 +649,23 @@ async function processDnrRules(assetDetails, network, dnrRules) {
     log(`\tUnsupported: ${bad.length}`);
     log(bad.map(rule => rule._error.map(v => `\t\t${v}`)).join('\n'), true);
 
+   ; // ADN: keep-block lists (malware/badware/etc.) must outrank adn-allow's
+    // allow rules (priority 20) so their blocks can never be overridden.
+    if ( ADN_BLOCK_LIST_IDS.has(assetDetails.id) ) {
+        for ( const rule of staticRules ) {
+            if ( rule.action?.type === 'block' ) { rule.priority = 30; }
+        }
+        for ( const rule of regexRules ) {
+            if ( rule.action?.type === 'block' ) { rule.priority = 30; }
+        }
+    }
+
     writeFile(`${rulesetDir}/main/${assetDetails.id}.json`,
         toJSONRuleset(staticRules)
     );
 
     // start of adn-allow ruleset processing
-		if ( ADN_ALLOW_LIST_IDS.has(assetDetails.id) ) {
+		if ( ADN_BLOCK_LIST_IDS.has(assetDetails.id) === false ) {
         const allowRules = [];
         for ( const rule of staticRules ) {
             if ( rule.action?.type !== 'block' ) { continue; }
