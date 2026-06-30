@@ -898,6 +898,10 @@ function appendPrivatePlaceHolder($pdiv, adset) {
   // cache the dimensions of the text-item
   $pdiv.attr('data-width', $div.width());
   $pdiv.attr('data-height', $div.height());
+
+  // text/private items have no <img> load event, so reveal them here
+  // (otherwise they stay at opacity:0/scale(0,0) from the base .item rule)
+  $pdiv.addClass('loaded');
 }
 
 function appendTextDisplayTo($pdiv, adset) {
@@ -952,6 +956,10 @@ function appendTextDisplayTo($pdiv, adset) {
   // cache the dimensions of the text-item
   $pdiv.attr('data-width', $div.width());
   $pdiv.attr('data-height', $div.height());
+
+  // text/private items have no <img> load event, so reveal them here
+  // (otherwise they stay at opacity:0/scale(0,0) from the base .item rule)
+  $pdiv.addClass('loaded');
 }
 
 function indexCounterText(adset) {
