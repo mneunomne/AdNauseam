@@ -184,11 +184,13 @@ const uBOL_processNodes = ( ) => {
         }
         return;
     }
+    const adnSet = (self.adnAdSelectors ||= new Set()); // ADN: expose ad selectors to parser
+    for ( const s of styleSheetSelectors.split(',\n') ) { adnSet.add(s); } // ADN
     if ( styleSheetTimer !== undefined ) { return; }
     surveyMissCount = 0;
     styleSheetTimer = self.requestAnimationFrame(( ) => {
         styleSheetTimer = undefined;
-        self.cssAPI.insert(`${styleSheetSelectors}{display:none!important;}`);
+        self.cssAPI.insert(`${styleSheetSelectors}{opacity:0!important;}`); // ADN
     });
 };
 

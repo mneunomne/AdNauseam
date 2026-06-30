@@ -23,6 +23,7 @@
     if ( typeof api === 'object' ) { return; }
     self.cssAPI = {
         insert(css) {
+            if ( chrome.runtime?.id === undefined ) { return; } // ADN: context invalidated
             chrome.runtime.sendMessage({
                 what: 'insertCSS',
                 css,

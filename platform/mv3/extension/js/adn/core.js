@@ -72,6 +72,7 @@ async function initialize() {
       validateAdStorage();
       computeNextId();
       adsetSize = adCount();
+      adIndex = null;
 
       log('[ADN INIT] Loaded ' + adsetSize + ' ads');
       initialized = true;
@@ -139,6 +140,17 @@ function parseHostnameFromUrl(url) {
   }
 }
 
+// Detect strings that are mistakenly JavaScript/CSS code rather than ad text.
+function looksLikeCode(s) {
+  if (typeof s !== 'string' || s.length === 0) return false;
+  return /^\s*[!;(]*\s*function\b/.test(s) ||      // function… / (function… / !function
+    /\bfunction\s*\(/.test(s) ||                    // function(
+    /\b(var|let|const)\s+[\w$]+\s*=/.test(s) ||     // var u = … / let x =
+    /=>\s*[{(]/.test(s) ||                          // arrow function body
+    /\b(document|window)\.\w/.test(s) ||            // document.x / window.x
+    (s.match(/;/g) || []).length >= 2;              // multiple statements
+}
+
 function validate(ad) {
   if (!validateFields(ad)) {
     return warn('Invalid ad-fields: ', ad);
@@ -165,7 +177,13 @@ function validate(ad) {
     warn('Invalid ad type: ' + ct);
   }
 
-  return validateTarget(ad);
+  if (!validateTarget(ad)) return false;
+
+  // Reject titles/text that are mistakenly JavaScript/CSS code (MV2 parity).
+  if (looksLikeCode(ad.title)) ad.title = ad.targetDomain || 'Pending';
+  if (ct === 'text' && looksLikeCode(cd.text)) cd.text = '';
+
+  return true;
 }
 
 function validateTarget(ad) {
@@ -319,6 +337,49 @@ function adCount() {
   return adlist().length;
 }
 
+// Normalize an image URL to origin+path (ignoring query) for duplicate checks.
+function srcPath(src) {
+  if (!src) return '';
+  try {
+    const u = new URL(src);
+    return u.origin + u.pathname;
+  } catch (e) {
+    return src;
+  }
+}
+
+// Index of existing ads keyed by targetUrl and image src path, for O(1)
+// duplicate lookups. Lazily (re)built; invalidated (set null) when ads change.
+let adIndex = null;
+
+function indexAd(ad) {
+  if (adIndex === null) return;
+  if (ad.targetUrl) adIndex.set('t:' + ad.targetUrl, ad);
+  const sp = ad.contentData ? srcPath(ad.contentData.src) : '';
+  if (sp) adIndex.set('s:' + sp, ad);
+}
+
+function buildAdIndex() {
+  adIndex = new Map();
+  const ads = adlist();
+  for (let i = 0; i < ads.length; i++) indexAd(ads[i]);
+}
+
+// Find an existing ad that is the same by targetUrl OR by image src path.
+function findDuplicateAd(ad) {
+  if (adIndex === null) buildAdIndex();
+  if (ad.targetUrl) {
+    const hit = adIndex.get('t:' + ad.targetUrl);
+    if (hit) return hit;
+  }
+  const sp = ad.contentData ? srcPath(ad.contentData.src) : '';
+  if (sp) {
+    const hit = adIndex.get('s:' + sp);
+    if (hit) return hit;
+  }
+  return null;
+}
+
 function adById(id) {
   const list = adlist();
   for (let i = 0; i < list.length; i++) {
@@ -363,6 +424,13 @@ async function registerAd(ad, tab) {
     return warn('[ADN INTERN] Ignoring Ad on ' + ad.pageDomain + ', target: ' + ad.targetUrl);
   }
 
+  // Skip duplicates across all pages by targetUrl OR image src path.
+  const dup = findDuplicateAd(ad);
+  if (dup) {
+    log('[ADN EXISTS] Duplicate of Ad#' + (dup.id || '?') + ': ' + ad.targetUrl);
+    return;
+  }
+
   const pageHash = YaMD5.hashStr(ad.pageUrl);
   if (!admap[pageHash]) admap[pageHash] = {};
 
@@ -389,6 +457,7 @@ async function registerAd(ad, tab) {
 
   // Store in admap (overwrites older ad with same key)
   admap[pageHash][adhash] = ad;
+  indexAd(ad);
   adsetSize++;
 
   log('[ADN FOUND] Ad#' + ad.id + ' (' + ad.contentType + ') ' + ad.targetUrl);
@@ -415,6 +484,7 @@ async function deleteAd(arg) {
 
   if (removeAdFromMap(ad)) {
     adsetSize--;
+    adIndex = null;
     log('[ADN DELETE] Ad#' + (ad.id || '?'));
     await storeAdData(true);
   } else {
@@ -434,6 +504,7 @@ async function clearAds() {
   admap = {};
   adsetSize = 0;
   idgen = 0;
+  adIndex = null;
   await chrome.storage.local.set({ admap: {}, adnIdgen: 0 });
   log('[ADN] All ads cleared');
 }
@@ -483,6 +554,7 @@ async function purgeDeadAds(deadAdIds) {
     }
   }
   adsetSize = adCount();
+  adIndex = null;
   await storeAdData(true);
   return { data: adlist() };
 }
@@ -563,6 +635,7 @@ async function importAds(data) {
     }
     computeNextId();
     adsetSize = adCount();
+    adIndex = null;
     await storeAdData(true);
     return { count };
   }
@@ -586,6 +659,7 @@ async function importAds(data) {
   }
 
   adsetSize = adCount();
+  adIndex = null;
   await storeAdData(true);
   return { count };
 }
@@ -609,7 +683,8 @@ async function getSettings() {
     showIconBadge: true,
     disableWarnings: false,
     blurCollectedAds: false,
-    costPerClick: 1.58
+    costPerClick: 1.58,
+    hidingStyle: 'opacity'   // 'opacity' (clickable/collectable) | 'display' (display:none)
   }, data.adnSettings || {});
 }
 

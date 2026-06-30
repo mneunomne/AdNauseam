@@ -103,6 +103,8 @@ for ( const selector of exceptedSelectors ) {
 
 if ( sheetText.length === 0 ) { return; }
 
+if ( chrome.runtime?.id === undefined ) { return; } // ADN: context invalidated
+
 chrome.runtime.sendMessage({
     what: 'insertCSS',
     css: sheetText.join('\n'),
