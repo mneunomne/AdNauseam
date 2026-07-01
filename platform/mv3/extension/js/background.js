@@ -379,6 +379,9 @@ async function onMessage(request, sender) {
 				if (ad) {
 					log('[ADN] Registered Ad#' + ad.id);
 				}
+				// refresh the toolbar badge with the page's ad count (also on
+				// duplicates, so a reload re-populates the badge)
+				adnauseam.updateBadgeForTab(sender.tab);
 			});
 			return false;
 		}
@@ -398,7 +401,12 @@ async function onMessage(request, sender) {
 
 		case 'clearAds':
 		case 'clearVault': {
-			return adnauseam.clearAds().then(() => ({ success: true }));
+			return adnauseam.clearAds().then(async () => {
+				// every page now has 0 ads, so clear all toolbar badges
+				const tabs = await browser.tabs.query({});
+				for ( const tab of tabs ) { adnauseam.clearBadge(tab.id); }
+				return { success: true };
+			});
 		}
 
 		case 'deleteAdSet': {
@@ -663,7 +671,7 @@ async function onMessage(request, sender) {
         rulesetConfig.showBlockedCount = request.state && true || false;
         if ( canShowBlockedCount ) {
             dnr.setExtensionActionOptions({
-                displayActionCountAsBadgeText: rulesetConfig.showBlockedCount,
+                displayActionCountAsBadgeText: false, // adn: badge reserved for ads-collected count
             });
         }
         await saveRulesetConfig();
@@ -1026,7 +1034,7 @@ async function startSession() {
     //   Firefox API does not support `dnr.setExtensionActionOptions`
     if ( canShowBlockedCount ) {
         dnr.setExtensionActionOptions({
-            displayActionCountAsBadgeText: rulesetConfig.showBlockedCount,
+            displayActionCountAsBadgeText: false, // adn: badge shows ads collected, not blocked count
         });
     }
 
@@ -1124,6 +1132,15 @@ browser.commands.onCommand.addListener((...args) => {
     isFullyInitialized.then(( ) => {
         onCommand(...args);
     });
+});
+
+// adn: clear the toolbar badge when a tab starts navigating, so a stale
+// ads-collected count doesn't linger on a page that has no ads yet. The count
+// re-populates as the content script reports ads for the new page. `status` is
+// non-sensitive, so this works without the "tabs" permission.
+browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if ( changeInfo.status !== 'loading' ) { return; }
+    adnauseam.clearBadge(tabId);
 });
 
 browser.alarms.onAlarm.addListener(alarm => {

@@ -322,6 +322,18 @@ export const byField = function (prop) {
   };
 };
 
+// Compact a count for display on the toolbar badge (port of MV2 µb.formatCount):
+// exact under 1000, then 'k'/'M' shorthand so the badge stays legible.
+export const formatCount = function (count) {
+  if (typeof count !== 'number') return '';
+  const s = `${count}`;
+  if (count < 1000) return s;
+  if (count < 10000) return '>' + s.slice(0, 1) + 'k';
+  if (count < 100000) return s.slice(0, 2) + 'k';
+  if (count < 1000000) return s.slice(0, 3) + 'k';
+  return s.slice(0, -6) + 'M';
+};
+
 /************************ Hashing *****************************/
 
 // DO NOT MODIFY

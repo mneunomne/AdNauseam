@@ -25,7 +25,7 @@
 import { log, warn, err } from './log.js';
 import {
   type, computeHash, parseDomain, isValidDomain,
-  internalLinkDomainsDefault, YaMD5
+  internalLinkDomainsDefault, YaMD5, formatCount
 } from './adn-utils.js';
 
 /******************************************************************************/
@@ -335,6 +335,47 @@ function adlist(pageUrl, currentOnly) {
 
 function adCount() {
   return adlist().length;
+}
+
+// Number of ads collected for a given page (MV2 parity: currentCount()).
+// Prefer ads still marked 'current', falling back to all ads for that URL.
+function currentCount(pageUrl) {
+  if (!pageUrl) return 0;
+  return adlist(pageUrl, true).length || adlist(pageUrl).length;
+}
+
+/******************************************************************************/
+// Toolbar badge - show the number of ads collected for the tab's page, and
+// nothing at all when there are none (MV2 parity, see src/js/tab.js updateBadge).
+
+async function updateBadgeForTab(tab) {
+  if (!tab || typeof tab.id !== 'number' || tab.id < 0) return;
+  await ready();
+
+  const settings = await getSettings();
+  const count = currentCount(tab.url);
+  // hide the badge entirely when disabled or when no ads were collected
+  const text = (settings.showIconBadge && count > 0) ? formatCount(count) : '';
+
+  try {
+    await chrome.action.setBadgeText({ tabId: tab.id, text });
+    if (text) {
+      await chrome.action.setBadgeBackgroundColor({ tabId: tab.id, color: '#666' });
+    }
+  } catch (e) {
+    // tab may have closed between message and update
+  }
+}
+
+// Clear a tab's badge (e.g. on navigation) so a stale count doesn't linger on a
+// page that has no ads yet.
+async function clearBadge(tabId) {
+  if (typeof tabId !== 'number' || tabId < 0) return;
+  try {
+    await chrome.action.setBadgeText({ tabId, text: '' });
+  } catch (e) {
+    // tab may have closed
+  }
 }
 
 // Index of existing ads keyed by the canonical content hash, for O(1) cross-page
@@ -717,6 +758,9 @@ const adnauseam = {
   clearAds,
   adlist,
   adCount,
+  currentCount,
+  updateBadgeForTab,
+  clearBadge,
   adById,
   adsForVault,
   adsForPage,
