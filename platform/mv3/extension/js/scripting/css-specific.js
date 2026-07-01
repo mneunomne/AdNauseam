@@ -150,7 +150,9 @@ if ( since > 1 ) {
 const { s, p } = cacheEntry;
 
 if ( s.length !== 0 ) {
-		self.cssAPI.insert(`${selectors.join(',\n')}{opacity:0!important;}`); // ADN
+    self.cssAPI.insert(`${s.join(',\n')}{opacity:0!important;}`); // adn
+    const adnSet = (self.adnAdSelectors ||= new Set()); // adn: expose ad selectors to parser
+    for ( const sel of s ) { adnSet.add(sel); } // adn
 }
 
 if ( p.length === 0 ) { return; }
@@ -173,11 +175,6 @@ const procedurals = p.filter(a => !a.cssable);
 if ( procedurals.length !== 0 ) {
     self.listsProceduralFiltererAPI.addProcedurals(procedurals);
 }
-
-self.cssAPI.insert(`${selectors.join(',\n')}{opacity:0!important;}`); // ADN
-const adnSet = (self.adnAdSelectors ||= new Set()); // ADN: expose ad selectors to parser
-for ( const s of selectors ) { adnSet.add(s); } // ADN
-
 
 /******************************************************************************/
 

@@ -337,26 +337,17 @@ function adCount() {
   return adlist().length;
 }
 
-// Normalize an image URL to origin+path (ignoring query) for duplicate checks.
-function srcPath(src) {
-  if (!src) return '';
-  try {
-    const u = new URL(src);
-    return u.origin + u.pathname;
-  } catch (e) {
-    return src;
-  }
-}
-
-// Index of existing ads keyed by targetUrl and image src path, for O(1)
+// Index of existing ads keyed by the canonical content hash, for O(1) cross-page
 // duplicate lookups. Lazily (re)built; invalidated (set null) when ads change.
+// Uses MV2's computeHash (full targetUrl + full contentData, params included), so
+// ads that differ in target or any param — including image-src query — are kept
+// distinct rather than merged by image path. // adn
 let adIndex = null;
 
 function indexAd(ad) {
   if (adIndex === null) return;
-  if (ad.targetUrl) adIndex.set('t:' + ad.targetUrl, ad);
-  const sp = ad.contentData ? srcPath(ad.contentData.src) : '';
-  if (sp) adIndex.set('s:' + sp, ad);
+  const h = computeHash(ad); // adn: dedup by full-content hash, not image path
+  if (h) adIndex.set(h, ad); // adn
 }
 
 function buildAdIndex() {
@@ -365,16 +356,12 @@ function buildAdIndex() {
   for (let i = 0; i < ads.length; i++) indexAd(ads[i]);
 }
 
-// Find an existing ad that is the same by targetUrl OR by image src path.
+// Find an existing ad with the same canonical content hash, across all pages.
 function findDuplicateAd(ad) {
   if (adIndex === null) buildAdIndex();
-  if (ad.targetUrl) {
-    const hit = adIndex.get('t:' + ad.targetUrl);
-    if (hit) return hit;
-  }
-  const sp = ad.contentData ? srcPath(ad.contentData.src) : '';
-  if (sp) {
-    const hit = adIndex.get('s:' + sp);
+  const h = computeHash(ad); // adn
+  if (h) {
+    const hit = adIndex.get(h);
     if (hit) return hit;
   }
   return null;
