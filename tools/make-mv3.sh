@@ -26,7 +26,8 @@ for i in "$@"; do
     safari)
       PLATFORM="safari"
       ;;
-    +([0-9]).+([0-9]).+([0-9]))
+    +([0-9])+(.+([0-9])))
+      # accept 2+ dotted numeric groups, e.g. AdNauseam's 4-part tags (3.28.5.9)
       TAGNAME="$i"
       FULL="yes"
       ;;
@@ -196,8 +197,13 @@ cp "$ADN_DIR"/src/lib/yamd5.js "$ADNL_DIR"/lib/
 # Patch imports in copied vault files for MV3 compatibility:
 #   - vault.js and notifications.js: adn-utils.js → vault-adn-utils.js
 #     (so the full src version is used instead of the MV3-slim version)
-sed -i '' "s|from './adn-utils.js'|from './vault-adn-utils.js'|" "$ADNL_DIR"/js/adn/vault.js
-sed -i '' "s|from \"./adn-utils.js\"|from \"./vault-adn-utils.js\"|" "$ADNL_DIR"/js/adn/notifications.js
+# portable in-place sed (BSD `sed -i ''` breaks GNU sed on the Linux CI runner)
+_vtmp=$(mktemp)
+sed "s|from './adn-utils.js'|from './vault-adn-utils.js'|" "$ADNL_DIR"/js/adn/vault.js > "$_vtmp" \
+    && mv "$_vtmp" "$ADNL_DIR"/js/adn/vault.js
+_ntmp=$(mktemp)
+sed "s|from \"./adn-utils.js\"|from \"./vault-adn-utils.js\"|" "$ADNL_DIR"/js/adn/notifications.js > "$_ntmp" \
+    && mv "$_ntmp" "$ADNL_DIR"/js/adn/notifications.js
 
 echo "*** AdnauseamLite.mv3: Generating rulesets"
 UBOL_BUILD_DIR=$(mktemp -d)

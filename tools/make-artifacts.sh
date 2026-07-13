@@ -4,6 +4,7 @@ DO_FIREFOX=true
 DO_CHROME=true
 DO_OPERA=true
 DO_EDGE=true
+DO_MV3=true
 
 # Different Operating Systems
 case "$(uname -sr)" in
@@ -44,10 +45,10 @@ mkdir ${ARTS}
 rm -rf ${DES}/adnauseam.*
 
 
-if [[ $DO_EDGE = false && $DO_CHROME = false && $DO_OPERA = false && $DO_FIREFOX = false ]]; 
+if [[ $DO_EDGE = false && $DO_CHROME = false && $DO_OPERA = false && $DO_FIREFOX = false && $DO_MV3 = false ]];
 then
     echo "FATAL: No actions specified \\n"
-    exit 
+    exit
 fi
 
 if [[ $DO_EDGE = true && $DO_CHROME = false ]]; 
@@ -99,6 +100,23 @@ then
   ./tools/make-firefox.sh all
   web-ext build -s ${DES}/adnauseam.firefox -a ${ARTS}
   mv ${ARTS}/adnauseam-${VERSION}.zip ${ARTS}/adnauseam-${VERSION}.firefox.zip
+fi
+
+
+# MV3 (CHROMIUM ZIP)
+if [ $DO_MV3 = true ]
+then
+  printf "\n*** Target -> MV3 (chromium)\n"
+  # the CodeMirror editor is a git submodule whose bundle is not committed;
+  # build it once if it's missing
+  CM_BUNDLE=platform/mv3/extension/lib/codemirror/codemirror-ubol/dist/cm6.bundle.ubol.min.js
+  if [ ! -f "$CM_BUNDLE" ]
+  then
+    ( cd platform/mv3/extension/lib/codemirror/codemirror-ubol && npm ci && npm run build )
+  fi
+  # FULL build (version arg) -> ${DES}/AdnauseamLite_${VERSION}.chromium.zip
+  ./tools/make-mv3.sh chromium ${VERSION}
+  cp ${DES}/AdnauseamLite_${VERSION}.chromium.zip ${ARTS}/
 fi
 
 
