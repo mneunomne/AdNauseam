@@ -25,7 +25,7 @@
 import { log, warn, err } from './log.js';
 import {
   type, computeHash, parseDomain, isValidDomain,
-  internalLinkDomainsDefault, YaMD5
+  internalLinkDomainsDefault, YaMD5, formatCount
 } from './adn-utils.js';
 
 /******************************************************************************/
@@ -337,26 +337,58 @@ function adCount() {
   return adlist().length;
 }
 
-// Normalize an image URL to origin+path (ignoring query) for duplicate checks.
-function srcPath(src) {
-  if (!src) return '';
+// Number of ads collected for a given page (MV2 parity: currentCount()).
+// Prefer ads still marked 'current', falling back to all ads for that URL.
+function currentCount(pageUrl) {
+  if (!pageUrl) return 0;
+  return adlist(pageUrl, true).length || adlist(pageUrl).length;
+}
+
+/******************************************************************************/
+// Toolbar badge - show the number of ads collected for the tab's page, and
+// nothing at all when there are none (MV2 parity, see src/js/tab.js updateBadge).
+
+async function updateBadgeForTab(tab) {
+  if (!tab || typeof tab.id !== 'number' || tab.id < 0) return;
+  await ready();
+
+  const settings = await getSettings();
+  const count = currentCount(tab.url);
+  // hide the badge entirely when disabled or when no ads were collected
+  const text = (settings.showIconBadge && count > 0) ? formatCount(count) : '';
+
   try {
-    const u = new URL(src);
-    return u.origin + u.pathname;
+    await chrome.action.setBadgeText({ tabId: tab.id, text });
+    if (text) {
+      await chrome.action.setBadgeBackgroundColor({ tabId: tab.id, color: '#666' });
+    }
   } catch (e) {
-    return src;
+    // tab may have closed between message and update
   }
 }
 
-// Index of existing ads keyed by targetUrl and image src path, for O(1)
+// Clear a tab's badge (e.g. on navigation) so a stale count doesn't linger on a
+// page that has no ads yet.
+async function clearBadge(tabId) {
+  if (typeof tabId !== 'number' || tabId < 0) return;
+  try {
+    await chrome.action.setBadgeText({ tabId, text: '' });
+  } catch (e) {
+    // tab may have closed
+  }
+}
+
+// Index of existing ads keyed by the canonical content hash, for O(1) cross-page
 // duplicate lookups. Lazily (re)built; invalidated (set null) when ads change.
+// Uses MV2's computeHash (full targetUrl + full contentData, params included), so
+// ads that differ in target or any param — including image-src query — are kept
+// distinct rather than merged by image path. // adn
 let adIndex = null;
 
 function indexAd(ad) {
   if (adIndex === null) return;
-  if (ad.targetUrl) adIndex.set('t:' + ad.targetUrl, ad);
-  const sp = ad.contentData ? srcPath(ad.contentData.src) : '';
-  if (sp) adIndex.set('s:' + sp, ad);
+  const h = computeHash(ad); // adn: dedup by full-content hash, not image path
+  if (h) adIndex.set(h, ad); // adn
 }
 
 function buildAdIndex() {
@@ -365,16 +397,12 @@ function buildAdIndex() {
   for (let i = 0; i < ads.length; i++) indexAd(ads[i]);
 }
 
-// Find an existing ad that is the same by targetUrl OR by image src path.
+// Find an existing ad with the same canonical content hash, across all pages.
 function findDuplicateAd(ad) {
   if (adIndex === null) buildAdIndex();
-  if (ad.targetUrl) {
-    const hit = adIndex.get('t:' + ad.targetUrl);
-    if (hit) return hit;
-  }
-  const sp = ad.contentData ? srcPath(ad.contentData.src) : '';
-  if (sp) {
-    const hit = adIndex.get('s:' + sp);
+  const h = computeHash(ad); // adn
+  if (h) {
+    const hit = adIndex.get(h);
     if (hit) return hit;
   }
   return null;
@@ -730,6 +758,9 @@ const adnauseam = {
   clearAds,
   adlist,
   adCount,
+  currentCount,
+  updateBadgeForTab,
+  clearBadge,
   adById,
   adsForVault,
   adsForPage,

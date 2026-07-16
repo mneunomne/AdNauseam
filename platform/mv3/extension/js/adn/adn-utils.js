@@ -282,7 +282,7 @@ export const YaMD5 = MD5;
 export const internalLinkDomainsDefault = [
   'google.com', 'asiaxpat.com', 'nytimes.com',
   'columbiagreenemedia.com', '163.com', 'sohu.com', 'zol.com.cn', 'baidu.com',
-  'yahoo.com', 'facebook.com', 'youtube.com', 'flashback.org',
+  'yahoo.com', 'facebook.com', 'flashback.org',
   'amazon.ae', 'amazon.ca', 'amazon.cn', 'amazon.co.jp', 'amazon.co.uk',
   'amazon.com', 'amazon.com.au', 'amazon.com.be', 'amazon.com.br',
   'amazon.com.mx', 'amazon.com.tr', 'amazon.de', 'amazon.eg', 'amazon.es',
@@ -320,6 +320,18 @@ export const byField = function (prop) {
     const result = (a[prop] < b[prop]) ? -1 : (a[prop] > b[prop]) ? 1 : 0;
     return result * sortOrder;
   };
+};
+
+// Compact a count for display on the toolbar badge (port of MV2 µb.formatCount):
+// exact under 1000, then 'k'/'M' shorthand so the badge stays legible.
+export const formatCount = function (count) {
+  if (typeof count !== 'number') return '';
+  const s = `${count}`;
+  if (count < 1000) return s;
+  if (count < 10000) return '>' + s.slice(0, 1) + 'k';
+  if (count < 100000) return s.slice(0, 2) + 'k';
+  if (count < 1000000) return s.slice(0, 3) + 'k';
+  return s.slice(0, -6) + 'M';
 };
 
 /************************ Hashing *****************************/

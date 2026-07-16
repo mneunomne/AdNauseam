@@ -69,6 +69,9 @@ body[data-pane="about"]:not(.busy) > section[data-pane="about"],
 body.busy[data-pane] > section[data-pane="busy"] {
     display: block;
     }
+nav .logo {
+	width: 32px;
+}
 
 /* high dpi devices */
 :root.hidpi .tabButton {

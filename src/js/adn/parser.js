@@ -573,6 +573,45 @@
       }
     }
 
+    // Sweep a container (e.g. a Google display ad) for a real image and collect it
+    // as an image ad BEFORE we fall back to classifying the container as a text ad.
+    // Handles <img>/<picture> as well as <canvas>-painted creatives (read via
+    // toDataURL), which Google responsive display ads commonly use. A fallbackTarget
+    // (the ad's own known click URL) is used when the image element itself has no
+    // resolvable click target — the reason these image ads were slipping through to
+    // the text-ad branch.
+    const collectImageFromContainer = function (root, fallbackTarget) {
+      if (!root) return false;
+
+      const candidates = root.querySelectorAll(imgSelectors.join(', ') + ', canvas');
+      for (let i = 0; i < candidates.length; i++) {
+        const el = candidates[i];
+        let src;
+
+        if (el.tagName === 'CANVAS') {
+          try {
+            // only works if the canvas is not cross-origin tainted
+            src = el.toDataURL('image/png');
+          } catch (e) {
+            continue; // tainted canvas, pixels can't be read
+          }
+          if (!src || src.length < 32) continue;
+        } else {
+          src = el.currentSrc || el.src || el.getAttribute('src')
+            || parseSrcset(el.getAttribute('srcset'))
+            || el.getAttribute('data-src') || el.getAttribute('data-imgsrc');
+        }
+
+        if (!src) continue;
+
+        const targetUrl = getTargetUrl(el) || fallbackTarget;
+        if (!targetUrl) continue;
+
+        if (createImageAd(el, src, targetUrl)) return true;
+      }
+      return false;
+    };
+
     const processVideo = function (el) {
 
       if (!canProcess(el)) {
@@ -734,12 +773,16 @@
           }
 
           // if no img found within the element
+          // (short-circuit: once a Google display ad is handled, don't also let it
+          // be re-collected as a text ad)
           const googleResp = findGoogleResponsiveDisplayAd(elem);
-          const googleActive = GoogleActiveViewElement(elem);
-          const youtubeAd = findYoutubeTextAd(elem);
+          const googleActive = googleResp ? false : GoogleActiveViewElement(elem);
+          findYoutubeTextAd(elem);
 
-          // and finally check for text ads
-          vAPI.textAdParser.process(elem);
+          // and finally check for text ads (skip if a Google display ad was handled)
+          if (!googleResp && !googleActive) {
+            vAPI.textAdParser.process(elem);
+          }
 
           // Check for child iframes and process them
           const iframes = elem.querySelectorAll('iframe');
@@ -786,13 +829,18 @@
 
       if ( title !== null && body !== null && url !== null) {
         if (!image) {
+          // the narrow '.imageClk .image' selector missed: sweep the whole ad for a
+          // real image (incl. canvas) before falling back to a text ad
+          if (collectImageFromContainer(googleDisplayAd, url)) {
+            return true;
+          }
           // no image can be found, create text add
           const ad = vAPI.adParser.createAd('GoogleActiveViewElement', url, {
             title: $text(title),
             text: $text(body),
             title: $text(title)
           });
-          
+
           if (ad) {
             logP("[PARSED] TEXT-AD" + ad);
             vAPI.adParser.notifyAddon(ad);
@@ -884,19 +932,34 @@
 
         const attribute = getComputedStyle(img).backgroundImage;
         src = extractUrlSrc(attribute);
+        // responsive display ads paint the creative onto <canvas>, so there's no
+        // CSS background to read — grab the pixels directly instead
+        if (!src && img.tagName === 'CANVAS') {
+          try {
+            src = img.toDataURL('image/png');
+          } catch (e) {
+            // tainted canvas, pixels can't be read
+          }
+        }
         if (!targetURL) targetURL = getTargetUrl(img);
 
         if (img && src && targetURL) {
-          createImageAd(img, src, targetURL);
+          if (createImageAd(img, src, targetURL)) return true;
         } else {
           logP("[Google Responsive Display Ad] Can't find element", img, src, targetURL);
         }
 
       } else {
 
-        // No img, trying to collect as text ad
+        // No canvas.image matched: sweep the ad for any other image (incl. plain
+        // <img> whose click target lives on the title/link) before treating as text
         if (title) targetURL = title.getAttribute("href")
 
+        if (collectImageFromContainer(googleDisplayAd, targetURL)) {
+          return true;
+        }
+
+        // No img, trying to collect as text ad
         if (title && text && targetURL) {
 
           const ad = vAPI.adParser.createAd('Ads by google responsive display ad', targetURL, {

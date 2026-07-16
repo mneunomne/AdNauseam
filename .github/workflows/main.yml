@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+          submodules: recursive # MV3 build needs codemirror-ubol + s14e-serializer
       - name: Clone uAssets
         run: |
           tools/pull-assets.sh
@@ -38,6 +39,12 @@ jobs:
           jq 'del(.key)' adnauseam.edge/manifest.json > adnauseam.edge/manifest.tmp && mv adnauseam.edge/manifest.tmp adnauseam.edge/manifest.json
           zip -qr adnauseam-${{ env.VERSION }}.edge.zip adnauseam.edge
           cp adnauseam-${{ env.VERSION }}.chromium.zip adnauseam.chromium.zip
+      - name: Build MV3 package (chromium)
+        run: |
+          # build the CodeMirror bundle inside its submodule (not committed)
+          ( cd platform/mv3/extension/lib/codemirror/codemirror-ubol && npm ci && npm run build )
+          # produces dist/build/AdnauseamLite_<version>.chromium.zip (FULL mode)
+          tools/make-mv3.sh chromium ${{ env.VERSION }}
       - name: Assemble release notes
         run: |
           > release.body.txt
@@ -61,3 +68,4 @@ jobs:
             dist/build/adnauseam-${{ env.VERSION }}.opera.zip
             dist/build/adnauseam-${{ env.VERSION }}.edge.zip
             dist/build/adnauseam.chromium.zip
+            dist/build/AdnauseamLite_${{ env.VERSION }}.chromium.zip

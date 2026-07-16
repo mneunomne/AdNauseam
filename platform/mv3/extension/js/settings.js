@@ -80,6 +80,7 @@ function renderWidgets() {
 /******************************************************************************/
 
 function renderDefaultMode() {
+    if ( qs$('.filteringModeCard') === null ) { return; } // adn: filtering-mode UI removed from AdNauseam dashboard
     const defaultLevel = self.cachedRulesetData.defaultFilteringMode;
     if ( defaultLevel !== 0 ) {
         qs$(`.filteringModeCard input[type="radio"][value="${defaultLevel}"]`).checked = true;
