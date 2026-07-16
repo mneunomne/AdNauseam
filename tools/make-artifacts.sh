@@ -114,9 +114,10 @@ then
   then
     ( cd platform/mv3/extension/lib/codemirror/codemirror-ubol && npm ci && npm run build )
   fi
-  # FULL build (version arg) -> ${DES}/AdnauseamLite_${VERSION}.chromium.zip
-  ./tools/make-mv3.sh chromium ${VERSION}
-  cp ${DES}/AdnauseamLite_${VERSION}.chromium.zip ${ARTS}/
+  # FULL build with make-rulesets.js timestamp version (version lives in the manifest, not the filename)  # adn
+  ./tools/make-mv3.sh chromium full
+  MV3_VERSION=$(jq -r .version ${DES}/ADNLite.chromium/manifest.json)   # adn: timestamp from make-rulesets.js, used to locate the zip
+  cp ${DES}/AdnauseamLite_${MV3_VERSION}.chromium.zip ${ARTS}/adnauseam-lite.chromium.zip   # adn: stable, version-less artifact name
 fi
 
 

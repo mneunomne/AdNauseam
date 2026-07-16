@@ -239,7 +239,18 @@ echo "Extension location: $ADNL_DIR/"
 # Local build
 tmp_manifest=$(mktemp)
 chmod '=rw' "$tmp_manifest"
-if [ -z "$TAGNAME" ]; then
+if [ "$FULL" = "yes" ]; then # adn: gate release vs dev on FULL, not on TAGNAME
+    # Publishable build
+    if [ -n "$TAGNAME" ]; then
+        # explicit version tag overrides the auto-generated timestamp # adn
+        jq --arg version "${TAGNAME}" '.version = $version' "$ADNL_DIR/manifest.json"  > "$tmp_manifest" \
+            && mv "$tmp_manifest" "$ADNL_DIR/manifest.json"
+    else
+        # keep the timestamp version make-rulesets.js generated # adn
+        TAGNAME="$(jq -r .version "$ADNL_DIR"/manifest.json)"
+    fi
+    rm -rf "$ADNL_DIR/rulesets/debug"
+else
     TAGNAME="$(jq -r .version "$ADNL_DIR"/manifest.json)"
     # Enable DNR rule debugging
     jq '.permissions += ["declarativeNetRequestFeedback"]' \
@@ -250,10 +261,6 @@ if [ -z "$TAGNAME" ]; then
         jq '.browser_specific_settings.gecko.id = "AdnauseamLite.dev@raymondhill.net"' "$ADNL_DIR/manifest.json"  > "$tmp_manifest" \
             && mv "$tmp_manifest" "$ADNL_DIR/manifest.json"
     fi
-else
-    jq --arg version "${TAGNAME}" '.version = $version' "$ADNL_DIR/manifest.json"  > "$tmp_manifest" \
-        && mv "$tmp_manifest" "$ADNL_DIR/manifest.json"
-    rm -rf "$ADNL_DIR/rulesets/debug"
 fi
 
 # Platform-specific steps
