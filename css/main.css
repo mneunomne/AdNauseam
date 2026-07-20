@@ -246,7 +246,7 @@ section p a:visited {
 }
 
 #install > a.inst-chr::after{
-  background-image: url(../img/chrome-logo%402x.png);
+  background-image: url(../img/Chromium_Logo.png);
 }
 
 #install > a.inst-opr::after{
