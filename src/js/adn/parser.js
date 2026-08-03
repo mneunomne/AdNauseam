@@ -1115,21 +1115,24 @@
     let iframeScanDone = false;
     const runIframeScan = function () {
       if (iframeScanDone) return;
+      // Go through domWatcher rather than our own observer: it is nulled on
+      // whitelisted pages (which parser.js would otherwise ignore) and it
+      // batches added nodes instead of scanning inline on every mutation.
+      if (!self.vAPI.domWatcher) return;
       iframeScanDone = true;
       if (typeof vAPI.adParser === 'undefined') {
         vAPI.adParser = createParser();
       }
-      vAPI.adParser.scanDocument();
-      // Watch for content injected after the initial scan (many ad iframes load creatives dynamically)
-      new MutationObserver(function (mutations) {
-        for (const mutation of mutations) {
-          for (const node of mutation.addedNodes) {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              vAPI.adCheck(node);
-            }
+      vAPI.domWatcher.addListener({
+        onDOMCreated: function () {
+          vAPI.adParser.scanDocument();
+        },
+        onDOMChanged: function (addedNodes) {
+          for (const node of addedNodes) {
+            vAPI.adCheck(node);
           }
         }
-      }).observe(document.body, { childList: true, subtree: true });
+      });
     };
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
       runIframeScan();
