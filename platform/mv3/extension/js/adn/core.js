@@ -151,12 +151,20 @@ function looksLikeCode(s) {
     (s.match(/;/g) || []).length >= 2;              // multiple statements
 }
 
+// An image src the vault (an extension page) can actually render. Notably
+// excludes blob: — those are scoped to the document that created them and were
+// previously mangled into a relative path here.
+function isDisplayableImageSrc(src) {
+  if (typeof src !== 'string' || src.length === 0) return false;
+  return /^https?:\/\//i.test(src) || /^data:image\//i.test(src);
+}
+
 function validate(ad) {
   if (!validateFields(ad)) {
     return warn('Invalid ad-fields: ', ad);
   }
 
-  const cd = ad.contentData, ct = ad.contentType, pu = ad.pageUrl;
+  const cd = ad.contentData, ct = ad.contentType;
 
   ad.title = unescapeHTML(ad.title);
 
@@ -164,14 +172,17 @@ function validate(ad) {
     cd.title = unescapeHTML(cd.title);
     cd.text = unescapeHTML(cd.text);
   } else if (ct === 'img') {
-    if (!/^http/.test(cd.src) && !/^data:image/.test(cd.src)) {
-      if (/^\/\//.test(cd.src)) {
-        cd.src = 'http:' + cd.src;
-      } else {
-        log('Relative-image: ' + cd.src);
-        cd.src = pu.substring(0, pu.lastIndexOf('/')) + '/' + cd.src;
-        log('    --> ' + cd.src);
-      }
+    // The parser sends absolute URLs it has already proven load, so anything
+    // else is bad data. Rebuilding a relative src here used to guess a base
+    // from ad.pageUrl — which registerAd() has replaced with the *top-level
+    // tab* URL, so the guess was wrong for every ad inside a frame, and the
+    // vault ended up with images that could never load.
+    if (!isDisplayableImageSrc(cd.src)) {
+      return warn('Invalid image src: ' + String(cd.src).substring(0, 100));
+    }
+    if (!(cd.width > 0 && cd.height > 0)) {
+      return warn('Invalid image dimensions (' + cd.width + 'x' + cd.height + '): ' +
+        String(cd.src).substring(0, 100));
     }
   } else {
     warn('Invalid ad type: ' + ct);

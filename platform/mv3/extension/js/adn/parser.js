@@ -55,6 +55,22 @@
     'span'
   ];
 
+  // Known non-ad images, from MV2 parser.js. The data: entry is a transparent
+  // spacer GIF, matched by prefix so we don't carry the whole 1.5KB literal.
+  const ignorableImages = [
+    'mgid_logo_mini_43x20.png',
+    'data:image/gif;base64,R0lGODlh7AFIAfAAAAAAAAAAACH5BAEAAAAALAAAAADsAUgBAAL+hI+py+0P'
+  ];
+
+  // Min 31x65, as in MV2's createImageAd — excludes ad-choice logos and beacons.
+  const MIN_MINOR_DIM = 31, MIN_MAJOR_DIM = 65;
+  // A base64 1x1 GIF/PNG is ~70-100 bytes.
+  const MIN_DATA_URI_LEN = 200;
+  const PROBE_TIMEOUT_MS = 5000;
+  const MAX_CANDIDATES = 12;
+
+  const imageExtRe = /\.(?:png|jpe?g|gif|webp|avif|svg|bmp|ico)(?:[?#]|$)/i;
+
   function logP(...args) {
     console.log('[ADN Parser]', ...args);
   }
@@ -88,6 +104,84 @@
       /=>\s*[{(]/.test(s) ||
       /\b(document|window)\.\w/.test(s) ||
       (s.match(/;/g) || []).length >= 2;
+  }
+
+  // Screen out values that can never load before we spend a request on them:
+  // the lazy-load data attributes hold element ids, template placeholders and
+  // srcset fragments as often as they hold URLs.
+  function looksLikeImageUrl(src) {
+    if (typeof src !== 'string') return false;
+    const s = src.trim();
+    if (s.length < 6) return false;
+
+    if (/^data:/i.test(s)) {
+      return /^data:image\//i.test(s) && s.length >= MIN_DATA_URI_LEN;
+    }
+    // blob: is scoped to the page that created it; the rest aren't images.
+    if (/^(?:blob|javascript|about|mailto|tel|file):/i.test(s)) return false;
+    if (/\s/.test(s)) return false;                       // leftover srcset or prose
+    if (/[{}]|\$\{|%%|\[[A-Z_]+\]/.test(s)) return false; // unexpanded template
+
+    if (/^(?:https?:)?\/\//i.test(s) || s.startsWith('/')) return true;
+    return imageExtRe.test(s) || s.includes('/');
+  }
+
+  function isIgnorable(src) {
+    return ignorableImages.some(s => src.includes(s));
+  }
+
+  // Resolve against document.baseURI so <base href> and, inside a frame, the
+  // frame's own URL are honoured — the background used to rebuild relative srcs
+  // from the *top-level tab* URL, the wrong base for any ad in a frame. Returns
+  // null unless the result is something the vault could actually render.
+  function toDisplayableSrc(raw) {
+    const s = raw.trim();
+    if (/^data:/i.test(s)) return s;
+    try {
+      const url = new URL(s, document.baseURI).href;
+      return /^https?:/i.test(url) ? url : null;
+    } catch {
+      return null;
+    }
+  }
+
+  // Cached per-src: processElements() re-runs every 5s and on every mutation, so
+  // without this the same URLs would be re-requested continuously. Resolves to
+  // {w,h} if the image decodes, null if it doesn't.
+  const probeCache = new Map();
+
+  function probeImage(src) {
+    let pending = probeCache.get(src);
+    if (pending) return pending;
+
+    pending = new Promise(resolve => {
+      const img = new Image();
+      const done = dims => {
+        clearTimeout(timer);
+        img.onload = img.onerror = null;
+        img.src = ''; // abort anything still in flight
+        resolve(dims);
+      };
+      const timer = setTimeout(() => done(null), PROBE_TIMEOUT_MS);
+      img.onload = () => done(img.naturalWidth > 0
+        ? { w: img.naturalWidth, h: img.naturalHeight }
+        : null);
+      img.onerror = () => done(null);
+      img.src = src;
+    });
+
+    if (probeCache.size > 500) probeCache.clear();
+    probeCache.set(src, pending);
+    return pending;
+  }
+
+  // Dimensions we can trust: this element decoded *this* src. A broken <img>
+  // keeps its layout box, so width/clientWidth report a plausible 300x250 for an
+  // image that never loaded — which is how broken creatives passed the size gate.
+  function decodedDims(el, src) {
+    if (!el || el.tagName !== 'IMG' || !el.complete || !el.naturalWidth) return null;
+    if ((el.currentSrc || el.src) !== src) return null;
+    return { w: el.naturalWidth, h: el.naturalHeight };
   }
 
   // Resolve an image src from an element, covering the same sources as MV2's
@@ -130,7 +224,8 @@
       if (s) return s;
     }
 
-    // Common lazy-load / native-ad data attributes
+    // Common lazy-load / native-ad data attributes. Values are screened by
+    // looksLikeImageUrl() upstream, so we no longer take any string over 5 chars.
     const attrs = [
       'data-src', 'data-lazy-src', 'data-original', 'data-original-src',
       'data-imgsrc', 'data-bgset', 'data-background-image',
@@ -138,8 +233,12 @@
       'src'
     ];
     for (const attr of attrs) {
-      const val = el.getAttribute && el.getAttribute(attr);
-      if (val && val.length > 5) return val;
+      let val = el.getAttribute && el.getAttribute(attr);
+      if (!val) continue;
+      val = val.trim();
+      // lazysizes-style attributes often hold a srcset rather than a bare URL
+      if (/\s/.test(val)) val = parseSrcset(val);
+      if (val && looksLikeImageUrl(val)) return val;
     }
 
     // Last resort: a background-image on the element (inline or computed)
@@ -160,56 +259,78 @@
     return bestUrl;
   }
 
-  // Get image dimensions from an element
-  function getImageDimensions(el) {
-    let w = el.naturalWidth || parseInt(el.getAttribute('width')) || el.clientWidth || -1;
-    let h = el.naturalHeight || parseInt(el.getAttribute('height')) || el.clientHeight || -1;
-    if (isNaN(w)) w = -1;
-    if (isNaN(h)) h = -1;
-    return { w, h };
-  }
+  // Every image URL worth trying for this ad element. Nothing is accepted here —
+  // acceptance requires a proven load, which pickUsableImage() does.
+  function collectImageCandidates(element) {
+    const seen = new Set(), out = [];
 
-  // Pick the largest non-tracking-pixel image within a root element.
-  function bestImageIn(root) {
-    if (!root || !root.querySelectorAll) return null;
-    const imgs = root.querySelectorAll(imgSelectors.join(', '));
-    let best = null;
-    for (const img of imgs) {
-      const src = resolveImageSrc(img);
-      if (!src) continue;
-      const dims = getImageDimensions(img);
-      if (dims.w > 0 && dims.h > 0 &&
-          (Math.min(dims.w, dims.h) < 31 || Math.max(dims.w, dims.h) < 65)) continue;
-      const isDataUri = src.startsWith('data:');
-      const bestIsDataUri = best && best.src.startsWith('data:');
-      if (!best || (bestIsDataUri && !isDataUri) ||
-          (!bestIsDataUri && !isDataUri && dims.w > best.w && dims.h > best.h)) {
-        best = { src, w: dims.w, h: dims.h };
+    const add = (el, raw) => {
+      // i-amphtml-intrinsic-sizer is a transparent sizer, never a creative (#1843).
+      if (!raw || (el && el.className === 'i-amphtml-intrinsic-sizer')) return;
+      if (!looksLikeImageUrl(raw)) return;
+      const src = toDisplayableSrc(raw);
+      if (!src || isIgnorable(src) || seen.has(src)) return;
+      seen.add(src);
+      out.push({
+        el, src,
+        isDataUri: src.startsWith('data:'),
+        area: el ? (el.clientWidth || 0) * (el.clientHeight || 0) : 0
+      });
+    };
+
+    const addImagesIn = root => {
+      if (!root || !root.querySelectorAll) return false;
+      const before = out.length;
+      for (const el of root.querySelectorAll(imgSelectors.join(', '))) {
+        add(el, resolveImageSrc(el));
+      }
+      return out.length > before;
+    };
+
+    addImagesIn(element);
+    add(element, getBackgroundImageUrl(element));
+    for (const child of element.querySelectorAll('[style*="background"]')) {
+      add(child, getBackgroundImageUrl(child));
+    }
+
+    // Nothing of its own — look outward, closest first: ancestors, then (inside
+    // an iframe) the whole document, since the iframe is usually the creative.
+    if (out.length === 0) {
+      let node = element.parentElement, depth = 0;
+      while (node && depth++ < 8 && addImagesIn(node) === false) {
+        node = node.parentElement;
+      }
+      if (out.length === 0 && window !== window.top) {
+        addImagesIn(document.body || document.documentElement);
       }
     }
-    return best;
+
+    // Data URIs are usually placeholders, so real URLs first, then largest.
+    out.sort((a, b) => (a.isDataUri - b.isDataUri) || (b.area - a.area));
+    return out.slice(0, MAX_CANDIDATES);
   }
 
-  // When the ad element has no image of its own, look outward — closest first:
-  // walk up ancestors, then (inside an iframe) the whole document, since the
-  // iframe is usually the ad creative.
-  function findNearbyImage(element) {
-    let node = element.parentElement;
-    let depth = 0;
-    while (node && depth < 8) {
-      const best = bestImageIn(node);
-      if (best) return best;
-      node = node.parentElement;
-      depth++;
-    }
-    if (window !== window.top) {
-      return bestImageIn(document.body || document.documentElement);
+  // The first candidate we can prove renders at a usable size.
+  async function pickUsableImage(candidates) {
+    for (const cand of candidates) {
+      // Already decoded in the page? Proven — no extra request needed.
+      const dims = decodedDims(cand.el, cand.src) || await probeImage(cand.src);
+      if (dims === null) {
+        logP('  Rejected (will not load):', cand.src.substring(0, 100));
+        continue;
+      }
+      if (Math.min(dims.w, dims.h) < MIN_MINOR_DIM ||
+          Math.max(dims.w, dims.h) < MIN_MAJOR_DIM) {
+        logP('  Rejected (' + dims.w + 'x' + dims.h + ', too small):', cand.src.substring(0, 100));
+        continue;
+      }
+      return { src: cand.src, w: dims.w, h: dims.h, el: cand.el };
     }
     return null;
   }
 
   // Extract ad data from element
-  function extractAdData(element) {
+  async function extractAdData(element) {
     const data = {
       targetUrl: null,
       imgSrc: null,
@@ -253,93 +374,23 @@
 
     logP('Processing element:', element.className || element.tagName, '-> target:', data.targetUrl, element);
 
-    // --- Image search (thorough) ---
+    // --- Image search ---
+    // Only screened, absolute URLs get this far; pickUsableImage() then proves
+    // one decodes at a usable size, so a stored src is one we know renders.
+    // Nothing usable falls through to the text branch below rather than being
+    // dropped, so we keep the click even when the creative is unreachable.
 
-    // 1. Check children matching image selectors
-    const imgs = element.querySelectorAll(imgSelectors.join(', '));
-    logP('  Found', imgs.length, 'image elements matching selectors');
+    const candidates = collectImageCandidates(element);
+    logP('  Found', candidates.length, 'image candidate(s)');
+
+    const image = await pickUsableImage(candidates);
 
     let chosenImg = null;
-    for (const img of imgs) {
-      const src = resolveImageSrc(img);
-      if (src) {
-        const dims = getImageDimensions(img);
-        logP('  Image candidate:', src, 'dims:', dims.w, 'x', dims.h, img);
-
-        // Prefer real URLs over data URIs (data URIs are often placeholders)
-        const isDataUri = src.startsWith('data:');
-        const currentIsDataUri = data.imgSrc && data.imgSrc.startsWith('data:');
-
-        if (!data.imgSrc || (currentIsDataUri && !isDataUri) ||
-            (!currentIsDataUri && !isDataUri && dims.w > data.imgWidth && dims.h > data.imgHeight)) {
-          data.imgSrc = src;
-          data.imgWidth = dims.w;
-          data.imgHeight = dims.h;
-          chosenImg = img;
-        }
-      }
-    }
-
-    // 2. Check the element itself for background-image
-    if (!data.imgSrc) {
-      logP('  Checking element itself for background-image');
-      const bgSrc = getBackgroundImageUrl(element);
-      if (bgSrc) {
-        data.imgSrc = bgSrc;
-        data.imgWidth = element.clientWidth || -1;
-        data.imgHeight = element.clientHeight || -1;
-        logP('  Found bg image on element:', bgSrc);
-      }
-    }
-
-    // 3. Check children with background-image style
-    if (!data.imgSrc) {
-      logP('  Checking children for background-image');
-      const bgChildren = element.querySelectorAll('[style*="background"]');
-      logP('  Found', bgChildren.length, 'children with background style');
-      for (const child of bgChildren) {
-        const bgSrc = getBackgroundImageUrl(child);
-        if (bgSrc) {
-          data.imgSrc = bgSrc;
-          data.imgWidth = child.clientWidth || -1;
-          data.imgHeight = child.clientHeight || -1;
-          logP('  Found bg image in child:', bgSrc);
-          break;
-        }
-      }
-    }
-
-    // 4. Still nothing — search nearby (ancestors, and the whole iframe doc)
-    //    for the closest image, since we already know this element is an ad.
-    if (!data.imgSrc) {
-      const near = findNearbyImage(element);
-      if (near) {
-        data.imgSrc = near.src;
-        data.imgWidth = near.w;
-        data.imgHeight = near.h;
-        logP('  Found nearby image:', near.src);
-      }
-    }
-
-    // Make image URL absolute if needed
-    if (data.imgSrc && data.imgSrc.indexOf('http') !== 0 && data.imgSrc.indexOf('data:') !== 0) {
-      if (data.imgSrc.indexOf('//') === 0) {
-        data.imgSrc = window.location.protocol + data.imgSrc;
-      } else if (data.imgSrc.indexOf('/') === 0) {
-        data.imgSrc = window.location.origin + data.imgSrc;
-      }
-    }
-
-    // Validate image dimensions (skip tracking pixels)
-    if (data.imgSrc && data.imgWidth > 0 && data.imgHeight > 0) {
-      const minDim = Math.min(data.imgWidth, data.imgHeight);
-      const maxDim = Math.max(data.imgWidth, data.imgHeight);
-      if (minDim < 31 || maxDim < 65) {
-        logP('  Image too small (' + data.imgWidth + 'x' + data.imgHeight + '), discarding');
-        data.imgSrc = null;
-        data.imgWidth = -1;
-        data.imgHeight = -1;
-      }
+    if (image) {
+      data.imgSrc = image.src;
+      data.imgWidth = image.w;
+      data.imgHeight = image.h;
+      chosenImg = image.el;
     }
 
     // --- Text extraction (for text ads or as fallback) ---
@@ -476,11 +527,13 @@
   function getBackgroundImageUrl(element) {
     const style = window.getComputedStyle(element);
     const bgImage = style.backgroundImage || style.background;
-    
+
     if (bgImage && bgImage !== 'none') {
-      const match = bgImage.match(/url\(['"]?([^'"]+)['"]?\)/);
-      if (match && match[1]) {
-        return match[1];
+      // Stop at the closing paren: a value with two backgrounds (or a gradient
+      // plus an image) would otherwise be captured whole as one bogus URL.
+      const match = /url\((['"]?)([^'")]+)\1\)/.exec(bgImage);
+      if (match && match[2]) {
+        return match[2];
       }
     }
     return null;
@@ -583,39 +636,49 @@
         if (!canProcess(element)) return;
         markProcessed(element);
 
-        const adData = extractAdData(element);
-        if (adData && adData.targetUrl) {
-          // Determine type: text ad only if no image AND we have text content
-          const isTextAd = !adData.imgSrc;
-          const ad = {
-            pageUrl: window.location.href,
-            pageDomain: window.location.hostname,
-            pageTitle: document.title,
-            targetUrl: adData.targetUrl,
-            foundTs: Date.now(),
-            contentType: isTextAd ? 'text' : 'img',
-            contentData: isTextAd
-              ? { title: adData.title || '', text: adData.text || '', site: window.location.hostname }
-              : { src: adData.imgSrc || '', width: adData.imgWidth || -1, height: adData.imgHeight || -1 },
-            title: adData.title || (adData.text || '').substring(0, 80) || 'Pending',
-            attempts: 0,
-            visitedTs: 0,
-          };
-
-          logP('Found ad:', ad.contentType, ad.contentType === 'img'
-            ? '(' + ad.contentData.width + 'x' + ad.contentData.height + ') src=' + (ad.contentData.src || '')
-            : 'title="' + (ad.contentData.title || '').substring(0, 40) + '"',
-            'target:', ad.targetUrl);
-
-          // Send to background for registration (dedup, validation, storage).
-          sendAd(ad);
-        }
+        // Image verification is async, so each element resolves on its own.
+        // Elements are marked processed synchronously above, so a re-entrant
+        // scan can't double-process one while its probes are in flight.
+        processElement(element).catch(error => {
+          console.error('[ADN Parser] Error processing element:', error);
+        });
       });
     } catch (error) {
       console.error('[ADN Parser] Error processing elements:', error);
     }
   }
-  
+
+  async function processElement(element) {
+    const adData = await extractAdData(element);
+    if (!adData || !adData.targetUrl) return;
+
+    // Determine type: text ad only if no image AND we have text content
+    const isTextAd = !adData.imgSrc;
+    const ad = {
+      pageUrl: window.location.href,
+      pageDomain: window.location.hostname,
+      pageTitle: document.title,
+      targetUrl: adData.targetUrl,
+      foundTs: Date.now(),
+      contentType: isTextAd ? 'text' : 'img',
+      contentData: isTextAd
+        ? { title: adData.title || '', text: adData.text || '', site: window.location.hostname }
+        : { src: adData.imgSrc || '', width: adData.imgWidth || -1, height: adData.imgHeight || -1 },
+      title: adData.title || (adData.text || '').substring(0, 80) || 'Pending',
+      attempts: 0,
+      visitedTs: 0,
+    };
+
+    logP('Found ad:', ad.contentType, ad.contentType === 'img'
+      ? '(' + ad.contentData.width + 'x' + ad.contentData.height + ') src=' + (ad.contentData.src || '')
+      : 'title="' + (ad.contentData.title || '').substring(0, 40) + '"',
+      'target:', ad.targetUrl);
+
+    // Send to background for registration (dedup, validation, storage).
+    sendAd(ad);
+  }
+
+
   // Run on page load
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', processElements);
