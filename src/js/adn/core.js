@@ -657,7 +657,7 @@ const adnauseam = (function () {
     ad.attempts++;
     ad.attemptedTs = now;
 
-		// dont delete ad if click fails (content might still be valuable, contection issues etc)
+		// dont delete ad if target fails (content might still be valuable, contection issues etc)
 		if (!validateTarget(ad)) return warn('[SKIP] not visiting, invalid target: ' + ad.targetUrl); // adn
 
     return sendXhr(ad);
