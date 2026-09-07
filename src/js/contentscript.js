@@ -1269,8 +1269,13 @@ var bootstrapPhaseAdnCounter = 0
 var specificCosmeticFilters = null
 const bootstrapPhaseAdn = function (response) {
     if (response && response.specificCosmeticFilters && response.specificCosmeticFilters.injectedCSS) {
-        //let specificCosmeticFilters = response.specificCosmeticFilters
-        specificCosmeticFilters =  response.specificCosmeticFilters.injectedCSS.split('{')[0]
+        // injectedCSS holds several `selectors {style}` blocks (specific filters first, then the
+        // highly-generic complex ones); collect the selectors of every block, not only the first // adn
+        specificCosmeticFilters = response.specificCosmeticFilters.injectedCSS
+            .split('}') // adn
+            .map(block => block.split('{')[0].trim()) // adn
+            .filter(selectors => selectors.length > 0) // adn
+            .join(',\n') // adn
     }
     // check last time ran
     let now = Date.now()
