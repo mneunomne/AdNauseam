@@ -195,9 +195,27 @@ const scriptletStats = new Map();
 const genericDetails = new Map();
 const requiredRedirectResources = new Set();
 const adnAllowRules = [];
-;;;;// MV2 parity: keep blocking ONLY malware/badware/anti-adblock/social/AdNauseam
-// lists; adn-allow inverts block rules from every OTHER enabled list so ads
-// load and can be collected/clicked (this includes easylist, easyprivacy, etc.).
+
+/******************************************************************************/
+// ADN: AdNauseam lets ads load so they can be collected and clicked. Block
+// rules from the ad lists are kept, and each one gets a mirror "allow" rule at
+// a higher priority, so the allow wins. All mirrors are gathered into one extra
+// ruleset, `adn-allow`, written at the end of the build and enabled by the
+// extension at startup.
+//
+// Priorities (uBO gives 10 to block rules, 30 to `@@` exceptions, 40 to
+// `$important` blocks):
+//   10  block rule from an ad list        -> overridden by its adn-allow mirror
+//   20  adn-allow mirror
+//   30  block rule from a keep-block list -> still blocks (malware, badware...)
+//   40  `$important` block                -> still blocks
+//
+// Only plain (non-regex) block rules are mirrored, so regex blocks still block.
+// Every list in rulesets.json is mirrored, enabled or not.
+const ADN_ALLOW_PRIORITY = 20;
+const ADN_KEEP_BLOCK_PRIORITY = 30;
+
+// Lists whose block rules are NOT mirrored: these keep blocking in AdNauseam.
 const ADN_BLOCK_LIST_IDS = new Set([
     'adnauseam',          // AdNauseam filters
     'ublock-badware',     // uBlock filters – Badware risks
@@ -206,7 +224,34 @@ const ADN_BLOCK_LIST_IDS = new Set([
     'block-lan',          // Anti-LAN intrusion
     'annoyances-social',  // Social blocking (Anti-ThirdpartySocial / Fanboy Social)
 ]);
+
+// A mirror only covers request types that carry ads. Everything else (fonts,
+// stylesheets, websockets, pings, main frames...) stays blocked.
 const ADN_ALLOW_RESOURCE_TYPES = ['image', 'media', 'object', 'script', 'sub_frame', 'xmlhttprequest'];
+
+// The adn-allow mirror of one block rule: same condition, action flipped to
+// allow, priority raised, resource types narrowed to the ad-carrying ones.
+// Returns null when no ad-carrying type is left.
+function adnAllowRuleFromBlockRule(blockRule) {
+    const allowRule = JSON.parse(JSON.stringify(blockRule));
+    delete allowRule.id; // ids are assigned when the ruleset is written
+    allowRule.action = { type: 'allow' };
+    allowRule.priority = ADN_ALLOW_PRIORITY;
+    const condition = allowRule.condition ?? (allowRule.condition = {});
+    // types the block rule applies to (all of them when it names none)...
+    let types = condition.resourceTypes ?? ADN_ALLOW_RESOURCE_TYPES;
+    // ...kept only if they carry ads...
+    types = types.filter(t => ADN_ALLOW_RESOURCE_TYPES.includes(t));
+    // ...minus any the block rule explicitly excluded
+    if ( condition.excludedResourceTypes !== undefined ) {
+        const excluded = condition.excludedResourceTypes;
+        types = types.filter(t => excluded.includes(t) === false);
+        delete condition.excludedResourceTypes;
+    }
+    if ( types.length === 0 ) { return null; }
+    condition.resourceTypes = types;
+    return allowRule;
+}
 let networkBad = new Set();
 
 /******************************************************************************/
@@ -663,14 +708,10 @@ async function processDnrRules(assetDetails, network, dnrRules) {
     log(`\tUnsupported: ${bad.length}`);
     log(bad.map(rule => rule._error.map(v => `\t\t${v}`)).join('\n'), true);
 
-   ; // ADN: keep-block lists (malware/badware/etc.) must outrank adn-allow's
-    // allow rules (priority 20) so their blocks can never be overridden.
+    // ADN: keep-block lists must outrank the adn-allow mirrors
     if ( ADN_BLOCK_LIST_IDS.has(assetDetails.id) ) {
-        for ( const rule of staticRules ) {
-            if ( rule.action?.type === 'block' ) { rule.priority = 30; }
-        }
-        for ( const rule of regexRules ) {
-            if ( rule.action?.type === 'block' ) { rule.priority = 30; }
+        for ( const rule of [ ...staticRules, ...regexRules ] ) {
+            if ( rule.action?.type === 'block' ) { rule.priority = ADN_KEEP_BLOCK_PRIORITY; }
         }
     }
 
@@ -678,33 +719,18 @@ async function processDnrRules(assetDetails, network, dnrRules) {
         toJSONRuleset(minimizedStaticRuleset)
     );
 
-    // start of adn-allow ruleset processing
-		if ( ADN_BLOCK_LIST_IDS.has(assetDetails.id) === false ) {
-        const allowRules = [];
+    // ADN: switch this list's block rules to adn-allow rules
+    if ( ADN_BLOCK_LIST_IDS.has(assetDetails.id) === false ) {
+        let mirrored = 0;
         for ( const rule of staticRules ) {
             if ( rule.action?.type !== 'block' ) { continue; }
-            const cloned = JSON.parse(JSON.stringify(rule));
-            cloned.action = { type: 'allow' };
-            cloned.priority = 20;
-            delete cloned.id;
-            if ( cloned.condition === undefined ) { cloned.condition = {}; }
-            const existingTypes = cloned.condition.resourceTypes;
-            const excludedTypes = cloned.condition.excludedResourceTypes;
-            let resourceTypes = existingTypes !== undefined
-                ? existingTypes.filter(t => ADN_ALLOW_RESOURCE_TYPES.includes(t))
-                : [...ADN_ALLOW_RESOURCE_TYPES];
-            if ( excludedTypes !== undefined ) {
-                resourceTypes = resourceTypes.filter(t => !excludedTypes.includes(t));
-                delete cloned.condition.excludedResourceTypes;
-            }
-            if ( resourceTypes.length === 0 ) { continue; }
-            cloned.condition.resourceTypes = resourceTypes;
-            allowRules.push(cloned);
+            const allowRule = adnAllowRuleFromBlockRule(rule);
+            if ( allowRule === null ) { continue; }
+            adnAllowRules.push(allowRule);
+            mirrored += 1;
         }
-        adnAllowRules.push(...allowRules);
-        log(`\tadn-allow rules from ${assetDetails.id}: ${allowRules.length}`);
+        log(`\tadn-allow rules from ${assetDetails.id}: ${mirrored}`);
     }
-		// end of adn-allow ruleset processing
 
     if ( minimizedRegexRuleset.length !== 0 ) {
         writeFile(`${rulesetDir}/regex/${assetDetails.id}.json`,
