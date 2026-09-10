@@ -214,6 +214,7 @@ cp platform/mv3/*.js "$UBOL_BUILD_DIR"/
 cp platform/mv3/*.mjs "$UBOL_BUILD_DIR"/
 cp platform/mv3/extension/js/ubo-parser.js "$UBOL_BUILD_DIR"/js/
 cp platform/mv3/extension/js/utils.js "$UBOL_BUILD_DIR"/js/
+cp "$ADN_DIR"/src/lib/punycode.js "$UBOL_BUILD_DIR"/js/   # needed by ubo-parser.js (as upstream make-mv3.sh)
 cp -R "$ADN_DIR"/src/lib/regexanalyzer "$UBOL_BUILD_DIR"/js/
 cp -R "$ADN_DIR"/src/lib/regexanalyzer "$UBOL_BUILD_DIR"/
 cp -R "$ADN_DIR"/src/js/resources "$UBOL_BUILD_DIR"/js/

@@ -1748,6 +1748,9 @@ const adnauseam = (function () {
     let json, adhash, pageHash, msSinceFound, orig;
     const ad = request.ad;
 
+    // no page store (tab not bound yet, e.g. right after startup): nothing to attribute the ad to
+    if (!pageStore) return warn('[REGISTER] No pageStore for tab ' + tabId + ', ignoring ' + ad.targetUrl);
+
     ad.current = true;
     ad.attemptedTs = 0;
     ad.pageUrl = pageStore.rawURL;
