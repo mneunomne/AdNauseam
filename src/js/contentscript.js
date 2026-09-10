@@ -467,7 +467,7 @@ vAPI.SafeAnimationFrame = class {
 */
 
 // ADN: Dynamic hiding style based on showAdsDebug and hiddenSettings
-vAPI.hideStyle = 'display:none!important;'; // ADN - default, will be updated when showAdsDebug is fetched
+vAPI.hideStyle = 'position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;margin:0!important;padding:0!important;border:0!important;pointer-events:none!important;'; // ADN - default (must match hidingStyleNormal), updated when showAdsDebug is fetched
 vAPI.notHideStyle = '/*display:none!important;*/'; // ADN
 vAPI.showAdsDebug = false; // ADN
 
@@ -1417,14 +1417,29 @@ const bootstrapAdnTimer = new vAPI.SafeAnimationFrame(bootstrapPhaseAdn)
     //   an object -- let's stay around, we may be given the opportunity
     //   to try bootstrapping again later.
 
+    // adn: the background can't serve us while lists are (re)loading or the tab
+    // isn't bound to a page store yet, and uBO's own retry (should-inject-
+    // contentscript.js at startup) only reaches top frames. Try again a few
+    // times before giving up, so ad iframes on such pages still get scanned.
+    let bootstrapRetries = 0; // adn
+    const retryBootstrap = ( ) => { // adn
+        if ( self.vAPI instanceof Object === false ) { return false; }
+        if ( vAPI.bootstrap === undefined || bootstrapRetries >= 5 ) { return false; }
+        bootstrapRetries += 1;
+        vAPI.setTimeout(( ) => { vAPI?.bootstrap?.(); }, 2000 * bootstrapRetries);
+        return true;
+    }; // adn
+
     const onResponseReady = response => {
-        if ( response instanceof Object === false ) { return; }
+        if ( response instanceof Object === false ) { retryBootstrap(); return; } // adn
+        if ( vAPI.bootstrap === undefined ) { return; } // adn: a retry raced uBO's re-bootstrap
+        const cfeDetails = response.specificCosmeticFilters; // adn: read early for the retry
+        if ( (!cfeDetails || !cfeDetails.ready) && retryBootstrap() ) { return; } // adn
         vAPI.bootstrap = undefined;
 
         if (response && response.prefs) vAPI.prefs = response.prefs; // ADN
 
         // cosmetic filtering engine aka 'cfe'
-        const cfeDetails = response && response.specificCosmeticFilters;
         if ( !cfeDetails || !cfeDetails.ready ) {
             vAPI.domWatcher = vAPI.domCollapser = vAPI.domFilterer =
             vAPI.domSurveyor = vAPI.domIsLoaded = null;
