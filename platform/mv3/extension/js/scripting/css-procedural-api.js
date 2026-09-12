@@ -29,6 +29,9 @@ if ( self.ProceduralFiltererAPI !== undefined ) {
 
 /******************************************************************************/
 
+// adn: no layout space, but a 1px box so lazy-loaded ads still render and get collected
+const adnHideStyle = 'position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;margin:0!important;padding:0!important;border:0!important;pointer-events:none!important;'; // adn
+
 const nonVisualElements = {
     head: true,
     link: true,
@@ -591,7 +594,7 @@ class ProceduralFilterer {
         this.styleTokenMap = new Map();
         this.styledNodes = new Set();
         this.timer = undefined;
-        this.hideStyle = 'opacity:0!important;'; // ADN
+        this.hideStyle = adnHideStyle; // adn
     }
 
     async reset() {
@@ -806,7 +809,7 @@ self.ProceduralFiltererAPI = class {
                 return `${selector}\n{${style}}`;
             }
             if ( style === undefined ) {
-                return `@media ${mq} {\n${selector}\n{opacity:0!important;}\n}`; // ADN
+                return `@media ${mq} {\n${selector}\n{${adnHideStyle}}\n}`; // adn
             }
             return `@media ${mq} {\n${selector}\n{${style}}\n}`;
         };

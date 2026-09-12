@@ -689,8 +689,9 @@ const handleIncomingCookiesForAdVisits = function (details) {
 
             }
         }
-        // don't return an empty headers array
-        return modified && modified.length ? modified : null;
+        // blockIncomingCookies() returns a boolean; when it stripped a cookie the
+        // (in-place mutated) responseHeaders must be handed back so the browser drops it // adn
+        return modified ? details.responseHeaders : null; // adn
     }
 }
 

@@ -92,7 +92,7 @@ const hiddenSettingsDefault = {
     userResourcesLocation: 'unset',
     showAdsDebug: false, // Adn set "true" to show ads that can be potentially be collected #2136
     hidingStyleDebug: 'opacity:0!important;pointer-events:none!important;', // Adn style applied to hidden elements when showAdsDebug is true
-    hidingStyleNormal: 'display:none!important;', // Adn style applied to hidden elements normally (opacity:0!important;pointer-events:none!important;)
+    hidingStyleNormal: 'position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;margin:0!important;padding:0!important;border:0!important;pointer-events:none!important;', // Adn style applied to hidden elements normally: no layout space, but still a 1px box so lazy-loaded ads render and can be collected
     costPerClick: 1.03, // Adn https://github.com/dhowe/AdNauseam/issues/2131
     internalLinkDomains: internalLinkDomainsDefault.join(','), // Adn
 };

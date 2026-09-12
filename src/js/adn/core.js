@@ -657,7 +657,8 @@ const adnauseam = (function () {
     ad.attempts++;
     ad.attemptedTs = now;
 
-    if (!validateTarget(ad)) return deleteAd(ad);
+		// dont delete ad if target fails (content might still be valuable, contection issues etc)
+		if (!validateTarget(ad)) return warn('[SKIP] not visiting, invalid target: ' + ad.targetUrl); // adn
 
     return sendXhr(ad);
     // return openAdInNewTab(ad);
@@ -734,9 +735,11 @@ const adnauseam = (function () {
     ad.targetDomain = dInfo.domain;
 
     // Check: a slash at the end of the domain https://github.com/dhowe/AdNauseam/issues/1304
-
+    // ':' (port), '?' (query) and '#' (fragment) are also valid host terminators; without them a
+    // port turned "host:8642/x" into "host/:8642/x" and the visit failed // adn
     const idx = url.indexOf(ad.targetDomain) + ad.targetDomain.length;
-    if (idx < url.length - 1 && url.charAt(idx) != "/") {
+    const sep = url.charAt(idx); // adn
+    if (idx < url.length - 1 && sep !== "/" && sep !== ":" && sep !== "?" && sep !== "#") { // adn
       ad.targetUrl = url.substring(0, idx) + "/" + url.substring(idx, url.length);
     }
 
@@ -1744,6 +1747,9 @@ const adnauseam = (function () {
 
     let json, adhash, pageHash, msSinceFound, orig;
     const ad = request.ad;
+
+    // no page store (tab not bound yet, e.g. right after startup): nothing to attribute the ad to
+    if (!pageStore) return warn('[REGISTER] No pageStore for tab ' + tabId + ', ignoring ' + ad.targetUrl);
 
     ad.current = true;
     ad.attemptedTs = 0;

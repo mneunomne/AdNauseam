@@ -25,6 +25,9 @@
 // Isolate from global scope
 (function uBOL_cssGeneric() {
 
+// adn: no layout space, but a 1px box so lazy-loaded ads still render and get collected
+const adnHideStyle = 'position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;margin:0!important;padding:0!important;border:0!important;pointer-events:none!important;'; // adn
+
 const genericSelectorMaps = self.genericSelectorMaps ?? [];
 self.genericSelectorMaps = undefined;
 
@@ -190,7 +193,7 @@ const uBOL_processNodes = ( ) => {
     surveyMissCount = 0;
     styleSheetTimer = self.requestAnimationFrame(( ) => {
         styleSheetTimer = undefined;
-        self.cssAPI.insert(`${styleSheetSelectors}{opacity:0!important;}`); // ADN
+        self.cssAPI.insert(`${styleSheetSelectors}{${adnHideStyle}}`); // adn
     });
 };
 

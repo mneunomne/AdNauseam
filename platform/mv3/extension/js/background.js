@@ -142,16 +142,6 @@ import { adnauseam } from './adn/core.js';
 import { log } from './adn/log.js';
 import { startVisitQueue } from './adn/visitor.js';
 
-// ADN: cached hiding-style preference. 'opacity' keeps ads rendered and
-// collectable (default); 'display' uses display:none. Applied to all cosmetic
-// CSS as it passes through insertCSS/removeCSS.
-let adnHidingStyle = 'opacity';
-function applyHidingStyle(css) {
-    return adnHidingStyle === 'display'
-        ? css.replaceAll('opacity:0!important', 'display:none!important')
-        : css;
-}
-
 // ADN: per-site "strict" — block major ad-network requests on the listed sites
 // so fewer ads render there (adn-allow no longer wins). Collection and cosmetic
 // filtering keep running, so cosmetic-hidden (non-blocked) ads are still caught.
@@ -344,7 +334,7 @@ async function onMessage(request, sender) {
         // https://bugs.webkit.org/show_bug.cgi?id=262491
         if ( frameId !== 0 && webextFlavor === 'safari' ) { return; }
         return browser.scripting.insertCSS({
-            css: applyHidingStyle(request.css), // adn
+            css: request.css,
             origin: 'USER',
             target: { tabId, frameIds: [ frameId ] },
         }).catch(reason => {
@@ -356,7 +346,7 @@ async function onMessage(request, sender) {
         // https://bugs.webkit.org/show_bug.cgi?id=262491
         if ( frameId !== 0 && webextFlavor === 'safari' ) { return; }
         return browser.scripting.removeCSS({
-            css: applyHidingStyle(request.css), // adn
+            css: request.css,
             origin: 'USER',
             target: { tabId, frameIds: [ frameId ] },
         }).catch(reason => {
@@ -431,7 +421,6 @@ async function onMessage(request, sender) {
 				chrome.storage.local.get(['adnSettings'], data => {
 					const settings = Object.assign(data.adnSettings || {}, request.settings);
 					chrome.storage.local.set({ adnSettings: settings }, () => {
-						if ( settings.hidingStyle ) { adnHidingStyle = settings.hidingStyle; } // adn
 						resolve({ success: true });
 					});
 				});
@@ -948,7 +937,6 @@ async function startSession() {
 
 		// ADN: initialize core (loads admap from storage)
 		await adnauseam.ready();
-		adnHidingStyle = (await adnauseam.getSettings()).hidingStyle || 'opacity';
 		await applyStrictRules();
 		log('[ADN] Core initialized');
 

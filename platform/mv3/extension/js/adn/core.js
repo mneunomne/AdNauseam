@@ -734,8 +734,7 @@ async function getSettings() {
     showIconBadge: true,
     disableWarnings: false,
     blurCollectedAds: false,
-    costPerClick: 1.58,
-    hidingStyle: 'opacity'   // 'opacity' (clickable/collectable) | 'display' (display:none)
+    costPerClick: 1.58
   }, data.adnSettings || {});
 }
 

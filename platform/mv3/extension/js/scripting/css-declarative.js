@@ -25,6 +25,9 @@
 
 /******************************************************************************/
 
+// adn: no layout space, but a 1px box so lazy-loaded ads still render and get collected
+const adnHideStyle = 'position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;margin:0!important;padding:0!important;border:0!important;pointer-events:none!important;'; // adn
+
 const declarativeImports = self.declarativeImports || [];
 self.declarativeImports = undefined;
 
@@ -88,7 +91,7 @@ const cssRuleFromProcedural = details => {
         return `${selector}\n{${style}}`;
     }
     if ( style === undefined ) {
-        return `@media ${mq} {\n${selector}\n{opacity:0!important;}\n}`; // ADN
+        return `@media ${mq} {\n${selector}\n{${adnHideStyle}}\n}`; // adn
     }
     return `@media ${mq} {\n${selector}\n{${style}}\n}`;
 };
