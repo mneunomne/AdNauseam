@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AdNauseam: parser tests</title>
+<style>
+main {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+}
+.test {
+    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    font-family: monospace;
+}
+.fail {
+    background-color: #fcc;
+}
+.pass {
+    background-color: #cfc;
+}
+.test > div:first-of-type {
+    background-color: #eee;
+    padding: 0.5em;
+}
+.test > div:not(:first-of-type) {
+    padding: 0.25em;
+    white-space: pre-wrap;
+}
+</style>
+</head>
+<body>
+<h2>AdNauseam: parser tests</h2>
+<p id="summary" role="status"></p>
+<div id="fixture"></div>
+<main></main>
+
+<template id="test-result">
+    <div class="test">
+        <div></div>
+        <div></div>
+    </div>
+</template>
+
+<script type="module" src="./adn-parser-tests.js"></script>
+</body>
+</html>
