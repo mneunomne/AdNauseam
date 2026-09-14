@@ -328,7 +328,7 @@
       this.pageUrl = null;
     };
 
-    const REPROCESS_DELAY = 3000;
+    const REPROCESS_DELAY = 3000; // 3 seconds in milliseconds
     const processedElements = new WeakMap();
 
     const canProcess = function (elem) {
