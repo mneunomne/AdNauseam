@@ -630,17 +630,24 @@
 
       let src = el.getAttribute('poster');
 
-      if (!src || src.length < 1 ) {
+      if (!src?.trim()) {
         return;
       }
 
       if (src.indexOf('http') === 0) {
-        return; // do not internal ads for videos 
+        return; // do not internal ads for videos
       }
 
-      // do not collect video ads from same origin 
-      var url = new URL(src)
-      if (url && url.origin == window.location.origin) {
+      let url;
+      try {
+        url = new URL(src, el.baseURI);
+      } catch {
+        // Ignore malformed poster URLs.
+        return;
+      }
+
+      // do not collect video ads from same origin
+      if (url.origin === window.origin) {
         return;
       }
 
@@ -650,7 +657,7 @@
         return;
       }
 
-      return createImageAd(el, src, targetUrl);
+      return createImageAd(el, url.href, targetUrl);
     }
 
     const parseDomain = function (url, useLast) { // dup. in shared

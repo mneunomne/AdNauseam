@@ -504,31 +504,21 @@
       domain: /^.*startpage\.com/i
     }];
 
-    let cachedReferrer;
-    let referrerDomain;
-    let cachedDomain;
+    let cachedKey;
     let activeFilters = [];
 
     const checkFilters = function (elem) {
 
-      let domain;
-      if (parent !== window) {
-        const referrer = document.referrer;
-        if (referrer !== cachedReferrer) {
-          cachedReferrer = referrer;
-          referrerDomain = undefined;
-          try {
-            referrerDomain = parseDomain(referrer);
-          } catch {
-            // Ignore malformed referrers.
-          }
+      const inFrame = parent !== window;
+      const key = inFrame ? document.referrer : document.domain;
+      if (key !== cachedKey) {
+        cachedKey = key;
+        let domain;
+        try {
+          domain = inFrame ? parseDomain(key) : key;
+        } catch {
+          // Ignore malformed referrers.
         }
-        domain = referrerDomain;
-      } else {
-        domain = document.domain;
-      }
-      if (domain !== cachedDomain) {
-        cachedDomain = domain;
         activeFilters = filters.filter(f => f.domain.test(domain));
       }
 
