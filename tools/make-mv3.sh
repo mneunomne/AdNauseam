@@ -96,6 +96,7 @@ cp "$ADN_DIR"/src/js/i18n.js "$ADNL_DIR"/js/
 cp "$ADN_DIR"/src/js/jsonpath.js "$ADNL_DIR"/js/
 cp "$ADN_DIR"/src/js/redirect-resources.js "$ADNL_DIR"/js/
 cp "$ADN_DIR"/src/js/regex-analyzer.js "$ADNL_DIR"/js/offscreen/
+cp "$ADN_DIR"/src/js/trusted-tokens.js "$ADNL_DIR"/js/
 cp -R "$ADN_DIR"/src/js/resources "$ADNL_DIR"/js/
 cp "$ADN_DIR"/src/js/static-filtering-parser.js "$ADNL_DIR"/js/
 cp "$ADN_DIR"/src/js/urlskip.js "$ADNL_DIR"/js/
@@ -216,8 +217,8 @@ cp platform/mv3/extension/js/ubo-parser.js "$UBOL_BUILD_DIR"/js/
 cp platform/mv3/extension/js/utils.js "$UBOL_BUILD_DIR"/js/
 cp "$ADN_DIR"/src/lib/punycode.js "$UBOL_BUILD_DIR"/js/   # needed by ubo-parser.js (as upstream make-mv3.sh)
 cp -R "$ADN_DIR"/src/lib/regexanalyzer "$UBOL_BUILD_DIR"/js/
-cp -R "$ADN_DIR"/src/lib/regexanalyzer "$UBOL_BUILD_DIR"/
 cp -R "$ADN_DIR"/src/js/resources "$UBOL_BUILD_DIR"/js/
+cp "$ADN_DIR"/src/js/trusted-tokens.js "$UBOL_BUILD_DIR"/js/
 cp -R platform/mv3/scriptlets "$UBOL_BUILD_DIR"/
 cp -R platform/mv3/extension/js/offscreen "$UBOL_BUILD_DIR"/js/
 cp "$ADN_DIR"/src/js/regex-analyzer.js "$UBOL_BUILD_DIR"/js/offscreen/

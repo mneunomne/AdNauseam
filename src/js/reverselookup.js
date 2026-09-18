@@ -130,6 +130,7 @@ const fromNetFilter = async function(rawFilter) {
         trustedSource: true,
         maxTokenLength: staticNetFilteringEngine.MAX_TOKEN_LENGTH,
         nativeCssHas: vAPI.webextFlavor.env.includes('native_css_has'),
+        canFilterResponseBody: µb.canFilterResponseData,
     });
     parser.parse(rawFilter);
 
@@ -167,6 +168,7 @@ const fromExtendedFilter = async function(details) {
     const parser = new sfp.AstFilterParser({
         trustedSource: true,
         nativeCssHas: vAPI.webextFlavor.env.includes('native_css_has'),
+        canFilterResponseBody: µb.canFilterResponseData,
     });
     parser.parse(details.rawFilter);
     let needle;
