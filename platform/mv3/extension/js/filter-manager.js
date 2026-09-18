@@ -35,11 +35,9 @@ import {
 } from './utils.js';
 
 import { ubolErr } from './debug.js';
+import { adnHideStyle } from './adn/hide-style.js'; // adn
 
 /******************************************************************************/
-
-// adn: no layout space, but a 1px box so lazy-loaded ads still render and get collected
-const adnHideStyle = 'position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;margin:0!important;padding:0!important;border:0!important;pointer-events:none!important;'; // adn
 
 const isProcedural = a => a.startsWith('{');
 const isCSS = a => isProcedural(a) === false && isScriptlet(a) === false;

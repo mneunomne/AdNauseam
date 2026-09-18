@@ -584,14 +584,20 @@
   // (by targetUrl/src) stops the same creative being stored twice.
   const REPROCESS_DELAY = 3000;
 
+  // Timestamps live in a WeakMap, not a DOM attribute: writing an attribute can
+  // trip the page's own MutationObserver into rebuilding nodes, which re-triggers
+  // our scan, which writes the attribute again (see dhowe/AdNauseam#2847). Weak
+  // keys let removed elements be garbage-collected.
+  const processedElements = new WeakMap();
+
   function canProcess(element) {
-    const last = element.getAttribute('process-adn');
-    if (!last) return true;
-    return (Date.now() - parseInt(last, 10)) >= REPROCESS_DELAY;
+    const last = processedElements.get(element);
+    if (last === undefined) return true;
+    return (Date.now() - last) >= REPROCESS_DELAY;
   }
 
   function markProcessed(element) {
-    element.setAttribute('process-adn', Date.now().toString());
+    processedElements.set(element, Date.now());
   }
 
   // Process elements matching cosmetic filters

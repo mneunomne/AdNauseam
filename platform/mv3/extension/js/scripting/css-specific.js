@@ -25,9 +25,6 @@
 
 /******************************************************************************/
 
-// adn: no layout space, but a 1px box so lazy-loaded ads still render and get collected
-const adnHideStyle = 'position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;margin:0!important;padding:0!important;border:0!important;pointer-events:none!important;'; // adn
-
 const specificImports = self.specificImports || [];
 self.specificImports = undefined;
 
@@ -153,7 +150,7 @@ if ( since > 1 ) {
 const { s, p } = cacheEntry;
 
 if ( s.length !== 0 ) {
-    self.cssAPI.insert(`${s.join(',\n')}{${adnHideStyle}}`); // adn
+    self.cssAPI.insert(`${s.join(',\n')}{display:none!important;}`);
     const adnSet = (self.adnAdSelectors ||= new Set()); // adn: expose ad selectors to parser
     for ( const sel of s ) { adnSet.add(sel); } // adn
 }
