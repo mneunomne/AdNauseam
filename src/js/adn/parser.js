@@ -328,17 +328,22 @@
       this.pageUrl = null;
     };
 
-    const REPROCESS_DELAY = 3000; // 10 seconds in milliseconds
+    const REPROCESS_DELAY = 3000; // 3 seconds in milliseconds
+    const processedElements = new WeakMap();
 
     const canProcess = function (elem) {
-      const lastProcessed = elem.getAttribute('process-adn');
-      if (!lastProcessed) return true;
-      const elapsed = Date.now() - parseInt(lastProcessed, 10);
+      const lastProcessed = processedElements.get(elem);
+      if (lastProcessed === undefined) return true;
+      const elapsed = Date.now() - lastProcessed;
       return elapsed >= REPROCESS_DELAY;
     }
 
     const markProcessed = function (elem) {
-      elem.setAttribute('process-adn', Date.now().toString());
+      processedElements.set(elem, Date.now());
+    }
+
+    const resetProcessed = function (elem) {
+      return processedElements.delete(elem);
     }
 
     const processImage = function (img) {
@@ -625,17 +630,24 @@
 
       let src = el.getAttribute('poster');
 
-      if (!src || src.length < 1 ) {
+      if (!src?.trim()) {
         return;
       }
 
       if (src.indexOf('http') === 0) {
-        return; // do not internal ads for videos 
+        return; // do not internal ads for videos
       }
 
-      // do not collect video ads from same origin 
-      var url = new URL(src)
-      if (url && url.origin == window.location.origin) {
+      let url;
+      try {
+        url = new URL(src, el.baseURI);
+      } catch {
+        // Ignore malformed poster URLs.
+        return;
+      }
+
+      // do not collect video ads from same origin
+      if (url.origin === window.origin) {
         return;
       }
 
@@ -645,7 +657,7 @@
         return;
       }
 
-      return createImageAd(el, src, targetUrl);
+      return createImageAd(el, url.href, targetUrl);
     }
 
     const parseDomain = function (url, useLast) { // dup. in shared
@@ -717,12 +729,11 @@
       if (!canProcess(elem)) {
         return;
       }
-      markProcessed(elem);
-
       var tagName = elem.tagName
 
       switch (tagName) {
         case 'IFRAME':
+          markProcessed(elem);
           elem.addEventListener('load', processIFrame, false);
         break;
         case 'AMP-IMG':
@@ -735,10 +746,12 @@
         break;
         case 'BODY':
         case 'HTML':
+          markProcessed(elem);
           // If element is body/html don't check children, it doens't make sense to check the whole document
           findBgImage(elem);
         break;
         default:
+          markProcessed(elem);
           var found = false
           const imgs = elem.querySelectorAll(imgSelectors.join(', '));
           if (imgs.length) {
@@ -1091,6 +1104,7 @@
     
     return {
       process: process,
+      resetProcessed: resetProcessed,
       createAd: createAd,
       notifyAddon: notifyAddon,
       useShadowDOM: useShadowDOM,

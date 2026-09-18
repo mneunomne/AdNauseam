@@ -916,18 +916,18 @@ vAPI.DOMFilterer = class {
                 if ( node.localName === 'iframe' ) {
                     addIFrame(node);
                 }
-                // remove process-adn attri, allowing for parsing again #2236
-                node.removeAttribute('process-adn')
+                // Reset processed state, allowing for parsing again #2236
+                const adParser = vAPI.adParser;
+                adParser?.resetProcessed(node);
                 // ADN: If node was added inside a previously-processed container,
-                // clear the ancestor's process-adn so it gets reprocessed
+                // clear the ancestor's processed state so it gets reprocessed
                 let ancestor = node.parentElement;
                 while ( ancestor && ancestor !== document.body ) {
-                    if ( ancestor.hasAttribute('process-adn') ) {
+                    if ( adParser?.resetProcessed(ancestor) ) {
                         if ( vAPI.prefs && vAPI.prefs.logEvents ) {
-                            console.log('[ADN-MUTATION] Ancestor changed, clearing process-adn for reprocessing:',
+                            console.log('[ADN-MUTATION] Ancestor changed, reprocessing:',
                                 ancestor.tagName, ancestor.id || ancestor.className);
                         }
-                        ancestor.removeAttribute('process-adn');
                         vAPI.adCheck && vAPI.adCheck(ancestor);
                         break;
                     }
