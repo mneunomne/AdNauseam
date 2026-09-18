@@ -94,9 +94,10 @@
     
 
     const getSrcFromAttribute = function (attribute) {
-      let src = attribute.match(/\((.*?)\)/);
-      if (src && src.length > 1) src = src[1].replace(/('|")/g, '');
-      return src
+      // only a url(...) is an image: a gradient's "(0deg, rgb(255, 255, 255"
+      // used to be captured here and collected as an ad with no image
+      const src = attribute.match(/url\((['"]?)(.*?)\1\)/);
+      return src && src[2];
     }
 
     // Parse srcset attribute and return the best (largest) image URL

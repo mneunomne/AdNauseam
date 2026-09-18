@@ -129,6 +129,29 @@ QUnit.test('New image ads inside an already scanned container are still collecte
     assert.strictEqual(win.testAds[0]?.contentData.src, image.src, 'Collected ad uses the dynamically added image');
 });
 
+QUnit.test('A gradient background is not collected as an image ad', async function(assert) {
+    const { win, doc } = await fixture();
+    const link = doc.createElement('a');
+    link.href = 'https://ads.example/landing';
+    const gradient = doc.createElement('div');
+    gradient.style.cssText = 'width:300px;height:250px;background:linear-gradient(0deg, rgb(255, 255, 255) 0%, rgb(0, 0, 0) 100%)';
+    link.append(gradient);
+    doc.body.append(link);
+    win.vAPI.adCheck(gradient);
+    assert.strictEqual(win.testAds.length, 0, 'Gradient-only background yields no ad');
+
+    const { image } = await adImage(win, doc);
+    const banner = doc.createElement('div');
+    banner.style.cssText = 'width:300px;height:250px;background-image:linear-gradient(0deg, rgb(255, 255, 255) 0%, rgb(0, 0, 0) 100%), url("' + image.src + '")';
+    const bannerLink = doc.createElement('a');
+    bannerLink.href = 'https://ads.example/banner';
+    bannerLink.append(banner);
+    doc.body.append(bannerLink);
+    win.vAPI.adCheck(banner);
+    assert.strictEqual(win.testAds.length, 1, 'Background with a url() is still collected');
+    assert.strictEqual(win.testAds[0]?.contentData.src, image.src, 'The url() is used, not the gradient arguments');
+});
+
 QUnit.test('Nearby script source is not used as an image ad title', async function(assert) {
     const { win, doc } = await fixture();
     const container = doc.createElement('div');
