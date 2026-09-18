@@ -138,6 +138,7 @@ import { toggleToolbarIcon } from './action.js';
 // ADN imports 
 
 // Import AdNauseam modules
+import { adnHideCSS } from './adn/hide-style.js';
 import { adnauseam } from './adn/core.js';
 import { log } from './adn/log.js';
 import { startVisitQueue } from './adn/visitor.js';
@@ -334,7 +335,7 @@ async function onMessage(request, sender) {
         // https://bugs.webkit.org/show_bug.cgi?id=262491
         if ( frameId !== 0 && webextFlavor === 'safari' ) { return; }
         return browser.scripting.insertCSS({
-            css: request.css,
+            css: adnHideCSS(request.css), // adn
             origin: 'USER',
             target: { tabId, frameIds: [ frameId ] },
         }).catch(reason => {
@@ -346,7 +347,7 @@ async function onMessage(request, sender) {
         // https://bugs.webkit.org/show_bug.cgi?id=262491
         if ( frameId !== 0 && webextFlavor === 'safari' ) { return; }
         return browser.scripting.removeCSS({
-            css: request.css,
+            css: adnHideCSS(request.css), // adn
             origin: 'USER',
             target: { tabId, frameIds: [ frameId ] },
         }).catch(reason => {
