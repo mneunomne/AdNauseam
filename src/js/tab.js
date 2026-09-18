@@ -1110,9 +1110,8 @@ vAPI.tabs = new vAPI.Tabs();
         const pageStore = µb.pageStoreFromTabId(tabId);
         let pageDomain = pageStore ? domainFromHostname(pageStore.tabHostname) : null; // ADN;
 
-        count = adnauseam.currentCount(pageStore.rawURL); // ADN
-        
         if ( pageStore !== null ) {
+            count = adnauseam.currentCount(pageStore.rawURL); // ADN
             state = pageStore.getNetFilteringSwitch() ? 1 : 0;
             isStrict = pageStore.getIsPageStrictBlocked() ? 1 : 0 // ADN
             if ( state === 1 ) {

@@ -2001,8 +2001,9 @@ const adnauseam = (function () {
     // parse response
     const latestRelease = await response.json();
     const latestVersion = latestRelease.tag_name.replace('v', '');    
-    // compare versions
-    if (version < latestVersion) {
+    // compare versions numerically, as strings "3.28.11" < "3.28.8"
+    const toInt = vAPI.app.intFromVersion;
+    if (toInt(version) < toInt(latestVersion)) {
       // if browser is chrome
       console.log("vAPI.webextFlavor.soup", vAPI.webextFlavor.soup)
       if (vAPI.webextFlavor.soup.has('chromium') && !vAPI.webextFlavor.soup.has('edge')) {
