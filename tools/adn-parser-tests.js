@@ -129,6 +129,28 @@ QUnit.test('New image ads inside an already scanned container are still collecte
     assert.strictEqual(win.testAds[0]?.contentData.src, image.src, 'Collected ad uses the dynamically added image');
 });
 
+QUnit.test('Nearby script source is not used as an image ad title', async function(assert) {
+    const { win, doc } = await fixture();
+    const container = doc.createElement('div');
+    const { image, link } = await adImage(win, doc);
+    image.removeAttribute('alt');
+    container.append(link);
+    const config = doc.createElement('div');
+    config.innerHTML = '<script>window["cnftData"]={"d":{"wh":"N29EZ2lUc3E4OFVTNHJyQkcwX054cGFma3JnLzIwOTU2Mzk2NTc6OTcweDI1MA==","wd":970}};</script>';
+    container.append(config);
+    const hidden = doc.createElement('div');
+    hidden.style.display = 'none';
+    hidden.innerHTML = '<div><script>var hidden = 1;</script></div>';
+    container.append(hidden);
+    const label = doc.createElement('p');
+    label.textContent = 'Advertisement';
+    container.append(label);
+    doc.body.append(container);
+    win.vAPI.adCheck(image);
+    assert.strictEqual(win.testAds.length, 1, 'Image ad next to script blocks is collected');
+    assert.strictEqual(win.testAds[0]?.title, 'Advertisement', 'Title skips script source and uses the nearby label');
+});
+
 QUnit.test('Same-origin video posters are ignored in srcdoc frames', async function(assert) {
     const { win, doc } = await fixture();
     assert.strictEqual(win.location.origin, 'null', 'srcdoc location reports a null origin');

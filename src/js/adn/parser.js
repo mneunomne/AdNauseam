@@ -270,10 +270,28 @@
       const MAX_LEN = 100;
       const SKIP_TAGS = new Set(['IMG', 'VIDEO', 'CANVAS', 'PICTURE', 'SVG', 'IFRAME', 'SCRIPT', 'STYLE', 'NOSCRIPT']);
 
+      // Text of a node minus the SKIP_TAGS subtrees. innerText would do this for a
+      // rendered node, but it is empty when the node holds only a <script>, and
+      // equals textContent (script source included) when the node is hidden.
+      const nodeText = function (node) {
+        const walker = node.ownerDocument.createTreeWalker(node,
+          NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+            acceptNode: function (n) {
+              if (n.nodeType === Node.TEXT_NODE) return NodeFilter.FILTER_ACCEPT;
+              return SKIP_TAGS.has(n.tagName) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_SKIP;
+            }
+          });
+        let text = '';
+        while (walker.nextNode()) {
+          text += walker.currentNode.nodeValue + ' ';
+        }
+        return text.trim().replace(/\s+/g, ' ');
+      };
+
       const extractText = function (node) {
         if (!node || node.nodeType !== Node.ELEMENT_NODE) return '';
         if (SKIP_TAGS.has(node.tagName)) return '';
-        const text = (node.innerText || node.textContent || '').trim().replace(/\s+/g, ' ');
+        const text = nodeText(node);
         if (text.length < MIN_LEN) return '';
         // Recurse into children to find the first specific text leaf,
         // avoiding concatenation of unrelated sibling texts (e.g. heading + provider).
