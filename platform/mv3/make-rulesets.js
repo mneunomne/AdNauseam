@@ -229,6 +229,11 @@ const ADN_BLOCK_LIST_IDS = new Set([
 // stylesheets, websockets, pings, main frames...) stays blocked.
 const ADN_ALLOW_RESOURCE_TYPES = ['image', 'media', 'object', 'script', 'sub_frame', 'xmlhttprequest'];
 
+// `ubol-filters` on the command line turns all of the above off: no AdNauseam
+// list, no priority change, no adn-allow. The rulesets are then exactly the
+// ones uBO Lite builds, to tell what AdNauseam's filters change from the rest.
+const ADN_UBOL_FILTERS = commandLineArgs.has('ubol-filters');
+
 // The adn-allow mirror of one block rule: same condition, action flipped to
 // allow, priority raised, resource types narrowed to the ad-carrying ones.
 // Returns null when no ad-carrying type is left.
@@ -709,7 +714,7 @@ async function processDnrRules(assetDetails, network, dnrRules) {
     log(bad.map(rule => rule._error.map(v => `\t\t${v}`)).join('\n'), true);
 
     // ADN: keep-block lists must outrank the adn-allow mirrors
-    if ( ADN_BLOCK_LIST_IDS.has(assetDetails.id) ) {
+    if ( ADN_UBOL_FILTERS === false && ADN_BLOCK_LIST_IDS.has(assetDetails.id) ) {
         for ( const rule of [ ...staticRules, ...regexRules ] ) {
             if ( rule.action?.type === 'block' ) { rule.priority = ADN_KEEP_BLOCK_PRIORITY; }
         }
@@ -720,7 +725,7 @@ async function processDnrRules(assetDetails, network, dnrRules) {
     );
 
     // ADN: switch this list's block rules to adn-allow rules
-    if ( ADN_BLOCK_LIST_IDS.has(assetDetails.id) === false ) {
+    if ( ADN_UBOL_FILTERS === false && ADN_BLOCK_LIST_IDS.has(assetDetails.id) === false ) {
         let mirrored = 0;
         for ( const rule of staticRules ) {
             if ( rule.action?.type !== 'block' ) { continue; }
@@ -1262,6 +1267,7 @@ async function main() {
 
     for ( const ruleset of rulesets ) {
         if ( ruleset.excludedPlatforms?.includes(platform) ) { continue; }
+        if ( ADN_UBOL_FILTERS && ruleset.id === 'adnauseam' ) { continue; } // adn
         await rulesetFromURLs(ruleset);
     }
 

@@ -34,6 +34,9 @@ for i in "$@"; do
     before=+([[:print:]]))
       BEFORE="${i:7}"
       ;;
+    ubol-filters) # adn: rulesets exactly as uBO Lite builds them, to compare blocking
+      UBOL_FILTERS="ubol-filters"
+      ;;
   esac
 done
 
@@ -42,6 +45,9 @@ echo "TAGNAME=$TAGNAME"
 echo "BEFORE=$BEFORE"
 
 ADNL_DIR="dist/build/ADNLite.$PLATFORM"
+if [ -n "$UBOL_FILTERS" ]; then # adn: keep the regular build untouched
+    ADNL_DIR="$ADNL_DIR.ubol-filters"
+fi
 
 if [ "$PLATFORM" = "edge" ]; then
     MANIFEST_DIR="chromium"
@@ -227,7 +233,7 @@ cp "$ADN_DIR"/src/web_accessible_resources/* "$UBOL_BUILD_DIR"/web_accessible_re
 cp -R platform/mv3/"$PLATFORM" "$UBOL_BUILD_DIR"/
 
 cd "$UBOL_BUILD_DIR"
-node --no-warnings make-rulesets.js output="$ADNL_DIR" platform="$PLATFORM"
+node --no-warnings make-rulesets.js output="$ADNL_DIR" platform="$PLATFORM" $UBOL_FILTERS
 if [ -n "$BEFORE" ]; then
     echo "*** AdnauseamLite.mv3: salvaging rule ids to minimize diff size"
     echo "    before=$BEFORE/$PLATFORM"
