@@ -13,7 +13,7 @@
 
 *******************************************************************************/
 
-export const adnHideStyle = 'display:block!important;height:1px!important;opacity:0!important;clip:rect(0 0 0 0)!important;margin:0!important;padding:0!important;border:0!important;pointer-events:none!important;';
+export const adnHideStyle = 'display:block!important;height:1px!important;min-height:1px!important;opacity:0!important;clip:rect(0 0 0 0)!important;margin:0!important;padding:0!important;border:0!important;pointer-events:none!important;';
 
 const ubolHideRule = '{display:none!important;}';
 
