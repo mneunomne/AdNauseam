@@ -106,6 +106,7 @@ const adnauseam = (function () {
   let lastUserActivity = 0;
   let lastStorageUpdate = 0;
   let xhr, idgen, admap, listsLoaded = false;
+  let verifying = false; // true while verifyTarget() is pending for a visit
   let inspected, listEntries, devbuild, adsetSize = 0;
 
   const production = 1;
@@ -628,6 +629,8 @@ const adnauseam = (function () {
       });
     }
 
+    if (verifying) return; // still verifying the previous target
+
     const url = ad && ad.targetUrl, now = markActivity();
 
     // tell menu/vault we have a new attempt
@@ -660,15 +663,21 @@ const adnauseam = (function () {
 		// dont delete ad if target fails (content might still be valuable, contection issues etc)
 		if (!validateTarget(ad)) return warn('[SKIP] not visiting, invalid target: ' + ad.targetUrl); // adn
 
-    return sendXhr(ad);
+    // if we've parsed an obfuscated target, use it
+    const target = ad.parsedTargetUrl || ad.targetUrl;
+
+    // only visit what we have verified to be a public target, see #2848
+    verifying = true;
+    verifyTarget(target).then(ok => {
+      verifying = false;
+      if (!ok) return warn('[SKIP] not visiting, non-public target: ' + target);
+      sendXhr(ad, target);
+    });
     // return openAdInNewTab(ad);
     // return popUnderAd(ad)
   };
 
-  const sendXhr = function (ad) {
-
-    // if we've parsed an obfuscated target, use it
-    const target = ad.parsedTargetUrl || ad.targetUrl;
+  const sendXhr = function (ad, target) {
 
     log('[TRYING] ' + adinfo(ad), ad.targetUrl);
 
@@ -744,6 +753,69 @@ const adnauseam = (function () {
     }
 
     return true;
+  }
+
+  // names that only exist on a local network, see #2848
+  const reLocalHostname = /(^|\.)(localhost|local|localdomain|lan|home|corp|internal|intranet|private|home\.arpa)$/;
+
+  // True for addresses an ad visit must never reach: loopback, private,
+  // link-local (incl. cloud metadata), cgnat, multicast and reserved ranges
+  const isLocalAddress = function (ip) {
+
+    ip = ip.toLowerCase();
+
+    if (ip.includes(':')) { // ipv6
+
+      const mapped = /^::ffff:(?:(\d+\.\d+\.\d+\.\d+)|([\da-f]{1,4}):([\da-f]{1,4}))$/.exec(ip);
+
+      // unspecified, loopback, unique-local (fc/fd), link-local (fe) and multicast (ff)
+      if (!mapped) return ip === '::' || ip === '::1' || /^f[c-f]/.test(ip);
+
+      if (mapped[1]) {
+        ip = mapped[1]; // ::ffff:127.0.0.1
+      } else {
+        const hi = parseInt(mapped[2], 16), lo = parseInt(mapped[3], 16); // ::ffff:7f00:1
+        ip = [hi >> 8, hi & 255, lo >> 8, lo & 255].join('.');
+      }
+    }
+
+    const [a, b, c] = ip.split('.').map(Number);
+
+    return a === 0 || a === 10 || a === 127 || a >= 224 ||
+      (a === 100 && b >= 64 && b <= 127) ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 192 && b === 0 && c === 0) ||
+      (a === 198 && (b === 18 || b === 19));
+  }
+
+  // Resolves to true only if the url is safe to visit: plain http(s), with a
+  // public hostname which (where we can check) resolves to public addresses
+  const verifyTarget = async function (url) {
+
+    try {
+
+      const parsed = new URL(url); // same parser the xhr will use
+
+      if (!/^https?:$/.test(parsed.protocol) || parsed.username || parsed.password) return false;
+
+      const hostname = parsed.hostname.replace(/\.+$/, '');
+
+      // no ip literals (URL normalizes every notation), single-label or local names
+      if (/^[\d.]+$|^\[/.test(hostname) || !hostname.includes('.') || reLocalHostname.test(hostname)) return false;
+
+      // no dns api (chromium), or lookups disabled by the user: the name is all we can check
+      if (browser.dns instanceof Object === false || µb.hiddenSettings.dnsResolveEnabled === false) return true;
+
+      const record = await browser.dns.resolve(hostname);
+
+      return record.addresses.length > 0 && !record.addresses.some(isLocalAddress);
+
+    } catch (e) {
+
+      return false; // unparseable or unresolvable
+    }
   }
 
   const domainInfo = function (url) { // via uBlock/psl
