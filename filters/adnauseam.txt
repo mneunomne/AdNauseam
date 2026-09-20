@@ -50,6 +50,7 @@ spiegel.de##div[id*="google_ads_iframe"]
 spiegel.de##div[class*="Anzeige"]
 
 www.nytimes.com##[id^=story-ad]
+www.nytimes.com##div:has(> [data-testid="StandardAd"])
 
 @@||sb.scorecardresearch.com^$script
 
