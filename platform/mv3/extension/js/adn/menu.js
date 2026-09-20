@@ -46,17 +46,50 @@ function sendMessage(msg) {
 /******************************************************************************/
 // Stats
 
+const i18n$ = (...args) => chrome.i18n.getMessage(...args);
+
+// Mirrors setCounts() in MV2 menu.js: the counts go into the localized
+// templates ("clicked {{number}}" / "{{count}} Ads detected") rather than
+// being written out as bare numbers.
+async function setCounts(clicked, total) {
+  $('#visited').textContent = i18n$('adnMenuAdsClicked').replace('{{number}}', clicked);
+  $('#found').textContent = i18n$('adnMenuAdsDetected').replace('{{count}}', total);
+  const vaultCount = $('#vault-count');
+  if (vaultCount) {
+    vaultCount.textContent = total || 0;
+  }
+  await setCost(clicked);
+  adjustStatCSS();
+}
+
+// Mirrors setCost() in MV2 adn-utils.js.
+async function setCost(clicked) {
+  const west = $('#worth-estimate');
+  if (clicked > 0) {
+    const costPerClick = await sendMessage({ what: 'getCostPerClick' }) || 0;
+    west.textContent = '= $' + (clicked * costPerClick).toFixed(2);
+    $$('.cost').forEach(el => el.classList.remove('hidden'));
+  } else {
+    west.textContent = '';
+    $$('.cost').forEach(el => el.classList.add('hidden'));
+  }
+}
+
+// Mirrors adjustStatCSS() in MV2 menu.js: keeps the now-longer stats line
+// from pushing the header onto a second row.
+function adjustStatCSS() {
+  const wrapper = $('#stats .wrapper');
+  if (wrapper && wrapper.clientHeight > 20) {
+    wrapper.style.float = 'right';
+    wrapper.style.marginLeft = '-25px';
+  }
+}
+
 async function updateStats() {
   try {
     const stats = await sendMessage({ what: 'getAdNauseamStats' });
     if (stats) {
-      $('#visited').textContent = stats.totalClicks || 0;
-      $('#found').textContent = stats.totalAds || 0;
-      const count = stats.totalAds || 0;
-      const vaultCount = $('#vault-count');
-      if (vaultCount) {
-        vaultCount.textContent = count > 0 ? count : '';
-      }
+      await setCounts(stats.totalClicks || 0, stats.totalAds || 0);
     }
   } catch (e) {
     console.warn('[ADN Menu] Stats error:', e);
@@ -87,11 +120,8 @@ async function renderAdList() {
         showingRecent = !!result.recent;
 
         // Update stats from page response too (includes global totals)
-        if (result.total !== undefined) {
-          $('#found').textContent = result.total;
-        }
-        if (result.clicked !== undefined) {
-          $('#visited').textContent = result.clicked;
+        if (result.total !== undefined && result.clicked !== undefined) {
+          await setCounts(result.clicked, result.total);
         }
       }
     }
