@@ -1,13 +1,9 @@
 # Generics (any page)
 ##iframe[src*="mellowads"]
 ##iframe[id^=openwrap-ad-]
-##*[class*="Advert"]
-##*[class*="teads-"]
 ###gwd-ad
 ##ins.adsbygoogle
 ##.mv-ad-box
-##iframe[src*="4dsbanner"]
-##img[src*="digiadsply"]
 ##.bstn-ad-rail--expanded.bstn-ad-rail
 
 # Generic exceptions
