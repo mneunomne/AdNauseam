@@ -610,6 +610,7 @@ opensubtitles.org###fcninnerbox
 # Twitch
 ||innovid.com^$important
 ||pubads.g.doubleclick.net/gampad/ads$important,xmlhttprequest,domain=imasdk.googleapis.com
+||pagead2.googlesyndication.com/gampad/ads$important,xmlhttprequest,domain=imasdk.googleapis.com
 ||gcdn.2mdn.net/videoplayback^$important
 
 ||cdn.dynamicyield.com/api/*/api_static.js^$important

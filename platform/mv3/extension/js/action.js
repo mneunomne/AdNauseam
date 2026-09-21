@@ -58,6 +58,26 @@ function enableToolbarIcon(tabId) {
     browser.action.setIcon(details);
 }
 
+// adn: red icon, strict mode applies to the tab
+export function strictToolbarIcon(tabId) {
+    browser.action.setIcon({
+        path: {
+            '16': '/img/icon_16_strict.png',
+            '32': '/img/icon_32_strict.png',
+        },
+        tabId,
+    });
+}
+
+// adn: back to the icon the tab would have without strict mode
+export function resetToolbarIcon(tabId) {
+    if ( reverseMode ) {
+        disableToolbarIcon(tabId);
+    } else {
+        enableToolbarIcon(tabId);
+    }
+}
+
 /******************************************************************************/
 
 export function toggleToolbarIcon(tabId) {
