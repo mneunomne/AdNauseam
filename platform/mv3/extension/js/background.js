@@ -21,6 +21,7 @@
 
 import {
     MODE_BASIC,
+    MODE_NONE, // adn
     MODE_OPTIMAL,
     defaultFilteringModes,
     getDefaultFilteringMode,
@@ -87,6 +88,7 @@ import {
 import {
     enableRulesets,
     excludeFromStrictBlock,
+    getAdnStrictSites, // adn
     getDefaultRulesetsFromEnv,
     getEffectiveUserRules,
     getEnabledRulesets,
@@ -94,7 +96,9 @@ import {
     getRulesetDetails,
     getRulesetRules,
     patchDefaultRulesets,
+    setAdnStrictSite, // adn
     setStrictBlockMode,
+    updateAdnStrictRules, // adn
     updateDynamicAndSessionRules,
     updateSessionRules,
     updateUserRules,
@@ -134,7 +138,11 @@ import { deferredTasks } from './deferred-tasks.js';
 import { dnr } from './ext-compat.js';
 import { setPopupBlockMode } from './prevent-popup.js';
 import { supportsOffscreenDocument } from './ext-offscreen.js';
-import { toggleToolbarIcon } from './action.js';
+import {
+    resetToolbarIcon, // adn
+    strictToolbarIcon, // adn
+    toggleToolbarIcon,
+} from './action.js';
 
 // ADN imports 
 
@@ -144,45 +152,40 @@ import { adnauseam } from './adn/core.js';
 import { log } from './adn/log.js';
 import { startVisitQueue } from './adn/visitor.js';
 
-// ADN: per-site "strict" — block major ad-network requests on the listed sites
-// so fewer ads render there (adn-allow no longer wins). Collection and cosmetic
-// filtering keep running, so cosmetic-hidden (non-blocked) ads are still caught.
-// One session rule at priority 25 (above adn-allow's 20, below malware's 30),
-// scoped to the strict pages via initiatorDomains. Dedicated id keeps it clear
-// of uBOL's own session rules.
-const ADN_STRICT_RULE_ID = 900001;
-const ADN_AD_DOMAINS = [
-    'doubleclick.net', 'googlesyndication.com', 'googleadservices.com',
-    'amazon-adsystem.com', 'adnxs.com', 'rubiconproject.com', 'pubmatic.com',
-    'criteo.com', 'criteo.net', 'taboola.com', 'outbrain.com', 'adsrvr.org',
-    'casalemedia.com', 'openx.net', '3lift.com', 'sharethrough.com',
-    'smartadserver.com', 'scorecardresearch.com', 'moatads.com', 'adform.net',
-    'teads.tv', 'mediago.io', 'bidswitch.net', 'yieldmo.com', 'gumgum.com',
-    'indexww.com', 'adsafeprotected.com',
-];
+// ADN: strict mode = on a strict site, block what uBO Lite blocks instead of
+// letting ads load. Dynamic rules outrank `adn-allow` on the tabs showing a
+// strict site, see updateAdnStrictRules() in ruleset-manager.js.
 
-async function applyStrictRules() {
-    const data = await chrome.storage.local.get('adnStrictSites');
-    const sites = data.adnStrictSites || [];
-    const addRules = [];
-    if ( sites.length !== 0 ) {
-        addRules.push({
-            id: ADN_STRICT_RULE_ID,
-            priority: 25,
-            action: { type: 'block' },
-            condition: {
-                initiatorDomains: sites,
-                requestDomains: ADN_AD_DOMAINS,
-                resourceTypes: [
-                    'script', 'sub_frame', 'xmlhttprequest', 'image', 'media', 'object',
-                ],
-            },
-        });
+// Strict sites are hostnames, and apply to their subdomains too
+async function isStrictHostname(hostname) {
+    const sites = await getAdnStrictSites();
+    for ( let hn = hostname; hn !== ''; ) {
+        if ( sites.includes(hn) ) { return true; }
+        const pos = hn.indexOf('.');
+        hn = pos !== -1 ? hn.slice(pos + 1) : '';
     }
-    await dnr.updateSessionRules({
-        removeRuleIds: [ ADN_STRICT_RULE_ID ],
-        addRules,
-    }).catch(reason => ubolErr(`applyStrictRules/${reason}`));
+    return false;
+}
+
+// Red toolbar icon where strict mode applies. The browser forgets a tab's
+// icon at each navigation, hence this is called for every tab update.
+async function updateStrictToolbarIcon(tab, reset = false) {
+    let hostname = '';
+    try { hostname = new URL(tab.url).hostname; } catch { }
+    if ( hostname === '' ) { return; }
+    if ( await getFilteringMode(hostname) === MODE_NONE ) { return; }
+    if ( await isStrictHostname(hostname) ) {
+        strictToolbarIcon(tab.id);
+    } else if ( reset ) {
+        resetToolbarIcon(tab.id);
+    }
+}
+
+async function updateStrictToolbarIcons() {
+    const tabs = await browser.tabs.query({});
+    for ( const tab of tabs ) {
+        updateStrictToolbarIcon(tab, true);
+    }
 }
 
 
@@ -525,27 +528,17 @@ async function onMessage(request, sender) {
 			return { enabled: rulesetConfig.adnAllowEnabled };
 		}
 
+		// Strict mode on one website
 		case 'setAdnStrict': {
-			const { hostname, enabled } = request;
-			return new Promise(resolve => {
-				chrome.storage.local.get('adnStrictSites', data => {
-					const set = new Set(data.adnStrictSites || []);
-					if ( enabled ) { set.add(hostname); } else { set.delete(hostname); }
-					chrome.storage.local.set({ adnStrictSites: Array.from(set) }, async () => {
-						await applyStrictRules();
-						resolve({ success: true });
-					});
-				});
-			});
+			if ( request.hostname === 'all-urls' ) { return { success: false }; }
+			const result = await setAdnStrictSite(request.hostname, request.enabled);
+			updateStrictToolbarIcons();
+			return { success: result?.error === undefined, error: result?.error };
 		}
 
 		case 'getAdnStrict': {
-			return new Promise(resolve => {
-				chrome.storage.local.get('adnStrictSites', data => {
-					const sites = data.adnStrictSites || [];
-					resolve({ enabled: sites.includes(request.hostname) });
-				});
-			});
+			const sites = await getAdnStrictSites();
+			return { enabled: sites.includes(request.hostname) };
 		}
 		// end of ADN cases
     default:
@@ -958,7 +951,6 @@ async function startSession() {
 
 		// ADN: initialize core (loads admap from storage)
 		await adnauseam.ready();
-		await applyStrictRules();
 		log('[ADN] Core initialized');
 
 		// ADN: start the ad visit queue
@@ -995,7 +987,9 @@ async function startSession() {
     // "[Dynamic] rules persist across sessions and extension updates"
     // "[Session] rules do not persist across browser sessions"
     if ( isNewVersion ) {
-        updateDynamicAndSessionRules();
+        updateDynamicAndSessionRules().then(( ) =>
+            updateAdnStrictRules() // adn: the rulesets changed with the version
+        );
     } else {
         updateSessionRules();
     }
@@ -1145,7 +1139,10 @@ browser.commands.onCommand.addListener((...args) => {
 // ads-collected count doesn't linger on a page that has no ads yet. The count
 // re-populates as the content script reports ads for the new page. `status` is
 // non-sensitive, so this works without the "tabs" permission.
-browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
+browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if ( changeInfo.status !== undefined || changeInfo.url !== undefined ) {
+        isFullyInitialized.then(( ) => updateStrictToolbarIcon(tab)); // adn: strict mode icon
+    }
     if ( changeInfo.status !== 'loading' ) { return; }
     adnauseam.clearBadge(tabId);
 });

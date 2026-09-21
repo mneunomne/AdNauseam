@@ -409,6 +409,168 @@ async function clearSessionRules() {
 
 /******************************************************************************/
 
+// adn: per-site strict mode
+//
+// On a strict site AdNauseam must block what uBO Lite blocks. The `adn-allow`
+// ruleset (priority 20) is what lets ads load, so for the strict sites every
+// block/redirect rule it can outrank is registered again as a dynamic rule:
+// above adn-allow, below uBO Lite's strict-block rules (29) and exceptions
+// (30), in the same relative order. `topDomains` scopes the copies to the tabs
+// showing a strict site, whichever frame sends the request.
+//
+// Regex rules are left out: uBO Lite's own rules already fill the regex quota.
+// Global strict mode needs none of this, it disables `adn-allow` itself.
+
+const ADN_STRICT_BASE_RULE_ID = 6000000;
+const ADN_STRICT_LAST_RULE_ID = 6999999;
+const ADN_ALLOW_PRIORITY = 20;
+const ADN_STRICT_PRIORITIES = 8; // 21..28
+
+const isAdnStrictRule = rule =>
+    rule.id >= ADN_STRICT_BASE_RULE_ID && rule.id <= ADN_STRICT_LAST_RULE_ID;
+
+const isUnsafeRule = rule =>
+    rule.action.type === 'redirect' || rule.action.type === 'modifyHeaders';
+
+// `dnr.RuleConditionKeys` can't tell: Chromium 144 enforces `topDomains`
+// without exposing that key. Ask the API, with a rule which matches nothing.
+async function adnSupportsTopDomains() {
+    if ( adnSupportsTopDomains.result !== undefined ) {
+        return adnSupportsTopDomains.result;
+    }
+    const rule = {
+        id: ADN_STRICT_LAST_RULE_ID,
+        action: { type: 'block' },
+        condition: {
+            requestDomains: [ 'adn-strict.invalid' ],
+            topDomains: [ 'adn-strict.invalid' ],
+        },
+    };
+    adnSupportsTopDomains.result = await dnr.updateSessionRules({
+        addRules: [ rule ],
+    }).then(( ) =>
+        dnr.updateSessionRules({ removeRuleIds: [ rule.id ] })
+    ).then(( ) => true, ( ) => false);
+    return adnSupportsTopDomains.result;
+}
+
+// The rules of the enabled rulesets which adn-allow can outrank
+async function adnStrictRulesFromRulesets(hostnames) {
+    const rulesetDetails = await getEnabledRulesetsDetails(true);
+    const toFetch = [];
+    for ( const details of rulesetDetails ) {
+        if ( details.rules.plain === 0 ) { continue; }
+        toFetch.push(fetchJSON(`/rulesets/main/${details.id}`));
+    }
+    const rulesets = await Promise.all(toFetch);
+    const outranked = [];
+    for ( const rules of rulesets ) {
+        if ( Array.isArray(rules) === false ) { continue; }
+        for ( const rule of rules ) {
+            const { type } = rule.action;
+            if ( type !== 'block' && type !== 'redirect' ) { continue; }
+            if ( (rule.priority ?? 1) >= ADN_ALLOW_PRIORITY ) { continue; }
+            if ( rule.condition.regexFilter !== undefined ) { continue; }
+            outranked.push(rule);
+        }
+    }
+    // Same relative order as the original priorities, above adn-allow
+    const priorities = Array.from(
+        new Set(outranked.map(a => a.priority ?? 1))
+    ).sort((a, b) => a - b);
+    return outranked.map(rule => {
+        const rank = priorities.indexOf(rule.priority ?? 1);
+        return {
+            action: rule.action,
+            condition: Object.assign({}, rule.condition, { topDomains: hostnames }),
+            priority: ADN_ALLOW_PRIORITY + 1 + Math.min(rank, ADN_STRICT_PRIORITIES - 1),
+        };
+    });
+}
+
+async function getAdnStrictSites() {
+    return await localRead('adnStrictSites') || [];
+}
+
+async function updateAdnStrictRules() {
+    const [ currentRules, hostnames ] = await Promise.all([
+        dnr.getDynamicRules(),
+        getAdnStrictSites(),
+    ]);
+    const removeRuleIds = [];
+    const otherRules = [];
+    for ( const rule of currentRules ) {
+        if ( isAdnStrictRule(rule) ) {
+            removeRuleIds.push(rule.id);
+        } else {
+            otherRules.push(rule);
+        }
+    }
+
+    const response = {};
+    let strictRules = [];
+    if ( hostnames.length !== 0 ) {
+        if ( await adnSupportsTopDomains() ) {
+            strictRules = await adnStrictRulesFromRulesets(hostnames);
+        } else {
+            response.error = 'Per-site strict mode needs a browser supporting topDomains';
+            ubolErr(`updateAdnStrictRules/${response.error}`);
+        }
+    }
+
+    // Stay within what is left of the dynamic rules quotas
+    let maxRules = (dnr.MAX_NUMBER_OF_DYNAMIC_RULES || 5000) - otherRules.length;
+    let maxUnsafeRules = (dnr.MAX_NUMBER_OF_UNSAFE_DYNAMIC_RULES || 5000) -
+        otherRules.filter(isUnsafeRule).length;
+    const addRules = [];
+    for ( const rule of strictRules ) {
+        if ( maxRules <= 0 ) { break; }
+        if ( isUnsafeRule(rule) ) {
+            if ( maxUnsafeRules <= 0 ) { continue; }
+            maxUnsafeRules -= 1;
+        }
+        maxRules -= 1;
+        rule.id = ADN_STRICT_BASE_RULE_ID + addRules.length;
+        addRules.push(rule);
+    }
+    const droppedRuleCount = strictRules.length - addRules.length;
+    if ( droppedRuleCount !== 0 ) {
+        response.dropped = droppedRuleCount;
+        ubolLog(`Too many strict rules, ${droppedRuleCount} dropped`);
+    }
+
+    if ( addRules.length === 0 && removeRuleIds.length === 0 ) { return response; }
+
+    // Removed first, separately: a rejected rule must not leave the old
+    // strict sites in place.
+    try {
+        await dnr.updateDynamicRules({ removeRuleIds });
+        await dnr.updateDynamicRules({ addRules });
+        ubolLog(`Strict sites: ${hostnames.join(' ') || 'none'} / ${addRules.length} dynamic DNR rules`);
+        response.added = addRules.length;
+    } catch(reason) {
+        ubolErr(`updateAdnStrictRules/${reason}`);
+        response.error = `${reason}`;
+    }
+    return response;
+}
+
+async function setAdnStrictSite(hostname, state) {
+    if ( typeof hostname !== 'string' || hostname === '' ) { return; }
+    const hostnames = new Set(await getAdnStrictSites());
+    if ( state ) {
+        hostnames.add(hostname);
+    } else {
+        hostnames.delete(hostname);
+    }
+    await localWrite('adnStrictSites', Array.from(hostnames));
+    return updateAdnStrictRules();
+}
+
+// adn: end of per-site strict mode
+
+/******************************************************************************/
+
 async function filteringModesToDNR(modes) {
     const noneHostnames = new Set([ ...modes.none ]);
     const notNoneHostnames = new Set([ ...modes.basic, ...modes.optimal, ...modes.complete ]);
@@ -677,6 +839,7 @@ async function enableRulesets(ids) {
         if ( result?.error ) {
             response.error ||= result.error;
         }
+        await updateAdnStrictRules(); // adn: strict sites follow the enabled rulesets
         response.changed = true;
     }
 
@@ -827,9 +990,12 @@ export {
     enableRulesets,
     excludeFromStrictBlock,
     filteringModesToDNR,
+    getAdnStrictSites, // adn
     getEffectiveUserRules,
     getEnabledRulesetsDetails,
+    setAdnStrictSite, // adn
     setStrictBlockMode,
+    updateAdnStrictRules, // adn
     updateSessionRules,
     updateUserRules,
 };
