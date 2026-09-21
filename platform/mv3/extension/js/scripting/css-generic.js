@@ -41,6 +41,7 @@ const maxSurveyNodeSlice = 64;
 const seenHashes = new Set();
 const pendingHashes = new Set();
 const pendingSelectors = [];
+const adnStyleSheetSelectors = []; // adn: selectors waiting for the next frame
 const stopAllRatio = 0.95; // To be investigated
 
 let surveyCount = 0;
@@ -186,11 +187,15 @@ const uBOL_processNodes = ( ) => {
     }
     const adnSet = (self.adnAdSelectors ||= new Set()); // ADN: expose ad selectors to parser
     for ( const s of styleSheetSelectors.split(',\n') ) { adnSet.add(s); } // ADN
+    // adn: these selectors are already marked as seen, so they must be kept
+    // when a frame is still pending, or the elements are never hidden
+    adnStyleSheetSelectors.push(styleSheetSelectors); // adn
     if ( styleSheetTimer !== undefined ) { return; }
     surveyMissCount = 0;
     styleSheetTimer = self.requestAnimationFrame(( ) => {
         styleSheetTimer = undefined;
-        self.cssAPI.insert(`${styleSheetSelectors}{display:none!important;}`);
+        const selectors = adnStyleSheetSelectors.splice(0).join(',\n'); // adn
+        self.cssAPI.insert(`${selectors}{display:none!important;}`); // adn
     });
 };
 
