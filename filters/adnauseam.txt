@@ -580,6 +580,7 @@ opensubtitles.org###fcninnerbox
 ||adnxs.com^
 ||revsci.net^
 ||pubmatic.com/
+||scripts.pubnation.com^
 ||gravity.com^*/beacons/
 /mbox.orig.js^$important
 /tacoda.^$important
@@ -920,3 +921,7 @@ developer.mozilla.org##mdn-placement-bottom
 # https://www.nexusmods.com
 www.nexusmods.com##.md\:flex.py-2.bg-surface-low.border-stroke-subdued.border-b.gap-x-4.justify-center.items-center.hidden
 www.nexusmods.com##.py-2.bg-surface-low.border-stroke-subdued.border-y.gap-x-4.justify-center.items-center.flex
+
+# fix ads on sciencedaily.com
+sciencedaily.com##.adhesion_wrapper
+sciencedaily.com###universalPlayer_wrapper
