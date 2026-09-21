@@ -232,8 +232,11 @@ mkdir -p "$UBOL_BUILD_DIR"/web_accessible_resources
 cp "$ADN_DIR"/src/web_accessible_resources/* "$UBOL_BUILD_DIR"/web_accessible_resources/
 cp -R platform/mv3/"$PLATFORM" "$UBOL_BUILD_DIR"/
 
+# adn: the AdNauseam list is read from this repo, not from the download cache
+ADN_LIST="$(cd "$ADN_DIR" && pwd)/filters/adnauseam.txt"
+
 cd "$UBOL_BUILD_DIR"
-node --no-warnings make-rulesets.js output="$ADNL_DIR" platform="$PLATFORM" $UBOL_FILTERS
+node --no-warnings make-rulesets.js output="$ADNL_DIR" platform="$PLATFORM" adnauseam="$ADN_LIST" $UBOL_FILTERS
 if [ -n "$BEFORE" ]; then
     echo "*** AdnauseamLite.mv3: salvaging rule ids to minimize diff size"
     echo "    before=$BEFORE/$PLATFORM"

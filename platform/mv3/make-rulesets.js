@@ -319,6 +319,18 @@ rePatternFromUrlFilter.restrHostnameAnchor2 = '^[^:]+://([^:/]+)?';
 
 async function fetchListFromCache(assetDetails) {
     const fname = assetDetails.id;
+
+    // adn: the AdNauseam list is read from the repo being built, so that a
+    // build has the filters of its own commit. (Cached lists never expire, and
+    // the download is whatever the remote master branch holds.)
+    const adnListPath = commandLineArgs.get('adnauseam');
+    if ( fname === 'adnauseam' && adnListPath ) {
+        logProgress(`Reading ${adnListPath}`);
+        const text = await fs.readFile(adnListPath, { encoding: 'utf8' });
+        log(`\tRead local ${adnListPath}`);
+        return `!#trusted on ${secret}\n${text.trim()}\n!#trusted off ${secret}`;
+    } // adn
+
     logProgress(`Reading locally cached ${platform}/${fname}`);
 
     const content = await fs.readFile(`${cacheDir}/${platform}/${fname}`,
@@ -714,9 +726,15 @@ async function processDnrRules(assetDetails, network, dnrRules) {
     log(bad.map(rule => rule._error.map(v => `\t\t${v}`)).join('\n'), true);
 
     // ADN: keep-block lists must outrank the adn-allow mirrors
+    // The minimized rules are the ones written below. minimizeRuleset() has
+    // stripped properties (e.g. resourceTypes) from `staticRules`/`regexRules`,
+    // which must not be used past this point.
     if ( ADN_UBOL_FILTERS === false && ADN_BLOCK_LIST_IDS.has(assetDetails.id) ) {
-        for ( const rule of [ ...staticRules, ...regexRules ] ) {
-            if ( rule.action?.type === 'block' ) { rule.priority = ADN_KEEP_BLOCK_PRIORITY; }
+        for ( const rule of [ ...minimizedStaticRuleset, ...minimizedRegexRuleset ] ) {
+            if ( rule.action?.type !== 'block' ) { continue; }
+            // raise only: `$important` blocks (40) must stay above exceptions
+            if ( (rule.priority ?? 1) >= ADN_KEEP_BLOCK_PRIORITY ) { continue; }
+            rule.priority = ADN_KEEP_BLOCK_PRIORITY;
         }
     }
 
@@ -727,7 +745,7 @@ async function processDnrRules(assetDetails, network, dnrRules) {
     // ADN: switch this list's block rules to adn-allow rules
     if ( ADN_UBOL_FILTERS === false && ADN_BLOCK_LIST_IDS.has(assetDetails.id) === false ) {
         let mirrored = 0;
-        for ( const rule of staticRules ) {
+        for ( const rule of minimizedStaticRuleset ) {
             if ( rule.action?.type !== 'block' ) { continue; }
             const allowRule = adnAllowRuleFromBlockRule(rule);
             if ( allowRule === null ) { continue; }
