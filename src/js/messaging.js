@@ -748,7 +748,7 @@ const retrieveContentScriptParameters = async function(sender, request) {
         )
     ) {
         await vAPI.tabs.executeScript(tabId, {
-            allFrames: true, // adn
+            allFrames: false,
             file: '/js/contentscript-extra.js',
             frameId,
             matchAboutBlank: true,
@@ -917,7 +917,7 @@ const onMessage = function(request, sender, callback) {
     // type-in custom filters.
     case 'elementPickerArguments':
         return vAPI.tabs.executeScript(sender.tabId, {
-            allFrames: true, // adn
+            allFrames: false,
             file: '/js/contentscript-extra.js',
             frameId: sender.frameId,
             matchAboutBlank: true,
