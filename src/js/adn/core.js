@@ -694,6 +694,7 @@ const adnauseam = (function () {
       xhr.open('get', target, true);
       xhr.withCredentials = true;
       xhr.delegate = ad;
+      xhr.visitHostname = new URL(target).hostname; // how isLocalVisit() knows the visit
       xhr.timeout = visitTimeout;
       xhr.onload = onVisitResponse;
       xhr.onerror = onVisitError;
@@ -797,6 +798,12 @@ const adnauseam = (function () {
       (a === 198 && (b === 18 || b === 19));
   }
 
+  // no ip literals (URL normalizes every notation), single-label or local names
+  const isPublicHostname = function (hostname) {
+
+    return !(/^[\d.]+$|^\[/.test(hostname) || !hostname.includes('.') || reLocalHostname.test(hostname));
+  }
+
   // Resolves to true only if the url is safe to visit: plain http(s), with a
   // public hostname which (where we can check) resolves to public addresses
   const verifyTarget = async function (url) {
@@ -809,8 +816,7 @@ const adnauseam = (function () {
 
       const hostname = parsed.hostname.replace(/\.+$/, '');
 
-      // no ip literals (URL normalizes every notation), single-label or local names
-      if (/^[\d.]+$|^\[/.test(hostname) || !hostname.includes('.') || reLocalHostname.test(hostname)) return false;
+      if (!isPublicHostname(hostname)) return false;
 
       // no dns api (chromium), or lookups disabled by the user: the name is all we can check
       if (browser.dns instanceof Object === false || µb.hiddenSettings.dnsResolveEnabled === false) return true;
@@ -1660,6 +1666,32 @@ const adnauseam = (function () {
   exports.mustAllowRequest = function (result, context) {
     return result !== 0 && !isBlockableRequest(result, context);
   };
+
+  // Called for every behind-the-scene request. True if the request is part of the
+  // visit in progress, the target or a redirect (the xhr follows those on its own),
+  // and is not for a public host, see #2848
+  exports.isLocalVisit = function (details, fctxt) {
+
+    if (!xhr || !xhr.delegate) return false; // not visiting
+
+    // a visit starts on the host we have verified, its redirects keep the same requestId
+    if (xhr.visitId === undefined && fctxt.getHostname() === xhr.visitHostname) {
+      xhr.visitId = details.requestId;
+    }
+
+    if (xhr.visitId !== details.requestId) return false; // some other request
+
+    const hostname = fctxt.getHostname().replace(/\.+$/, '');
+
+    // firefox: uBO has resolved the name by now, unless a proxy does the dns
+    const addresses = fctxt.getIPAddress().split('\n').filter(ip => ip !== '');
+
+    if (isPublicHostname(hostname) && !addresses.some(isLocalAddress)) return false;
+
+    warn('[BLOCK] ad visit to non-public host: ' + details.url);
+
+    return true;
+  }
 
   exports.itemInspected = function (request, pageStore, tabId) {
 

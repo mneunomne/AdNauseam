@@ -236,6 +236,11 @@ function onBeforeRequest(details) {
         return onBeforeRootFrameRequest(fctxt);
     }
 
+    // ADN: an ad visit, or any of its redirects, must never reach a local host, see #2848
+    if ( details.tabId < 0 && adnauseam.isLocalVisit(details, fctxt) ) { // adn
+        return { cancel: true };
+    } // adn
+
     // ADN: return here (AFTER onPageLoad) if prefs say not to block
     if (µb.userSettings.blockingMalware === false) return;
 
