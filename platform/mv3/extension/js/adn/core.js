@@ -24,7 +24,7 @@
 
 import { log, warn, err } from './log.js';
 import {
-  type, computeHash, parseDomain, isValidDomain,
+  type, computeHash, parseDomain, domainFromHostname, isValidDomain,
   internalLinkDomainsDefault, YaMD5, formatCount
 } from './adn-utils.js';
 
@@ -312,11 +312,12 @@ function removeAdFromMap(ad) {
   return false;
 }
 
-// Check if target is internal to page domain
+// Check if target is internal to page domain #337
+// Compare registrable domains, as MV2 does, so privacidade.globo.com is internal on g1.globo.com
 function internalTarget(ad) {
   if (ad.contentType === 'text') return false;
   const domainOfTarget = parseDomain(ad.targetUrl, true);
-  return domainOfTarget === ad.pageDomain;
+  return domainFromHostname(domainOfTarget) === domainFromHostname(ad.pageDomain);
 }
 
 /******************************************************************************/
@@ -471,7 +472,7 @@ async function registerAd(ad, tab) {
   if (!validate(ad)) return warn('[ADN] Invalid ad', ad);
 
   // Check internal targets
-  if (!internalLinkDomainsDefault.includes(ad.pageDomain) && internalTarget(ad)) {
+  if (!internalLinkDomainsDefault.includes(domainFromHostname(ad.pageDomain)) && internalTarget(ad)) {
     return warn('[ADN INTERN] Ignoring Ad on ' + ad.pageDomain + ', target: ' + ad.targetUrl);
   }
 

@@ -378,6 +378,18 @@ export const parseDomain = function (url, useLast) {
   }
 };
 
+// Registrable domain of a hostname
+const reIPAddressNaive = /^\d+\.\d+\.\d+\.\d+$|^\[[\da-f:]+\]$/i;
+const reGenericSecondLevel = /^(co|com|net|org|gov|edu|ac|or|ne|go)$/;
+
+export const domainFromHostname = function (hostname) {
+  if (!hostname || reIPAddressNaive.test(hostname)) return hostname;
+  const labels = hostname.split('.');
+  const tld = labels[labels.length - 1], sld = labels[labels.length - 2];
+  const keep = tld.length === 2 && reGenericSecondLevel.test(sld) ? 3 : 2;
+  return labels.slice(-keep).join('.');
+};
+
 export const isValidDomain = function (v) {
   const re = /^(?!:\/\/)([a-zA-Z0-9-]+\.){0,5}[a-zA-Z0-9-][a-zA-Z0-9-]+\.[a-zA-Z]{2,64}?$/gi;
   return v ? re.test(v) : false;
