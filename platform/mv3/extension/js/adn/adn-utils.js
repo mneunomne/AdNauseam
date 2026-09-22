@@ -280,7 +280,7 @@ export const YaMD5 = MD5;
 
 // targets on these domains are never internal
 export const internalLinkDomainsDefault = [
-  'google.com', 'asiaxpat.com', 'nytimes.com',
+  'google.com', 'asiaxpat.com',
   'columbiagreenemedia.com', '163.com', 'sohu.com', 'zol.com.cn', 'baidu.com',
   'yahoo.com', 'facebook.com', 'flashback.org',
   'amazon.ae', 'amazon.ca', 'amazon.cn', 'amazon.co.jp', 'amazon.co.uk',

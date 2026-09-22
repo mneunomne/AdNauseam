@@ -29,7 +29,7 @@ import uDom from './uDom.js';
 /**************************** exports *********************************/
 
 // targets on these domains are never internal (may need to be regex)
-export const internalLinkDomainsDefault = ['google.com', 'asiaxpat.com', 'nytimes.com',
+export const internalLinkDomainsDefault = ['google.com', 'asiaxpat.com'
 'columbiagreenemedia.com', '163.com', 'sohu.com', 'zol.com.cn', 'baidu.com',
 'yahoo.com', 'facebook.com', 'flashback.org',
 "amazon.ae","amazon.ca","amazon.cn","amazon.co.jp","amazon.co.uk","amazon.com","amazon.com.au","amazon.com.be","amazon.com.br","amazon.com.mx","amazon.com.tr","amazon.de","amazon.eg","amazon.es","amazon.fr","amazon.in","amazon.it","amazon.nl","amazon.pl","amazon.sa","amazon.se","amazon.sg",
