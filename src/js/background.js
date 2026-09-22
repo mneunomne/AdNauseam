@@ -27,7 +27,7 @@ import {
     originFromURI,
 } from './uri-utils.js';
 
-import { internalLinkDomainsDefault } from './adn/adn-utils.js'; // adn 
+import { internalLinkDomainsDefault, enabledBlockListsDefault } from './adn/adn-utils.js'; // adn 
 import { FilteringContext } from './filtering-context.js';
 import logger from './logger.js';
 import { ubologSet } from './console.js';
@@ -121,6 +121,7 @@ const userSettingsDefault = {
     hideDeadAds: false,
 
     clickingExceptions: '', // ADN: newline-separated domain list for per-site click control
+    enabledBlockLists: enabledBlockListsDefault.slice(), // ADN: asset keys of the lists whose blocks are kept, toggled on the filter-lists page
     clickOnlyWhenIdleFor: 0,
     noIncomingCookies: true,
     noOutgoingCookies: false,

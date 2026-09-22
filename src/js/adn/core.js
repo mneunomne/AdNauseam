@@ -52,7 +52,6 @@ import {
   logNetEvent
 } from './log.js';
 
-import { i18n$ } from '../i18n.js';
 
 import {
   DNTAllowed,
@@ -127,23 +126,8 @@ const adnauseam = (function () {
   // blocks requests to/from these domains even if the list is not in enabledBlockLists
   const allowAnyBlockOnDomains = ['youtube.com', 'funnyordie.com']; // no dnt in here
 
-  // allow blocks only from this set of lists (recheck this)
-  const enabledBlockLists = [
-    'uBlock filters – Badware risks', 'uBlock filters – Unbreak', 
-    'Malware domains', 'Malware Domain List','Anti-ThirdpartySocial', 
-    'AdNauseam filters', 'Spam404', 'Anti-Adblock Killer | Reek',
-    'Fanboy’s Social Blocking List', 'Malware domains (long-lived)',
-    'Adblock Warning Removal List', 'Malware filter list by Disconnect',
-    'Basic tracking list by Disconnect', 'EFF DNT Policy Whitelist', 
-		'AdGuard – Cookie Notices', 'uBlock filters – Cookie Notices',
-		'EasyList – AI Widgets', 'EasyList – Chat Widgets',
-		'EasyList – Newsletter Notices','EasyList – Notifications',
-		'EasyList – Other Annoyances','AdGuard – Mobile App Banners',
-		'AdGuard – Other Annoyances','AdGuard – Popup Overlays',
-		'AdGuard – Widgets', 'uBlock filters – Annoyances',
-		'EasyList/uBO – Cookie Notices', 'AdGuard/uBO – Cookie Notices',
-		'EasyList – Cookie Notices'
-  ];
+  // blocks are kept only from the lists in µb.userSettings.enabledBlockLists (asset
+  // keys, toggled per list on the filter-lists page), see activeBlockList()
 
   const removableBlockLists = ['hphosts', 'mvps-0', 'plowe-0'];
 
@@ -1240,11 +1224,10 @@ const adnauseam = (function () {
     storeAdData();
   };
 
-  const activeBlockList = function (test) {
-    // either from the enabledBlockedLists, or if it matches "My Filter". \
-    // OR added because of previous where "My Filters" didn't match the other language names this value can have
-    // https://github.com/dhowe/AdNauseam/issues/1914
-    return enabledBlockLists.contains(test) || test === i18n$('1pPageName');
+  // true if blocks from this list (an asset key) are kept, see the enabledBlockLists
+  // setting; "My filters" always blocks, whatever its localized title, see #1914
+  const activeBlockList = function (listKey) {
+    return listKey === µb.userFiltersPath || µb.userSettings.enabledBlockLists.includes(listKey);
   };
 
   // check target domain against page-domain #337
@@ -1304,9 +1287,7 @@ const adnauseam = (function () {
         continue;
       }
 
-      if (lists[entry.title] == undefined) {
-        lists[entry.title] = compiledFilter;
-      }
+      lists[path] = compiledFilter; // keyed by asset key, titles change and are localized
 
     }
     return lists;
@@ -1398,19 +1379,19 @@ const adnauseam = (function () {
     }
 
     let misses = [];
-    for (let name in lists) {
-      if (activeBlockList(name)) {
+    for (let listKey in lists) {
+      if (activeBlockList(listKey)) {
         // Check if this rule is an allow-rule, if yes, then don't block
-        if (lists[name].indexOf('@@') === 0) {                              // 4.B
-          logNetAllow(name, snfeData.raw, context.url);
+        if (lists[listKey].indexOf('@@') === 0) {                           // 4.B
+          logNetAllow(listKey, snfeData.raw, context.url);
           return false;
         }
         // this a block rule from a blockEnabledList, so we don't need to block the cookies ourselves, uBlock already does that
-        logNetBlock(name, snfeData.raw, context.url);                       // 4.C
+        logNetBlock(listKey, snfeData.raw, context.url);                    // 4.C
         return true; // blocked, no need to continue
       }
       else {
-        if (!misses.contains(name)) misses.push(name); // [save misses for 4.D]
+        if (!misses.contains(listKey)) misses.push(listKey); // [save misses for 4.D]
       }
     }
     // Adds the request url to the allowedExceptions list, later used to know which cookies need to be block by AdNauseam
@@ -1655,6 +1636,18 @@ const adnauseam = (function () {
     removableBlockLists.forEach(function (l) {
       delete lists[l];
     });
+  };
+
+  // Called from the filter-lists page: keep the blocks of one list (red icon) or
+  // turn them into adn-allows (purple icon), applied at once and saved
+  exports.toggleBlockList = function (request) {
+
+    const current = µb.userSettings.enabledBlockLists;
+    const lists = current.filter(key => key !== request.listKey);
+    if (lists.length === current.length) lists.push(request.listKey);
+    µb.changeUserSettings('enabledBlockLists', lists);
+
+    return { enabledBlockLists: lists };
   };
 
   exports.adsForVault = function (request, pageStore, tabId) {

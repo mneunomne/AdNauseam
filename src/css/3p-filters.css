@@ -236,6 +236,20 @@ li.listEntry span.status {
 #lists .iconbar .cache {
     cursor: pointer;
     }
+/* ADN: the icon next to each list, red = its blocks are kept, purple = they become adn-allows */
+#lists .listEntry.checked > .detailbar .iconbar .adnBlock {
+    color: var(--adn-purple);
+        fill: var(--adn-purple);
+    cursor: pointer;
+    display: inline-flex;
+    }
+#lists .listEntry.checked.blockEnabled > .detailbar .iconbar .adnBlock {
+    color: var(--adn-red);
+        fill: var(--adn-red);
+    }
+#lists .listEntry[data-key="user-filters"] > .detailbar .iconbar .adnBlock {
+    display: none; /* My filters always block */
+    }
 #lists .listEntry.checked.cached:not(.obsolete) > .detailbar .iconbar .cache {
     display: inline-flex;
     }

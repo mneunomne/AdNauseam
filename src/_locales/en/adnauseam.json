@@ -507,6 +507,14 @@
     "message": "Update",
     "description": "English: update"
   },
+  "3pAdnBlockEnabled": {
+    "message": "Requests blocked by this list stay blocked. Click to let AdNauseam allow them and collect the ads instead.",
+    "description": "Tooltip on the red AdNauseam icon next to a filter list"
+  },
+  "3pAdnBlockDisabled": {
+    "message": "Requests blocked by this list are allowed by AdNauseam so the ads can be collected. Click to block them instead.",
+    "description": "Tooltip on the purple AdNauseam icon next to a filter list"
+  },
   "adnUpdateButton": {
     "message": "Update",
     "description": "English: update"

@@ -29,10 +29,24 @@ import uDom from './uDom.js';
 /**************************** exports *********************************/
 
 // targets on these domains are never internal (may need to be regex)
-export const internalLinkDomainsDefault = ['google.com', 'asiaxpat.com'
+export const internalLinkDomainsDefault = ['google.com', 'asiaxpat.com',
 'columbiagreenemedia.com', '163.com', 'sohu.com', 'zol.com.cn', 'baidu.com',
 'yahoo.com', 'facebook.com', 'flashback.org',
 "amazon.ae","amazon.ca","amazon.cn","amazon.co.jp","amazon.co.uk","amazon.com","amazon.com.au","amazon.com.be","amazon.com.br","amazon.com.mx","amazon.com.tr","amazon.de","amazon.eg","amazon.es","amazon.fr","amazon.in","amazon.it","amazon.nl","amazon.pl","amazon.sa","amazon.se","amazon.sg",
+];
+
+// Lists whose blocks are kept (red icon on the filter-lists page). Blocks from any
+// other list become adn-allows so the ads can be collected (purple icon).
+// Asset keys from assets.json, see activeBlockList() in core.js
+export const enabledBlockListsDefault = [
+  'adnauseam-filters', 'eff-dnt-whitelist',
+  'ublock-badware', 'ublock-unbreak',
+  'urlhaus-1', 'curben-phishing', // malware
+  'fanboy-social', 'adguard-social', 'fanboy-thirdparty_social', // social
+  'adguard-cookies', 'ublock-cookies-adguard', 'fanboy-cookiemonster', 'ublock-cookies-easylist', // cookie notices
+  'adguard-popup-overlays', 'adguard-mobile-app-banners', 'adguard-other-annoyances', 'adguard-widgets', // annoyances
+  'easylist-annoyances', 'easylist-chat', 'fanboy-ai-suggestions', 'easylist-newsletters', 'easylist-notifications',
+  'ublock-annoyances'
 ];
 
 export const makeCloneable = function (notes) {

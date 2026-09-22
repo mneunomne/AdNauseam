@@ -179,6 +179,8 @@ const renderFilterLists = ( ) => {
             const button = document.getElementById("buttonUpdateAdNauseam");
             listEntry.querySelector(".detailbar").appendChild(button);
         }
+
+        updateBlockListIcon(listEntry); // ADN
     };
 
     const createListEntry = (listDetails, depth) => {
@@ -610,6 +612,32 @@ const onPurgeClicked = ev => {
 };
 
 dom.on('#lists', 'click', 'span.cache', onPurgeClicked);
+
+/******************************************************************************/
+
+// ADN: the icon next to each list, red = its blocks are kept, purple = they
+// become adn-allows so the ads can be collected
+const updateBlockListIcon = listEntry => {
+    const on = listsetDetails.enabledBlockLists.includes(listEntry.dataset.key);
+    dom.cl.toggle(listEntry, 'blockEnabled', on);
+    dom.attr(qs$(listEntry, ':scope > .detailbar .adnBlock'), 'title',
+        i18n$(on ? '3pAdnBlockEnabled' : '3pAdnBlockDisabled')
+    );
+};
+
+// a click toggles it, saved at once (no need for "Apply changes")
+const onBlockListToggled = async ev => {
+    const listEntry = ev.target.closest('.listEntry');
+    if ( listEntry === null ) { return; }
+    const response = await vAPI.messaging.send('adnauseam', {
+        what: 'toggleBlockList',
+        listKey: listEntry.dataset.key,
+    });
+    listsetDetails.enabledBlockLists = response.enabledBlockLists;
+    updateBlockListIcon(listEntry);
+};
+
+dom.on('#lists', 'click', '.listEntry .adnBlock', onBlockListToggled);
 
 /******************************************************************************/
 

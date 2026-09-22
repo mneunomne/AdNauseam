@@ -1228,6 +1228,7 @@ const getLists = async function(callback) {
         cache: null,
         cosmeticFilterCount: cosmeticFilteringEngine.getFilterCount(),
         current: µb.availableFilterLists,
+        enabledBlockLists: µb.userSettings.enabledBlockLists, // adn
         ignoreGenericCosmeticFilters: µb.userSettings.ignoreGenericCosmeticFilters,
         isUpdating: io.isUpdating(),
         netFilterCount: staticNetFilteringEngine.getFilterCount(),
