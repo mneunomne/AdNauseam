@@ -20,6 +20,7 @@
 
 */
 
+import './adn-dismiss-fullscreen-ad.js'; // adn
 import './abort-current-script.js';
 import './attribute.js';
 import './create-html.js';

@@ -926,3 +926,6 @@ www.nexusmods.com##.py-2.bg-surface-low.border-stroke-subdued.border-y.gap-x-4.j
 # fix ads on sciencedaily.com
 sciencedaily.com##.adhesion_wrapper
 sciencedaily.com###universalPlayer_wrapper
+
+# play.tetris.com: close the hidden AdSense H5 preroll interstitial (adBreak API) so the game can start
+play.tetris.com##+js(adn-dismiss-fullscreen-ad)
