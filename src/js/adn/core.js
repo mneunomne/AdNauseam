@@ -135,7 +135,14 @@ const adnauseam = (function () {
     'Fanboy’s Social Blocking List', 'Malware domains (long-lived)',
     'Adblock Warning Removal List', 'Malware filter list by Disconnect',
     'Basic tracking list by Disconnect', 'EFF DNT Policy Whitelist', 
-		'AdGuard – Cookie Notices', 'uBlock filters – Cookie Notices'
+		'AdGuard – Cookie Notices', 'uBlock filters – Cookie Notices',
+		'EasyList – AI Widgets', 'EasyList – Chat Widgets',
+		'EasyList – Newsletter Notices','EasyList – Notifications',
+		'EasyList – Other Annoyances','AdGuard – Mobile App Banners',
+		'AdGuard – Other Annoyances','AdGuard – Popup Overlays',
+		'AdGuard – Widgets', 'uBlock filters – Annoyances',
+		'EasyList/uBO – Cookie Notices', 'AdGuard/uBO – Cookie Notices',
+		'EasyList – Cookie Notices'
   ];
 
   const removableBlockLists = ['hphosts', 'mvps-0', 'plowe-0'];
