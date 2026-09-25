@@ -305,6 +305,34 @@ QUnit.test('Cached text filters still collect ads on supported domains', async f
     assert.strictEqual(win.testAds.length, 1, 'Returning to a supported referrer restores its filters');
 });
 
+QUnit.test('Google ads without a display url fall back to the target domain', async function(assert) {
+    const { win, doc } = await fixture();
+    Object.defineProperty(doc, 'referrer', { configurable: true, value: 'https://www.google.com/search?q=sneaker' });
+    const clickUrl = 'https://www.googleadservices.com/pagead/aclk?sa=L&amp;adurl=https://www.ads.example/sneaker';
+    const googleAd = (site, href = clickUrl) => {
+        const node = doc.createElement('div');
+        node.setAttribute('data-text-ad', '1');
+        node.innerHTML = '<div><div role="heading"><span>Example Sneaker</span></div>' +
+            '<a data-rw="' + href + '" href="' + href + '">' +
+            (site ? '<span data-dtld="' + site + '">' + site + '</span>' : '') + '</a>' +
+            '<div>Sneakers for the whole day, in store now</div></div>';
+        doc.body.append(node);
+        return node;
+    };
+    win.vAPI.textAdParser.process(googleAd('shop.example'));
+    assert.strictEqual(win.testAds.length, 1, 'Ad with a display url is collected');
+    assert.strictEqual(win.testAds[0].contentData.site, 'shop.example', 'Display url is used as the site');
+    win.testAds.length = 0;
+    win.vAPI.textAdParser.process(googleAd(null));
+    assert.strictEqual(win.testAds.length, 1, 'Ad without a display url is still collected');
+    assert.strictEqual(win.testAds[0].contentData.site, 'www.ads.example', 'Target domain is used as the site');
+    win.testAds.length = 0;
+    win.vAPI.textAdParser.process(googleAd(null, '/goto?url=CAESZAHrOzAVwE05'));
+    assert.strictEqual(win.testAds.length, 1, 'Ad with a page-relative target is still collected');
+    assert.strictEqual(win.testAds[0].contentData.site, new URL(doc.baseURI).hostname,
+        'Page host is used as the site for a relative target');
+});
+
 QUnit.test('Whitelisted frames do not start ad scanning', async function(assert) {
     const { win, doc } = await fixture({ whitelisted: true });
     let scans = 0;
