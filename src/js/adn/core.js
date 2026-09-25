@@ -83,7 +83,8 @@ import {
   computeHash,
   parseHostname,
   parseDomain,
-  isValidDomain
+  isValidDomain,
+  enabledBlockListsDefault
 } from './adn-utils.js';
 
 const adnauseam = (function () {
@@ -1224,10 +1225,13 @@ const adnauseam = (function () {
     storeAdData();
   };
 
-  // true if blocks from this list (an asset key) are kept, see the enabledBlockLists
-  // setting; "My filters" always blocks, whatever its localized title, see #1914
+  // true if blocks from this list (an asset key) are kept: the default set, or the
+  // user's own enabledBlockLists once the custom option of the filter-lists page is
+  // on; "My filters" always blocks, whatever its localized title, see #1914
   const activeBlockList = function (listKey) {
-    return listKey === µb.userFiltersPath || µb.userSettings.enabledBlockLists.includes(listKey);
+    const lists = µb.userSettings.customBlockLists ?
+      µb.userSettings.enabledBlockLists : enabledBlockListsDefault;
+    return listKey === µb.userFiltersPath || lists.includes(listKey);
   };
 
   // check target domain against page-domain #337

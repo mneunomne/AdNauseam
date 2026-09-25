@@ -236,19 +236,22 @@ li.listEntry span.status {
 #lists .iconbar .cache {
     cursor: pointer;
     }
-/* ADN: the icon next to each list, red = its blocks are kept, purple = they become adn-allows */
-#lists .listEntry.checked > .detailbar .iconbar .adnBlock {
-    color: var(--adn-purple);
-        fill: var(--adn-purple);
+/* ADN: the icon next to each list, red = its blocks are kept, purple = they become
+   adn-allows; shown only with the custom option on (My filters always blocks, no icon) */
+body.customBlockLists #lists .listEntry.checked:not([data-key="user-filters"]) > .detailbar .iconbar .adnBlock {
     cursor: pointer;
     display: inline-flex;
     }
-#lists .listEntry.checked.blockEnabled > .detailbar .iconbar .adnBlock {
+/* its colors, shared with the legend of the option */
+#options .adnBlock,
+#lists .iconbar .adnBlock {
+    color: var(--adn-purple);
+        fill: var(--adn-purple);
+    }
+#options .adnBlock.blockEnabled,
+#lists .listEntry.blockEnabled > .detailbar .iconbar .adnBlock {
     color: var(--adn-red);
         fill: var(--adn-red);
-    }
-#lists .listEntry[data-key="user-filters"] > .detailbar .iconbar .adnBlock {
-    display: none; /* My filters always block */
     }
 #lists .listEntry.checked.cached:not(.obsolete) > .detailbar .iconbar .cache {
     display: inline-flex;

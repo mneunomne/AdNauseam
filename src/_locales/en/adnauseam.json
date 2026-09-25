@@ -515,6 +515,18 @@
     "message": "Requests blocked by this list are allowed by AdNauseam so the ads can be collected. Click to block them instead.",
     "description": "Tooltip on the purple AdNauseam icon next to a filter list"
   },
+  "3pAdnCustomBlockLists": {
+    "message": "Custom select the filter lists that trigger adn-allow",
+    "description": "Advanced option on the filter-lists page, followed by the legend of the purple and red icons"
+  },
+  "3pAdnCustomBlockListsAllow": {
+    "message": "adn-allow",
+    "description": "Legend of the purple icon: requests blocked by the list are allowed so the ads can be collected"
+  },
+  "3pAdnCustomBlockListsBlock": {
+    "message": "strict, default uBlock Origin behavior",
+    "description": "Legend of the red icon: requests blocked by the list stay blocked"
+  },
   "adnUpdateButton": {
     "message": "Update",
     "description": "English: update"

@@ -336,6 +336,9 @@ const renderFilterLists = ( ) => {
             listsetDetails.ignoreGenericCosmeticFilters === true;
         qs$('#suspendUntilListsAreLoaded').checked =
             listsetDetails.suspendUntilListsAreLoaded === true;
+        qs$('#customBlockLists').checked = // adn
+            listsetDetails.customBlockLists === true;
+        dom.cl.toggle(dom.body, 'customBlockLists', listsetDetails.customBlockLists === true); // adn
 
         // https://github.com/gorhill/uBlock/issues/2394
         dom.cl.toggle(dom.body, 'updating', listsetDetails.isUpdating);
@@ -773,6 +776,12 @@ const userSettingCheckboxChanged = ( ) => {
 
 dom.on('#autoUpdate', 'change', userSettingCheckboxChanged);
 dom.on('#suspendUntilListsAreLoaded', 'change', userSettingCheckboxChanged);
+
+// ADN: the block toggle of each list is shown only with the custom option on
+dom.on('#customBlockLists', 'change', userSettingCheckboxChanged);
+dom.on('#customBlockLists', 'change', ev => {
+    dom.cl.toggle(dom.body, 'customBlockLists', ev.target.checked);
+});
 
 /******************************************************************************/
 

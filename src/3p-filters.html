@@ -24,6 +24,8 @@
     <button id="buttonUpdate" class="preferred disabled iconified" type="button" data-i18n-title="3pUpdateNow"><span class="fa-icon">refresh</span><span data-i18n="3pUpdateNow">_</span><span class="hover"></span></button>
 </p>
 
+<!-- adn: the AdNauseam icon of the option below and of each list row -->
+<svg style="display: none;"><symbol id="adnBlockIcon" viewBox="0 0 16 12"><path d="M1.46,11.96 C0.58,10.67 0.07,9.11 0.07,7.43 C0.07,4.08 2.11,1.22 5,0.02 C5,2.01 5,4.18 5,5.76 C5,9.52 6.34,10.79 7.73,10.79 C7.93,10.79 8.3,10.79 8.3,10.79 C9.68,10.78 11.01,9.5 11.01,5.76 C11.01,4.17 11.01,1.99 11.01,0 C13.93,1.19 15.98,4.07 15.98,7.43 C15.98,9.11 15.47,10.67 14.59,11.96 C13.06,11.82 10.74,11.65 8.04,11.65 C5.33,11.65 2.99,11.82 1.46,11.96 Z M6.04,7.26 L6.04,7.74 C6.04,8.96 6.93,9.94 8.03,9.94 C9.12,9.94 10.01,8.96 10.01,7.74 L10.01,7.26 C10.01,6.05 8.71,6.15 8.03,6.15 C7.23,6.15 6.04,6.05 6.04,7.26 Z"/></symbol></svg>
 <div id="options">
     <div class="li">
         <label><span class="input checkbox"><input type="checkbox" id="autoUpdate"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span><span data-i18n="3pAutoUpdatePrompt1"></span></label>
@@ -36,6 +38,9 @@
     </div>
     <div class="li">
         <label><span class="input checkbox"><input type="checkbox" id="ignoreGenericCosmeticFilters"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span><span><span data-i18n="3pIgnoreGenericCosmeticFilters"></span>&nbsp;<span class="fa-icon info" data-i18n-title="3pIgnoreGenericCosmeticFiltersInfo">question-circle</span></span></label>
+    </div>
+    <div class="li"><!-- adn: advanced option, shows the block toggle of each list -->
+        <label><span class="input checkbox"><input type="checkbox" id="customBlockLists"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span><span><span data-i18n="3pAdnCustomBlockLists"></span> (<span class="fa-icon adnBlock"><svg viewBox="0 0 16 12"><use href="#adnBlockIcon"/></svg></span> &rarr; <span data-i18n="3pAdnCustomBlockListsAllow"></span>, <span class="fa-icon adnBlock blockEnabled"><svg viewBox="0 0 16 12"><use href="#adnBlockIcon"/></svg></span> &rarr; <span data-i18n="3pAdnCustomBlockListsBlock"></span>)</span></label>
     </div>
 </div>
 
@@ -70,7 +75,7 @@
             <label><span class="input checkbox"><input type="checkbox"><svg viewBox="0 0 24 24"><path d="M1.73,12.91 8.1,19.28 22.79,4.59"/></svg></span><span><span class="listname forinput"></span>
             </span></label>
             <span class="iconbar"><!--
-             --><span class="fa-icon adnBlock"><svg viewBox="0 0 16 12"><path d="M1.46,11.96 C0.58,10.67 0.07,9.11 0.07,7.43 C0.07,4.08 2.11,1.22 5,0.02 C5,2.01 5,4.18 5,5.76 C5,9.52 6.34,10.79 7.73,10.79 C7.93,10.79 8.3,10.79 8.3,10.79 C9.68,10.78 11.01,9.5 11.01,5.76 C11.01,4.17 11.01,1.99 11.01,0 C13.93,1.19 15.98,4.07 15.98,7.43 C15.98,9.11 15.47,10.67 14.59,11.96 C13.06,11.82 10.74,11.65 8.04,11.65 C5.33,11.65 2.99,11.82 1.46,11.96 Z M6.04,7.26 L6.04,7.74 C6.04,8.96 6.93,9.94 8.03,9.94 C9.12,9.94 10.01,8.96 10.01,7.74 L10.01,7.26 C10.01,6.05 8.71,6.15 8.03,6.15 C7.23,6.15 6.04,6.05 6.04,7.26 Z"/></svg></span><!-- adn: block toggle, red or purple
+             --><span class="fa-icon adnBlock"><svg viewBox="0 0 16 12"><use href="#adnBlockIcon"/></svg></span><!-- adn: block toggle, red or purple
              --><a class="fa-icon content" href="#" type="text/plain" target="_blank" data-i18n-title="3pViewContent">eye-open</a><!--
              --><a class="fa-icon support" href="#" target="_blank">home</a><!--
              --><span class="fa-icon remove">trash-o</span><!--

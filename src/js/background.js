@@ -121,6 +121,7 @@ const userSettingsDefault = {
     hideDeadAds: false,
 
     clickingExceptions: '', // ADN: newline-separated domain list for per-site click control
+    customBlockLists: false, // ADN: advanced option on the filter-lists page, use enabledBlockLists instead of the default set
     enabledBlockLists: enabledBlockListsDefault.slice(), // ADN: asset keys of the lists whose blocks are kept, toggled on the filter-lists page
     clickOnlyWhenIdleFor: 0,
     noIncomingCookies: true,
