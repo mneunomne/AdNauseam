@@ -313,7 +313,7 @@ function removeAdFromMap(ad) {
 }
 
 // Check if target is internal to page domain #337
-// Compare registrable domains, as MV2 does, so privacidade.globo.com is internal on g1.globo.com
+// Compare registrable domains, as MV2 does
 function internalTarget(ad) {
   if (ad.contentType === 'text') return false;
   const domainOfTarget = parseDomain(ad.targetUrl, true);
