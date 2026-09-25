@@ -330,8 +330,7 @@ import { broadcast, onBroadcast } from '../broadcast.js';
 
     $img = uDom(document.createElement('img'))
       .attr('src', img_src)
-      .addClass(cl)
-      .on('click', "this.onerror=null; this.width=50; this.height=45; this.src='img/placeholder.svg'");
+      .addClass(cl);
 
     $img.on("error", function () {
       $img.css({
