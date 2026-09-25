@@ -476,6 +476,11 @@ async function registerAd(ad, tab) {
     return warn('[ADN INTERN] Ignoring Ad on ' + ad.pageDomain + ', target: ' + ad.targetUrl);
   }
 
+  // Load settings before the duplicate checks: registerAd runs concurrently
+  // for every message, so the checks below and indexAd() must not be
+  // separated by an await, or same-tick copies of one ad all get stored.
+  const settings = await getSettings();
+
   // Skip duplicates across all pages, by content hash or image src. // adn
   const dup = findDuplicateAd(ad);
   if (dup) {
@@ -503,8 +508,6 @@ async function registerAd(ad, tab) {
   ad.id = ++idgen;
   ad.foundTs = ad.foundTs || Date.now();
 
-  // Load settings for click probability
-  const settings = await getSettings();
   ad.noVisit = Math.random() > settings.clickProbability;
 
   // Store in admap (overwrites older ad with same key)
