@@ -189,6 +189,12 @@
       var site = div.querySelector('[data-dtld]')?.getAttribute('data-dtld')
       var href = div.querySelector('[data-rw]')?.getAttribute('href') 
 
+      // local (store) ads carry no display url, use the target domain instead
+      // (the href may be page-relative, e.g. /goto?url=..., so resolve it first)
+      if (!site?.length && href?.length) {
+        try { site = parseDomain(new URL(href, document.baseURI).href, true) } catch { /* malformed href */ }
+      }
+
       if (text?.length && site?.length && title?.length && href?.length) {
         ad = vAPI.adParser.createAd('google', href, {
           title: title,
@@ -197,7 +203,7 @@
         });
 
       } else {
-        console.warn('[TEXTADS] googleTextHandler.fail: ', title, text, site);
+        console.warn('[TEXTADS] googleTextHandler.fail: ', title, text, site, href);
       }
 
       return [ad];
