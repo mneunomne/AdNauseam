@@ -281,8 +281,12 @@ async function commitState(state) {
 
   setActiveState(state);
 
+  // No web page in the tab: never fall back to 'all-urls', that would turn
+  // filtering off everywhere instead of on one site.
+  if (currentHostname === '') return;
+
   try {
-    const hostname = currentHostname || 'all-urls';
+    const hostname = currentHostname;
     const actualLevel = await sendMessage({
       what: 'setFilteringMode',
       hostname,
@@ -356,8 +360,14 @@ async function init() {
     currentTab = tab;
     try {
       const url = new URL(tab.url);
-      currentHostname = url.hostname;
+      // Filtering modes only apply to web pages
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        currentHostname = url.hostname;
+      }
     } catch {}
+  }
+  if (currentHostname === '') {
+    $$('input[name="state_btn"]').forEach(radio => { radio.disabled = true; });
   }
 
   // Get current filtering mode
